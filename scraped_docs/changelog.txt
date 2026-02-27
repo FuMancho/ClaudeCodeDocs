@@ -1,0 +1,34 @@
+URL: https://code.claude.com/docs/en/changelog
+Scraped: 2026-02-27T16:11:26.671641+00:00
+
+claude-code/CHANGELOG.md at main · anthropics/claude-code · GitHub
+Skip to content
+Search syntax tips
+Provide feedback
+Saved searches
+Use saved searches to filter your results more quickly
+Sign in
+Sign up
+Appearance settings
+You signed in with another tab or window.
+Reload
+to refresh your session.
+You signed out in another tab or window.
+Reload
+to refresh your session.
+You switched accounts on another tab or window.
+Reload
+to refresh your session.
+Dismiss alert
+{{ message }}
+anthropics
+/
+claude-code
+Public
+Notifications
+You must be signed in to change notification settings
+Fork
+5.6k
+Star
+71k
+You can’t perform that action at this time.

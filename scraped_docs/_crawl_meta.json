@@ -1,0 +1,15 @@
+{
+  "start_url": "https://code.claude.com/docs/en/cli-reference",
+  "base_path": "/docs/en/",
+  "pages_crawled": 61,
+  "errors": 1,
+  "elapsed_seconds": 44.11,
+  "timestamp": "2026-02-27T16:11:27.762143+00:00",
+  "error_details": [
+    {
+      "url": "https://code.claude.com/docs/en/claude-md",
+      "error": "HTTP 404",
+      "attempt": 1
+    }
+  ]
+}

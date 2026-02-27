@@ -1,38 +1,84 @@
 # Official Claude Code Documentation Links
 
-This document contains a categorized index of the official documentation links for the Anthropic Claude Code CLI, sourced from `docs.anthropic.com`.
+> All links sourced from [`code.claude.com`](https://code.claude.com/docs/en/overview).
+> Last crawled: 2026-02-27
 
-## Setup & Quickstarts
-*   **[Quickstart](https://docs.anthropic.com/en/docs/quickstart)**: A guide to walkthrough your first real task, from exploring a codebase to committing a fix.
-*   **[Setup (Advanced)](https://docs.anthropic.com/en/docs/setup)**: Advanced installation and configuration options.
-*   **[Terminal Setup](https://docs.anthropic.com/en/docs/quickstart)**: Instructions for installing natively via `curl` or PowerShell.
-*   **[VS Code Setup](https://docs.anthropic.com/en/docs/vs-code)**: Instructions for integrating Claude Code with the VS Code IDE.
-*   **[JetBrains Setup](https://docs.anthropic.com/en/docs/jetbrains)**: Instructions for integrating with JetBrains IDEs.
-*   **[Desktop Setup](https://docs.anthropic.com/en/docs/desktop)**: Using the Claude Code Desktop app for visual diff reviews.
-*   **[Web Setup](https://docs.anthropic.com/en/docs/claude-code-on-the-web)**: Using Claude Code directly in the browser.
+## Getting Started
+- [Overview](https://code.claude.com/docs/en/overview)
+- [Quickstart](https://code.claude.com/docs/en/quickstart)
+- [Setup & Installation](https://code.claude.com/docs/en/setup)
+- [Authentication](https://code.claude.com/docs/en/authentication)
+- [How Claude Code Works](https://code.claude.com/docs/en/how-claude-code-works)
 
-## Agentic Features & Customization
-*   **[CLAUDE.md](https://docs.anthropic.com/en/docs/claude-md)**: Guide on using the project-level context file.
-*   **[Custom Slash Commands (Skills)](https://docs.anthropic.com/en/docs/skills)**: Packaging repeatable workflows using custom slash commands (e.g., `/review-pr`).
-*   **[Hooks](https://docs.anthropic.com/en/docs/hooks)**: Running shell commands before or after Claude Code actions.
-*   **[Sub-agents](https://docs.anthropic.com/en/docs/sub-agents)**: Information on how Claude runs multiple agent teams.
-*   **[Agent SDK Overview](https://platform.claude.com/docs/en/agent-sdk/overview)**: Details on building custom agents.
-*   **[Model Context Protocol (MCP)](https://docs.anthropic.com/en/docs/mcp)**: Connecting tools and data sources using MCP.
-*   **[Remote Control](https://docs.anthropic.com/en/docs/remote-control)**: Kicking off long-running tasks remotely using `/teleport`.
+## CLI & Interactive Usage
+- [CLI Reference](https://code.claude.com/docs/en/cli-reference)
+- [Interactive Mode](https://code.claude.com/docs/en/interactive-mode)
+- [Keybindings](https://code.claude.com/docs/en/keybindings)
+- [Statusline](https://code.claude.com/docs/en/statusline)
+- [Output Styles](https://code.claude.com/docs/en/output-styles)
+- [Fast Mode](https://code.claude.com/docs/en/fast-mode)
+- [Headless Mode](https://code.claude.com/docs/en/headless)
+- [Common Workflows](https://code.claude.com/docs/en/common-workflows)
+- [Best Practices](https://code.claude.com/docs/en/best-practices)
 
-## Integrations
-*   **[GitHub Actions](https://docs.anthropic.com/en/docs/github-actions)**: Automating tasks in GitHub CI/CD.
-*   **[GitLab CI/CD](https://docs.anthropic.com/en/docs/gitlab-ci-cd)**: Automating tasks in GitLab pipelines.
-*   **[Slack](https://docs.anthropic.com/en/docs/slack)**: Routing tasks from team chat via `@Claude`.
-*   **[Claude iOS App](https://apps.apple.com/app/claude-by-anthropic/id6473753684)**: Responding and managing tasks from mobile.
-*   **[Chrome Extension](https://docs.anthropic.com/en/docs/chrome)**: Claude integrations in the Chrome browser.
+## Configuration & Settings
+- [Settings](https://code.claude.com/docs/en/settings)
+- [Server-Managed Settings](https://code.claude.com/docs/en/server-managed-settings)
+- [Model Configuration](https://code.claude.com/docs/en/model-config)
+- [Network Configuration](https://code.claude.com/docs/en/network-config)
+- [Terminal Configuration](https://code.claude.com/docs/en/terminal-config)
+- [Terminal Guide](https://code.claude.com/docs/en/terminal-guide)
+- [Permissions](https://code.claude.com/docs/en/permissions)
+- [Memory](https://code.claude.com/docs/en/memory)
+- [Sandboxing](https://code.claude.com/docs/en/sandboxing)
 
-## Reference & Troubleshooting
-*   **[CLI Reference](https://docs.anthropic.com/en/docs/cli-reference)**: Comprehensive guide on all `claude` terminal commands, piping, and flags.
-*   **[Settings](https://docs.anthropic.com/en/docs/settings)**: Customizing the Claude Code CLI.
-*   **[Best Practices](https://docs.anthropic.com/en/docs/best-practices)**: Tips to get the most out of Claude Code.
-*   **[Common Workflows](https://docs.anthropic.com/en/docs/common-workflows)**: Standard patterns for building features and fixing bugs.
-*   **[Troubleshooting](https://docs.anthropic.com/en/docs/troubleshooting)**: Solutions for common installation and usage issues.
+## Agentic Features
+- [Features Overview](https://code.claude.com/docs/en/features-overview)
+- [Sub-Agents](https://code.claude.com/docs/en/sub-agents)
+- [Agent Teams](https://code.claude.com/docs/en/agent-teams)
+- [Checkpointing](https://code.claude.com/docs/en/checkpointing)
+- [Skills](https://code.claude.com/docs/en/skills)
+- [Hooks](https://code.claude.com/docs/en/hooks)
+- [Hooks Guide](https://code.claude.com/docs/en/hooks-guide)
+- [MCP (Model Context Protocol)](https://code.claude.com/docs/en/mcp)
+- [Remote Control](https://code.claude.com/docs/en/remote-control)
 
-> [!NOTE]
-> This index is actively maintained to ensure all links directly resolve to the official `docs.anthropic.com` guidelines. Please use this as a reference when drafting new guides in this repository.
+## Plugins
+- [Plugins](https://code.claude.com/docs/en/plugins)
+- [Plugins Reference](https://code.claude.com/docs/en/plugins-reference)
+- [Discover Plugins](https://code.claude.com/docs/en/discover-plugins)
+- [Plugin Marketplaces](https://code.claude.com/docs/en/plugin-marketplaces)
+
+## IDE & Environment Integrations
+- [IDE Integrations Overview](https://code.claude.com/docs/en/ide-integrations)
+- [VS Code](https://code.claude.com/docs/en/vs-code)
+- [JetBrains](https://code.claude.com/docs/en/jetbrains)
+- [Chrome](https://code.claude.com/docs/en/chrome)
+- [Desktop App](https://code.claude.com/docs/en/desktop)
+- [Desktop Quickstart](https://code.claude.com/docs/en/desktop-quickstart)
+- [Claude Code on the Web](https://code.claude.com/docs/en/claude-code-on-the-web)
+- [DevContainer](https://code.claude.com/docs/en/devcontainer)
+
+## Cloud Providers
+- [Amazon Bedrock](https://code.claude.com/docs/en/amazon-bedrock)
+- [Google Vertex AI](https://code.claude.com/docs/en/google-vertex-ai)
+- [Microsoft Foundry](https://code.claude.com/docs/en/microsoft-foundry)
+- [LLM Gateway](https://code.claude.com/docs/en/llm-gateway)
+
+## CI/CD & Third-Party
+- [GitHub Actions](https://code.claude.com/docs/en/github-actions)
+- [GitLab CI/CD](https://code.claude.com/docs/en/gitlab-ci-cd)
+- [Slack](https://code.claude.com/docs/en/slack)
+- [Third-Party Integrations](https://code.claude.com/docs/en/third-party-integrations)
+
+## Security, Compliance & Usage
+- [Security](https://code.claude.com/docs/en/security)
+- [Data Usage](https://code.claude.com/docs/en/data-usage)
+- [Legal and Compliance](https://code.claude.com/docs/en/legal-and-compliance)
+- [Costs](https://code.claude.com/docs/en/costs)
+- [Analytics](https://code.claude.com/docs/en/analytics)
+- [Monitoring Usage](https://code.claude.com/docs/en/monitoring-usage)
+
+## Troubleshooting & Changelog
+- [Troubleshooting](https://code.claude.com/docs/en/troubleshooting)
+- [Changelog](https://code.claude.com/docs/en/changelog)
