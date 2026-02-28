@@ -1,0 +1,76 @@
+# AGENTS.md — ClaudeCodeDocs
+
+## Project Context
+
+This is a **documentation-only** repository for Anthropic Claude Code CLI. It contains curated, community-maintained documentation files in `docs/`.
+
+## Build & Validate
+
+```bash
+# No build step — pure Markdown documentation
+# Validate by checking file structure
+ls -la docs/*.md
+```
+
+## Testing
+
+```bash
+# Check for broken internal links
+grep -rn '\]\(\./' docs/ | while IFS= read -r line; do
+  file=$(echo "$line" | cut -d: -f1)
+  dir=$(dirname "$file")
+  link=$(echo "$line" | grep -oP '\]\(\./\K[^)#]+')
+  [ ! -f "$dir/$link" ] && echo "BROKEN: $file → $link"
+done
+
+# Check for stub files (< 15 lines)
+for f in docs/*.md; do
+  lines=$(wc -l < "$f")
+  [ "$lines" -lt 15 ] && echo "STUB: $f ($lines lines)"
+done
+
+# Check for placeholder markers
+grep -rni 'todo\|placeholder\|coming soon\|stub\|tbd' docs/ && echo "FAIL: placeholders found" || echo "PASS: no placeholders"
+```
+
+## Architecture
+
+```
+ClaudeCodeDocs/
+├── README.md           # Repository overview
+├── JULES.md            # Autonomous agent task instructions
+├── AGENTS.md           # This file — machine-readable context
+├── VERSION.md          # Version tracking
+└── docs/               # All documentation files
+    ├── getting-started.md
+    ├── features.md
+    ├── commands.md
+    ├── advanced-settings.md
+    ├── experimental-settings.md
+    ├── changelog.md
+    └── official-links.md
+```
+
+## Constraints
+
+- **Docs only:** Do not create application code, scripts, or tooling files
+- **Markdown only:** All files in `docs/` must be `.md`
+- **Official sources only:** Content must be sourced from docs.anthropic.com, code.claude.com, platform.claude.com
+- **No hallucination:** Never write documentation for features that don't exist upstream
+- **Preserve existing content:** When updating, only change content that has actually changed upstream
+- **Formatting:** GitHub-Flavored Markdown, strict heading hierarchy, code blocks with language tags
+
+## Security
+
+- Do not include API keys, tokens, or credentials in documentation
+- External links must point to verified official domains only
+- Remove any user-submitted content that hasn't been verified
+
+## Validation
+
+The agent must confirm:
+1. All `docs/*.md` files have ≥ 15 lines (no stubs)
+2. All internal links resolve to existing files
+3. No placeholder markers remain
+4. Heading hierarchy is strict (# → ## → ###)
+5. All code blocks have language tags
