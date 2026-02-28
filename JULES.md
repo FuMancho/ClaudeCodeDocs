@@ -44,7 +44,7 @@ This saves raw scraped text into `scraped_docs/`.
 ### 4. Validate
 
 - Ensure all internal relative links resolve correctly.
-- Ensure all external links point to `docs.anthropic.com` or `code.claude.com`.
+- Ensure all external links point to `docs.anthropic.com` or `code.claude.com` (see Link Handling Policy below for third-party rules).
 - Verify heading hierarchy (`#` → `##` → `###`, no skipped levels).
 - Code blocks must specify a language (e.g., ` ```bash `).
 
