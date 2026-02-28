@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This repository contains community-maintained documentation for the **Anthropic Claude Code CLI** (`@anthropic-ai/claude-code`). Jules is responsible for keeping it up-to-date with the official source.
+This repository contains community-maintained documentation for the **Anthropic Claude Code CLI** (@anthropic-ai/claude-code). Jules is responsible for keeping it up-to-date with the official source.
 
 ## Documentation Source
 
@@ -10,7 +10,7 @@ This repository contains community-maintained documentation for the **Anthropic 
 |---|---|
 | Start URL | `https://code.claude.com/docs/en/cli-reference` |
 | Base Path | `/docs/en/` |
-| Official Domain | `docs.anthropic.com`, `code.claude.com` |
+| Official Domain | docs.anthropic.com, code.claude.com, platform.claude.com |
 
 ## Weekly Update Procedure
 
@@ -44,7 +44,7 @@ This saves raw scraped text into `scraped_docs/`.
 ### 4. Validate
 
 - Ensure all internal relative links resolve correctly.
-- Ensure all external links point to `docs.anthropic.com` or `code.claude.com` (see Link Handling Policy below for third-party rules).
+- Ensure all external links point to docs.anthropic.com or code.claude.com or platform.claude.com (see Link Handling Policy below for third-party rules).
 - Verify heading hierarchy (`#` → `##` → `###`, no skipped levels).
 - Code blocks must specify a language (e.g., ` ```bash `).
 
@@ -74,7 +74,7 @@ Always consult `docs/official-links.md` as the single source of truth for verifi
 
 ### Official Links
 
-- **Allowed domains:** `docs.anthropic.com`, `code.claude.com`, `platform.claude.com`
+- **Allowed domains:** docs.anthropic.com, code.claude.com, platform.claude.com
 - When a link can be replaced with an official equivalent from `docs/official-links.md`, do so.
 
 ### Third-Party Links — Decision Rules
@@ -82,8 +82,8 @@ Always consult `docs/official-links.md` as the single source of truth for verifi
 | Domain Type | Action | Example |
 |---|---|---|
 | GitHub repos (`github.com`) | ✅ **Keep** | `github.com/anthropics/claude-code` |
-| Package registries (`npmjs.com`, `pypi.org`) | ✅ **Keep** | `npmjs.com/package/@anthropic-ai/claude-code` |
-| Cloud provider docs (`aws.amazon.com`, `cloud.google.com`) | ✅ **Keep** | Cloud setup guides |
+| Package registries (`npmjs.com`, `pypi.org`) | ✅ **Keep** | Package pages |
+| Cloud provider docs (aws.amazon.com, cloud.google.com) | ✅ **Keep** | Integration guides |
 | Personal blogs, Medium, Dev.to | ❌ **Remove** | Replace with official equivalent or remove entirely |
 | Forums, Reddit, Stack Overflow | ❌ **Remove** | Not authoritative |
 | Unofficial mirrors or aggregators | ❌ **Remove** | Not trustworthy |
