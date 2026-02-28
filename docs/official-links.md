@@ -82,3 +82,11 @@
 ## Troubleshooting & Changelog
 - [Troubleshooting](https://code.claude.com/docs/en/troubleshooting)
 - [Changelog](https://code.claude.com/docs/en/changelog)
+
+## Reference Sources (for Jules)
+- [GitHub — anthropics/claude-code](https://github.com/anthropics/claude-code)
+- [GitHub Releases Atom Feed](https://github.com/anthropics/claude-code/releases.atom)
+- [CHANGELOG.md](https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md)
+- [Anthropic API Docs](https://docs.anthropic.com/en/docs/)
+- [Anthropic Research Blog](https://anthropic.com/research)
+
