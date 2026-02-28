@@ -107,4 +107,5 @@ After crawling, the file `scraped_docs/_link_audit.md` contains a pre-classified
 
 Do not modify:
 - `JULES.md` (this file)
+- `VERSION.md` (updated automatically by the pipeline)
 - `.gitignore`
