@@ -30,26 +30,46 @@ Complete reference for the Claude Code command-line interface. For an introducti
 | `--add-dir` | Add extra working directories | `claude --add-dir ../apps ../lib` |
 | `--agent` | Specify an agent for the session | `claude --agent my-custom-agent` |
 | `--agents` | Define sub-agents dynamically via JSON | See [Agents Flag Format](#agents-flag-format) |
+| `--allow-dangerously-skip-permissions` | Enable permission bypassing as an option (use with `--permission-mode`) | `claude --permission-mode plan --allow-dangerously-skip-permissions` |
 | `--allowedTools` | Tools that execute without prompting | `"Bash(git log *)" "Read"` |
 | `--append-system-prompt` | Append text to the default system prompt | `claude --append-system-prompt "Use TypeScript"` |
+| `--betas` | Beta headers to include in API requests (API key users only) | `claude --betas interleaved-thinking` |
 | `--chrome` | Enable Chrome browser integration | `claude --chrome` |
 | `--continue`, `-c` | Load the most recent conversation | `claude -c` |
 | `--dangerously-skip-permissions` | Skip all permission prompts | `claude --dangerously-skip-permissions` |
 | `--debug` | Enable debug mode with optional filtering | `claude --debug "api,mcp"` |
+| `--disable-slash-commands` | Disable all skills and slash commands for this session | `claude --disable-slash-commands` |
 | `--disallowedTools` | Remove tools from the model's context | `"Edit" "Bash(rm *)"` |
 | `--fallback-model` | Fallback model if default is overloaded (print mode) | `claude -p --fallback-model sonnet "query"` |
+| `--fork-session` | When resuming, create a new session ID instead of reusing the original | `claude --resume abc123 --fork-session` |
 | `--from-pr` | Resume sessions linked to a GitHub PR | `claude --from-pr 123` |
+| `--ide` | Automatically connect to IDE on startup if exactly one valid IDE is available | `claude --ide` |
+| `--include-partial-messages` | Include partial streaming events in output (requires `--print` and `--output-format=stream-json`) | `claude -p --output-format stream-json --include-partial-messages "query"` |
+| `--init` | Run initialization hooks and start interactive mode | `claude --init` |
+| `--init-only` | Run initialization hooks and exit (no interactive session) | `claude --init-only` |
+| `--input-format` | Specify input format for print mode (options: `text`, `stream-json`) | `claude -p --output-format json --input-format stream-json` |
 | `--json-schema` | Return validated JSON matching a schema (print mode) | `claude -p --json-schema '{...}' "query"` |
+| `--maintenance` | Run maintenance hooks and exit | `claude --maintenance` |
 | `--max-budget-usd` | Maximum API spend before stopping (print mode) | `claude -p --max-budget-usd 5.00 "query"` |
 | `--max-turns` | Limit agentic turns (print mode) | `claude -p --max-turns 3 "query"` |
 | `--mcp-config` | Load MCP servers from JSON files | `claude --mcp-config ./mcp.json` |
 | `--model` | Set the model (`sonnet`, `opus`, or full name) | `claude --model claude-sonnet-4-6` |
+| `--no-chrome` | Disable Chrome browser integration for this session | `claude --no-chrome` |
+| `--no-session-persistence` | Disable session persistence so sessions are not saved to disk and cannot be resumed (print mode only) | `claude -p --no-session-persistence "query"` |
 | `--output-format` | Output format: `text`, `json`, `stream-json` | `claude -p --output-format json "query"` |
 | `--permission-mode` | Start in a specific permission mode | `claude --permission-mode plan` |
+| `--permission-prompt-tool` | Specify an MCP tool to handle permission prompts in non-interactive mode | `claude -p --permission-prompt-tool mcp_auth_tool "query"` |
+| `--plugin-dir` | Load plugins from directories for this session only (repeatable) | `claude --plugin-dir ./my-plugins` |
 | `--print`, `-p` | Print mode (non-interactive) | `claude -p "query"` |
 | `--remote` | Create a new web session on claude.ai | `claude --remote "Fix the login bug"` |
 | `--resume`, `-r` | Resume a session by ID or pick interactively | `claude -r auth-refactor` |
+| `--session-id` | Use a specific session ID for the conversation (must be a valid UUID) | `claude --session-id "550e8400-e29b-41d4-a716-446655440000"` |
+| `--setting-sources` | Comma-separated list of setting sources to load (`user`, `project`, `local`) | `claude --setting-sources user,project` |
+| `--settings` | Path to a settings JSON file or a JSON string to load additional settings from | `claude --settings ./settings.json` |
+| `--strict-mcp-config` | Only use MCP servers from `--mcp-config`, ignoring all other MCP configurations | `claude --strict-mcp-config --mcp-config ./mcp.json` |
 | `--system-prompt` | Replace the entire system prompt | `claude --system-prompt "You are a Python expert"` |
+| `--teammate-mode` | Set how agent team teammates display: `auto` (default), `in-process`, or `tmux` | `claude --teammate-mode in-process` |
+| `--teleport` | Resume a web session in your local terminal | `claude --teleport` |
 | `--tools` | Restrict available tools | `claude --tools "Bash,Edit,Read"` |
 | `--verbose` | Enable verbose logging | `claude --verbose` |
 | `--version`, `-v` | Output the version number | `claude -v` |
