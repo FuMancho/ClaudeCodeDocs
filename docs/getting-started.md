@@ -1,67 +1,151 @@
 # Getting Started with Claude Code
 
-The Anthropic Claude Code CLI brings the power of Claude directly to your terminal. It acts as an agentic AI assistant capable of analyzing projects, generating code, and executing tools on your behalf through an Agentic Loop.
-
-> [!IMPORTANT]
-> To use Claude Code, you must have an active **Claude Pro** or **Claude Max** subscription. 
+Claude Code is Anthropic's agentic coding assistant for the terminal. It reads, edits, and runs code directly on your machine while you review each action.
 
 ## Prerequisites
-- **Node.js**: Version 18 or newer is required.
-- **npm**: Included with Node.js.
 
-### Validating Prerequisites
-Before installing, verify your environment meets the requirements:
-```bash
-node -v # Should output v18.x.x or higher
-npm -v  # Should output 9.x.x or higher
-```
+Before you begin, ensure you have:
+
+- **A terminal** — Bash, Zsh, PowerShell, or CMD. [New to the terminal?](https://code.claude.com/docs/en/terminal-guide)
+- **A code project** to work in.
+- **A Claude subscription** — Pro, Max, Teams, or Enterprise. You can also use a [Claude Console](https://console.anthropic.com) account or a [third-party cloud provider](https://code.claude.com/docs/en/third-party-integrations).
+
+> [!IMPORTANT]
+> The free Claude.ai plan does **not** include Claude Code access. A paid subscription is required.
+
+## System Requirements
+
+| Requirement | Details |
+|---|---|
+| **OS** | macOS 13.0+, Windows 10 1809+, Ubuntu 20.04+, Debian 10+, Alpine 3.19+ |
+| **RAM** | 4 GB minimum |
+| **Network** | Internet connection required |
+| **Shell** | Bash, Zsh, PowerShell, or CMD. Windows requires [Git for Windows](https://gitforwindows.org) |
 
 ## Installation
 
-Claude Code can be installed natively for the best experience across all platforms. 
+### Native Install (Recommended)
 
-### macOS / Linux (Native Script - Recommended)
-The native script automatically handles setting up the environment and supports auto-updating:
+Native installations auto-update in the background.
+
+**macOS / Linux / WSL:**
+
 ```bash
 curl -fsSL https://claude.ai/install.sh | bash
 ```
 
-### Windows (Native Script - Recommended)
-Using Windows PowerShell:
+**Windows PowerShell:**
+
 ```powershell
 irm https://claude.ai/install.ps1 | iex
 ```
 
-### IDE Extensions
-Claude Code functionality is also rolling out as official integrations for IDEs rather than just a terminal client:
-- **VS Code / Cursor:** Install the extension from the marketplace (`Ctrl+Shift+X` and search `anthropic.claude-code`).
-- **JetBrains:** Available via the plugin marketplace.
+**Windows CMD:**
+
+```cmd
+curl -fsSL https://claude.ai/install.cmd -o install.cmd && install.cmd && del install.cmd
+```
+
+### Homebrew (macOS / Linux)
+
+```bash
+brew install --cask claude-code
+```
+
+> [!NOTE]
+> Homebrew does **not** auto-update. Run `brew upgrade claude-code` periodically.
+
+### WinGet (Windows)
+
+```powershell
+winget install Anthropic.ClaudeCode
+```
+
+### Verify Installation
+
+```bash
+claude --version
+claude doctor        # Full diagnostic check
+```
 
 ## Authentication
 
-Once installed, navigate to your project directory and run:
+After installing, start Claude Code and follow the browser prompts to log in:
 
 ```bash
 claude
 ```
 
-On your first run, this will prompt a browser window to open. Log in using your Claude Pro/Max credentials to authorize the CLI.
+You can authenticate with:
 
-> [!NOTE]
-> You can manage your authentication status at any time using `claude auth login`, `claude auth logout`, or `claude auth status`.
+- **Claude Pro / Max / Teams / Enterprise** (recommended)
+- **Claude Console** (API access with pre-paid credits)
+- **Amazon Bedrock**, **Google Vertex AI**, or **Microsoft Foundry**
 
-## Core Philosophy for Beginners
+Once logged in, credentials are stored locally. To switch accounts later, use `/login`.
 
-To get the best out of Claude Code, approach the prompt from a "Delegate, don’t dictate" perspective:
+## Your First Session
 
-1. **Explore first, then code:** Ask Claude to analyze the existing app structure before throwing a huge refactor at it. (`"Analyze the database schema and summarize it"`)
-2. **Be specific upfront:** Use step-by-step instructions for what you want.
-3. **Give Claude a way to verify its work:** If you ask it to build a feature, tell it how it can test the code via a shell command when it finishes (e.g. `"Build the login page, then run npm run test to verify it passes rules."`)
-
-## Next Steps
-Now that you are installed and authenticated, start your first interactive session:
-```bash
-claude "Analyze this repository and summarize what it does."
+```mermaid
+flowchart LR
+    A["Install"] --> B["Authenticate"]
+    B --> C["cd into project"]
+    C --> D["Run claude"]
+    D --> E["Start prompting"]
 ```
 
-If you encounter issues during installation or authentication, refer to the [Troubleshooting Guide](./troubleshooting.md).
+1. **Open your terminal** in a project directory:
+
+   ```bash
+   cd /path/to/your/project
+   claude
+   ```
+
+2. **Ask a question** to explore the codebase:
+
+   ```text
+   what does this project do?
+   ```
+
+3. **Make a code change** — Claude will show proposed edits and ask for approval:
+
+   ```text
+   add input validation to the signup form
+   ```
+
+4. **Use Git conversationally:**
+
+   ```text
+   commit my changes with a descriptive message
+   ```
+
+> [!TIP]
+> Claude Code reads your project files automatically — you don't need to manually add context.
+
+## Essential Commands
+
+| Command | Description |
+|---|---|
+| `claude` | Start an interactive session |
+| `claude "task"` | Start a session with an initial prompt |
+| `claude -p "query"` | Run a one-off query (print mode), then exit |
+| `claude -c` | Continue the most recent conversation |
+| `claude -r` | Resume a previous session |
+| `claude commit` | Create a Git commit |
+| `/clear` | Clear conversation history |
+| `/help` | Show available commands |
+| `exit` or `Ctrl+C` | Exit Claude Code |
+
+## Pro Tips for Beginners
+
+- **Be specific** — Instead of "fix the bug", try "fix the login bug where users see a blank screen after wrong credentials".
+- **Break complex tasks into steps** — Give numbered instructions for multi-part work.
+- **Let Claude explore first** — Ask Claude to analyze the codebase before making changes.
+- **Use shortcuts** — Press `?` for all keyboard shortcuts, `Tab` for command completion, `↑` for history.
+
+## What's Next?
+
+- [How Claude Code Works](https://code.claude.com/docs/en/how-claude-code-works) — The agentic loop, built-in tools, and project interaction model
+- [Best Practices](https://code.claude.com/docs/en/best-practices) — Effective prompting and project setup
+- [Common Workflows](https://code.claude.com/docs/en/common-workflows) — Step-by-step guides for everyday tasks
+- [CLI Reference](https://code.claude.com/docs/en/cli-reference) — Complete command and flag documentation

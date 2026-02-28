@@ -1,45 +1,122 @@
-# Advanced Setup and Environments
+# Advanced Usage & Configuration
 
-Claude Code is versatile and operates across various environments, from local terminals to cloud sandbox infrastructure.
+This guide covers configuration, model selection, IDE integrations, cloud providers, and deployment options for Claude Code.
 
-## Configuration Settings
-Settings in Claude Code operate on multiple scopes (Project Level vs. Global User Level). You can configure behavior by establishing JSON rules.
+## Configuration Scopes
 
-### Settings Precedence
-1. Command Line Flags (Highest priority, overrides everything)
-2. Project `CLAUDE.md` / `.claude.json` (Overrides global)
-3. Global User `~/.claude.json`
-4. Default fallback behaviors
+Claude Code uses a layered settings system. More specific scopes override broader ones:
 
-### Environment Variables
-You can bypass files entirely for containerized setups:
-*   `CLAUDE_CONFIG_DIR`: The directory used to store OAuth tokens and global settings (defaults to user home).
-*   `CLAUDE_LOG_LEVEL`: Set to `debug`, `info`, `warn`, or `error` to increase the verbosity of the internal agentic loop logs.
+```mermaid
+flowchart TD
+    A["Enterprise (Server-Managed)"] --> B["User Settings (~/.claude/settings.json)"]
+    B --> C["Project Settings (.claude/settings.json)"]
+    C --> D["Local Settings (.claude/settings.local.json)"]
+    D --> E["CLI Flags (--model, --tools, etc.)"]
+```
 
----
+> [!IMPORTANT]
+> Enterprise administrators can enforce settings via [Server-Managed Settings](https://code.claude.com/docs/en/server-managed-settings). These take the highest precedence and cannot be overridden locally.
 
-## Editor & Desktop Integrations
+### Settings File Locations
 
-### VS Code & Cursor Extension
-While the CLI offers the most power, the `anthropic.claude-code` extension brings Claude natively into your editor.
-**Extension vs. CLI:**
-*   **Extension:** Better for inline diffs, highlighting specific functions, and `@` mentioning open tabs visually.
-*   **CLI:** Better for Safe Autonomous Mode (`--dangerously-skip-permissions`), running automated bash scripts, and parallel git worktrees. 
-You can use both simultaneously. Changes made by the extension are visible to the CLI's file context automatically.
+| Scope | Path | Committed to Git? |
+|---|---|---|
+| User | `~/.claude/settings.json` | No |
+| Project | `.claude/settings.json` | Yes |
+| Local | `.claude/settings.local.json` | No (gitignored) |
+| Enterprise | Managed remotely | N/A |
 
-### Claude Code Desktop App
-Anthropic offers a native Desktop Application (macOS and Windows) focused on dedicated windows for extended thinking tasks. If you install the desktop app, it interfaces with the same global `.claude.json` token as the terminal CLI.
+Edit settings interactively with the `/config` slash command.
 
----
+## Model Configuration
 
-## Claude Code on the Web (Asynchronous Cloud)
+Set the model per-session or in your settings:
 
-For enterprises or secure tasks that require isolated networking, you can run Claude Code "on the web."
+```bash
+claude --model claude-sonnet-4-6
+claude --model opus
+```
 
-### What is the Web Infrastructure?
-Instead of executing tools locally on your Macbook, Claude Code on the Web provisions a secure, ephemeral cloud server. The Agentic Loop runs there.
-*   **Default Image**: The server boots with a standard Debian image loaded with standard utilities (`curl`, `git`, `python`, `node`, `jq`).
-*   **Dependency Management**: You can instruct Claude to `apt install` or `pip install` temporary dependencies inside the cloud sandbox to test code before writing it back to your repository.
+Available model aliases: `sonnet`, `opus`, `haiku`.
 
-### Sharing Sessions
-Because the loop runs in the cloud, you can generate a shareable web link for a specific session. This allows other team members to view the exact agentic steps Claude took to fix a bug or architect a feature, vastly improving pull request reviews.
+> [!TIP]
+> Use `--fallback-model` in print mode to automatically switch models when the primary is overloaded: `claude -p --fallback-model sonnet "query"`
+
+## Cloud Providers
+
+Claude Code supports third-party model providers for enterprise or custom deployments:
+
+| Provider | Documentation |
+|---|---|
+| Amazon Bedrock | [Setup Guide](https://code.claude.com/docs/en/amazon-bedrock) |
+| Google Vertex AI | [Setup Guide](https://code.claude.com/docs/en/google-vertex-ai) |
+| Microsoft Foundry | [Setup Guide](https://code.claude.com/docs/en/microsoft-foundry) |
+| LLM Gateway | [Configuration](https://code.claude.com/docs/en/llm-gateway) |
+
+## IDE Integrations
+
+Claude Code integrates with major editors beyond the terminal:
+
+| Integration | Link |
+|---|---|
+| VS Code Extension | [Setup](https://code.claude.com/docs/en/vs-code) |
+| JetBrains Plugin | [Setup](https://code.claude.com/docs/en/jetbrains) |
+| Chrome Extension (beta) | [Setup](https://code.claude.com/docs/en/chrome) |
+| Desktop App | [Quickstart](https://code.claude.com/docs/en/desktop-quickstart) |
+| Claude Code on the Web | [Overview](https://code.claude.com/docs/en/claude-code-on-the-web) |
+
+## CI/CD Integration
+
+Use Claude Code in automated pipelines:
+
+- [GitHub Actions](https://code.claude.com/docs/en/github-actions)
+- [GitLab CI/CD](https://code.claude.com/docs/en/gitlab-ci-cd)
+- [Slack Integration](https://code.claude.com/docs/en/slack)
+
+### Headless / Non-Interactive Mode
+
+For scripting and automation, use print mode (`-p`) with structured output:
+
+```bash
+claude -p --output-format json "analyze this codebase" > report.json
+```
+
+Control budget and turns:
+
+```bash
+claude -p --max-budget-usd 5.00 --max-turns 10 "refactor the auth module"
+```
+
+See the [Headless documentation](https://code.claude.com/docs/en/headless).
+
+## Network Configuration
+
+Configure proxy settings, custom certificates, and network restrictions. See [Network Config](https://code.claude.com/docs/en/network-config).
+
+## DevContainers
+
+Run Claude Code inside VS Code DevContainers or GitHub Codespaces. See [DevContainer Setup](https://code.claude.com/docs/en/devcontainer).
+
+## Updates & Release Channels
+
+Native installations auto-update. Control the release channel:
+
+```json
+{
+  "autoUpdatesChannel": "stable"
+}
+```
+
+| Channel | Behavior |
+|---|---|
+| `latest` (default) | New features as soon as released |
+| `stable` | ~1 week delay, skips releases with regressions |
+
+Disable auto-updates by setting `DISABLE_AUTOUPDATER` to `"1"` in your `env` config.
+
+## See Also
+
+- [Settings Reference](https://code.claude.com/docs/en/settings)
+- [Memory](https://code.claude.com/docs/en/memory) — CLAUDE.md project context
+- [Permissions](https://code.claude.com/docs/en/permissions)
+- [Monitoring Usage](https://code.claude.com/docs/en/monitoring-usage)

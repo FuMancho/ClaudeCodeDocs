@@ -1,30 +1,121 @@
-# Agentic Capabilities
+# Agentic Features
 
-Claude Code operates with an "agentic" approach. It does not just autocomplete text; it runs through an **Agentic Loop**, which involves exploring, generating, and validating changes iteratively.
+Claude Code is not a passive code suggestion tool — it is a fully agentic assistant that reads files, runs commands, and spawns specialized sub-agents to accomplish complex tasks.
 
-## The Agentic Loop
-When you give Claude Code a complex task, it:
-1. **Explores**: It reads `CLAUDE.md`, scans directory structures, and uses tools to search for relevant internal files.
-2. **Plans**: It breaks down the user request into manageable steps.
-3. **Executes**: It edits files or runs shell scripts.
-4. **Verifies**: It checks the outcome of its actions and loops back if an error was found.
+## How the Agentic Loop Works
 
-## Plan Mode
-For large refactors, use **Plan Mode**. When in this mode, Claude will only analyze the codebase and generate an architectural breakdown or markdown plan, without modifying any files or running dangerous commands. This allows you to verify the logic before committing to the Execution phase.
+```mermaid
+flowchart TD
+    A["User Prompt"] --> B["Claude analyzes codebase"]
+    B --> C{"Action needed?"}
+    C -- Yes --> D["Proposes tool use"]
+    D --> E{"User approves?"}
+    E -- Yes --> F["Executes action"]
+    F --> B
+    E -- No --> G["Revises plan"]
+    G --> B
+    C -- No --> H["Returns response"]
+```
 
-You can set Plan Mode as your default via the CLI settings.
+Claude Code iterates through a **plan → act → observe** loop. It reads your files, proposes changes, asks for approval, and then executes — repeating until the task is complete. See [How Claude Code Works](https://code.claude.com/docs/en/how-claude-code-works) for a deep dive.
 
-## Extended Thinking (Thinking Mode)
-Claude Code supports extended "Thinking Mode" for highly complex reasoning tasks. It allocates more time to internal deliberation before outputting a response, resulting in significantly fewer bugs when dealing with spaghetti code or intricate mathematical architectures. You can enable this in your session preferences.
+## Sub-Agents
 
-## Checkpoints and Safety
-Because Claude Code runs agentically, it is possible it might accidentally format a file incorrectly or delete a needed line. 
+Sub-agents are specialized Claude instances that the main agent can spawn to handle specific tasks in parallel. Each sub-agent has its own prompt, tool access, and model configuration.
 
-Claude automatically generates **Checkpoints** for each major action. If Claude makes a mistake or if you change your mind about the direction of a feature, you can "Undo" the state, and Claude will automatically revert to the Git tree or backup checkpoint before the loop started.
+### Built-in Sub-Agents
 
-## Model Context Protocol (MCP) & Plugins
-MCP is an open standard that allows Claude Code to securely connect to external tools and data sources.
+Claude Code ships with pre-configured sub-agents for common workflows. List them with:
 
-You can create an `mcp.json` file to define local servers that expose databases or internal enterprise APIs directly to Claude Code's agentic loop. 
+```bash
+claude agents
+```
 
-Additionally, Claude Code supports installing community plugins (like a Figma integration or a PostgreSQL dialect adapter) to further extend its native capabilities.
+### Custom Sub-Agents
+
+Define custom sub-agents via `--agents` on the command line or in your project's configuration:
+
+```bash
+claude --agents '{
+  "code-reviewer": {
+    "description": "Expert code reviewer. Use proactively after code changes.",
+    "prompt": "You are a senior code reviewer. Focus on quality, security, and best practices.",
+    "tools": ["Read", "Grep", "Glob", "Bash"],
+    "model": "sonnet"
+  }
+}'
+```
+
+For persistent configuration, see the [Sub-Agents documentation](https://code.claude.com/docs/en/sub-agents).
+
+## Agent Teams
+
+Agent Teams enable multiple Claude instances to collaborate on a single task. Each teammate runs in its own process and can be configured with distinct roles.
+
+> [!NOTE]
+> Agent Teams are an advanced feature. Use `--teammate-mode` to control how teammates display: `auto`, `in-process`, or `tmux`.
+
+## Hooks
+
+Hooks let you run custom scripts at specific points in Claude Code's lifecycle — before/after tool execution, on session start, and more.
+
+```bash
+claude --init          # Run initialization hooks and start
+claude --init-only     # Run initialization hooks, then exit
+claude --maintenance   # Run maintenance hooks, then exit
+```
+
+See the [Hooks Guide](https://code.claude.com/docs/en/hooks-guide) and [Hooks Reference](https://code.claude.com/docs/en/hooks) for configuration details.
+
+## Model Context Protocol (MCP)
+
+MCP lets you extend Claude Code with additional tools and data sources from third-party servers.
+
+```bash
+claude mcp                             # Manage MCP servers
+claude --mcp-config ./my-mcp.json      # Load MCP config from file
+```
+
+> [!TIP]
+> Use `--strict-mcp-config` to only load MCP servers from the specified config file, ignoring all other MCP configurations.
+
+See the [MCP documentation](https://code.claude.com/docs/en/mcp) for setup and server configuration.
+
+## Skills
+
+Skills are reusable prompt templates that Claude loads on demand. They appear as slash commands in the interactive session.
+
+```text
+/  — View all available skills and slash commands
+```
+
+Disable all skills for a session with `--disable-slash-commands`. See the [Skills documentation](https://code.claude.com/docs/en/skills).
+
+## Checkpointing
+
+Claude Code automatically creates Git checkpoints so you can review and revert changes safely. See the [Checkpointing documentation](https://code.claude.com/docs/en/checkpointing).
+
+## Remote Control
+
+Start a Remote Control session to drive Claude Code from [claude.ai](https://claude.ai) or the Claude desktop app while it runs locally on your machine:
+
+```bash
+claude remote-control
+```
+
+See the [Remote Control documentation](https://code.claude.com/docs/en/remote-control).
+
+## Plugins
+
+Plugins extend Claude Code with new tools, integrations, and capabilities:
+
+- [Plugins Overview](https://code.claude.com/docs/en/plugins)
+- [Discover Plugins](https://code.claude.com/docs/en/discover-plugins)
+- [Plugin Marketplaces](https://code.claude.com/docs/en/plugin-marketplaces)
+- [Plugins Reference](https://code.claude.com/docs/en/plugins-reference)
+
+## See Also
+
+- [Features Overview](https://code.claude.com/docs/en/features-overview)
+- [Best Practices](https://code.claude.com/docs/en/best-practices)
+- [Interactive Mode](https://code.claude.com/docs/en/interactive-mode)
