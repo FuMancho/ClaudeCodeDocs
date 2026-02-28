@@ -117,10 +117,15 @@ def crawl_docs(
     output_dir_name: str,
     max_pages: int = 100,
     delay: float = 0.5,
+    official_domains: list[str] | None = None,
 ) -> dict:
     """
     Crawl documentation pages starting from *start_url*, restricting
     discovered links to those whose path begins with *base_path*.
+
+    When *official_domains* is provided, produces a ``_link_audit.md``
+    report classifying every discovered link as official, third-party,
+    or dead.
 
     Returns a summary dict with stats about the crawl.
     """
@@ -131,6 +136,9 @@ def crawl_docs(
     visited: set[str] = set()          # normalized URLs
     visited_original: list[str] = []   # original URLs in visit order
     errors: list[dict] = []
+
+    # Link audit tracking: page_url -> list of (href, domain)
+    all_external_links: dict[str, list[tuple[str, str]]] = {}
 
     # Resolve output directory relative to the project root
     script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -192,15 +200,21 @@ def crawl_docs(
                     fout.write(f"Scraped: {datetime.now(timezone.utc).isoformat()}\n\n")
                     fout.write(parser.text)
 
-                # Discover new links
+                # Discover new links & track external links for audit
                 newly_added = []
                 for link in parser.links:
                     link_norm = normalize_url(link)
-                    if link_norm not in visited and link.startswith(base_prefix):
-                        # Check queue as well
-                        if not any(normalize_url(q) == link_norm for q in queue):
-                            queue.append(link)
-                            newly_added.append(link)
+                    link_domain = urllib.parse.urlparse(link).netloc.lower()
+
+                    if link.startswith(base_prefix):
+                        # Internal / boundary link — queue for crawling
+                        if link_norm not in visited:
+                            if not any(normalize_url(q) == link_norm for q in queue):
+                                queue.append(link)
+                                newly_added.append(link)
+                    else:
+                        # External link — record for audit
+                        all_external_links.setdefault(url, []).append((link, link_domain))
 
                 print(f"       saved {fname}  (+{len(newly_added)} links)")
                 success = True
@@ -251,6 +265,76 @@ def crawl_docs(
     with open(meta_path, "w", encoding="utf-8") as fout:
         json.dump(summary, fout, indent=2)
 
+    # 3. Link audit report (when --official-domains is provided)
+    audit_path = None
+    if official_domains:
+        assert official_domains is not None  # type narrowing for Pyre
+        audit_path = os.path.join(output_dir, "_link_audit.md")
+        official_set = {d.lower().strip() for d in official_domains}
+
+        # Classify all external links
+        official_links: dict[str, list[tuple[str, str]]] = {}   # domain -> [(url, source_page)]
+        third_party_links: dict[str, list[tuple[str, str]]] = {}  # domain -> [(url, source_page)]
+        for page_url, links_list in all_external_links.items():
+            for href, domain in links_list:
+                if domain in official_set:
+                    official_links.setdefault(domain, []).append((href, page_url))
+                else:
+                    third_party_links.setdefault(domain, []).append((href, page_url))
+
+        # Collect dead links from errors
+        dead_links = [e for e in errors if "HTTP" in e.get("error", "")]
+
+        with open(audit_path, "w", encoding="utf-8") as fout:
+            fout.write("# Link Audit Report\n\n")
+            fout.write(f"> Generated: {datetime.now(timezone.utc).isoformat()}\n")
+            fout.write(f"> Official domains: {', '.join(sorted(official_set))}\n\n")
+
+            # Official links
+            fout.write("## ✅ Official Links\n\n")
+            if official_links:
+                for domain in sorted(official_links):
+                    fout.write(f"### `{domain}`\n\n")
+                    seen = set()
+                    for href, source in sorted(official_links[domain]):
+                        if href not in seen:
+                            fout.write(f"- {href}\n")
+                            seen.add(href)
+                    fout.write("\n")
+            else:
+                fout.write("No official external links found.\n\n")
+
+            # Third-party links
+            fout.write("## ⚠️ Third-Party Links\n\n")
+            if third_party_links:
+                fout.write("> Review these links. Keep if they point to widely-recognized "
+                           "platforms (GitHub, npm, PyPI, cloud provider docs) and provide "
+                           "context not available on the official site. Remove links to "
+                           "personal blogs, tutorials, forums, or unofficial mirrors.\n\n")
+                for domain in sorted(third_party_links):
+                    fout.write(f"### `{domain}`\n\n")
+                    seen = set()
+                    for href, source in sorted(third_party_links[domain]):
+                        if href not in seen:
+                            fout.write(f"- {href}\n")
+                            fout.write(f"  - Found on: {source}\n")
+                            seen.add(href)
+                    fout.write("\n")
+            else:
+                fout.write("No third-party links found.\n\n")
+
+            # Dead links
+            fout.write("## ❌ Dead Links\n\n")
+            if dead_links:
+                for entry in dead_links:
+                    fout.write(f"- {entry['url']} — {entry['error']}\n")
+                fout.write("\n")
+            else:
+                fout.write("No dead links encountered.\n\n")
+
+        summary["link_audit"] = audit_path
+        print(f"  Link audit    : {audit_path}")
+
     # ---- Final report ----
     print("\n" + "=" * 60)
     print("  Crawl Summary")
@@ -260,6 +344,8 @@ def crawl_docs(
     print(f"  Time elapsed  : {elapsed:.1f}s")
     print(f"  Links index   : {links_path}")
     print(f"  Metadata      : {meta_path}")
+    if audit_path:
+        print(f"  Link audit    : {audit_path}")
     print("=" * 60)
 
     return summary
@@ -285,14 +371,23 @@ def main():
                      help="Maximum number of pages to crawl (default: 100).")
     ap.add_argument("--delay", type=float, default=0.5,
                      help="Seconds to wait between requests (default: 0.5).")
+    ap.add_argument("--official-domains", type=str, default=None,
+                     help="Comma-separated list of official domains (e.g. docs.example.com,example.com). "
+                          "When provided, generates a _link_audit.md report classifying all "
+                          "discovered links as official, third-party, or dead.")
 
     args = ap.parse_args()
+    domains = None
+    if args.official_domains:
+        domains = [d.strip() for d in args.official_domains.split(",") if d.strip()]
+
     summary = crawl_docs(
         args.start_url,
         args.base_path,
         args.output_repo,
         args.max_pages,
         args.delay,
+        official_domains=domains,
     )
     sys.exit(0 if summary["errors"] == 0 else 1)
 

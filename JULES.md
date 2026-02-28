@@ -20,7 +20,8 @@ This repository contains community-maintained documentation for the **Anthropic 
 python3 scripts/crawler.py \
   --start-url https://code.claude.com/docs/en/cli-reference \
   --base-path /docs/en/ \
-  --output-repo .
+  --output-repo . \
+  --official-domains docs.anthropic.com,code.claude.com,platform.claude.com
 ```
 
 This saves raw scraped text into `scraped_docs/`.
@@ -54,6 +55,45 @@ docs: weekly documentation update [automated]
 - **Code:** Inline code uses single backticks. Code blocks use triple backticks with a language tag.
 - **Callouts:** Use GitHub-style alerts (`> [!NOTE]`, `> [!TIP]`, `> [!WARNING]`, etc.).
 - **Links:** Internal links use relative paths. External links point to verified official domains.
+
+## Link Handling Policy
+
+This is the most important section for autonomous operation. Follow these rules exactly:
+
+### Reference File
+
+Always consult `docs/official-links.md` as the single source of truth for verified URLs before writing any links.
+
+### Official Links
+
+- **Allowed domains:** `docs.anthropic.com`, `code.claude.com`, `platform.claude.com`
+- When a link can be replaced with an official equivalent from `docs/official-links.md`, do so.
+
+### Third-Party Links — Decision Rules
+
+| Domain Type | Action | Example |
+|---|---|---|
+| GitHub repos (`github.com`) | ✅ **Keep** | `github.com/anthropics/claude-code` |
+| Package registries (`npmjs.com`, `pypi.org`) | ✅ **Keep** | `npmjs.com/package/@anthropic-ai/claude-code` |
+| Cloud provider docs (`aws.amazon.com`, `cloud.google.com`) | ✅ **Keep** | Cloud setup guides |
+| Personal blogs, Medium, Dev.to | ❌ **Remove** | Replace with official equivalent or remove entirely |
+| Forums, Reddit, Stack Overflow | ❌ **Remove** | Not authoritative |
+| Unofficial mirrors or aggregators | ❌ **Remove** | Not trustworthy |
+
+### New Official Links
+
+If the crawler discovers new official pages not yet in `docs/official-links.md`, add them to the file in the correct section.
+
+### Dead Links
+
+If a link returns 404 or is unreachable (check `scraped_docs/_link_audit.md`), remove it and note the removal in the commit message.
+
+### Using the Link Audit Report
+
+After crawling, the file `scraped_docs/_link_audit.md` contains a pre-classified list of all discovered links:
+- ✅ **Official** — these are fine, no action needed
+- ⚠️ **Third-party** — apply the decision rules table above
+- ❌ **Dead** — remove from documentation
 
 ## Files to Ignore
 
