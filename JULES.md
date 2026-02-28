@@ -14,10 +14,18 @@ This repository contains community-maintained documentation for the **Anthropic 
 
 ## Weekly Update Procedure
 
-### 1. Crawl
+### 1. Setup
+
+Clone the shared crawler (if not already present):
 
 ```bash
-python3 scripts/crawler.py \
+git clone https://github.com/FuMancho/DocMaintainer.git /tmp/DocMaintainer 2>/dev/null || true
+```
+
+### 2. Crawl
+
+```bash
+python3 /tmp/DocMaintainer/scripts/crawler.py \
   --start-url https://code.claude.com/docs/en/cli-reference \
   --base-path /docs/en/ \
   --output-repo . \
@@ -26,21 +34,21 @@ python3 scripts/crawler.py \
 
 This saves raw scraped text into `scraped_docs/`.
 
-### 2. Review & Update
+### 3. Review & Update
 
 - Compare `scraped_docs/` content against existing files in `docs/`.
 - Update any `docs/*.md` files where the official documentation has changed.
 - Add new documentation files for any newly discovered pages.
 - Remove documentation for pages that no longer exist upstream.
 
-### 3. Validate
+### 4. Validate
 
 - Ensure all internal relative links resolve correctly.
 - Ensure all external links point to `docs.anthropic.com` or `code.claude.com`.
 - Verify heading hierarchy (`#` → `##` → `###`, no skipped levels).
 - Code blocks must specify a language (e.g., ` ```bash `).
 
-### 4. Commit
+### 5. Commit
 
 Use this commit message format:
 
@@ -99,5 +107,4 @@ After crawling, the file `scraped_docs/_link_audit.md` contains a pre-classified
 
 Do not modify:
 - `JULES.md` (this file)
-- `scripts/crawler.py`
 - `.gitignore`
