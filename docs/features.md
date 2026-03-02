@@ -11,6 +11,11 @@ Claude Code is a full **agentic coding assistant** — it doesn't just suggest c
 - **Multi-file refactoring** — understands project context across files
 - **Error self-correction** — reads build/test errors and fixes iteratively
 
+
+## Agent Teams
+
+Agent teams let multiple sub-agents coordinate and share findings. They are ideal for complex tasks like parallel code review, research with competing hypotheses, and feature development where each teammate owns a separate piece.
+
 ## Sub-Agent Architecture
 
 Spawn specialized sub-agents for parallel or delegated work:
