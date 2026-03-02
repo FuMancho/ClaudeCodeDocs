@@ -33,6 +33,7 @@ Complete reference for the Claude Code command-line interface. For an introducti
 | `--allow-dangerously-skip-permissions` | Enable permission bypassing as an option (use with `--permission-mode`) | `claude --permission-mode plan --allow-dangerously-skip-permissions` |
 | `--allowedTools` | Tools that execute without prompting | `"Bash(git log *)" "Read"` |
 | `--append-system-prompt` | Append text to the default system prompt | `claude --append-system-prompt "Use TypeScript"` |
+| `--append-system-prompt-file` | Load additional system prompt text from a file and append to the default prompt (print mode only) | `claude -p --append-system-prompt-file ./extra-rules.txt "query"` |
 | `--betas` | Beta headers to include in API requests (API key users only) | `claude --betas interleaved-thinking` |
 | `--chrome` | Enable Chrome browser integration | `claude --chrome` |
 | `--continue`, `-c` | Load the most recent conversation | `claude -c` |
@@ -69,6 +70,7 @@ Complete reference for the Claude Code command-line interface. For an introducti
 | `--strict-mcp-config` | Only use MCP servers from `--mcp-config`, ignoring all other MCP configurations | `claude --strict-mcp-config --mcp-config ./mcp.json` |
 | `--system-prompt` | Replace the entire system prompt | `claude --system-prompt "You are a Python expert"` |
 | `--teammate-mode` | Set how agent team teammates display: `auto` (default), `in-process`, or `tmux` | `claude --teammate-mode in-process` |
+| `--system-prompt-file` | Load system prompt from a file, replacing the default prompt (print mode only) | `claude -p --system-prompt-file ./custom-prompt.txt "query"` |
 | `--teleport` | Resume a web session in your local terminal | `claude --teleport` |
 | `--tools` | Restrict available tools | `claude --tools "Bash,Edit,Read"` |
 | `--verbose` | Enable verbose logging | `claude --verbose` |

@@ -212,13 +212,15 @@ Claude automatically compacts context when approaching token limits. Control wit
 
 ### Output Styles
 
-Three system prompt methods for controlling agent output:
+Output styles allow you to use Claude Code as any type of agent while keeping its core capabilities.
 
-| Style | Method |
+| Built-in Style | Description |
 |---|---|
-| **Concise** | Add to CLAUDE.md: `"Be extremely brief. No explanations."` |
-| **Verbose** | Add: `"Explain your reasoning step by step."` |
-| **Structured** | Add: `"Always output in markdown with headers and code blocks."` |
+| **Default** | The existing system prompt, designed to help you complete software engineering tasks efficiently. |
+| **Explanatory** | Provides educational "Insights" in between helping you complete software engineering tasks. |
+| **Learning** | Collaborative, learn-by-doing mode. Claude will share "Insights" and ask you to contribute strategic pieces of code, asking you to fill in missing parts. |
+
+You can change styles using `/output-style` or `/output-style [style]`. Custom styles can be created as Markdown files in `~/.claude/output-styles` or `.claude/output-styles` with frontmatter defining `name`, `description`, and `keep-coding-instructions`.
 
 ### Context7 MCP Integration
 
@@ -256,4 +258,3 @@ Long sessions drift from original intent. Countermeasures:
 
 - [Features](./features.md) — Core features overview
 - [Commands](./commands.md) — CLI reference
-- [Official Links](./official-links.md) — All official sources
