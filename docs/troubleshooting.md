@@ -47,6 +47,29 @@ The Escape key might not exit the Session Picker or autocomplete menus when runn
 Occasionally, Claude might generate a markdown code block without a language specifier (e.g. just ` ``` ` instead of ` ```python `), causing syntax highlighting plugins to fail.
 **Fix:** Add a custom `CLAUDE.md` to your root directory with the strict prompt: `"Always include markdown language tags for all code snippets."`
 
+### Search and Discovery Issues
+If Search tool, `@file` mentions, custom agents, and custom skills aren't working, install system `ripgrep`:
+```bash
+# macOS (Homebrew)
+brew install ripgrep
+# Windows (winget)
+winget install BurntSushi.ripgrep.MSVC
+# Ubuntu/Debian
+sudo apt install ripgrep
+```
+Then set `USE_BUILTIN_RIPGREP=0` in your environment.
+
 ### Slow Search Results on WSL
-If file discovery (like `claude "find all auth files"`) is taking extremely long natively in WSL:
-**Fix:** WSL filesystem performance significantly drops when crossing the Windows Mount boundary (e.g. your code is in `/mnt/c/Users/...`). Always git clone your projects directly into the native Linux filesystem (e.g., `~/projects/`).
+Disk read performance penalties when working across file systems on WSL may result in fewer-than-expected matches.
+**Fix:** Submit more specific searches, or ensure your project is located on the Linux filesystem (`/home/`) rather than the Windows filesystem (`/mnt/c/`).
+
+## Get More Help
+Run `/doctor` to diagnose issues. It checks:
+- Installation type, version, and search functionality
+- Invalid settings files (malformed JSON, incorrect types)
+- MCP server configuration errors
+- Keybinding configuration problems
+- Context usage warnings (large CLAUDE.md files, high MCP token usage)
+- Plugin and agent loading errors
+
+Use the `/bug` command within Claude Code to report problems directly to Anthropic.

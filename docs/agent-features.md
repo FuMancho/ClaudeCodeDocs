@@ -50,10 +50,12 @@ For persistent configuration, see the [Sub-Agents documentation](https://code.cl
 
 ## Agent Teams
 
-Agent Teams enable multiple Claude instances to collaborate on a single task. Each teammate runs in its own process and can be configured with distinct roles.
+Agent Teams enable multiple Claude instances to collaborate on a single task. One session acts as the team lead, coordinating work, assigning tasks, and synthesizing results. Teammates work independently, each in its own context window, and communicate directly with each other.
 
 > [!NOTE]
-> Agent Teams are an advanced feature. Use `--teammate-mode` to control how teammates display: `auto`, `in-process`, or `tmux`.
+> Agent Teams are experimental and disabled by default. Enable them by setting `enableAgentTeams: true` in your configuration or environment. Use `--teammate-mode` to control how teammates display: `auto` (default), `in-process`, or `tmux`.
+
+Agent teams are most effective for tasks where parallel exploration adds real value. They add coordination overhead and use significantly more tokens than a single session. They work best when teammates can operate independently. For sequential tasks or same-file edits, a single session or sub-agents may be more appropriate.
 
 ## Hooks
 

@@ -61,6 +61,14 @@ brew install --cask claude-code
 winget install Anthropic.ClaudeCode
 ```
 
+### npm Installation (Deprecated)
+npm installation is deprecated. The native installer is faster, requires no dependencies, and auto-updates in the background. Use the native installation instead. If you previously installed Claude Code with npm, you can switch to the native installer:
+
+```bash
+curl -fsSL https://claude.ai/install.sh | bash
+npm uninstall -g @anthropic-ai/claude-code
+```
+
 ### Verify Installation
 
 ```bash
