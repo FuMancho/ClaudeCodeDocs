@@ -258,3 +258,4 @@ Long sessions drift from original intent. Countermeasures:
 
 - [Features](./features.md) — Core features overview
 - [Commands](./commands.md) — CLI reference
+- [Official Documentation Links](./official-links.md) — Categorized index of verified URLs
