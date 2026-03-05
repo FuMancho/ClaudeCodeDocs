@@ -3,7 +3,29 @@
 > Curated changelog sourced from the [official Claude Code releases](https://github.com/anthropics/claude-code/releases).
 > This file is maintained by Jules and updated automatically when new releases are detected.
 
-## v2.1.68 (Latest)
+## v2.1.69 (Latest)
+
+- Added the `/claude-api` skill for building applications with the Claude API and Anthropic SDK
+- Added `Ctrl+U` on an empty bash prompt (`!`) to exit bash mode, matching escape and backspace
+- Added numeric keypad support for selecting options in Claude's interview questions
+- Added optional name argument to `/remote-control` and `claude remote-control` to set a custom session title
+- Added Voice STT support for 10 new languages (20 total)
+- Added effort level display (e.g., "with low effort") to the logo and spinner
+- Added agent name display in terminal title when using `claude --agent`
+- Added `sandbox.enableWeakerNetworkIsolation` setting (macOS only) to allow Go programs like `gh`, `gcloud`, and `terraform` to verify TLS certificates
+- Added `includeGitInstructions` setting to remove built-in commit and PR workflow instructions from Claude's system prompt
+- Added `/reload-plugins` command to activate pending plugin changes without restarting
+- Added a one-time startup prompt suggesting Claude Code Desktop on macOS and Windows
+- Added `${CLAUDE_SKILL_DIR}` variable for skills to reference their own directory in SKILL.md content
+- Added `InstructionsLoaded` hook event that fires when CLAUDE.md or .claude/rules/*.md files are loaded into context
+- Added `agent_id` (for subagents) and `agent_type` (for subagents and `--agent`) to hook events
+- Fixed a security issue where nested skill discovery could load skills from gitignored directories
+- Fixed trust dialog silently enabling all `.mcp.json` servers on first run
+- Fixed macOS keychain corruption when using multiple OAuth MCP servers
+- Fixed ghost dotfiles appearing as untracked files in the working directory after sandboxed Bash commands on Linux
+- Fixed Shift+Enter printing `[27;2;13~` instead of inserting a newline in Ghostty over SSH
+
+## v2.1.68
 
 - Opus 4.6 now defaults to medium effort for Max and Team subscribers. Medium effort works well for most tasks — it's the sweet spot between speed and thoroughness. You can change this anytime with
 - /model
