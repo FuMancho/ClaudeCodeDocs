@@ -122,7 +122,7 @@ Output: Severity-rated findings (Critical/High/Medium/Low)
 
 ### Quality Gate Pattern
 
-```
+```text
 Orchestrator spawns Coder
   → Coder produces code
   → Orchestrator spawns Reviewer
@@ -132,7 +132,7 @@ Orchestrator spawns Coder
 ```
 
 Define explicit completion signals in agent instructions:
-```
+```text
 When your task is complete, output exactly:
 TASK_COMPLETE: <summary of what was done>
 ```
@@ -165,7 +165,7 @@ Quality bar: [specific metrics]
 
 ### Checkpoint-and-Reanchor
 
-```
+```text
 Every 10 turns:
 1. /compact (summarize history)
 2. Re-read CLAUDE.md (reloads anchors)
@@ -234,7 +234,7 @@ Community MCP servers for experimental workflows:
 
 Track context consumption patterns:
 
-```
+```text
 /compact                # See how much context is freed
 ```
 

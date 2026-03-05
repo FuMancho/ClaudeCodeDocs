@@ -190,7 +190,7 @@ Your ONLY function is to review code for security flaws.
 | **Hierarchical** | Orchestrator spawns specialized sub-agents |
 | **Collaborative** | Agents share context and build on each other's work |
 
-```
+```text
 Agent 1 (Scaffold)  → creates file structure and interfaces
 Agent 2 (Implement) → writes business logic
 Agent 3 (Test)      → generates tests
@@ -203,7 +203,7 @@ Agent 4 (Validate)  → runs tests and verifies coverage
 
 Claude automatically compacts context when approaching token limits. Control with:
 
-```
+```text
 /compact             # Manually trigger compaction
 ```
 
