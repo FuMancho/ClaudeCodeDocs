@@ -30,7 +30,7 @@ WSL2 uses NAT networking by default, which can prevent IDE detection. You have t
 2. Open PowerShell as Administrator and create a firewall rule:
    ```powershell
    New-NetFirewallRule -DisplayName "Allow WSL2 Internal Traffic" -Direction Inbound -Protocol TCP -Action Allow -RemoteAddress 172.21.0.0/16 -LocalAddress 172.21.0.0/16
-   ```
+```
    *(Adjust the IP range based on your WSL2 subnet from step 1)*
 3. Restart both your IDE and Claude Code.
 
@@ -50,7 +50,6 @@ Then restart WSL with `wsl --shutdown` from PowerShell.
 If `claude auth login` succeeds in the browser but the CLI throws a 403 Forbidden:
 1. Ensure your Claude Pro or Claude Max subscription is currently active at `claude.com`. Pay-as-you-go API credits do not grant access to Claude Code.
 2. Ensure you are not connected to a corporate VPN that blocks Anthropic IP addresses.
-
 
 ### OAuth Error: Invalid code
 If you see `OAuth error: Invalid code. Please make sure the full code was copied`, the login code expired or was truncated during copy-paste.

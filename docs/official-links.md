@@ -54,7 +54,6 @@ This file is the single source of truth for verified official URLs.
 - https://code.claude.com/docs/en/sandboxing
 - https://code.claude.com/docs/en/security
 - https://code.claude.com/docs/en/server-managed-settings
-- https://code.claude.com/docs/en/sessions
 - https://code.claude.com/docs/en/settings
 - https://code.claude.com/docs/en/setup
 - https://code.claude.com/docs/en/skills
