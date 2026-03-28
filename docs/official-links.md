@@ -67,3 +67,10 @@ This file is the single source of truth for verified official URLs.
 - https://code.claude.com/docs/en/troubleshooting
 - https://code.claude.com/docs/en/vs-code
 - https://code.claude.com/docs/en/zero-data-retention
+- https://code.claude.com/docs/en/channels
+- https://code.claude.com/docs/en/channels-reference
+- https://code.claude.com/docs/en/commands
+- https://code.claude.com/docs/en/env-vars
+- https://code.claude.com/docs/en/permission-modes
+- https://platform.claude.com/docs/en/agent-sdk/overview
+- https://platform.claude.com/docs/en/agent-sdk/structured-outputs
