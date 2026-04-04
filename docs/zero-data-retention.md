@@ -1,32 +1,26 @@
-# Zero Data Retention
-
-* [ZDR scope](#zdr-scope)
-* [What ZDR covers](#what-zdr-covers)
-* [What ZDR does not cover](#what-zdr-does-not-cover)
-* [Features disabled under ZDR](#features-disabled-under-zdr)
-* [Data retention for policy violations](#data-retention-for-policy-violations)
-* [Request ZDR](#request-zdr)
+# Zero data retention
 
 Zero Data Retention (ZDR) is available for Claude Code when used through Claude for Enterprise. When ZDR is enabled, prompts and model responses generated during Claude Code sessions are processed in real time and not stored by Anthropic after the response is returned, except where needed to comply with law or combat misuse.
 ZDR on Claude for Enterprise gives enterprise customers the ability to use Claude Code with zero data retention and access administrative capabilities:
 
 * Cost controls per user
 * [Analytics](/docs/en/analytics) dashboard
+* [Server-managed settings](/docs/en/server-managed-settings)
 * Audit logs
 
 ZDR for Claude Code on Claude for Enterprise applies only to Anthropic’s direct platform. For Claude deployments on AWS Bedrock, Google Vertex AI, or Microsoft Foundry, refer to those platforms’ data retention policies.
 
-##  ZDR scope
+## ZDR scope
 
 ZDR covers Claude Code inference on Claude for Enterprise.
 
 ZDR is enabled on a per-organization basis. Each new organization requires ZDR to be enabled separately by your Anthropic account team. ZDR does not automatically apply to new organizations created under the same account. Contact your account team to enable ZDR for any new organizations.
 
-###  What ZDR covers
+### What ZDR covers
 
 ZDR covers model inference calls made through Claude Code on Claude for Enterprise. When you use Claude Code in your terminal, the prompts you send and the responses Claude generates are not retained by Anthropic. This applies regardless of which Claude model is used.
 
-###  What ZDR does not cover
+### What ZDR does not cover
 
 ZDR does not extend to the following, even for organizations with ZDR enabled. These features follow [standard data retention policies](/docs/en/data-usage#data-retention):
 
@@ -38,7 +32,7 @@ ZDR does not extend to the following, even for organizations with ZDR enabled. T
 | User and seat management | Administrative data such as account emails and seat assignments is retained under standard policies. |
 | Third-party integrations | Data processed by third-party tools, MCP servers, or other external integrations is not covered by ZDR. Review those services’ data handling practices independently. |
 
-##  Features disabled under ZDR
+## Features disabled under ZDR
 
 When ZDR is enabled for a Claude Code organization on Claude for Enterprise, certain features that require storing prompts or completions are automatically disabled at the backend level:
 
@@ -51,13 +45,11 @@ When ZDR is enabled for a Claude Code organization on Claude for Enterprise, cer
 These features are blocked in the backend regardless of client-side display. If you see a disabled feature in the Claude Code terminal during startup, attempting to use it returns an error indicating the organization’s policies do not allow that action.
 Future features may also be disabled if they require storing prompts or completions.
 
-##  Data retention for policy violations
+## Data retention for policy violations
 
 Even with ZDR enabled, Anthropic may retain data where required by law or to address Usage Policy violations. If a session is flagged for a policy violation, Anthropic may retain the associated inputs and outputs for up to 2 years, consistent with Anthropic’s standard ZDR policy.
 
-##  Request ZDR
+## Request ZDR
 
 To request ZDR for Claude Code on Claude for Enterprise, contact your Anthropic account team. Your account team will submit the request internally, and Anthropic will review and enable ZDR on your organization after confirming eligibility. All enablement actions are audit-logged.
 If you are currently using ZDR for Claude Code via pay-as-you-go API keys, you can transition to Claude for Enterprise to gain access to administrative features while maintaining ZDR for Claude Code. Contact your account team to coordinate the migration.
-
-[Data usage](/docs/en/data-usage)[Monitoring](/docs/en/monitoring-usage)
