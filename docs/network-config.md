@@ -1,31 +1,14 @@
-# Network Config
-
-* [Amazon Bedrock](/docs/en/amazon-bedrock)
-* [Google Vertex AI](/docs/en/google-vertex-ai)
-* [Microsoft Foundry](/docs/en/microsoft-foundry)
-* [Network configuration](/docs/en/network-config)
-* [LLM gateway](/docs/en/llm-gateway)
-* [Development containers](/docs/en/devcontainer)
-
-* [Proxy configuration](#proxy-configuration)
-* [Environment variables](#environment-variables)
-* [Basic authentication](#basic-authentication)
-* [Custom CA certificates](#custom-ca-certificates)
-* [mTLS authentication](#mtls-authentication)
-* [Network access requirements](#network-access-requirements)
-* [Additional resources](#additional-resources)
-
 Claude Code supports various enterprise network and security configurations through environment variables. This includes routing traffic through corporate proxy servers, trusting custom Certificate Authorities (CA), and authenticating with mutual Transport Layer Security (mTLS) certificates for enhanced security.
 
-All environment variables shown on this page can also be configured in [`settings.json`](/docs/en/settings).
+All environment variables shown on this page can also be configured in [`settings.json`](./settings.md).
 
-##  Proxy configuration
+## [​](#proxy-configuration #proxy-configuration) Proxy configuration
 
-###  Environment variables
+### [​](#environment-variables #environment-variables) Environment variables
 
 Claude Code respects standard proxy environment variables:
 
-```bash
+```
 # HTTPS proxy (recommended)
 export HTTPS_PROXY=https://proxy.example.com:8080
 
@@ -39,31 +22,55 @@ export NO_PROXY="localhost,192.168.1.1,example.com,.example.com"
 # Bypass proxy for all requests
 export NO_PROXY="*"
 ```
+
 Claude Code does not support SOCKS proxies.
 
-###  Basic authentication
+### [​](#basic-authentication #basic-authentication) Basic authentication
 
 If your proxy requires basic authentication, include credentials in the proxy URL:
 
-```bash
+```
 export HTTPS_PROXY=http://username:password@proxy.example.com:8080
 ```
+
 Avoid hardcoding passwords in scripts. Use environment variables or secure credential storage instead.
 
 For proxies requiring advanced authentication (NTLM, Kerberos, etc.), consider using an LLM Gateway service that supports your authentication method.
 
-##  Custom CA certificates
+## [​](#ca-certificate-store #ca-certificate-store) CA certificate store
 
-If your enterprise environment uses custom CAs for HTTPS connections (whether through a proxy or direct API access), configure Claude Code to trust them:
+By default, Claude Code trusts both its bundled Mozilla CA certificates and your operating system’s certificate store. Enterprise TLS-inspection proxies such as CrowdStrike Falcon and Zscaler work without additional configuration when their root certificate is installed in the OS trust store.
 
-```bash
+System CA store integration requires the native Claude Code binary distribution. When running on the Node.js runtime, the system CA store is not merged automatically. In that case, set `NODE_EXTRA_CA_CERTS=/path/to/ca-cert.pem` to trust an enterprise root CA.
+
+`CLAUDE_CODE_CERT_STORE` accepts a comma-separated list of sources. Recognized values are `bundled` for the Mozilla CA set shipped with Claude Code and `system` for the operating system trust store. The default is `bundled,system`.
+To trust only the bundled Mozilla CA set:
+
+```
+export CLAUDE_CODE_CERT_STORE=bundled
+```
+
+To trust only the OS certificate store:
+
+```
+export CLAUDE_CODE_CERT_STORE=system
+```
+
+`CLAUDE_CODE_CERT_STORE` has no dedicated `settings.json` schema key. Set it via the `env` block in `~/.claude/settings.json` or directly in the process environment.
+
+## [​](#custom-ca-certificates #custom-ca-certificates) Custom CA certificates
+
+If your enterprise environment uses a custom CA, configure Claude Code to trust it directly:
+
+```
 export NODE_EXTRA_CA_CERTS=/path/to/ca-cert.pem
 ```
-##  mTLS authentication
+
+## [​](#mtls-authentication #mtls-authentication) mTLS authentication
 
 For enterprise environments requiring client certificate authentication:
 
-```bash
+```
 # Client certificate for authentication
 export CLAUDE_CODE_CLIENT_CERT=/path/to/client-cert.pem
 
@@ -73,7 +80,8 @@ export CLAUDE_CODE_CLIENT_KEY=/path/to/client-key.pem
 # Optional: Passphrase for encrypted private key
 export CLAUDE_CODE_CLIENT_KEY_PASSPHRASE="your-passphrase"
 ```
-##  Network access requirements
+
+## [​](#network-access-requirements #network-access-requirements) Network access requirements
 
 Claude Code requires access to the following URLs:
 
@@ -82,10 +90,16 @@ Claude Code requires access to the following URLs:
 * `platform.claude.com`: authentication for Anthropic Console accounts
 
 Ensure these URLs are allowlisted in your proxy configuration and firewall rules. This is especially important when using Claude Code in containerized or restricted network environments.
+The native installer and update checks also require the following URLs. Allowlist both, since the installer and auto-updater fetch from `storage.googleapis.com` while plugin downloads use `downloads.claude.ai`. If you install Claude Code through npm or manage your own binary distribution, end users may not need access:
 
-##  Additional resources
+* `storage.googleapis.com`: download bucket for the Claude Code binary and auto-updater
+* `downloads.claude.ai`: CDN hosting the install script, version pointers, manifests, signing keys, and plugin executables
 
-* [Claude Code settings](/docs/en/settings)
-* [Environment variables reference](/docs/en/settings#environment-variables)
+[Claude Code on the web](./claude-code-on-the-web.md) and [Code Review](./code-review.md) connect to your repositories from Anthropic-managed infrastructure. If your GitHub Enterprise Cloud organization restricts access by IP address, enable [IP allow list inheritance for installed GitHub Apps](https://docs.github.com/en/enterprise-cloud@latest/organizations/keeping-your-organization-secure/managing-security-settings-for-your-organization/managing-allowed-ip-addresses-for-your-organization#allowing-access-by-github-apps https://docs.github.com/en/enterprise-cloud@latest/organizations/keeping-your-organization-secure/managing-security-settings-for-your-organization/managing-allowed-ip-addresses-for-your-organization#allowing-access-by-github-apps). The Claude GitHub App registers its IP ranges, so enabling this setting allows access without manual configuration. To [add the ranges to your allow list manually](https://docs.github.com/en/enterprise-cloud@latest/organizations/keeping-your-organization-secure/managing-security-settings-for-your-organization/managing-allowed-ip-addresses-for-your-organization#adding-an-allowed-ip-address https://docs.github.com/en/enterprise-cloud@latest/organizations/keeping-your-organization-secure/managing-security-settings-for-your-organization/managing-allowed-ip-addresses-for-your-organization#adding-an-allowed-ip-address) instead, or to configure other firewalls, see the [Anthropic API IP addresses](https://platform.claude.com/docs/en/api/ip-addresses https://platform.claude.com/docs/en/api/ip-addresses).
+For self-hosted [GitHub Enterprise Server](./github-enterprise-server.md) instances behind a firewall, allowlist the same [Anthropic API IP addresses](https://platform.claude.com/docs/en/api/ip-addresses https://platform.claude.com/docs/en/api/ip-addresses) so Anthropic infrastructure can reach your GHES host to clone repositories and post review comments.
 
-[Microsoft Foundry](/docs/en/microsoft-foundry)[LLM gateway](/docs/en/llm-gateway)
+## [​](#additional-resources #additional-resources) Additional resources
+
+* [Claude Code settings](./settings.md)
+* [Environment variables reference](./env-vars.md)
+* [Troubleshooting guide](./troubleshooting.md)

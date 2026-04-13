@@ -1,31 +1,14 @@
-# Terminal Config
-
-* [Permissions](/docs/en/permissions)
-* [Sandboxing](/docs/en/sandboxing)
-* [Terminal configuration](/docs/en/terminal-config)
-* [Model configuration](/docs/en/model-config)
-* [Speed up responses with fast mode](/docs/en/fast-mode)
-* [Customize status line](/docs/en/statusline)
-* [Customize keyboard shortcuts](/docs/en/keybindings)
-
-* [Themes and appearance](#themes-and-appearance)
-* [Line breaks](#line-breaks)
-* [Notification setup](#notification-setup)
-* [Terminal notifications](#terminal-notifications)
-* [Notification hooks](#notification-hooks)
-* [Handling large inputs](#handling-large-inputs)
-* [Vim Mode](#vim-mode)
-
-###  Themes and appearance
+### [​](#themes-and-appearance #themes-and-appearance) Themes and appearance
 
 Claude cannot control the theme of your terminal. That’s handled by your terminal application. You can match Claude Code’s theme to your terminal any time via the `/config` command.
-For additional customization of the Claude Code interface itself, you can configure a [custom status line](/docs/en/statusline) to display contextual information like the current model, working directory, or git branch at the bottom of your terminal.
+For additional customization of the Claude Code interface itself, you can configure a [custom status line](./statusline.md) to display contextual information like the current model, working directory, or git branch at the bottom of your terminal.
 
-###  Line breaks
+### [​](#line-breaks #line-breaks) Line breaks
 
 You have several options for entering line breaks into Claude Code:
 
 * **Quick escape**: Type `\` followed by Enter to create a newline
+* **Ctrl+J**: Sends a line feed character, which works as a newline in any terminal without configuration
 * **Shift+Enter**: Works out of the box in iTerm2, WezTerm, Ghostty, and Kitty
 * **Keyboard shortcut**: Set up a keybinding to insert a newline in other terminals
 
@@ -40,16 +23,19 @@ The `/terminal-setup` command is only visible in terminals that require manual c
 1. Open Settings → Profiles → Keyboard
 2. Check “Use Option as Meta Key”
 
-**For iTerm2 and VS Code terminal:**
+**For iTerm2:**
 
 1. Open Settings → Profiles → Keys
-2. Under General, set Left/Right Option key to “Esc+“
+2. Under General, set Left/Right Option key to “Esc+”
 
-###  Notification setup
+**For VS Code terminal:**
+Set `"terminal.integrated.macOptionIsMeta": true` in VS Code settings.
 
-When Claude finishes working and is waiting for your input, it fires a notification event. You can surface this event as a desktop notification through your terminal or run custom logic with [notification hooks](/docs/en/hooks#notification).
+### [​](#notification-setup #notification-setup) Notification setup
 
-####  Terminal notifications
+When Claude finishes working and is waiting for your input, it fires a notification event. You can surface this event as a desktop notification through your terminal or run custom logic with [notification hooks](./hooks.md#notification).
+
+#### [​](#terminal-notifications #terminal-notifications) Terminal notifications
 
 Kitty and Ghostty support desktop notifications without additional configuration. iTerm 2 requires setup:
 
@@ -58,13 +44,24 @@ Kitty and Ghostty support desktop notifications without additional configuration
 3. Click “Filter Alerts” and check “Send escape sequence-generated alerts”
 
 If notifications aren’t appearing, verify that your terminal app has notification permissions in your OS settings.
-Other terminals, including the default macOS Terminal, do not support native notifications. Use [notification hooks](/docs/en/hooks#notification) instead.
+When running Claude Code inside tmux, notifications and the [terminal progress bar](./settings.md#global-config-settings) only reach the outer terminal, such as iTerm2, Kitty, or Ghostty, if you enable passthrough in your tmux configuration:
 
-####  Notification hooks
+```
+set -g allow-passthrough on
+```
 
-To add custom behavior when notifications fire, such as playing a sound or sending a message, configure a [notification hook](/docs/en/hooks#notification). Hooks run alongside terminal notifications, not as a replacement.
+Without this setting, tmux intercepts the escape sequences and they do not reach the terminal application.
+Other terminals, including the default macOS Terminal, do not support native notifications. Use [notification hooks](./hooks.md#notification) instead.
 
-###  Handling large inputs
+#### [​](#notification-hooks #notification-hooks) Notification hooks
+
+To add custom behavior when notifications fire, such as playing a sound or sending a message, configure a [notification hook](./hooks.md#notification). Hooks run alongside terminal notifications, not as a replacement.
+
+### [​](#reduce-flicker-and-memory-usage #reduce-flicker-and-memory-usage) Reduce flicker and memory usage
+
+If you see flicker during long sessions, or your terminal scroll position jumps to the top while Claude is working, try [fullscreen rendering](./fullscreen.md). It uses an alternate rendering path that keeps memory flat and adds mouse support. Enable it with `CLAUDE_CODE_NO_FLICKER=1`.
+
+### [​](#handling-large-inputs #handling-large-inputs) Handling large inputs
 
 When working with extensive code or long instructions:
 
@@ -72,9 +69,9 @@ When working with extensive code or long instructions:
 * **Use file-based workflows**: Write content to a file and ask Claude to read it
 * **Be aware of VS Code limitations**: The VS Code terminal is particularly prone to truncating long pastes
 
-###  Vim Mode
+### [​](#vim-mode #vim-mode) Vim Mode
 
-Claude Code supports a subset of Vim keybindings that can be enabled with `/vim` or configured via `/config`.
+Claude Code supports a subset of Vim keybindings that can be enabled via `/config` → Editor mode. To set the mode directly in your config file, set the [`editorMode`](./settings.md#global-config-settings) global config key to `"vim"` in `~/.claude.json`.
 The supported subset includes:
 
 * Mode switching: `Esc` (to NORMAL), `i`/`I`, `a`/`A`, `o`/`O` (to INSERT)
@@ -85,6 +82,4 @@ The supported subset includes:
 * Indentation: `>>`/`<<`
 * Line operations: `J` (join lines)
 
-See [Interactive mode](/docs/en/interactive-mode#vim-editor-mode) for the complete reference.
-
-[Sandboxing](/docs/en/sandboxing)[Model configuration](/docs/en/model-config)
+See [Interactive mode](./interactive-mode.md#vim-editor-mode) for the complete reference.
