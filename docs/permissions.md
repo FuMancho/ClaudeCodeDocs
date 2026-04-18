@@ -1,267 +1,186 @@
-# Permissions
+# Configure permissions - Claude Code Docs
 
-* [Permissions](/docs/en/permissions)
-* [Sandboxing](/docs/en/sandboxing)
-* [Terminal configuration](/docs/en/terminal-config)
-* [Model configuration](/docs/en/model-config)
-* [Speed up responses with fast mode](/docs/en/fast-mode)
-* [Customize status line](/docs/en/statusline)
-* [Customize keyboard shortcuts](/docs/en/keybindings)
+The Claude Agent SDK provides permission controls to manage how Claude uses tools. Use permission modes and rules to define what’s allowed automatically, and the [`canUseTool` callback](./user-input.md) to handle everything else at runtime.
 
-* [Permission system](#permission-system)
-* [Manage permissions](#manage-permissions)
-* [Permission modes](#permission-modes)
-* [Permission rule syntax](#permission-rule-syntax)
-* [Match all uses of a tool](#match-all-uses-of-a-tool)
-* [Use specifiers for fine-grained control](#use-specifiers-for-fine-grained-control)
-* [Wildcard patterns](#wildcard-patterns)
-* [Tool-specific permission rules](#tool-specific-permission-rules)
-* [Bash](#bash)
-* [Read and Edit](#read-and-edit)
-* [WebFetch](#webfetch)
-* [MCP](#mcp)
-* [Agent (subagents)](#agent-subagents)
-* [Extend permissions with hooks](#extend-permissions-with-hooks)
-* [Working directories](#working-directories)
-* [How permissions interact with sandboxing](#how-permissions-interact-with-sandboxing)
-* [Managed settings](#managed-settings)
-* [Managed-only settings](#managed-only-settings)
-* [Example configurations](#example-configurations)
-* [See also](#see-also)
+This page covers permission modes and rules. To build interactive approval flows where users approve or deny tool requests at runtime, see [Handle approvals and user input](./user-input.md).
 
-Claude Code supports fine-grained permissions so that you can specify exactly what the agent is allowed to do and what it cannot. Permission settings can be checked into version control and distributed to all developers in your organization, as well as customized by individual developers.
+## [​](#how-permissions-are-evaluated) How permissions are evaluated
 
-##  Permission system
+When Claude requests a tool, the SDK checks permissions in this order:
 
-Claude Code uses a tiered permission system to balance power and safety:
+1
 
-| Tool type | Example | Approval required | ”Yes, don’t ask again” behavior |
-| --- | --- | --- | --- |
-| Read-only | File reads, Grep | No | N/A |
-| Bash commands | Shell execution | Yes | Permanently per project directory and command |
-| File modification | Edit/write files | Yes | Until session end |
+Hooks
 
-##  Manage permissions
+Run [hooks](./hooks.md) first, which can allow, deny, or continue to the next step
 
-You can view and manage Claude Code’s tool permissions with `/permissions`. This UI lists all permission rules and the settings.json file they are sourced from.
+2
 
-* **Allow** rules let Claude Code use the specified tool without manual approval.
-* **Ask** rules prompt for confirmation whenever Claude Code tries to use the specified tool.
-* **Deny** rules prevent Claude Code from using the specified tool.
+Deny rules
 
-Rules are evaluated in order: **deny -> ask -> allow**. The first matching rule wins, so deny rules always take precedence.
+Check `deny` rules (from `disallowed_tools` and [settings.json](./settings.md#permission-settings)). If a deny rule matches, the tool is blocked, even in `bypassPermissions` mode.
 
-##  Permission modes
+3
 
-Claude Code supports several permission modes that control how tools are approved. Set the `defaultMode` in your [settings files](/docs/en/settings#settings-files):
+Permission mode
 
-| Mode | Description |
+Apply the active [permission mode](#permission-modes). `bypassPermissions` approves everything that reaches this step. `acceptEdits` approves file operations. Other modes fall through.
+
+4
+
+Allow rules
+
+Check `allow` rules (from `allowed_tools` and settings.json). If a rule matches, the tool is approved.
+
+5
+
+canUseTool callback
+
+If not resolved by any of the above, call your [`canUseTool` callback](./user-input.md) for a decision. In `dontAsk` mode, this step is skipped and the tool is denied.
+
+!Permission evaluation flow diagram
+This page focuses on **allow and deny rules** and **permission modes**. For the other steps:
+
+* **Hooks:** run custom code to allow, deny, or modify tool requests. See [Control execution with hooks](./hooks.md).
+* **canUseTool callback:** prompt users for approval at runtime. See [Handle approvals and user input](./user-input.md).
+
+## [​](#allow-and-deny-rules) Allow and deny rules
+
+`allowed_tools` and `disallowed_tools` (TypeScript: `allowedTools` / `disallowedTools`) add entries to the allow and deny rule lists in the evaluation flow above. They control whether a tool call is approved, not whether the tool is available to Claude.
+
+| Option | Effect |
 | --- | --- |
-| `default` | Standard behavior: prompts for permission on first use of each tool |
-| `acceptEdits` | Automatically accepts file edit permissions for the session |
-| `plan` | Plan Mode: Claude can analyze but not modify files or execute commands |
-| `dontAsk` | Auto-denies tools unless pre-approved via `/permissions` or `permissions.allow` rules |
-| `bypassPermissions` | Skips all permission prompts (requires safe environment, see warning below) |
+| `allowed_tools=["Read", "Grep"]` | `Read` and `Grep` are auto-approved. Tools not listed here still exist and fall through to the permission mode and `canUseTool`. |
+| `disallowed_tools=["Bash"]` | `Bash` is always denied. Deny rules are checked first and hold in every permission mode, including `bypassPermissions`. |
 
-`bypassPermissions` mode disables all permission checks. Only use this in isolated environments like containers or VMs where Claude Code cannot cause damage. Administrators can prevent this mode by setting `disableBypassPermissionsMode` to `"disable"` in [managed settings](#managed-settings).
+For a locked-down agent, pair `allowedTools` with `permissionMode: "dontAsk"`. Listed tools are approved; anything else is denied outright instead of prompting:
 
-##  Permission rule syntax
-
-Permission rules follow the format `Tool` or `Tool(specifier)`.
-
-###  Match all uses of a tool
-
-To match all uses of a tool, use just the tool name without parentheses:
-
-| Rule | Effect |
-| --- | --- |
-| `Bash` | Matches all Bash commands |
-| `WebFetch` | Matches all web fetch requests |
-| `Read` | Matches all file reads |
-
-`Bash(*)` is equivalent to `Bash` and matches all Bash commands.
-
-###  Use specifiers for fine-grained control
-
-Add a specifier in parentheses to match specific tool uses:
-
-| Rule | Effect |
-| --- | --- |
-| `Bash(npm run build)` | Matches the exact command `npm run build` |
-| `Read(./.env)` | Matches reading the `.env` file in the current directory |
-| `WebFetch(domain:example.com)` | Matches fetch requests to example.com |
-
-###  Wildcard patterns
-
-Bash rules support glob patterns with `*`. Wildcards can appear at any position in the command. This configuration allows npm and git commit commands while blocking git push:
-
-```bash
-{
-  "permissions": {
-    "allow": [
-      "Bash(npm run *)",
-      "Bash(git commit *)",
-      "Bash(git * main)",
-      "Bash(* --version)",
-      "Bash(* --help *)"
-    ],
-    "deny": [
-      "Bash(git push *)"
-    ]
-  }
-}
 ```
-The space before `*` matters: `Bash(ls *)` matches `ls -la` but not `lsof`, while `Bash(ls*)` matches both. The legacy `:*` suffix syntax is equivalent to  `*` but is deprecated.
-
-##  Tool-specific permission rules
-
-###  Bash
-
-Bash permission rules support wildcard matching with `*`. Wildcards can appear at any position in the command, including at the beginning, middle, or end:
-
-* `Bash(npm run build)` matches the exact Bash command `npm run build`
-* `Bash(npm run test *)` matches Bash commands starting with `npm run test`
-* `Bash(npm *)` matches any command starting with `npm`
-* `Bash(* install)` matches any command ending with  `install`
-* `Bash(git * main)` matches commands like `git checkout main`, `git merge main`
-
-When `*` appears at the end with a space before it (like `Bash(ls *)`), it enforces a word boundary, requiring the prefix to be followed by a space or end-of-string. For example, `Bash(ls *)` matches `ls -la` but not `lsof`. In contrast, `Bash(ls*)` without a space matches both `ls -la` and `lsof` because there’s no word boundary constraint.
-
-Claude Code is aware of shell operators (like `&&`) so a prefix match rule like `Bash(safe-cmd *)` won’t give it permission to run the command `safe-cmd && other-cmd`.
-
-Bash permission patterns that try to constrain command arguments are fragile. For example, `Bash(curl http://github.com/ *)` intends to restrict curl to GitHub URLs, but won’t match variations like:
-
-* Options before URL: `curl -X GET http://github.com/...`
-* Different protocol: `curl https://github.com/...`
-* Redirects: `curl -L http://bit.ly/xyz` (redirects to github)
-* Variables: `URL=http://github.com && curl $URL`
-* Extra spaces: `curl http://github.com`
-
-For more reliable URL filtering, consider:
-
-* **Restrict Bash network tools**: use deny rules to block `curl`, `wget`, and similar commands, then use the WebFetch tool with `WebFetch(domain:github.com)` permission for allowed domains
-* **Use PreToolUse hooks**: implement a hook that validates URLs in Bash commands and blocks disallowed domains
-* Instructing Claude Code about your allowed curl patterns via CLAUDE.md
-
-Note that using WebFetch alone does not prevent network access. If Bash is allowed, Claude can still use `curl`, `wget`, or other tools to reach any URL.
-
-###  Read and Edit
-
-`Edit` rules apply to all built-in tools that edit files. Claude makes a best-effort attempt to apply `Read` rules to all built-in tools that read files like Grep and Glob.
-Read and Edit rules both follow the [gitignore](https://git-scm.com/docs/gitignore) specification with four distinct pattern types:
-
-| Pattern | Meaning | Example | Matches |
-| --- | --- | --- | --- |
-| `//path` | **Absolute** path from filesystem root | `Read(//Users/alice/secrets/**)` | `/Users/alice/secrets/**` |
-| `~/path` | Path from **home** directory | `Read(~/Documents/*.pdf)` | `/Users/alice/Documents/*.pdf` |
-| `/path` | Path **relative to project root** | `Edit(/src/**/*.ts)` | `<project root>/src/**/*.ts` |
-| `path` or `./path` | Path **relative to current directory** | `Read(*.env)` | `<cwd>/*.env` |
-
-A pattern like `/Users/alice/file` is NOT an absolute path. It’s relative to the project root. Use `//Users/alice/file` for absolute paths.
-
-Examples:
-
-* `Edit(/docs/**)`: edits in `<project>/docs/` (NOT `/docs/` and NOT `<project>/.claude/docs/`)
-* `Read(~/.zshrc)`: reads your home directory’s `.zshrc`
-* `Edit(//tmp/scratch.txt)`: edits the absolute path `/tmp/scratch.txt`
-* `Read(src/**)`: reads from `<current-directory>/src/`
-
-In gitignore patterns, `*` matches files in a single directory while `**` matches recursively across directories. To allow all file access, use just the tool name without parentheses: `Read`, `Edit`, or `Write`.
-
-###  WebFetch
-
-* `WebFetch(domain:example.com)` matches fetch requests to example.com
-
-###  MCP
-
-* `mcp__puppeteer` matches any tool provided by the `puppeteer` server (name configured in Claude Code)
-* `mcp__puppeteer__*` wildcard syntax that also matches all tools from the `puppeteer` server
-* `mcp__puppeteer__puppeteer_navigate` matches the `puppeteer_navigate` tool provided by the `puppeteer` server
-
-###  Agent (subagents)
-
-Use `Agent(AgentName)` rules to control which [subagents](/docs/en/sub-agents) Claude can use:
-
-* `Agent(Explore)` matches the Explore subagent
-* `Agent(Plan)` matches the Plan subagent
-* `Agent(my-custom-agent)` matches a custom subagent named `my-custom-agent`
-
-Add these rules to the `deny` array in your settings or use the `--disallowedTools` CLI flag to disable specific agents. To disable the Explore agent:
-
-```bash
-{
-  "permissions": {
-    "deny": ["Agent(Explore)"]
-  }
-}
+const options = {
+  allowedTools: ["Read", "Glob", "Grep"],
+  permissionMode: "dontAsk"
+};
 ```
-##  Extend permissions with hooks
 
-[Claude Code hooks](/docs/en/hooks-guide) provide a way to register custom shell commands to perform permission evaluation at runtime. When Claude Code makes a tool call, PreToolUse hooks run before the permission system, and the hook output can determine whether to approve or deny the tool call in place of the permission system.
+**`allowed_tools` does not constrain `bypassPermissions`.** `allowed_tools` only pre-approves the tools you list. Unlisted tools are not matched by any allow rule and fall through to the permission mode, where `bypassPermissions` approves them. Setting `allowed_tools=["Read"]` alongside `permission_mode="bypassPermissions"` still approves every tool, including `Bash`, `Write`, and `Edit`. If you need `bypassPermissions` but want specific tools blocked, use `disallowed_tools`.
 
-##  Working directories
+You can also configure allow, deny, and ask rules declaratively in `.claude/settings.json`. These rules are read when the `project` setting source is enabled, which it is for default `query()` options. If you set `setting_sources` (TypeScript: `settingSources`) explicitly, include `"project"` for them to apply. See [Permission settings](./settings.md#permission-settings) for the rule syntax.
 
-By default, Claude has access to files in the directory where it was launched. You can extend this access:
+## [​](#permission-modes) Permission modes
 
-* **During startup**: use `--add-dir <path>` CLI argument
-* **During session**: use `/add-dir` command
-* **Persistent configuration**: add to `additionalDirectories` in [settings files](/docs/en/settings#settings-files)
+Permission modes provide global control over how Claude uses tools. You can set the permission mode when calling `query()` or change it dynamically during streaming sessions.
 
-Files in additional directories follow the same permission rules as the original working directory: they become readable without prompts, and file editing permissions follow the current permission mode.
+### [​](#available-modes) Available modes
 
-##  How permissions interact with sandboxing
+The SDK supports these permission modes:
 
-Permissions and [sandboxing](/docs/en/sandboxing) are complementary security layers:
+| Mode | Description | Tool behavior |
+| --- | --- | --- |
+| `default` | Standard permission behavior | No auto-approvals; unmatched tools trigger your `canUseTool` callback |
+| `dontAsk` | Deny instead of prompting | Anything not pre-approved by `allowed_tools` or rules is denied; `canUseTool` is never called |
+| `acceptEdits` | Auto-accept file edits | File edits and [filesystem operations](#accept-edits-mode-acceptedits) (`mkdir`, `rm`, `mv`, etc.) are automatically approved |
+| `bypassPermissions` | Bypass all permission checks | All tools run without permission prompts (use with caution) |
+| `plan` | Planning mode | No tool execution; Claude plans without making changes |
+| `auto` (TypeScript only) | Model-classified approvals | A model classifier approves or denies each tool call. See [Auto mode](./permission-modes.md#eliminate-prompts-with-auto-mode) for availability |
 
-* **Permissions** control which tools Claude Code can use and which files or domains it can access. They apply to all tools (Bash, Read, Edit, WebFetch, MCP, and others).
-* **Sandboxing** provides OS-level enforcement that restricts the Bash tool’s filesystem and network access. It applies only to Bash commands and their child processes.
+**Subagent inheritance:** When the parent uses `bypassPermissions`, `acceptEdits`, or `auto`, all subagents inherit that mode and it cannot be overridden per subagent. Subagents may have different system prompts and less constrained behavior than your main agent, so inheriting `bypassPermissions` grants them full, autonomous system access without any approval prompts.
 
-Use both for defense-in-depth:
+### [​](#set-permission-mode) Set permission mode
 
-* Permission deny rules block Claude from even attempting to access restricted resources
-* Sandbox restrictions prevent Bash commands from reaching resources outside defined boundaries, even if a prompt injection bypasses Claude’s decision-making
-* Filesystem restrictions in the sandbox use Read and Edit deny rules, not separate sandbox configuration
-* Network restrictions combine WebFetch permission rules with the sandbox’s `allowedDomains` list
+You can set the permission mode once when starting a query, or change it dynamically while the session is active.
 
-##  Managed settings
+* At query time
+* During streaming
 
-For organizations that need centralized control over Claude Code configuration, administrators can deploy managed settings that cannot be overridden by user or project settings. These policy settings follow the same format as regular settings files and can be delivered through MDM/OS-level policies, managed settings files, or [server-managed settings](/docs/en/server-managed-settings). See [settings files](/docs/en/settings#settings-files) for delivery mechanisms and file locations.
+Pass `permission_mode` (Python) or `permissionMode` (TypeScript) when creating a query. This mode applies for the entire session unless changed dynamically.
 
-###  Managed-only settings
+Python
 
-Some settings are only effective in managed settings:
+TypeScript
 
-| Setting | Description |
-| --- | --- |
-| `disableBypassPermissionsMode` | Set to `"disable"` to prevent `bypassPermissions` mode and the `--dangerously-skip-permissions` flag |
-| `allowManagedPermissionRulesOnly` | When `true`, prevents user and project settings from defining `allow`, `ask`, or `deny` permission rules. Only rules in managed settings apply |
-| `allowManagedHooksOnly` | When `true`, prevents loading of user, project, and plugin hooks. Only managed hooks and SDK hooks are allowed |
-| `allowManagedMcpServersOnly` | When `true`, only `allowedMcpServers` from managed settings are respected. `deniedMcpServers` still merges from all sources. See [Managed MCP configuration](/docs/en/mcp#managed-mcp-configuration) |
-| `blockedMarketplaces` | Blocklist of marketplace sources. Blocked sources are checked before downloading, so they never touch the filesystem. See [managed marketplace restrictions](/docs/en/plugin-marketplaces#managed-marketplace-restrictions) |
-| `sandbox.network.allowManagedDomainsOnly` | When `true`, only `allowedDomains` and `WebFetch(domain:...)` allow rules from managed settings are respected. Non-allowed domains are blocked automatically without prompting the user. Denied domains still merge from all sources |
-| `strictKnownMarketplaces` | Controls which plugin marketplaces users can add. See [managed marketplace restrictions](/docs/en/plugin-marketplaces#managed-marketplace-restrictions) |
-| `allow_remote_sessions` | When `true`, allows users to start [Remote Control](/docs/en/remote-control) and [web sessions](/docs/en/claude-code-on-the-web). Defaults to `true`. Set to `false` to prevent remote session access |
+```
+import asyncio
+from claude_agent_sdk import query, ClaudeAgentOptions
 
-##  Settings precedence
 
-Permission rules follow the same [settings precedence](/docs/en/settings#settings-precedence) as all other Claude Code settings:
+async def main():
+    async for message in query(
+        prompt="Help me refactor this code",
+        options=ClaudeAgentOptions(
+            permission_mode="default",  # Set the mode here
+        ),
+    ):
+        if hasattr(message, "result"):
+            print(message.result)
 
-1. **Managed settings**: cannot be overridden by any other level, including command line arguments
-2. **Command line arguments**: temporary session overrides
-3. **Local project settings** (`.claude/settings.local.json`)
-4. **Shared project settings** (`.claude/settings.json`)
-5. **User settings** (`~/.claude/settings.json`)
 
-If a tool is denied at any level, no other level can allow it. For example, a managed settings deny cannot be overridden by `--allowedTools`, and `--disallowedTools` can add restrictions beyond what managed settings define.
-If a permission is allowed in user settings but denied in project settings, the project setting takes precedence and the permission is blocked.
+asyncio.run(main())
+```
 
-##  Example configurations
+Call `set_permission_mode()` (Python) or `setPermissionMode()` (TypeScript) to change the mode mid-session. The new mode takes effect immediately for all subsequent tool requests. This lets you start restrictive and loosen permissions as trust builds, for example switching to `acceptEdits` after reviewing Claude’s initial approach.
 
-This [repository](https://github.com/anthropics/claude-code/tree/main/examples/settings) includes starter settings configurations for common deployment scenarios. Use these as starting points and adjust them to fit your needs.
+Python
 
-##  See also
+TypeScript
 
-* [Sandboxing](/docs/en/sandboxing): OS-level filesystem and network isolation for Bash commands
-* [Hooks](/docs/en/hooks-guide): automate workflows and extend permission evaluation
+```
+import asyncio
+from claude_agent_sdk import query, ClaudeAgentOptions
 
-[Settings](/docs/en/settings)[Sandboxing](/docs/en/sandboxing)
+
+async def main():
+    q = query(
+        prompt="Help me refactor this code",
+        options=ClaudeAgentOptions(
+            permission_mode="default",  # Start in default mode
+        ),
+    )
+
+    # Change mode dynamically mid-session
+    await q.set_permission_mode("acceptEdits")
+
+    # Process messages with the new permission mode
+    async for message in q:
+        if hasattr(message, "result"):
+            print(message.result)
+
+
+asyncio.run(main())
+```
+
+### [​](#mode-details) Mode details
+
+#### [​](#accept-edits-mode-acceptedits) Accept edits mode (`acceptEdits`)
+
+Auto-approves file operations so Claude can edit code without prompting. Other tools (like Bash commands that aren’t filesystem operations) still require normal permissions.
+**Auto-approved operations:**
+
+* File edits (Edit, Write tools)
+* Filesystem commands: `mkdir`, `touch`, `rm`, `rmdir`, `mv`, `cp`, `sed`
+
+Both apply only to paths inside the working directory or `additionalDirectories`. Paths outside that scope and writes to protected paths still prompt.
+**Use when:** you trust Claude’s edits and want faster iteration, such as during prototyping or when working in an isolated directory.
+
+#### [​](#don’t-ask-mode-dontask) Don’t ask mode (`dontAsk`)
+
+Converts any permission prompt into a denial. Tools pre-approved by `allowed_tools`, `settings.json` allow rules, or a hook run as normal. Everything else is denied without calling `canUseTool`.
+**Use when:** you want a fixed, explicit tool surface for a headless agent and prefer a hard deny over silent reliance on `canUseTool` being absent.
+
+#### [​](#bypass-permissions-mode-bypasspermissions) Bypass permissions mode (`bypassPermissions`)
+
+Auto-approves all tool uses without prompts. Hooks still execute and can block operations if needed.
+
+Use with extreme caution. Claude has full system access in this mode. Only use in controlled environments where you trust all possible operations.`allowed_tools` does not constrain this mode. Every tool is approved, not just the ones you listed. Deny rules (`disallowed_tools`), explicit `ask` rules, and hooks are evaluated before the mode check and can still block a tool.
+
+#### [​](#plan-mode-plan) Plan mode (`plan`)
+
+Prevents tool execution entirely. Claude can analyze code and create plans but cannot make changes. Claude may use `AskUserQuestion` to clarify requirements before finalizing the plan. See [Handle approvals and user input](./user-input.md#handle-clarifying-questions) for handling these prompts.
+**Use when:** you want Claude to propose changes without executing them, such as during code review or when you need to approve changes before they’re made.
+
+## [​](#related-resources) Related resources
+
+For the other steps in the permission evaluation flow:
+
+* [Handle approvals and user input](./user-input.md): interactive approval prompts and clarifying questions
+* [Hooks guide](./hooks.md): run custom code at key points in the agent lifecycle
+* [Permission rules](./settings.md#permission-settings): declarative allow/deny rules in `settings.json`

@@ -1,306 +1,265 @@
-# Quickstart
+# Quickstart - Claude Code Docs
 
-* [Quickstart](/docs/en/quickstart)
-* [Changelog](https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md)
+Use the Agent SDK to build an AI agent that reads your code, finds bugs, and fixes them, all without manual intervention.
+**What you’ll do:**
 
-##### Core concepts
+1. Set up a project with the Agent SDK
+2. Create a file with some buggy code
+3. Run an agent that finds and fixes the bugs automatically
 
-* [How Claude Code works](/docs/en/how-claude-code-works)
-* [Extend Claude Code](/docs/en/features-overview)
-* [Store instructions and memories](/docs/en/memory)
-* [Common workflows](/docs/en/common-workflows)
-* [Best practices](/docs/en/best-practices)
+## [​](#prerequisites) Prerequisites
 
-##### Platforms and integrations
+* **Node.js 18+** or **Python 3.10+**
+* An **Anthropic account** ([sign up here](https://platform.claude.com/))
 
-* [Remote Control](/docs/en/remote-control)
-* [Claude Code on the web](/docs/en/claude-code-on-the-web)
-* [Chrome extension (beta)](/docs/en/chrome)
-* [Visual Studio Code](/docs/en/vs-code)
-* [JetBrains IDEs](/docs/en/jetbrains)
-* [GitHub Actions](/docs/en/github-actions)
-* [GitLab CI/CD](/docs/en/gitlab-ci-cd)
-* [Claude Code in Slack](/docs/en/slack)
+## [​](#setup) Setup
 
-* [Before you begin](#before-you-begin)
-* [Step 1: Install Claude Code](#step-1-install-claude-code)
-* [Step 2: Log in to your account](#step-2-log-in-to-your-account)
-* [Step 3: Start your first session](#step-3-start-your-first-session)
-* [Step 4: Ask your first question](#step-4-ask-your-first-question)
-* [Step 5: Make your first code change](#step-5-make-your-first-code-change)
-* [Step 6: Use Git with Claude Code](#step-6-use-git-with-claude-code)
-* [Step 7: Fix a bug or add a feature](#step-7-fix-a-bug-or-add-a-feature)
-* [Step 8: Test out other common workflows](#step-8-test-out-other-common-workflows)
-* [Essential commands](#essential-commands)
-* [Pro tips for beginners](#pro-tips-for-beginners)
-* [What’s next?](#what%E2%80%99s-next)
-* [Getting help](#getting-help)
+1
 
-This quickstart guide will have you using AI-powered coding assistance in a few minutes. By the end, you’ll understand how to use Claude Code for common development tasks.
+Create a project folder
 
-##  Before you begin
+Create a new directory for this quickstart:
 
-Make sure you have:
-
-* A terminal or command prompt open
-  + If you’ve never used the terminal before, check out the [terminal guide](/docs/en/terminal-guide)
-* A code project to work with
-* A [Claude subscription](https://claude.com/pricing) (Pro, Max, Teams, or Enterprise), [Claude Console](https://console.anthropic.com/) account, or access through a [supported cloud provider](/docs/en/third-party-integrations)
-
-This guide covers the terminal CLI. Claude Code is also available on the [web](https://claude.ai/code), as a [desktop app](/docs/en/desktop), in [VS Code](/docs/en/vs-code) and [JetBrains IDEs](/docs/en/jetbrains), in [Slack](/docs/en/slack), and in CI/CD with [GitHub Actions](/docs/en/github-actions) and [GitLab](/docs/en/gitlab-ci-cd). See [all interfaces](/docs/en/overview#use-claude-code-everywhere).
-
-##  Step 1: Install Claude Code
-
-To install Claude Code, use one of the following methods:
-
-* Native Install (Recommended)
-* Homebrew
-* WinGet
-
-**macOS, Linux, WSL:**
-
-```bash
-curl -fsSL https://claude.ai/install.sh | bash
 ```
-**Windows PowerShell:**
-
-```bash
-irm https://claude.ai/install.ps1 | iex
+mkdir my-agent && cd my-agent
 ```
-**Windows CMD:**
 
-```bash
-curl -fsSL https://claude.ai/install.cmd -o install.cmd && install.cmd && del install.cmd
+For your own projects, you can run the SDK from any folder; it will have access to files in that directory and its subdirectories by default.
+
+2
+
+Install the SDK
+
+Install the Agent SDK package for your language:
+
+* TypeScript
+* Python (uv)
+* Python (pip)
+
 ```
-**Windows requires [Git for Windows](https://git-scm.com/downloads/win).** Install it first if you don’t have it.
-
-Native installations automatically update in the background to keep you on the latest version.
-
-```bash
-brew install --cask claude-code
+npm install @anthropic-ai/claude-agent-sdk
 ```
-Homebrew installations do not auto-update. Run `brew upgrade claude-code` periodically to get the latest features and security fixes.
 
-```bash
-winget install Anthropic.ClaudeCode
+uv Python package manager is a fast Python package manager that handles virtual environments automatically:
+
 ```
-WinGet installations do not auto-update. Run `winget upgrade Anthropic.ClaudeCode` periodically to get the latest features and security fixes.
-
-##  Step 2: Log in to your account
-
-Claude Code requires an account to use. When you start an interactive session with the `claude` command, you’ll need to log in:
-
-```bash
-claude
-# You'll be prompted to log in on first use
+uv init && uv add claude-agent-sdk
 ```
-```bash
-/login
-# Follow the prompts to log in with your account
+
+Create a virtual environment first, then install:
+
 ```
-You can log in using any of these account types:
-
-* [Claude Pro, Max, Teams, or Enterprise](https://claude.com/pricing) (recommended)
-* [Claude Console](https://console.anthropic.com/) (API access with pre-paid credits). On first login, a “Claude Code” workspace is automatically created in the Console for centralized cost tracking.
-* [Amazon Bedrock, Google Vertex AI, or Microsoft Foundry](/docs/en/third-party-integrations) (enterprise cloud providers)
-
-Once logged in, your credentials are stored and you won’t need to log in again. To switch accounts later, use the `/login` command.
-
-##  Step 3: Start your first session
-
-Open your terminal in any project directory and start Claude Code:
-
-```bash
-cd /path/to/your/project
-claude
+python3 -m venv .venv && source .venv/bin/activate
+pip3 install claude-agent-sdk
 ```
-You’ll see the Claude Code welcome screen with your session information, recent conversations, and latest updates. Type `/help` for available commands or `/resume` to continue a previous conversation.
 
-After logging in (Step 2), your credentials are stored on your system. Learn more in [Credential Management](/docs/en/authentication#credential-management).
+The TypeScript SDK bundles a native Claude Code binary for your platform as an optional dependency, so you don’t need to install Claude Code separately.
 
-##  Step 4: Ask your first question
+3
 
-Let’s start with understanding your codebase. Try one of these commands:
+Set your API key
 
-```bash
-what does this project do?
+Get an API key from the [Claude Console](https://platform.claude.com/), then create a `.env` file in your project directory:
+
 ```
-Claude will analyze your files and provide a summary. You can also ask more specific questions:
-
-```bash
-what technologies does this project use?
+ANTHROPIC_API_KEY=your-api-key
 ```
-```bash
-where is the main entry point?
+
+The SDK also supports authentication via third-party API providers:
+
+* **Amazon Bedrock**: set `CLAUDE_CODE_USE_BEDROCK=1` environment variable and configure AWS credentials
+* **Google Vertex AI**: set `CLAUDE_CODE_USE_VERTEX=1` environment variable and configure Google Cloud credentials
+* **Microsoft Azure**: set `CLAUDE_CODE_USE_FOUNDRY=1` environment variable and configure Azure credentials
+
+See the setup guides for [Bedrock](./amazon-bedrock.md), [Vertex AI](./google-vertex-ai.md), or [Azure AI Foundry](./microsoft-foundry.md) for details.
+
+Unless previously approved, Anthropic does not allow third party developers to offer claude.ai login or rate limits for their products, including agents built on the Claude Agent SDK. Please use the API key authentication methods described in this document instead.
+
+## [​](#create-a-buggy-file) Create a buggy file
+
+This quickstart walks you through building an agent that can find and fix bugs in code. First, you need a file with some intentional bugs for the agent to fix. Create `utils.py` in the `my-agent` directory and paste the following code:
+
 ```
-```bash
-explain the folder structure
+def calculate_average(numbers):
+    total = 0
+    for num in numbers:
+        total += num
+    return total / len(numbers)
+
+
+def get_user_name(user):
+    return user["name"].upper()
 ```
-You can also ask Claude about its own capabilities:
 
-```bash
-what can Claude Code do?
+This code has two bugs:
+
+1. `calculate_average([])` crashes with division by zero
+2. `get_user_name(None)` crashes with a TypeError
+
+## [​](#build-an-agent-that-finds-and-fixes-bugs) Build an agent that finds and fixes bugs
+
+Create `agent.py` if you’re using the Python SDK, or `agent.ts` for TypeScript:
+
+Python
+
+TypeScript
+
 ```
-```bash
-how do I create custom skills in Claude Code?
+import asyncio
+from claude_agent_sdk import query, ClaudeAgentOptions, AssistantMessage, ResultMessage
+
+
+async def main():
+    # Agentic loop: streams messages as Claude works
+    async for message in query(
+        prompt="Review utils.py for bugs that would cause crashes. Fix any issues you find.",
+        options=ClaudeAgentOptions(
+            allowed_tools=["Read", "Edit", "Glob"],  # Tools Claude can use
+            permission_mode="acceptEdits",  # Auto-approve file edits
+        ),
+    ):
+        # Print human-readable output
+        if isinstance(message, AssistantMessage):
+            for block in message.content:
+                if hasattr(block, "text"):
+                    print(block.text)  # Claude's reasoning
+                elif hasattr(block, "name"):
+                    print(f"Tool: {block.name}")  # Tool being called
+        elif isinstance(message, ResultMessage):
+            print(f"Done: {message.subtype}")  # Final result
+
+
+asyncio.run(main())
 ```
-```bash
-can Claude Code work with Docker?
+
+This code has three main parts:
+
+1. **`query`**: the main entry point that creates the agentic loop. It returns an async iterator, so you use `async for` to stream messages as Claude works. See the full API in the [Python](./python.md#query) or [TypeScript](./typescript.md#query) SDK reference.
+2. **`prompt`**: what you want Claude to do. Claude figures out which tools to use based on the task.
+3. **`options`**: configuration for the agent. This example uses `allowedTools` to pre-approve `Read`, `Edit`, and `Glob`, and `permissionMode: "acceptEdits"` to auto-approve file changes. Other options include `systemPrompt`, `mcpServers`, and more. See all options for [Python](./python.md#claude-agent-options) or [TypeScript](./typescript.md#options).
+
+The `async for` loop keeps running as Claude thinks, calls tools, observes results, and decides what to do next. Each iteration yields a message: Claude’s reasoning, a tool call, a tool result, or the final outcome. The SDK handles the orchestration (tool execution, context management, retries) so you just consume the stream. The loop ends when Claude finishes the task or hits an error.
+The message handling inside the loop filters for human-readable output. Without filtering, you’d see raw message objects including system initialization and internal state, which is useful for debugging but noisy otherwise.
+
+This example uses streaming to show progress in real-time. If you don’t need live output (e.g., for background jobs or CI pipelines), you can collect all messages at once. See [Streaming vs. single-turn mode](./streaming-vs-single-mode.md) for details.
+
+### [​](#run-your-agent) Run your agent
+
+Your agent is ready. Run it with the following command:
+
+* Python
+* TypeScript
+
 ```
-Claude Code reads your project files as needed. You don’t have to manually add context.
-
-##  Step 5: Make your first code change
-
-Now let’s make Claude Code do some actual coding. Try a simple task:
-
-```bash
-add a hello world function to the main file
+python3 agent.py
 ```
-Claude Code will:
 
-1. Find the appropriate file
-2. Show you the proposed changes
-3. Ask for your approval
-4. Make the edit
-
-Claude Code always asks for permission before modifying files. You can approve individual changes or enable “Accept all” mode for a session.
-
-##  Step 6: Use Git with Claude Code
-
-Claude Code makes Git operations conversational:
-
-```bash
-what files have I changed?
 ```
-```bash
-commit my changes with a descriptive message
+npx tsx agent.ts
 ```
-You can also prompt for more complex Git operations:
 
-```bash
-create a new branch called feature/quickstart
+After running, check `utils.py`. You’ll see defensive code handling empty lists and null users. Your agent autonomously:
+
+1. **Read** `utils.py` to understand the code
+2. **Analyzed** the logic and identified edge cases that would crash
+3. **Edited** the file to add proper error handling
+
+This is what makes the Agent SDK different: Claude executes tools directly instead of asking you to implement them.
+
+If you see “API key not found”, make sure you’ve set the `ANTHROPIC_API_KEY` environment variable in your `.env` file or shell environment. See the [full troubleshooting guide](./troubleshooting.md) for more help.
+
+### [​](#try-other-prompts) Try other prompts
+
+Now that your agent is set up, try some different prompts:
+
+* `"Add docstrings to all functions in utils.py"`
+* `"Add type hints to all functions in utils.py"`
+* `"Create a README.md documenting the functions in utils.py"`
+
+### [​](#customize-your-agent) Customize your agent
+
+You can modify your agent’s behavior by changing the options. Here are a few examples:
+**Add web search capability:**
+
+Python
+
+TypeScript
+
 ```
-```bash
-show me the last 5 commits
+options = ClaudeAgentOptions(
+    allowed_tools=["Read", "Edit", "Glob", "WebSearch"], permission_mode="acceptEdits"
+)
 ```
-```bash
-help me resolve merge conflicts
+
+**Give Claude a custom system prompt:**
+
+Python
+
+TypeScript
+
 ```
-##  Step 7: Fix a bug or add a feature
-
-Claude is proficient at debugging and feature implementation.
-Describe what you want in natural language:
-
-```bash
-add input validation to the user registration form
+options = ClaudeAgentOptions(
+    allowed_tools=["Read", "Edit", "Glob"],
+    permission_mode="acceptEdits",
+    system_prompt="You are a senior Python developer. Always follow PEP 8 style guidelines.",
+)
 ```
-Or fix existing issues:
 
-```bash
-there's a bug where users can submit empty forms - fix it
+**Run commands in the terminal:**
+
+Python
+
+TypeScript
+
 ```
-Claude Code will:
-
-* Locate the relevant code
-* Understand the context
-* Implement a solution
-* Run tests if available
-
-##  Step 8: Test out other common workflows
-
-There are a number of ways to work with Claude:
-**Refactor code**
-
-```bash
-refactor the authentication module to use async/await instead of callbacks
+options = ClaudeAgentOptions(
+    allowed_tools=["Read", "Edit", "Glob", "Bash"], permission_mode="acceptEdits"
+)
 ```
-**Write tests**
 
-```bash
-write unit tests for the calculator functions
-```
-**Update documentation**
+With `Bash` enabled, try: `"Write unit tests for utils.py, run them, and fix any failures"`
 
-```bash
-update the README with installation instructions
-```
-**Code review**
+## [​](#key-concepts) Key concepts
 
-```bash
-review my changes and suggest improvements
-```
-Talk to Claude like you would a helpful colleague. Describe what you want to achieve, and it will help you get there.
+**Tools** control what your agent can do:
 
-##  Essential commands
+| Tools | What the agent can do |
+| --- | --- |
+| `Read`, `Glob`, `Grep` | Read-only analysis |
+| `Read`, `Edit`, `Glob` | Analyze and modify code |
+| `Read`, `Edit`, `Bash`, `Glob`, `Grep` | Full automation |
 
-Here are the most important commands for daily use:
+**Permission modes** control how much human oversight you want:
 
-| Command | What it does | Example |
+| Mode | Behavior | Use case |
 | --- | --- | --- |
-| `claude` | Start interactive mode | `claude` |
-| `claude "task"` | Run a one-time task | `claude "fix the build error"` |
-| `claude -p "query"` | Run one-off query, then exit | `claude -p "explain this function"` |
-| `claude -c` | Continue most recent conversation in current directory | `claude -c` |
-| `claude -r` | Resume a previous conversation | `claude -r` |
-| `claude commit` | Create a Git commit | `claude commit` |
-| `/clear` | Clear conversation history | `/clear` |
-| `/help` | Show available commands | `/help` |
-| `exit` or Ctrl+C | Exit Claude Code | `exit` |
+| `acceptEdits` | Auto-approves file edits and common filesystem commands, asks for other actions | Trusted development workflows |
+| `dontAsk` | Denies anything not in `allowedTools` | Locked-down headless agents |
+| `auto` (TypeScript only) | A model classifier approves or denies each tool call | Autonomous agents with safety guardrails |
+| `bypassPermissions` | Runs every tool without prompts | Sandboxed CI, fully trusted environments |
+| `default` | Requires a `canUseTool` callback to handle approval | Custom approval flows |
 
-See the [CLI reference](/docs/en/cli-reference) for a complete list of commands.
+The example above uses `acceptEdits` mode, which auto-approves file operations so the agent can run without interactive prompts. If you want to prompt users for approval, use `default` mode and provide a [`canUseTool` callback](./user-input.md) that collects user input. For more control, see [Permissions](./permissions.md).
 
-##  Pro tips for beginners
+## [​](#troubleshooting) Troubleshooting
 
-For more, see [best practices](/docs/en/best-practices) and [common workflows](/docs/en/common-workflows).
+### [​](#api-error-thinking-type-enabled-is-not-supported-for-this-model) API error `thinking.type.enabled` is not supported for this model
 
-Be specific with your requests
+Claude Opus 4.7 replaces `thinking.type.enabled` with `thinking.type.adaptive`. Older Agent SDK versions fail with the following API error when you select `claude-opus-4-7`:
 
-Instead of: “fix the bug”Try: “fix the login bug where users see a blank screen after entering wrong credentials”
-
-Use step-by-step instructions
-
-Break complex tasks into steps:
-
-```bash
-1. create a new database table for user profiles
-2. create an API endpoint to get and update user profiles
-3. build a webpage that allows users to see and edit their information
 ```
-Let Claude explore first
-
-Before making changes, let Claude understand your code:
-
-```bash
-analyze the database schema
+API Error: 400 {"type":"invalid_request_error","message":"\"thinking.type.enabled\" is not supported for this model. Use \"thinking.type.adaptive\" and \"output_config.effort\" to control thinking behavior."}
 ```
-```bash
-build a dashboard showing products that are most frequently returned by our UK customers
-```
-Save time with shortcuts
 
-* Press `?` to see all available keyboard shortcuts
-* Use Tab for command completion
-* Press ↑ for command history
-* Type `/` to see all commands and skills
+Upgrade to Agent SDK v0.2.111 or later to use Opus 4.7.
 
-##  What’s next?
+## [​](#next-steps) Next steps
 
-Now that you’ve learned the basics, explore more advanced features:
+Now that you’ve created your first agent, learn how to extend its capabilities and tailor it to your use case:
 
-[## How Claude Code works
-
-Understand the agentic loop, built-in tools, and how Claude Code interacts with your project](/docs/en/how-claude-code-works)[## Best practices
-
-Get better results with effective prompting and project setup](/docs/en/best-practices)[## Common workflows
-
-Step-by-step guides for common tasks](/docs/en/common-workflows)[## Extend Claude Code
-
-Customize with CLAUDE.md, skills, hooks, MCP, and more](/docs/en/features-overview)
-
-##  Getting help
-
-* **In Claude Code**: Type `/help` or ask “how do I…”
-* **Documentation**: You’re here! Browse other guides
-* **Community**: Join our [Discord](https://www.anthropic.com/discord) for tips and support
-
-[Overview](/docs/en/overview)[Changelog](/docs/en/changelog)
+* **[Permissions](./permissions.md)**: control what your agent can do and when it needs approval
+* **[Hooks](./hooks.md)**: run custom code before or after tool calls
+* **[Sessions](./sessions.md)**: build multi-turn agents that maintain context
+* **[MCP servers](./mcp.md)**: connect to databases, browsers, APIs, and other external systems
+* **[Hosting](./hosting.md)**: deploy agents to Docker, cloud, and CI/CD
+* **[Example agents](https://github.com/anthropics/claude-agent-sdk-demos)**: see complete examples: email assistant, research agent, and more
