@@ -1,20 +1,5 @@
 # Devcontainer
 
-* [Amazon Bedrock](/docs/en/amazon-bedrock)
-* [Google Vertex AI](/docs/en/google-vertex-ai)
-* [Microsoft Foundry](/docs/en/microsoft-foundry)
-* [Network configuration](/docs/en/network-config)
-* [LLM gateway](/docs/en/llm-gateway)
-* [Development containers](/docs/en/devcontainer)
-
-* [Key features](#key-features)
-* [Customization options](#customization-options)
-* [Example use cases](#example-use-cases)
-* [Secure client work](#secure-client-work)
-* [Team onboarding](#team-onboarding)
-* [Consistent CI/CD environments](#consistent-ci%2Fcd-environments)
-* [Related resources](#related-resources)
-
 The reference [devcontainer setup](https://github.com/anthropics/claude-code/tree/main/.devcontainer) and associated [Dockerfile](https://github.com/anthropics/claude-code/blob/main/.devcontainer/Dockerfile) offer a preconfigured development container that you can use as is, or customize for your needs. This devcontainer works with the Visual Studio Code [Dev Containers extension](https://code.visualstudio.com/docs/devcontainers/containers) and similar tools.
 The container’s enhanced security measures (isolation and firewall rules) allow you to run `claude --dangerously-skip-permissions` to bypass permission prompts for unattended operation.
 
@@ -23,7 +8,7 @@ When executed with `--dangerously-skip-permissions`, devcontainers don’t preve
 We recommend only using devcontainers when developing with trusted repositories.
 Always maintain good security practices and monitor Claude’s activities.
 
-##  Key features
+## [​](#key-features) Key features
 
 * **Production-ready Node.js**: Built on Node.js 20 with essential development dependencies
 * **Security by design**: Custom firewall restricting network access to only necessary services
@@ -32,10 +17,16 @@ Always maintain good security practices and monitor Claude’s activities.
 * **Session persistence**: Preserves command history and configurations between container restarts
 * **Works everywhere**: Compatible with macOS, Windows, and Linux development environments
 
-1. Install VS Code and the Remote - Containers extension
+## [​](#getting-started-in-4-steps) Getting started in 4 steps
+
+1. Install VS Code and the [Dev Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)
 2. Clone the [Claude Code reference implementation](https://github.com/anthropics/claude-code/tree/main/.devcontainer) repository
 3. Open the repository in VS Code
-4. When prompted, click “Reopen in Container” (or use Command Palette: Cmd+Shift+P → “Remote-Containers: Reopen in Container”)
+4. When prompted, click “Reopen in Container” (or use Command Palette: Cmd+Shift+P → “Dev Containers: Reopen in Container”)
+
+Once the container finishes building, open a terminal in VS Code with `` Ctrl+` `` and run `claude` to authenticate and start your first session. The container has Claude Code preinstalled, so you can begin working immediately. Your project files are mounted into the container, and any code Claude writes appears in your local repository.
+
+## [​](#configuration-breakdown) Configuration breakdown
 
 The devcontainer setup consists of three primary components:
 
@@ -43,7 +34,7 @@ The devcontainer setup consists of three primary components:
 * [**Dockerfile**](https://github.com/anthropics/claude-code/blob/main/.devcontainer/Dockerfile): Defines the container image and installed tools
 * [**init-firewall.sh**](https://github.com/anthropics/claude-code/blob/main/.devcontainer/init-firewall.sh): Establishes network security rules
 
-##  Security features
+## [​](#security-features) Security features
 
 The container implements a multi-layered security approach with its firewall configuration:
 
@@ -53,7 +44,7 @@ The container implements a multi-layered security approach with its firewall con
 * **Startup verification**: Validates firewall rules when the container initializes
 * **Isolation**: Creates a secure development environment separated from your main system
 
-##  Customization options
+## [​](#customization-options) Customization options
 
 The devcontainer configuration is designed to be adaptable to your needs:
 
@@ -62,24 +53,22 @@ The devcontainer configuration is designed to be adaptable to your needs:
 * Adjust network access permissions
 * Customize shell configurations and developer tooling
 
-##  Example use cases
+## [​](#example-use-cases) Example use cases
 
-###  Secure client work
+### [​](#secure-client-work) Secure client work
 
 Use devcontainers to isolate different client projects, ensuring code and credentials never mix between environments.
 
-###  Team onboarding
+### [​](#team-onboarding) Team onboarding
 
 New team members can get a fully configured development environment in minutes, with all necessary tools and settings pre-installed.
 
-###  Consistent CI/CD environments
+### [​](#consistent-ci/cd-environments) Consistent CI/CD environments
 
 Mirror your devcontainer configuration in CI/CD pipelines to ensure development and production environments match.
 
-##  Related resources
+## [​](#related-resources) Related resources
 
 * [VS Code devcontainers documentation](https://code.visualstudio.com/docs/devcontainers/containers)
-* [Claude Code security best practices](/docs/en/security)
-* [Enterprise network configuration](/docs/en/network-config)
-
-[LLM gateway](/docs/en/llm-gateway)
+* [Claude Code security best practices](./security.md)
+* [Enterprise network configuration](./network-config.md)
