@@ -1,77 +1,38 @@
 # Gitlab Ci Cd
 
-* [Quickstart](/docs/en/quickstart)
-* [Changelog](https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md)
-
-##### Core concepts
-
-* [How Claude Code works](/docs/en/how-claude-code-works)
-* [Extend Claude Code](/docs/en/features-overview)
-* [Store instructions and memories](/docs/en/memory)
-* [Common workflows](/docs/en/common-workflows)
-* [Best practices](/docs/en/best-practices)
-
-##### Platforms and integrations
-
-* [Remote Control](/docs/en/remote-control)
-* [Claude Code on the web](/docs/en/claude-code-on-the-web)
-* [Chrome extension (beta)](/docs/en/chrome)
-* [Visual Studio Code](/docs/en/vs-code)
-* [JetBrains IDEs](/docs/en/jetbrains)
-* [GitHub Actions](/docs/en/github-actions)
-* [GitLab CI/CD](/docs/en/gitlab-ci-cd)
-* [Claude Code in Slack](/docs/en/slack)
-
-* [Why use Claude Code with GitLab?](#why-use-claude-code-with-gitlab)
-* [How it works](#how-it-works)
-* [What can Claude do?](#what-can-claude-do)
-* [Quick setup](#quick-setup)
-* [Manual setup (recommended for production)](#manual-setup-recommended-for-production)
-* [Example use cases](#example-use-cases)
-* [Turn issues into MRs](#turn-issues-into-mrs)
-* [Get implementation help](#get-implementation-help)
-* [Fix bugs quickly](#fix-bugs-quickly)
-* [Using with AWS Bedrock & Google Vertex AI](#using-with-aws-bedrock-%26-google-vertex-ai)
-* [Basic .gitlab-ci.yml (Claude API)](#basic-gitlab-ci-yml-claude-api)
-* [AWS Bedrock job example (OIDC)](#aws-bedrock-job-example-oidc)
-* [Google Vertex AI job example (Workload Identity Federation)](#google-vertex-ai-job-example-workload-identity-federation)
-* [Best practices](#best-practices)
-* [CLAUDE.md configuration](#claude-md-configuration)
-* [Optimizing performance](#optimizing-performance)
-* [CI costs](#ci-costs)
-* [Claude not responding to @claude commands](#claude-not-responding-to-%40claude-commands)
-* [Job can’t write comments or open MRs](#job-can%E2%80%99t-write-comments-or-open-mrs)
-* [Advanced configuration](#advanced-configuration)
-* [Common parameters and variables](#common-parameters-and-variables)
-* [Customizing Claude’s behavior](#customizing-claude%E2%80%99s-behavior)
+> ## Documentation Index
+>
+> Fetch the complete documentation index at: <https://code.claude.com/docs/llms.txt>
+>
+> Use this file to discover all available pages before exploring further.
 
 Claude Code for GitLab CI/CD is currently in beta. Features and functionality may evolve as we refine the experience.This integration is maintained by GitLab. For support, see the following [GitLab issue](https://gitlab.com/gitlab-org/gitlab/-/issues/573776).
 
-This integration is built on top of the [Claude Code CLI and Agent SDK](https://platform.claude.com/docs/en/agent-sdk/overview), enabling programmatic use of Claude in your CI/CD jobs and custom automation workflows.
+This integration is built on top of the [Claude Code CLI and Agent SDK](./overview.md), enabling programmatic use of Claude in your CI/CD jobs and custom automation workflows.
 
-##  Why use Claude Code with GitLab?
+## [​](#why-use-claude-code-with-gitlab) Why use Claude Code with GitLab?
 
 * **Instant MR creation**: Describe what you need, and Claude proposes a complete MR with changes and explanation
 * **Automated implementation**: Turn issues into working code with a single command or mention
 * **Project-aware**: Claude follows your `CLAUDE.md` guidelines and existing code patterns
 * **Simple setup**: Add one job to `.gitlab-ci.yml` and a masked CI/CD variable
-* **Enterprise-ready**: Choose Claude API, AWS Bedrock, or Google Vertex AI to meet data residency and procurement needs
+* **Enterprise-ready**: Choose Claude API, Amazon Bedrock, or Google Vertex AI to meet data residency and procurement needs
 * **Secure by default**: Runs in your GitLab runners with your branch protection and approvals
 
-##  How it works
+## [​](#how-it-works) How it works
 
 Claude Code uses GitLab CI/CD to run AI tasks in isolated jobs and commit results back via MRs:
 
 1. **Event-driven orchestration**: GitLab listens for your chosen triggers (for example, a comment that mentions `@claude` in an issue, MR, or review thread). The job collects context from the thread and repository, builds prompts from that input, and runs Claude Code.
 2. **Provider abstraction**: Use the provider that fits your environment:
    * Claude API (SaaS)
-   * AWS Bedrock (IAM-based access, cross-region options)
+   * Amazon Bedrock (IAM-based access, cross-region options)
    * Google Vertex AI (GCP-native, Workload Identity Federation)
 3. **Sandboxed execution**: Each interaction runs in a container with strict network and filesystem rules. Claude Code enforces workspace-scoped permissions to constrain writes. Every change flows through an MR so reviewers see the diff and approvals still apply.
 
 Pick regional endpoints to reduce latency and meet data-sovereignty requirements while using existing cloud agreements.
 
-##  What can Claude do?
+## [​](#what-can-claude-do) What can Claude do?
 
 Claude Code enables powerful CI/CD workflows that transform how you work with code:
 
@@ -81,9 +42,9 @@ Claude Code enables powerful CI/CD workflows that transform how you work with co
 * Fix bugs and regressions identified by tests or comments
 * Respond to follow-up comments to iterate on requested changes
 
-##  Setup
+## [​](#setup) Setup
 
-###  Quick setup
+### [​](#quick-setup) Quick setup
 
 The fastest way to get started is to add a minimal job to your `.gitlab-ci.yml` and set your API key as a masked variable.
 
@@ -92,7 +53,7 @@ The fastest way to get started is to add a minimal job to your `.gitlab-ci.yml` 
    * Add `ANTHROPIC_API_KEY` (masked, protected as needed)
 2. **Add a Claude job to `.gitlab-ci.yml`**
 
-```bash
+```text
 stages:
   - ai
 
@@ -123,18 +84,18 @@ claude:
       --permission-mode acceptEdits
       --allowedTools "Bash Read Edit Write mcp__gitlab"
       --debug
-```
+```text
 After adding the job and your `ANTHROPIC_API_KEY` variable, test by running the job manually from **CI/CD** → **Pipelines**, or trigger it from an MR to let Claude propose updates in a branch and open an MR if needed.
 
-To run on AWS Bedrock or Google Vertex AI instead of the Claude API, see the [Using with AWS Bedrock & Google Vertex AI](#using-with-aws-bedrock--google-vertex-ai) section below for authentication and environment setup.
+To run on Amazon Bedrock or Google Vertex AI instead of the Claude API, see the [Using with Amazon Bedrock & Google Vertex AI](#using-with-amazon-bedrock--google-vertex-ai) section below for authentication and environment setup.
 
-###  Manual setup (recommended for production)
+### [​](#manual-setup-recommended-for-production) Manual setup (recommended for production)
 
 If you prefer a more controlled setup or need enterprise providers:
 
 1. **Configure provider access**:
    * **Claude API**: Create and store `ANTHROPIC_API_KEY` as a masked CI/CD variable
-   * **AWS Bedrock**: **Configure GitLab** → **AWS OIDC** and create an IAM role for Bedrock
+   * **Amazon Bedrock**: **Configure GitLab** → **AWS OIDC** and create an IAM role for Bedrock
    * **Google Vertex AI**: **Configure Workload Identity Federation for GitLab** → **GCP**
 2. **Add project credentials for GitLab API operations**:
    * Use `CI_JOB_TOKEN` by default, or create a Project Access Token with `api` scope
@@ -144,45 +105,45 @@ If you prefer a more controlled setup or need enterprise providers:
    * Add a project webhook for “Comments (notes)” to your event listener (if you use one)
    * Have the listener call the pipeline trigger API with variables like `AI_FLOW_INPUT` and `AI_FLOW_CONTEXT` when a comment contains `@claude`
 
-##  Example use cases
+## [​](#example-use-cases) Example use cases
 
-###  Turn issues into MRs
+### [​](#turn-issues-into-mrs) Turn issues into MRs
 
 In an issue comment:
 
-```bash
+```text
 @claude implement this feature based on the issue description
-```
+```text
 Claude analyzes the issue and codebase, writes changes in a branch, and opens an MR for review.
 
-###  Get implementation help
+### [​](#get-implementation-help) Get implementation help
 
 In an MR discussion:
 
-```bash
+```text
 @claude suggest a concrete approach to cache the results of this API call
-```
+```text
 Claude proposes changes, adds code with appropriate caching, and updates the MR.
 
-###  Fix bugs quickly
+### [​](#fix-bugs-quickly) Fix bugs quickly
 
 In an issue or MR comment:
 
-```bash
+```text
 @claude fix the TypeError in the user dashboard component
-```
+```text
 Claude locates the bug, implements a fix, and updates the branch or opens a new MR.
 
-##  Using with AWS Bedrock & Google Vertex AI
+## [​](#using-with-amazon-bedrock-&-google-vertex-ai) Using with Amazon Bedrock & Google Vertex AI
 
 For enterprise environments, you can run Claude Code entirely on your cloud infrastructure with the same developer experience.
 
-* AWS Bedrock
+* Amazon Bedrock
 * Google Vertex AI
 
-###  Prerequisites
+### [​](#prerequisites) Prerequisites
 
-Before setting up Claude Code with AWS Bedrock, you need:
+Before setting up Claude Code with Amazon Bedrock, you need:
 
 1. An AWS account with Amazon Bedrock access to the desired Claude models
 2. GitLab configured as an OIDC identity provider in AWS IAM
@@ -191,7 +152,7 @@ Before setting up Claude Code with AWS Bedrock, you need:
    * `AWS_ROLE_TO_ASSUME` (role ARN)
    * `AWS_REGION` (Bedrock region)
 
-###  Setup instructions
+### [​](#setup-instructions) Setup instructions
 
 Configure AWS to allow GitLab CI jobs to assume an IAM role via OIDC (no static keys).**Required setup:**
 
@@ -207,14 +168,14 @@ Configure AWS to allow GitLab CI jobs to assume an IAM role via OIDC (no static 
 
 Add variables in Settings → CI/CD → Variables:
 
-```bash
-# For AWS Bedrock:
+```text
+# For Amazon Bedrock:
 - AWS_ROLE_TO_ASSUME
 - AWS_REGION
-```
-Use the AWS Bedrock job example above to exchange the GitLab job token for temporary AWS credentials at runtime.
+```text
+Use the Amazon Bedrock job example above to exchange the GitLab job token for temporary AWS credentials at runtime.
 
-###  Prerequisites
+### [​](#prerequisites-2) Prerequisites
 
 Before setting up Claude Code with Google Vertex AI, you need:
 
@@ -226,7 +187,7 @@ Before setting up Claude Code with Google Vertex AI, you need:
    * `GCP_WORKLOAD_IDENTITY_PROVIDER` (full resource name)
    * `GCP_SERVICE_ACCOUNT` (service account email)
 
-###  Setup instructions
+### [​](#setup-instructions-2) Setup instructions
 
 Configure Google Cloud to allow GitLab CI jobs to impersonate a service account via Workload Identity Federation.**Required setup:**
 
@@ -242,19 +203,21 @@ Configure Google Cloud to allow GitLab CI jobs to impersonate a service account 
 
 Add variables in Settings → CI/CD → Variables:
 
-```bash
+```text
 # For Google Vertex AI:
 - GCP_WORKLOAD_IDENTITY_PROVIDER
 - GCP_SERVICE_ACCOUNT
 - CLOUD_ML_REGION (for example, us-east5)
-```
+```text
 Use the Google Vertex AI job example above to authenticate without storing keys.
+
+## [​](#configuration-examples) Configuration examples
 
 Below are ready-to-use snippets you can adapt to your pipeline.
 
-###  Basic .gitlab-ci.yml (Claude API)
+### [​](#basic-gitlab-ci-yml-claude-api) Basic .gitlab-ci.yml (Claude API)
 
-```bash
+```text
 stages:
   - ai
 
@@ -279,8 +242,8 @@ claude:
       --allowedTools "Bash Read Edit Write mcp__gitlab"
       --debug
   # Claude Code will use ANTHROPIC_API_KEY from CI/CD variables
-```
-###  AWS Bedrock job example (OIDC)
+```text
+### [​](#amazon-bedrock-job-example-oidc) Amazon Bedrock job example (OIDC)
 
 **Prerequisites:**
 
@@ -293,7 +256,7 @@ claude:
 * `AWS_ROLE_TO_ASSUME`: ARN of the IAM role for Bedrock access
 * `AWS_REGION`: Bedrock region (for example, `us-west-2`)
 
-```bash
+```text
 claude-bedrock:
   stage: ai
   image: node:24-alpine3.21
@@ -325,10 +288,10 @@ claude-bedrock:
       --debug
   variables:
     AWS_REGION: "us-west-2"
-```
+```text
 Model IDs for Bedrock include region-specific prefixes (for example, `us.anthropic.claude-sonnet-4-6`). Pass the desired model via your job configuration or prompt if your workflow supports it.
 
-###  Google Vertex AI job example (Workload Identity Federation)
+### [​](#google-vertex-ai-job-example-workload-identity-federation) Google Vertex AI job example (Workload Identity Federation)
 
 **Prerequisites:**
 
@@ -342,7 +305,7 @@ Model IDs for Bedrock include region-specific prefixes (for example, `us.anthrop
 * `GCP_SERVICE_ACCOUNT`: Service account email
 * `CLOUD_ML_REGION`: Vertex region (for example, `us-east5`)
 
-```bash
+```text
 claude-vertex:
   stage: ai
   image: gcr.io/google.com/cloudsdktool/google-cloud-cli:slim
@@ -375,16 +338,16 @@ claude-vertex:
       --debug
   variables:
     CLOUD_ML_REGION: "us-east5"
-```
+```text
 With Workload Identity Federation, you do not need to store service account keys. Use repository-specific trust conditions and least-privilege service accounts.
 
-##  Best practices
+## [​](#best-practices) Best practices
 
-###  CLAUDE.md configuration
+### [​](#claude-md-configuration) CLAUDE.md configuration
 
 Create a `CLAUDE.md` file at the repository root to define coding standards, review criteria, and project-specific rules. Claude reads this file during runs and follows your conventions when proposing changes.
 
-###  Security considerations
+### [​](#security-considerations) Security considerations
 
 **Never commit API keys or cloud credentials to your repository**. Always use GitLab CI/CD variables:
 
@@ -393,14 +356,14 @@ Create a `CLAUDE.md` file at the repository root to define coding standards, rev
 * Limit job permissions and network egress
 * Review Claude’s MRs like any other contributor
 
-###  Optimizing performance
+### [​](#optimizing-performance) Optimizing performance
 
 * Keep `CLAUDE.md` focused and concise
 * Provide clear issue/MR descriptions to reduce iterations
 * Configure sensible job timeouts to avoid runaway runs
 * Cache npm and package installs in runners where possible
 
-###  CI costs
+### [​](#ci-costs) CI costs
 
 When using Claude Code with GitLab CI/CD, be aware of associated costs:
 
@@ -416,7 +379,7 @@ When using Claude Code with GitLab CI/CD, be aware of associated costs:
   + Set appropriate `max_turns` and job timeout values
   + Limit concurrency to control parallel runs
 
-##  Security and governance
+## [​](#security-and-governance) Security and governance
 
 * Each job runs in an isolated container with restricted network access
 * Claude’s changes flow through MRs so reviewers see every diff
@@ -424,28 +387,28 @@ When using Claude Code with GitLab CI/CD, be aware of associated costs:
 * Claude Code uses workspace-scoped permissions to constrain writes
 * Costs remain under your control because you bring your own provider credentials
 
-##  Troubleshooting
+## [​](#troubleshooting) Troubleshooting
 
-###  Claude not responding to @claude commands
+### [​](#claude-not-responding-to-@claude-commands) Claude not responding to @claude commands
 
 * Verify your pipeline is being triggered (manually, MR event, or via a note event listener/webhook)
 * Ensure CI/CD variables (`ANTHROPIC_API_KEY` or cloud provider settings) are present and unmasked
 * Check that the comment contains `@claude` (not `/claude`) and that your mention trigger is configured
 
-###  Job can’t write comments or open MRs
+### [​](#job-can’t-write-comments-or-open-mrs) Job can’t write comments or open MRs
 
 * Ensure `CI_JOB_TOKEN` has sufficient permissions for the project, or use a Project Access Token with `api` scope
 * Check the `mcp__gitlab` tool is enabled in `--allowedTools`
 * Confirm the job runs in the context of the MR or has enough context via `AI_FLOW_*` variables
 
-###  Authentication errors
+### [​](#authentication-errors) Authentication errors
 
 * **For Claude API**: Confirm `ANTHROPIC_API_KEY` is valid and unexpired
 * **For Bedrock/Vertex**: Verify OIDC/WIF configuration, role impersonation, and secret names; confirm region and model availability
 
-##  Advanced configuration
+## [​](#advanced-configuration) Advanced configuration
 
-###  Common parameters and variables
+### [​](#common-parameters-and-variables) Common parameters and variables
 
 Claude Code supports these commonly used inputs:
 
@@ -457,11 +420,9 @@ Claude Code supports these commonly used inputs:
 
 Exact flags and parameters may vary by version of `@anthropic-ai/claude-code`. Run `claude --help` in your job to see supported options.
 
-###  Customizing Claude’s behavior
+### [​](#customizing-claude’s-behavior) Customizing Claude’s behavior
 
 You can guide Claude in two primary ways:
 
 1. **CLAUDE.md**: Define coding standards, security requirements, and project conventions. Claude reads this during runs and follows your rules.
 2. **Custom prompts**: Pass task-specific instructions via `prompt`/`prompt_file` in the job. Use different prompts for different jobs (for example, review, implement, refactor).
-
-[GitHub Actions](/docs/en/github-actions)[Claude Code in Slack](/docs/en/slack)

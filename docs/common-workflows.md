@@ -1,67 +1,28 @@
 # Common Workflows
 
-* [Quickstart](/docs/en/quickstart)
-* [Changelog](https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md)
+> ## Documentation Index
+>
+> Fetch the complete documentation index at: <https://code.claude.com/docs/llms.txt>
+>
+> Use this file to discover all available pages before exploring further.
 
-##### Core concepts
+This page collects short recipes for everyday development. For higher-level guidance on prompting and context management, see [Best practices](./best-practices.md).
+This page covers:
 
-* [How Claude Code works](/docs/en/how-claude-code-works)
-* [Extend Claude Code](/docs/en/features-overview)
-* [Store instructions and memories](/docs/en/memory)
-* [Common workflows](/docs/en/common-workflows)
-* [Best practices](/docs/en/best-practices)
+* [Prompt recipes](#prompt-recipes) for exploring code, fixing bugs, refactoring, testing, PRs, and documentation
+* [Resume previous conversations](#resume-previous-conversations) so a task can span multiple sittings
+* [Run parallel sessions with worktrees](#run-parallel-sessions-with-worktrees) so concurrent edits don’t collide
+* [Plan before editing](#plan-before-editing) to review changes before they touch disk
+* [Delegate research to subagents](#delegate-research-to-subagents) to keep your main context clean
+* [Pipe Claude into scripts](#pipe-claude-into-scripts) for CI and batch processing
 
-##### Platforms and integrations
+## [​](#prompt-recipes) Prompt recipes
 
-* [Remote Control](/docs/en/remote-control)
-* [Claude Code on the web](/docs/en/claude-code-on-the-web)
-* [Chrome extension (beta)](/docs/en/chrome)
-* [Visual Studio Code](/docs/en/vs-code)
-* [JetBrains IDEs](/docs/en/jetbrains)
-* [GitHub Actions](/docs/en/github-actions)
-* [GitLab CI/CD](/docs/en/gitlab-ci-cd)
-* [Claude Code in Slack](/docs/en/slack)
+These are prompt patterns for everyday tasks like exploring unfamiliar code, debugging, refactoring, writing tests, and creating PRs. Each works in any Claude Code surface; adapt the wording to your project.
 
-* [Understand new codebases](#understand-new-codebases)
-* [Get a quick codebase overview](#get-a-quick-codebase-overview)
-* [Find relevant code](#find-relevant-code)
-* [Fix bugs efficiently](#fix-bugs-efficiently)
-* [Refactor code](#refactor-code)
-* [Use specialized subagents](#use-specialized-subagents)
-* [Use Plan Mode for safe code analysis](#use-plan-mode-for-safe-code-analysis)
-* [When to use Plan Mode](#when-to-use-plan-mode)
-* [How to use Plan Mode](#how-to-use-plan-mode)
-* [Example: Planning a complex refactor](#example-planning-a-complex-refactor)
-* [Configure Plan Mode as default](#configure-plan-mode-as-default)
-* [Work with tests](#work-with-tests)
-* [Create pull requests](#create-pull-requests)
-* [Handle documentation](#handle-documentation)
-* [Work with images](#work-with-images)
-* [Use extended thinking (thinking mode)](#use-extended-thinking-thinking-mode)
-* [Configure thinking mode](#configure-thinking-mode)
-* [How extended thinking works](#how-extended-thinking-works)
-* [Resume previous conversations](#resume-previous-conversations)
-* [Name your sessions](#name-your-sessions)
-* [Use the session picker](#use-the-session-picker)
-* [Run parallel Claude Code sessions with Git worktrees](#run-parallel-claude-code-sessions-with-git-worktrees)
-* [Subagent worktrees](#subagent-worktrees)
-* [Worktree cleanup](#worktree-cleanup)
-* [Manage worktrees manually](#manage-worktrees-manually)
-* [Non-git version control](#non-git-version-control)
-* [Get notified when Claude needs your attention](#get-notified-when-claude-needs-your-attention)
-* [Use Claude as a unix-style utility](#use-claude-as-a-unix-style-utility)
-* [Add Claude to your verification process](#add-claude-to-your-verification-process)
-* [Pipe in, pipe out](#pipe-in-pipe-out)
-* [Control output format](#control-output-format)
-* [Ask Claude about its capabilities](#ask-claude-about-its-capabilities)
-* [Example questions](#example-questions)
-* [Next steps](#next-steps)
+### [​](#understand-new-codebases) Understand new codebases
 
-This page covers practical workflows for everyday development: exploring unfamiliar code, debugging, refactoring, writing tests, creating PRs, and managing sessions. Each section includes example prompts you can adapt to your own projects. For higher-level patterns and tips, see [Best practices](/docs/en/best-practices).
-
-##  Understand new codebases
-
-###  Get a quick codebase overview
+#### [​](#get-a-quick-codebase-overview) Get a quick codebase overview
 
 Suppose you’ve just joined a new project and need to understand its structure quickly.
 
@@ -69,43 +30,43 @@ Suppose you’ve just joined a new project and need to understand its structure 
 
 Navigate to the project root directory
 
-```bash
+```text
 cd /path/to/project
-```
+```text
 2
 
 Start Claude Code
 
-```bash
+```text
 claude
-```
+```text
 3
 
 Ask for a high-level overview
 
-```bash
+```text
 give me an overview of this codebase
-```
+```text
 4
 
 Dive deeper into specific components
 
-```bash
+```text
 explain the main architecture patterns used here
-```
-```bash
+```text
+```text
 what are the key data models?
-```
-```bash
+```text
+```text
 how is authentication handled?
-```
+```text
 Tips:
 
 * Start with broad questions, then narrow down to specific areas
 * Ask about coding conventions and patterns used in the project
 * Request a glossary of project-specific terms
 
-###  Find relevant code
+#### [​](#find-relevant-code) Find relevant code
 
 Suppose you need to locate code related to a specific feature or functionality.
 
@@ -113,32 +74,32 @@ Suppose you need to locate code related to a specific feature or functionality.
 
 Ask Claude to find relevant files
 
-```bash
+```text
 find the files that handle user authentication
-```
+```text
 2
 
 Get context on how components interact
 
-```bash
+```text
 how do these authentication files work together?
-```
+```text
 3
 
 Understand the execution flow
 
-```bash
+```text
 trace the login process from front-end to database
-```
+```text
 Tips:
 
 * Be specific about what you’re looking for
 * Use domain language from the project
-* Install a [code intelligence plugin](/docs/en/discover-plugins#code-intelligence) for your language to give Claude precise “go to definition” and “find references” navigation
+* Install a [code intelligence plugin](./discover-plugins.md#code-intelligence) for your language to give Claude precise “go to definition” and “find references” navigation
 
 ---
 
-##  Fix bugs efficiently
+### [​](#fix-bugs-efficiently) Fix bugs efficiently
 
 Suppose you’ve encountered an error message and need to find and fix its source.
 
@@ -146,23 +107,23 @@ Suppose you’ve encountered an error message and need to find and fix its sourc
 
 Share the error with Claude
 
-```bash
+```text
 I'm seeing an error when I run npm test
-```
+```text
 2
 
 Ask for fix recommendations
 
-```bash
+```text
 suggest a few ways to fix the @ts-ignore in user.ts
-```
+```text
 3
 
 Apply the fix
 
-```bash
+```text
 update user.ts to add the null check you suggested
-```
+```text
 Tips:
 
 * Tell Claude the command to reproduce the issue and get a stack trace
@@ -171,7 +132,7 @@ Tips:
 
 ---
 
-##  Refactor code
+### [​](#refactor-code) Refactor code
 
 Suppose you need to update old code to use modern patterns and practices.
 
@@ -179,30 +140,30 @@ Suppose you need to update old code to use modern patterns and practices.
 
 Identify legacy code for refactoring
 
-```bash
+```text
 find deprecated API usage in our codebase
-```
+```text
 2
 
 Get refactoring recommendations
 
-```bash
+```text
 suggest how to refactor utils.js to use modern JavaScript features
-```
+```text
 3
 
 Apply the changes safely
 
-```bash
+```text
 refactor utils.js to use ES2024 features while maintaining the same behavior
-```
+```text
 4
 
 Verify the refactoring
 
-```bash
+```text
 run tests for the refactored code
-```
+```text
 Tips:
 
 * Ask Claude to explain the benefits of the modern approach
@@ -211,124 +172,7 @@ Tips:
 
 ---
 
-##  Use specialized subagents
-
-Suppose you want to use specialized AI subagents to handle specific tasks more effectively.
-
-1
-
-View available subagents
-
-```bash
-/agents
-```
-This shows all available subagents and lets you create new ones.
-
-2
-
-Use subagents automatically
-
-Claude Code automatically delegates appropriate tasks to specialized subagents:
-
-```bash
-review my recent code changes for security issues
-```
-```bash
-run all tests and fix any failures
-```
-3
-
-Explicitly request specific subagents
-
-```bash
-use the code-reviewer subagent to check the auth module
-```
-```bash
-have the debugger subagent investigate why users can't log in
-```
-4
-
-Create custom subagents for your workflow
-
-```bash
-/agents
-```
-Then select “Create New subagent” and follow the prompts to define:
-
-* A unique identifier that describes the subagent’s purpose (for example, `code-reviewer`, `api-designer`).
-* When Claude should use this agent
-* Which tools it can access
-* A system prompt describing the agent’s role and behavior
-
-Tips:
-
-* Create project-specific subagents in `.claude/agents/` for team sharing
-* Use descriptive `description` fields to enable automatic delegation
-* Limit tool access to what each subagent actually needs
-* Check the [subagents documentation](/docs/en/sub-agents) for detailed examples
-
----
-
-##  Use Plan Mode for safe code analysis
-
-Plan Mode instructs Claude to create a plan by analyzing the codebase with read-only operations, perfect for exploring codebases, planning complex changes, or reviewing code safely. In Plan Mode, Claude uses [`AskUserQuestion`](/docs/en/settings#tools-available-to-claude) to gather requirements and clarify your goals before proposing a plan.
-
-###  When to use Plan Mode
-
-* **Multi-step implementation**: When your feature requires making edits to many files
-* **Code exploration**: When you want to research the codebase thoroughly before changing anything
-* **Interactive development**: When you want to iterate on the direction with Claude
-
-###  How to use Plan Mode
-
-**Turn on Plan Mode during a session**
-You can switch into Plan Mode during a session using **Shift+Tab** to cycle through permission modes.
-If you are in Normal Mode, **Shift+Tab** first switches into Auto-Accept Mode, indicated by `⏵⏵ accept edits on` at the bottom of the terminal. A subsequent **Shift+Tab** will switch into Plan Mode, indicated by `⏸ plan mode on`.
-**Start a new session in Plan Mode**
-To start a new session in Plan Mode, use the `--permission-mode plan` flag:
-
-```bash
-claude --permission-mode plan
-```
-**Run “headless” queries in Plan Mode**
-You can also run a query in Plan Mode directly with `-p` (that is, in [“headless mode”](/docs/en/headless)):
-
-```bash
-claude --permission-mode plan -p "Analyze the authentication system and suggest improvements"
-```
-###  Example: Planning a complex refactor
-
-```bash
-claude --permission-mode plan
-```
-```bash
-I need to refactor our authentication system to use OAuth2. Create a detailed migration plan.
-```
-Claude analyzes the current implementation and create a comprehensive plan. Refine with follow-ups:
-
-```bash
-What about backward compatibility?
-```
-```bash
-How should we handle database migration?
-```
-Press `Ctrl+G` to open the plan in your default text editor, where you can edit it directly before Claude proceeds.
-
-###  Configure Plan Mode as default
-
-```bash
-// .claude/settings.json
-{
-  "permissions": {
-    "defaultMode": "plan"
-  }
-}
-```
-See [settings documentation](/docs/en/settings#available-settings) for more configuration options.
-
----
-
-##  Work with tests
+### [​](#work-with-tests) Work with tests
 
 Suppose you need to add tests for uncovered code.
 
@@ -336,36 +180,37 @@ Suppose you need to add tests for uncovered code.
 
 Identify untested code
 
-```bash
+```text
 find functions in NotificationsService.swift that are not covered by tests
-```
+```text
 2
 
 Generate test scaffolding
 
-```bash
+```text
 add tests for the notification service
-```
+```text
 3
 
 Add meaningful test cases
 
-```bash
+```text
 add test cases for edge conditions in the notification service
-```
+```text
 4
 
 Run and verify tests
 
-```bash
+```text
 run the new tests and fix any failures
-```
+```text
 Claude can generate tests that follow your project’s existing patterns and conventions. When asking for tests, be specific about what behavior you want to verify. Claude examines your existing test files to match the style, frameworks, and assertion patterns already in use.
 For comprehensive coverage, ask Claude to identify edge cases you might have missed. Claude can analyze your code paths and suggest tests for error conditions, boundary values, and unexpected inputs that are easy to overlook.
 
+
 ---
 
-##  Create pull requests
+### [​](#create-pull-requests) Create pull requests
 
 You can create pull requests by asking Claude directly (“create a pr for my changes”), or guide Claude through it step-by-step:
 
@@ -373,28 +218,28 @@ You can create pull requests by asking Claude directly (“create a pr for my ch
 
 Summarize your changes
 
-```bash
+```text
 summarize the changes I've made to the authentication module
-```
+```text
 2
 
 Generate a pull request
 
-```bash
+```text
 create a pr
-```
+```text
 3
 
 Review and refine
 
-```bash
+```text
 enhance the PR description with more context about the security improvements
-```
-When you create a PR using `gh pr create`, the session is automatically linked to that PR. You can resume it later with `claude --from-pr <number>`.
+```text
+When you create a PR using `gh pr create`, the session is automatically linked to that PR. To return to it later, run `claude --from-pr <number>` or paste the PR URL into the [`/resume` picker](./sessions.md#use-the-session-picker) search.
 
 Review Claude’s generated PR before submitting and ask Claude to highlight potential risks or considerations.
 
-##  Handle documentation
+### [​](#handle-documentation) Handle documentation
 
 Suppose you need to add or update documentation for your code.
 
@@ -402,30 +247,30 @@ Suppose you need to add or update documentation for your code.
 
 Identify undocumented code
 
-```bash
+```text
 find functions without proper JSDoc comments in the auth module
-```
+```text
 2
 
 Generate documentation
 
-```bash
+```text
 add JSDoc comments to the undocumented functions in auth.js
-```
+```text
 3
 
 Review and enhance
 
-```bash
+```text
 improve the generated documentation with more context and examples
-```
+```text
 4
 
 Verify documentation
 
-```bash
+```text
 check if the documentation follows our project standards
-```
+```text
 Tips:
 
 * Specify the documentation style you want (JSDoc, docstrings, etc.)
@@ -434,7 +279,15 @@ Tips:
 
 ---
 
-##  Work with images
+### [​](#work-in-notes-and-non-code-folders) Work in notes and non-code folders
+
+Claude Code works in any directory. Run it inside a notes vault, a documentation folder, or any collection of markdown files to search, edit, and reorganize content the same way you would code.
+The `.claude/` directory and `CLAUDE.md` sit alongside other tools’ config directories without conflict. Claude reads files fresh on each tool call, so it sees edits you make in another application the next time it reads that file.
+
+
+---
+
+### [​](#work-with-images) Work with images
 
 Suppose you need to work with images in your codebase, and you want Claude’s help analyzing image content.
 
@@ -452,35 +305,35 @@ You can use any of these methods:
 
 Ask Claude to analyze the image
 
-```bash
+```text
 What does this image show?
-```
-```bash
+```text
+```text
 Describe the UI elements in this screenshot
-```
-```bash
+```text
+```text
 Are there any problematic elements in this diagram?
-```
+```text
 3
 
 Use images for context
 
-```bash
+```text
 Here's a screenshot of the error. What's causing it?
-```
-```bash
+```text
+```text
 This is our current database schema. How should we modify it for the new feature?
-```
+```text
 4
 
 Get code suggestions from visual content
 
-```bash
+```text
 Generate CSS to match this design mockup
-```
-```bash
+```text
+```text
 What HTML structure would recreate this component?
-```
+```text
 Tips:
 
 * Use images when text descriptions would be unclear or cumbersome
@@ -491,28 +344,36 @@ Tips:
 
 ---
 
+### [​](#reference-files-and-directories) Reference files and directories
+
 Use @ to quickly include files or directories without waiting for Claude to read them.
 
 1
 
-```bash
+Reference a single file
+
+```text
 Explain the logic in @src/utils/auth.js
-```
+```text
 This includes the full content of the file in the conversation.
 
 2
 
-```bash
+Reference a directory
+
+```text
 What's the structure of @src/components?
-```
+```text
 This provides a directory listing with file information.
 
 3
 
-```bash
+Reference MCP resources
+
+```text
 Show me the data from @github:repos/owner/repo/issues
-```
-This fetches data from connected MCP servers using the format @server:resource. See [MCP resources](/docs/en/mcp#use-mcp-resources) for details.
+```text
+This fetches data from connected MCP servers using the format @server:resource. See [MCP resources](./mcp.md#use-mcp-resources) for details.
 
 Tips:
 
@@ -523,350 +384,47 @@ Tips:
 
 ---
 
-##  Use extended thinking (thinking mode)
+### [​](#run-claude-on-a-schedule) Run Claude on a schedule
 
-[Extended thinking](https://platform.claude.com/docs/en/build-with-claude/extended-thinking) is enabled by default, giving Claude space to reason through complex problems step-by-step before responding. This reasoning is visible in verbose mode, which you can toggle on with `Ctrl+O`.
-Additionally, Opus 4.6 introduces adaptive reasoning: instead of a fixed thinking token budget, the model dynamically allocates thinking based on your [effort level](/docs/en/model-config#adjust-effort-level) setting. Extended thinking and adaptive reasoning work together to give you control over how deeply Claude reasons before responding.
-Extended thinking is particularly valuable for complex architectural decisions, challenging bugs, multi-step implementation planning, and evaluating tradeoffs between different approaches.
+Suppose you want Claude to handle a task automatically on a recurring basis, like reviewing open PRs every morning, auditing dependencies weekly, or checking for CI failures overnight.
+Pick a scheduling option based on where you want the task to run:
 
-Phrases like “think”, “think hard”, and “think more” are interpreted as regular prompt instructions and don’t allocate thinking tokens.
-
-###  Configure thinking mode
-
-Thinking is enabled by default, but you can adjust or disable it.
-
-| Scope | How to configure | Details |
+| Option | Where it runs | Best for |
 | --- | --- | --- |
-| **Effort level** | Adjust in `/model` or set [`CLAUDE_CODE_EFFORT_LEVEL`](/docs/en/settings#environment-variables) | Control thinking depth for Opus 4.6 and Sonnet 4.6: low, medium, high. See [Adjust effort level](/docs/en/model-config#adjust-effort-level) |
-| **`ultrathink` keyword** | Include “ultrathink” anywhere in your prompt | Sets effort to high for that turn on Opus 4.6 and Sonnet 4.6. Useful for one-off tasks requiring deep reasoning without permanently changing your effort setting |
-| **Toggle shortcut** | Press `Option+T` (macOS) or `Alt+T` (Windows/Linux) | Toggle thinking on/off for the current session (all models). May require [terminal configuration](/docs/en/terminal-config) to enable Option key shortcuts |
-| **Global default** | Use `/config` to toggle thinking mode | Sets your default across all projects (all models). Saved as `alwaysThinkingEnabled` in `~/.claude/settings.json` |
-| **Limit token budget** | Set [`MAX_THINKING_TOKENS`](/docs/en/settings#environment-variables) environment variable | Limit the thinking budget to a specific number of tokens (ignored on Opus 4.6 unless set to 0). Example: `export MAX_THINKING_TOKENS=10000` |
+| [Routines](./routines.md) | Anthropic-managed infrastructure | Tasks that should run even when your computer is off. Can also trigger on API calls or GitHub events in addition to a schedule. Configure at [claude.ai/code/routines](https://claude.ai/code/routines). |
+| [Desktop scheduled tasks](./desktop-scheduled-tasks.md) | Your machine, via the desktop app | Tasks that need direct access to local files, tools, or uncommitted changes. |
+| [GitHub Actions](./github-actions.md) | Your CI pipeline | Tasks tied to repo events like opened PRs, or cron schedules that should live alongside your workflow config. |
+| [`/loop`](./scheduled-tasks.md) | The current CLI session | Quick polling while a session is open. Tasks stop when you start a new conversation; `--resume` and `--continue` restore unexpired ones. |
 
-To view Claude’s thinking process, press `Ctrl+O` to toggle verbose mode and see the internal reasoning displayed as gray italic text.
-
-###  How extended thinking works
-
-Extended thinking controls how much internal reasoning Claude performs before responding. More thinking provides more space to explore solutions, analyze edge cases, and self-correct mistakes.
-**With Opus 4.6**, thinking uses adaptive reasoning: the model dynamically allocates thinking tokens based on the [effort level](/docs/en/model-config#adjust-effort-level) you select (low, medium, high). This is the recommended way to tune the tradeoff between speed and reasoning depth.
-**With other models**, thinking uses a fixed budget of up to 31,999 tokens from your output budget. You can limit this with the [`MAX_THINKING_TOKENS`](/docs/en/settings#environment-variables) environment variable, or disable thinking entirely via `/config` or the `Option+T`/`Alt+T` toggle.
-`MAX_THINKING_TOKENS` is ignored on Opus 4.6 and Sonnet 4.6, since adaptive reasoning controls thinking depth instead. The one exception: setting `MAX_THINKING_TOKENS=0` still disables thinking entirely on any model. To disable adaptive thinking and revert to the fixed thinking budget, set `CLAUDE_CODE_DISABLE_ADAPTIVE_THINKING=1`. See [environment variables](/docs/en/settings#environment-variables).
-
-You’re charged for all thinking tokens used, even though Claude 4 models show summarized thinking
+When writing prompts for scheduled tasks, be explicit about what success looks like and what to do with results. The task runs autonomously, so it can’t ask clarifying questions. For example: “Review open PRs labeled `needs-review`, leave inline comments on any issues, and post a summary in the `#eng-reviews` Slack channel.”
 
 ---
 
-##  Resume previous conversations
-
-When starting Claude Code, you can resume a previous session:
-
-* `claude --continue` continues the most recent conversation in the current directory
-* `claude --resume` opens a conversation picker or resumes by name
-* `claude --from-pr 123` resumes sessions linked to a specific pull request
-
-From inside an active session, use `/resume` to switch to a different conversation.
-Sessions are stored per project directory. The `/resume` picker shows sessions from the same git repository, including worktrees.
-
-###  Name your sessions
-
-Give sessions descriptive names to find them later. This is a best practice when working on multiple tasks or features.
-
-1
-
-Name the current session
-
-Use `/rename` during a session to give it a memorable name:
-
-```bash
-/rename auth-refactor
-```
-You can also rename any session from the picker: run `/resume`, navigate to a session, and press `R`.
-
-2
-
-Resume by name later
-
-From the command line:
-
-```bash
-claude --resume auth-refactor
-```
-Or from inside an active session:
-
-```bash
-/resume auth-refactor
-```
-###  Use the session picker
-
-The `/resume` command (or `claude --resume` without arguments) opens an interactive session picker with these features:
-**Keyboard shortcuts in the picker:**
-
-| Shortcut | Action |
-| --- | --- |
-| `↑` / `↓` | Navigate between sessions |
-| `→` / `←` | Expand or collapse grouped sessions |
-| `Enter` | Select and resume the highlighted session |
-| `P` | Preview the session content |
-| `R` | Rename the highlighted session |
-| `/` | Search to filter sessions |
-| `A` | Toggle between current directory and all projects |
-| `B` | Filter to sessions from your current git branch |
-| `Esc` | Exit the picker or search mode |
-
-**Session organization:**
-The picker displays sessions with helpful metadata:
-
-* Session name or initial prompt
-* Time elapsed since last activity
-* Message count
-* Git branch (if applicable)
-
-Forked sessions (created with `/rewind` or `--fork-session`) are grouped together under their root session, making it easier to find related conversations.
-
-Tips:
-
-* **Name sessions early**: Use `/rename` when starting work on a distinct task—it’s much easier to find “payment-integration” than “explain this function” later
-* Use `--continue` for quick access to your most recent conversation in the current directory
-* Use `--resume session-name` when you know which session you need
-* Use `--resume` (without a name) when you need to browse and select
-* For scripts, use `claude --continue --print "prompt"` to resume in non-interactive mode
-* Press `P` in the picker to preview a session before resuming it
-* The resumed conversation starts with the same model and configuration as the original
-
-How it works:
-
-1. **Conversation Storage**: All conversations are automatically saved locally with their full message history
-2. **Message Deserialization**: When resuming, the entire message history is restored to maintain context
-3. **Tool State**: Tool usage and results from the previous conversation are preserved
-4. **Context Restoration**: The conversation resumes with all previous context intact
-
----
-
-##  Run parallel Claude Code sessions with Git worktrees
-
-When working on multiple tasks at once, you need each Claude session to have its own copy of the codebase so changes don’t collide. Git worktrees solve this by creating separate working directories that each have their own files and branch, while sharing the same repository history and remote connections. This means you can have Claude working on a feature in one worktree while fixing a bug in another, without either session interfering with the other.
-Use the `--worktree` (`-w`) flag to create an isolated worktree and start Claude in it. The value you pass becomes the worktree directory name and branch name:
-
-```bash
-# Start Claude in a worktree named "feature-auth"
-# Creates .claude/worktrees/feature-auth/ with a new branch
-claude --worktree feature-auth
-
-# Start another session in a separate worktree
-claude --worktree bugfix-123
-```
-If you omit the name, Claude generates a random one automatically:
-
-```bash
-# Auto-generates a name like "bright-running-fox"
-claude --worktree
-```
-Worktrees are created at `<repo>/.claude/worktrees/<name>` and branch from the default remote branch. The worktree branch is named `worktree-<name>`.
-You can also ask Claude to “work in a worktree” or “start a worktree” during a session, and it will create one automatically.
-
-###  Subagent worktrees
-
-Subagents can also use worktree isolation to work in parallel without conflicts. Ask Claude to “use worktrees for your agents” or configure it in a [custom subagent](/docs/en/sub-agents#supported-frontmatter-fields) by adding `isolation: worktree` to the agent’s frontmatter. Each subagent gets its own worktree that is automatically cleaned up when the subagent finishes without changes.
-
-###  Worktree cleanup
-
-When you exit a worktree session, Claude handles cleanup based on whether you made changes:
-
-* **No changes**: the worktree and its branch are removed automatically
-* **Changes or commits exist**: Claude prompts you to keep or remove the worktree. Keeping preserves the directory and branch so you can return later. Removing deletes the worktree directory and its branch, discarding all uncommitted changes and commits
-
-To clean up worktrees outside of a Claude session, use [manual worktree management](#manage-worktrees-manually).
-
-Add `.claude/worktrees/` to your `.gitignore` to prevent worktree contents from appearing as untracked files in your main repository.
-
-###  Manage worktrees manually
-
-For more control over worktree location and branch configuration, create worktrees with Git directly. This is useful when you need to check out a specific existing branch or place the worktree outside the repository.
-
-```bash
-# Create a worktree with a new branch
-git worktree add ../project-feature-a -b feature-a
-
-# Create a worktree with an existing branch
-git worktree add ../project-bugfix bugfix-123
-
-# Start Claude in the worktree
-cd ../project-feature-a && claude
-
-# Clean up when done
-git worktree list
-git worktree remove ../project-feature-a
-```
-Learn more in the [official Git worktree documentation](https://git-scm.com/docs/git-worktree).
-
-Remember to initialize your development environment in each new worktree according to your project’s setup. Depending on your stack, this might include running dependency installation (`npm install`, `yarn`), setting up virtual environments, or following your project’s standard setup process.
-
-###  Non-git version control
-
-Worktree isolation works with git by default. For other version control systems like SVN, Perforce, or Mercurial, configure [WorktreeCreate and WorktreeRemove hooks](/docs/en/hooks#worktreecreate) to provide custom worktree creation and cleanup logic. When configured, these hooks replace the default git behavior when you use `--worktree`.
-For automated coordination of parallel sessions with shared tasks and messaging, see [agent teams](/docs/en/agent-teams).
-
----
-
-##  Get notified when Claude needs your attention
-
-When you kick off a long-running task and switch to another window, you can set up desktop notifications so you know when Claude finishes or needs your input. This uses the `Notification` [hook event](/docs/en/hooks-guide#get-notified-when-claude-needs-input), which fires whenever Claude is waiting for permission, idle and ready for a new prompt, or completing authentication.
-
-1
-
-Open the hooks menu
-
-Type `/hooks` and select `Notification` from the list of events.
-
-2
-
-Configure the matcher
-
-Select `+ Match all (no filter)` to fire on all notification types. To notify only for specific events, select `+ Add new matcher…` and enter one of these values:
-
-| Matcher | Fires when |
-| --- | --- |
-| `permission_prompt` | Claude needs you to approve a tool use |
-| `idle_prompt` | Claude is done and waiting for your next prompt |
-| `auth_success` | Authentication completes |
-| `elicitation_dialog` | Claude is asking you a question |
-
-3
-
-Add your notification command
-
-Select `+ Add new hook…` and enter the command for your OS:
-
-* macOS
-* Linux
-* Windows (PowerShell)
-
-Uses [`osascript`](https://ss64.com/mac/osascript.html) to trigger a native macOS notification through AppleScript:
-
-```bash
-osascript -e 'display notification "Claude Code needs your attention" with title "Claude Code"'
-```
-Uses `notify-send`, which is pre-installed on most Linux desktops with a notification daemon:
-
-```bash
-notify-send 'Claude Code' 'Claude Code needs your attention'
-```
-Uses PowerShell to show a native message box through .NET’s Windows Forms:
-
-```bash
-powershell.exe -Command "[System.Reflection.Assembly]::LoadWithPartialName('System.Windows.Forms'); [System.Windows.Forms.MessageBox]::Show('Claude Code needs your attention', 'Claude Code')"
-```
-4
-
-Save to user settings
-
-Select `User settings` to apply the notification across all your projects.
-
-For the full walkthrough with JSON configuration examples, see [Automate workflows with hooks](/docs/en/hooks-guide#get-notified-when-claude-needs-input). For the complete event schema and notification types, see the [Notification reference](/docs/en/hooks#notification).
-
----
-
-##  Use Claude as a unix-style utility
-
-###  Add Claude to your verification process
-
-Suppose you want to use Claude Code as a linter or code reviewer.
-**Add Claude to your build script:**
-
-```bash
-// package.json
-{
-    ...
-    "scripts": {
-        ...
-        "lint:claude": "claude -p 'you are a linter. please look at the changes vs. main and report any issues related to typos. report the filename and line number on one line, and a description of the issue on the second line. do not return any other text.'"
-    }
-}
-```
-Tips:
-
-* Use Claude for automated code review in your CI/CD pipeline
-* Customize the prompt to check for specific issues relevant to your project
-* Consider creating multiple scripts for different types of verification
-
-###  Pipe in, pipe out
-
-Suppose you want to pipe data into Claude, and get back data in a structured format.
-**Pipe data through Claude:**
-
-```bash
-cat build-error.txt | claude -p 'concisely explain the root cause of this build error' > output.txt
-```
-Tips:
-
-* Use pipes to integrate Claude into existing shell scripts
-* Combine with other Unix tools for powerful workflows
-* Consider using —output-format for structured output
-
-###  Control output format
-
-Suppose you need Claude’s output in a specific format, especially when integrating Claude Code into scripts or other tools.
-
-1
-
-Use text format (default)
-
-```bash
-cat data.txt | claude -p 'summarize this data' --output-format text > summary.txt
-```
-This outputs just Claude’s plain text response (default behavior).
-
-2
-
-Use JSON format
-
-```bash
-cat code.py | claude -p 'analyze this code for bugs' --output-format json > analysis.json
-```
-This outputs a JSON array of messages with metadata including cost and duration.
-
-3
-
-Use streaming JSON format
-
-```bash
-cat log.txt | claude -p 'parse this log file for errors' --output-format stream-json
-```
-This outputs a series of JSON objects in real-time as Claude processes the request. Each message is a valid JSON object, but the entire output is not valid JSON if concatenated.
-
-Tips:
-
-* Use `--output-format text` for simple integrations where you just need Claude’s response
-* Use `--output-format json` when you need the full conversation log
-* Use `--output-format stream-json` for real-time output of each conversation turn
-
----
-
-##  Ask Claude about its capabilities
+### [​](#ask-claude-about-its-capabilities) Ask Claude about its capabilities
 
 Claude has built-in access to its documentation and can answer questions about its own features and limitations.
 
-###  Example questions
+#### [​](#example-questions) Example questions
 
-```bash
+```text
 can Claude Code create pull requests?
-```
-```bash
+```text
+```text
 how does Claude Code handle permissions?
-```
-```bash
+```text
+```text
 what skills are available?
-```
-```bash
+```text
+```text
 how do I use MCP with Claude Code?
-```
-```bash
+```text
+```text
 how do I configure Claude Code for Amazon Bedrock?
-```
-```bash
+```text
+```text
 what are the limitations of Claude Code?
-```
-Claude provides documentation-based answers to these questions. For executable examples and hands-on demonstrations, refer to the specific workflow sections above.
+```text
+Claude provides documentation-based answers to these questions. For hands-on demonstrations, run `/powerup` for interactive lessons with animated demos, or refer to the specific workflow sections above.
 
 Tips:
 
@@ -876,14 +434,65 @@ Tips:
 
 ---
 
-##  Next steps
+## [​](#resume-previous-conversations) Resume previous conversations
 
-[## Best practices
+When a task spans multiple sittings, pick up where you left off instead of re-explaining context. Claude Code saves every conversation locally.
 
-Patterns for getting the most out of Claude Code](/docs/en/best-practices)[## How Claude Code works
+```text
+claude --continue
+```text
+This resumes the most recent session in the current directory; if there isn’t one yet, it prints `No conversation found to continue` and exits. Use `claude --resume` to choose from a list, or `/resume` from inside a running session. See [Manage sessions](./sessions.md) for naming, branching, and the full picker reference.
 
-Understand the agentic loop and context management](/docs/en/how-claude-code-works)[## Extend Claude Code
+## [​](#run-parallel-sessions-with-worktrees) Run parallel sessions with worktrees
 
-Clone our development container reference implementation](https://github.com/anthropics/claude-code/tree/main/.devcontainer)
+Work on a feature in one terminal while Claude fixes a bug in another, without the edits colliding. Each worktree is a separate checkout on its own branch.
 
-[Store instructions and memories](/docs/en/memory)[Best practices](/docs/en/best-practices)
+```text
+claude --worktree feature-auth
+```text
+Run the same command with a different name in a second terminal to start an isolated parallel session. See [Worktrees](./worktrees.md) for cleanup, `.worktreeinclude`, and non-git VCS support. To monitor parallel sessions from one screen instead of separate terminals, see [background agents](./agent-view.md).
+
+## [​](#plan-before-editing) Plan before editing
+
+For changes you want to review before they touch disk, switch to plan mode. Claude reads files and proposes a plan but makes no edits until you approve.
+
+```text
+claude --permission-mode plan
+```text
+You can also press `Shift+Tab` mid-session to toggle into plan mode. See [Plan mode](./permission-modes.md#analyze-before-you-edit-with-plan-mode) for the approval flow and editing the plan in your text editor.
+
+## [​](#delegate-research-to-subagents) Delegate research to subagents
+
+Exploring a large codebase fills your context with file reads. Delegate the exploration so only the findings come back.
+
+```text
+use a subagent to investigate how our auth system handles token refresh
+```text
+The subagent reads files in its own context window and reports a summary. See [Subagents](./sub-agents.md) for defining custom agents with their own tools and prompts.
+
+## [​](#pipe-claude-into-scripts) Pipe Claude into scripts
+
+Run Claude non-interactively for CI, pre-commit hooks, or batch processing. Stdin and stdout work like any Unix tool.
+
+```text
+git log --oneline -20 | claude -p "summarize these recent commits"
+```text
+See [Non-interactive mode](./headless.md) for output formats, permission flags, and fan-out patterns.
+
+## [​](#next-steps) Next steps
+
+## Best practices
+
+Patterns for getting the most out of Claude Code
+
+## Manage sessions
+
+Resume, name, and branch conversations
+
+## Worktrees
+
+Run isolated parallel sessions
+
+## Extend Claude Code
+
+Add skills, hooks, MCP, subagents, and plugins
