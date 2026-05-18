@@ -1,48 +1,12 @@
 # Chrome
 
-* [Quickstart](/docs/en/quickstart)
-* [Changelog](https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md)
+> ## Documentation Index
+>
+> Fetch the complete documentation index at: <https://code.claude.com/docs/llms.txt>
+>
+> Use this file to discover all available pages before exploring further.
 
-##### Core concepts
-
-* [How Claude Code works](/docs/en/how-claude-code-works)
-* [Extend Claude Code](/docs/en/features-overview)
-* [Store instructions and memories](/docs/en/memory)
-* [Common workflows](/docs/en/common-workflows)
-* [Best practices](/docs/en/best-practices)
-
-##### Platforms and integrations
-
-* [Remote Control](/docs/en/remote-control)
-* [Claude Code on the web](/docs/en/claude-code-on-the-web)
-* [Chrome extension (beta)](/docs/en/chrome)
-* [Visual Studio Code](/docs/en/vs-code)
-* [JetBrains IDEs](/docs/en/jetbrains)
-* [GitHub Actions](/docs/en/github-actions)
-* [GitLab CI/CD](/docs/en/gitlab-ci-cd)
-* [Claude Code in Slack](/docs/en/slack)
-
-* [Capabilities](#capabilities)
-* [Prerequisites](#prerequisites)
-* [Get started in the CLI](#get-started-in-the-cli)
-* [Enable Chrome by default](#enable-chrome-by-default)
-* [Manage site permissions](#manage-site-permissions)
-* [Example workflows](#example-workflows)
-* [Test a local web application](#test-a-local-web-application)
-* [Debug with console logs](#debug-with-console-logs)
-* [Automate form filling](#automate-form-filling)
-* [Draft content in Google Docs](#draft-content-in-google-docs)
-* [Extract data from web pages](#extract-data-from-web-pages)
-* [Run multi-site workflows](#run-multi-site-workflows)
-* [Record a demo GIF](#record-a-demo-gif)
-* [Extension not detected](#extension-not-detected)
-* [Browser not responding](#browser-not-responding)
-* [Connection drops during long sessions](#connection-drops-during-long-sessions)
-* [Windows-specific issues](#windows-specific-issues)
-* [Common error messages](#common-error-messages)
-* [See also](#see-also)
-
-Claude Code integrates with the Claude in Chrome browser extension to give you browser automation capabilities from the CLI or the [VS Code extension](/docs/en/vs-code#automate-browser-tasks-with-chrome). Build your code, then test and debug in the browser without switching contexts.
+Claude Code integrates with the [Claude in Chrome browser extension](https://chromewebstore.google.com/detail/claude/fcoeoabgfenejglbffodgkkbkcdhcgfn) to give you browser automation capabilities from the CLI or the [VS Code extension](./vs-code.md#automate-browser-tasks-with-chrome). Build your code, then test and debug in the browser without switching contexts.
 Claude opens new tabs for browser tasks and shares your browser’s login state, so it can access any site you’re already signed into. Browser actions run in a visible Chrome window in real time. When Claude encounters a login page or CAPTCHA, it pauses and asks you to handle it manually.
 
 Chrome integration is in beta and currently works with Google Chrome and Microsoft Edge. It is not yet supported on Brave, Arc, or other Chromium-based browsers. WSL (Windows Subsystem for Linux) is also not supported.
@@ -65,8 +29,8 @@ Before using Claude Code with Chrome, you need:
 
 * [Google Chrome](https://www.google.com/chrome/) or [Microsoft Edge](https://www.microsoft.com/edge) browser
 * [Claude in Chrome extension](https://chromewebstore.google.com/detail/claude/fcoeoabgfenejglbffodgkkbkcdhcgfn) version 1.0.36 or higher, available in the Chrome Web Store for both browsers
-* [Claude Code](/docs/en/quickstart#step-1-install-claude-code) version 2.0.73 or higher
-* A direct Anthropic plan (Pro, Max, Teams, or Enterprise)
+* [Claude Code](./quickstart.md#step-1-install-claude-code) version 2.0.73 or higher
+* A direct Anthropic plan (Pro, Max, Team, or Enterprise)
 
 Chrome integration is not available through third-party providers like Amazon Bedrock, Google Cloud Vertex AI, or Microsoft Foundry. If you access Claude exclusively through a third-party provider, you need a separate claude.ai account to use this feature.
 
@@ -78,9 +42,10 @@ Launch Claude Code with Chrome
 
 Start Claude Code with the `--chrome` flag:
 
-```bash
+```
 claude --chrome
 ```
+
 You can also enable Chrome from within an existing session by running `/chrome`.
 
 2
@@ -89,17 +54,18 @@ Ask Claude to use the browser
 
 This example navigates to a page, interacts with it, and reports what it finds, all from your terminal or editor:
 
-```bash
+```
 Go to code.claude.com/docs, click on the search box,
 type "hooks", and tell me what results appear
 ```
+
 Run `/chrome` at any time to check the connection status, manage permissions, or reconnect the extension.
-For VS Code, see [browser automation in VS Code](/docs/en/vs-code#automate-browser-tasks-with-chrome).
+For VS Code, see [browser automation in VS Code](./vs-code.md#automate-browser-tasks-with-chrome).
 
 ###  Enable Chrome by default
 
 To avoid passing `--chrome` each session, run `/chrome` and select “Enabled by default”.
-In the [VS Code extension](/docs/en/vs-code#automate-browser-tasks-with-chrome), Chrome is available whenever the Chrome extension is installed. No additional flag is needed.
+In the [VS Code extension](./vs-code.md#automate-browser-tasks-with-chrome), Chrome is available whenever the Chrome extension is installed. No additional flag is needed.
 
 Enabling Chrome by default in the CLI increases context usage since browser tools are always loaded. If you notice increased context consumption, disable this setting and use `--chrome` only when needed.
 
@@ -115,73 +81,80 @@ These examples show common ways to combine browser actions with coding tasks. Ru
 
 When developing a web app, ask Claude to verify your changes work correctly:
 
-```bash
+```
 I just updated the login form validation. Can you open localhost:3000,
 try submitting the form with invalid data, and check if the error
 messages appear correctly?
 ```
+
 Claude navigates to your local server, interacts with the form, and reports what it observes.
 
 ###  Debug with console logs
 
 Claude can read console output to help diagnose problems. Tell Claude what patterns to look for rather than asking for all console output, since logs can be verbose:
 
-```bash
+```
 Open the dashboard page and check the console for any errors when
 the page loads.
 ```
+
 Claude reads the console messages and can filter for specific patterns or error types.
 
 ###  Automate form filling
 
 Speed up repetitive data entry tasks:
 
-```bash
+```
 I have a spreadsheet of customer contacts in contacts.csv. For each row,
 go to the CRM at crm.example.com, click "Add Contact", and fill in the
 name, email, and phone fields.
 ```
+
 Claude reads your local file, navigates the web interface, and enters the data for each record.
 
 ###  Draft content in Google Docs
 
 Use Claude to write directly in your documents without API setup:
 
-```bash
+```
 Draft a project update based on the recent commits and add it to my
 Google Doc at docs.google.com/document/d/abc123
 ```
+
 Claude opens the document, clicks into the editor, and types the content. This works with any web app you’re logged into: Gmail, Notion, Sheets, and more.
 
 ###  Extract data from web pages
 
 Pull structured information from websites:
 
-```bash
+```
 Go to the product listings page and extract the name, price, and
 availability for each item. Save the results as a CSV file.
 ```
+
 Claude navigates to the page, reads the content, and compiles the data into a structured format.
 
 ###  Run multi-site workflows
 
 Coordinate tasks across multiple websites:
 
-```bash
+```
 Check my calendar for meetings tomorrow, then for each meeting with
 an external attendee, look up their company website and add a note
 about what they do.
 ```
+
 Claude works across tabs to gather information and complete the workflow.
 
 ###  Record a demo GIF
 
 Create shareable recordings of browser interactions:
 
-```bash
+```
 Record a GIF showing how to complete the checkout flow, from adding
 an item to the cart through to the confirmation page.
 ```
+
 Claude records the interaction sequence and saves it as a GIF file.
 
 ##  Troubleshooting
@@ -242,8 +215,9 @@ These are the most frequently encountered errors and how to resolve them:
 
 ##  See also
 
-* [Use Claude Code in VS Code](/docs/en/vs-code#automate-browser-tasks-with-chrome): browser automation in the VS Code extension
-* [Common workflows](/docs/en/common-workflows): more ways to use Claude Code
-* [Data and privacy](/docs/en/data-usage): how Claude Code handles your data
-
-[Use Desktop](/docs/en/desktop)[Visual Studio Code](/docs/en/vs-code)
+* [Computer use](./overview.md): control native macOS apps when a task can’t be done in a browser
+* [Use Claude Code in VS Code](./vs-code.md#automate-browser-tasks-with-chrome): browser automation in the VS Code extension
+* [CLI reference](./cli-reference.md): command-line flags including `--chrome`
+* [Common workflows](./common-workflows.md): more ways to use Claude Code
+* [Data and privacy](./data-usage.md): how Claude Code handles your data
+* [Getting started with Claude in Chrome](https://support.claude.com/en/articles/12012173-getting-started-with-claude-in-chrome): full documentation for the Chrome extension, including shortcuts, scheduling, and permissions

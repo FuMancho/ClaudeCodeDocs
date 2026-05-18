@@ -1,20 +1,10 @@
 # Llm Gateway
 
-* [Amazon Bedrock](/docs/en/amazon-bedrock)
-* [Google Vertex AI](/docs/en/google-vertex-ai)
-* [Microsoft Foundry](/docs/en/microsoft-foundry)
-* [Network configuration](/docs/en/network-config)
-* [LLM gateway](/docs/en/llm-gateway)
-* [Development containers](/docs/en/devcontainer)
-
-* [Gateway requirements](#gateway-requirements)
-* [Model selection](#model-selection)
-* [LiteLLM configuration](#litellm-configuration)
-* [Prerequisites](#prerequisites)
-* [Basic LiteLLM setup](#basic-litellm-setup)
-* [Unified endpoint (recommended)](#unified-endpoint-recommended)
-* [Provider-specific pass-through endpoints (alternative)](#provider-specific-pass-through-endpoints-alternative)
-* [Additional resources](#additional-resources)
+> ## Documentation Index
+>
+> Fetch the complete documentation index at: <https://code.claude.com/docs/llms.txt>
+>
+> Use this file to discover all available pages before exploring further.
 
 LLM gateways provide a centralized proxy layer between Claude Code and model providers, often providing:
 
@@ -41,12 +31,35 @@ Failure to forward headers or preserve body fields may result in reduced functio
 
 Claude Code determines which features to enable based on the API format. When using the Anthropic Messages format with Bedrock or Vertex, you may need to set environment variable `CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1`.
 
+**Request headers**
+Claude Code includes the following headers on API requests:
+
+| Header | Description |
+| --- | --- |
+| `X-Claude-Code-Session-Id` | A unique identifier for the current Claude Code session. Proxies can use this to aggregate all API requests from a single session without parsing the request body. |
+| `X-Claude-Code-Agent-Id` | Identifier of the subagent or teammate that issued the request. Your proxy can use this to attribute API cost to individual parallel subagents within a session, without parsing the request body. Present only for requests made by an in-process subagent or teammate. |
+| `X-Claude-Code-Parent-Agent-Id` | Identifier of the agent that spawned the agent making the request. Use this with `X-Claude-Code-Agent-Id` to attribute API costs across nested agents in your proxy. Present only when the requesting agent was itself spawned by another agent. |
+
+Both agent ID headers are ephemeral per-spawn identifiers, not persistent user or device IDs.
+Claude Code also prepends a short attribution block to the system prompt containing the client version and a fingerprint derived from the conversation. The Anthropic API strips this block before processing, so it does not affect first-party prompt caching. If your gateway implements its own prompt cache keyed on the full request body, set [`CLAUDE_CODE_ATTRIBUTION_HEADER=0`](./overview.md) to omit it.
+
+##  Configuration
+
 ###  Model selection
 
-By default, Claude Code will use standard model names for the selected API format.
-If you have configured custom model names in your gateway, use the environment variables documented in [Model configuration](/docs/en/model-config) to match your custom names.
+By default, Claude Code uses standard model names for the selected API format.
+When `ANTHROPIC_BASE_URL` points at a gateway that exposes the Anthropic Messages format, Claude Code can query the gateway’s `/v1/models` endpoint at startup and add the returned models to the `/model` picker. Set `CLAUDE_CODE_ENABLE_GATEWAY_MODEL_DISCOVERY=1` to enable this. Discovery is off by default so that gateways backed by a shared API key do not surface every model the key can access to every user. Each discovered entry is labeled “From gateway” and uses the `display_name` field from the response when one is provided. This requires Claude Code v2.1.129 or later.
+Discovery applies only to the Anthropic Messages format. It does not run for Bedrock or Vertex pass-through endpoints, and it does not run when `ANTHROPIC_BASE_URL` is unset or points at `api.anthropic.com`.
+The discovery request authenticates the same way as inference requests: it sends `ANTHROPIC_AUTH_TOKEN` as a bearer token, or `ANTHROPIC_API_KEY` as the `x-api-key` header when no auth token is set, along with any headers from `ANTHROPIC_CUSTOM_HEADERS`. Only models whose ID begins with `claude` or `anthropic` are added to the picker. Results are cached to `~/.claude/cache/gateway-models.json` and refreshed on each startup. If the request fails or the gateway does not implement `/v1/models`, the picker falls back to the cached list from the previous startup or to the built-in model list.
+If your gateway uses model names that do not match the discovery filter, use the environment variables documented in [Model configuration](./model-config.md) to add them manually.
 
 ##  LiteLLM configuration
+
+LiteLLM PyPI versions 1.82.7 and 1.82.8 were compromised with credential-stealing malware. Do not install these versions. If you have already installed them:
+
+* Remove the package
+* Rotate all credentials on affected systems
+* Follow the remediation steps in [BerriAI/litellm#24518](https://github.com/BerriAI/litellm/issues/24518)
 
 LiteLLM is a third-party proxy service. Anthropic doesn’t endorse, maintain, or audit LiteLLM’s security or functionality. This guide is provided for informational purposes and may become outdated. Use at your own discretion.
 
@@ -66,7 +79,7 @@ LiteLLM is a third-party proxy service. Anthropic doesn’t endorse, maintain, o
 
 Simplest method using a fixed API key:
 
-```bash
+```
 # Set in environment
 export ANTHROPIC_AUTH_TOKEN=sk-litellm-static-key
 
@@ -77,6 +90,7 @@ export ANTHROPIC_AUTH_TOKEN=sk-litellm-static-key
   }
 }
 ```
+
 This value will be sent as the `Authorization` header.
 
 ##### Dynamic API key with helper
@@ -85,7 +99,7 @@ For rotating keys or per-user authentication:
 
 1. Create an API key helper script:
 
-```bash
+```
 #!/bin/bash
 # ~/bin/get-litellm-key.sh
 
@@ -98,28 +112,32 @@ jwt encode \
   --exp="+1h" \
   '{"user":"'${USER}'","team":"engineering"}'
 ```
+
 2. Configure Claude Code settings to use the helper:
 
-```bash
+```
 {
   "apiKeyHelper": "~/bin/get-litellm-key.sh"
 }
 ```
+
 3. Set token refresh interval:
 
-```bash
+```
 # Refresh every hour (3600000 ms)
 export CLAUDE_CODE_API_KEY_HELPER_TTL_MS=3600000
 ```
+
 This value will be sent as `Authorization` and `X-Api-Key` headers. The `apiKeyHelper` has lower precedence than `ANTHROPIC_AUTH_TOKEN` or `ANTHROPIC_API_KEY`.
 
 ####  Unified endpoint (recommended)
 
 Using LiteLLM’s [Anthropic format endpoint](https://docs.litellm.ai/docs/anthropic_unified):
 
-```bash
+```
 export ANTHROPIC_BASE_URL=https://litellm-server:4000
 ```
+
 **Benefits of the unified endpoint over pass-through endpoints:**
 
 * Load balancing
@@ -132,35 +150,48 @@ export ANTHROPIC_BASE_URL=https://litellm-server:4000
 
 Using [pass-through endpoint](https://docs.litellm.ai/docs/pass_through/anthropic_completion):
 
-```bash
+```
 export ANTHROPIC_BASE_URL=https://litellm-server:4000/anthropic
 ```
+
 ##### Amazon Bedrock through LiteLLM
 
 Using [pass-through endpoint](https://docs.litellm.ai/docs/pass_through/bedrock):
 
-```bash
+```
 export ANTHROPIC_BEDROCK_BASE_URL=https://litellm-server:4000/bedrock
 export CLAUDE_CODE_SKIP_BEDROCK_AUTH=1
 export CLAUDE_CODE_USE_BEDROCK=1
 ```
+
 ##### Google Vertex AI through LiteLLM
 
 Using [pass-through endpoint](https://docs.litellm.ai/docs/pass_through/vertex_ai):
 
-```bash
+```
 export ANTHROPIC_VERTEX_BASE_URL=https://litellm-server:4000/vertex_ai/v1
 export ANTHROPIC_VERTEX_PROJECT_ID=your-gcp-project-id
 export CLAUDE_CODE_SKIP_VERTEX_AUTH=1
 export CLAUDE_CODE_USE_VERTEX=1
 export CLOUD_ML_REGION=us-east5
 ```
+
+##### Claude Platform on AWS through a gateway
+
+Route to a gateway that forwards to the [Claude Platform on AWS](./overview.md) endpoint:
+
+```
+export ANTHROPIC_AWS_BASE_URL=https://litellm-server:4000/anthropic-aws
+export ANTHROPIC_AWS_WORKSPACE_ID=wrkspc_01ABCDEFGHIJKLMN
+export CLAUDE_CODE_SKIP_ANTHROPIC_AWS_AUTH=1
+export CLAUDE_CODE_USE_ANTHROPIC_AWS=1
+```
+
 For more detailed information, refer to the [LiteLLM documentation](https://docs.litellm.ai/).
 
 ##  Additional resources
 
 * [LiteLLM documentation](https://docs.litellm.ai/)
-* [Claude Code settings](/docs/en/settings)
-* [Enterprise network configuration](/docs/en/network-config)
-
-[Network configuration](/docs/en/network-config)[Development containers](/docs/en/devcontainer)
+* [Claude Code settings](./settings.md)
+* [Enterprise network configuration](./network-config.md)
+* [Third-party integrations overview](./third-party-integrations.md)

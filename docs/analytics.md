@@ -1,44 +1,29 @@
 # Analytics
 
-* [Access analytics for Teams and Enterprise](#access-analytics-for-teams-and-enterprise)
-* [Enable contribution metrics](#enable-contribution-metrics)
-* [Review summary metrics](#review-summary-metrics)
-* [Explore the charts](#explore-the-charts)
-* [Track adoption](#track-adoption)
-* [Measure PRs per user](#measure-prs-per-user)
-* [View pull requests breakdown](#view-pull-requests-breakdown)
-* [Find top contributors](#find-top-contributors)
-* [PR attribution](#pr-attribution)
-* [Tagging criteria](#tagging-criteria)
-* [Attribution process](#attribution-process)
-* [Time window](#time-window)
-* [Excluded files](#excluded-files)
-* [Attribution notes](#attribution-notes)
-* [Get the most from analytics](#get-the-most-from-analytics)
-* [Monitor adoption](#monitor-adoption)
-* [Measure ROI](#measure-roi)
-* [Identify power users](#identify-power-users)
-* [Access data programmatically](#access-data-programmatically)
-* [Access analytics for API customers](#access-analytics-for-api-customers)
-* [View team insights](#view-team-insights)
-* [Related resources](#related-resources)
+> ## Documentation Index
+>
+> Fetch the complete documentation index at: <https://code.claude.com/docs/llms.txt>
+>
+> Use this file to discover all available pages before exploring further.
 
 Claude Code provides analytics dashboards to help organizations understand developer usage patterns, track contribution metrics, and measure how Claude Code impacts engineering velocity. Access the dashboard for your plan:
 
 | Plan | Dashboard URL | Includes | Read more |
 | --- | --- | --- | --- |
-| Claude for Teams / Enterprise | [claude.ai/analytics/claude-code](https://claude.ai/analytics/claude-code) | Usage metrics, contribution metrics with GitHub integration, leaderboard, data export | [Details](#access-analytics-for-teams-and-enterprise) |
+| Claude for Teams / Enterprise | [claude.ai/analytics/claude-code](https://claude.ai/analytics/claude-code) | Usage metrics, contribution metrics with GitHub integration, leaderboard, data export | [Details](#access-analytics-for-team-and-enterprise) |
 | API (Claude Console) | [platform.claude.com/claude-code](https://platform.claude.com/claude-code) | Usage metrics, spend tracking, team insights | [Details](#access-analytics-for-api-customers) |
 
-##  Access analytics for Teams and Enterprise
+##  Access analytics for Team and Enterprise
 
 Navigate to [claude.ai/analytics/claude-code](https://claude.ai/analytics/claude-code). Admins and Owners can view the dashboard.
-The Teams and Enterprise dashboard includes:
+The Team and Enterprise dashboard includes:
 
 * **Usage metrics**: lines of code accepted, suggestion accept rate, daily active users and sessions
 * **Contribution metrics**: PRs and lines of code shipped with Claude Code assistance, with [GitHub integration](#enable-contribution-metrics)
 * **Leaderboard**: top contributors ranked by Claude Code usage
 * **Data export**: download contribution data as CSV for custom reporting
+
+For per-user token counts and cost estimates, configure [OpenTelemetry export](./monitoring-usage.md).
 
 ###  Enable contribution metrics
 
@@ -47,7 +32,7 @@ Contribution metrics are in public beta and available on Claude for Teams and Cl
 Usage and adoption data is available for all Claude for Teams and Claude for Enterprise accounts. Contribution metrics require additional setup to connect your GitHub organization.
 You need the Owner role to configure analytics settings. A GitHub admin must install the GitHub app.
 
-Contribution metrics are not available for organizations with [Zero Data Retention](/docs/en/zero-data-retention) enabled. The analytics dashboard will show usage metrics only.
+Contribution metrics are not available for organizations with [Zero Data Retention](./zero-data-retention.md) enabled. The analytics dashboard will show usage metrics only.
 
 1
 
@@ -229,7 +214,6 @@ Spend figures in the Console dashboard are estimates for analytics purposes. For
 
 ##  Related resources
 
-* [Manage costs effectively](/docs/en/costs): set spend limits and optimize token usage
-* [Permissions](/docs/en/permissions): configure roles and permissions
-
-[Costs](/docs/en/costs)[Create and distribute a plugin marketplace](/docs/en/plugin-marketplaces)
+* [Monitoring with OpenTelemetry](./monitoring-usage.md): export real-time metrics and events to your observability stack
+* [Manage costs effectively](./costs.md): set spend limits and optimize token usage
+* [Permissions](./permissions.md): configure roles and permissions
