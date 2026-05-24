@@ -1,117 +1,109 @@
-# Troubleshooting Claude Code
+# Troubleshooting
 
-If you encounter issues while running the Anthropic Claude Code CLI or its environment integrations, refer to these official solutions.
+> ## Documentation Index
+>
+> Fetch the complete documentation index at: [https://code.claude.com/docs/llms.txt](https://code.claude.com/docs/llms.txt "https://code.claude.com/docs/llms.txt")
+>
+> Use this file to discover all available pages before exploring further.
 
-## Installation Issues
+This page covers performance, stability, and search problems once Claude Code is running. For other issues, start with the page that matches where you’re stuck:
 
-### Windows `irm` or `&&` Not Recognized
-If the PowerShell script fails because `irm` or `&&` is not recognized, you are likely running an outdated version of Windows PowerShell (v5 or older) or attempting to run the command in `CMD.exe`.
-**Fix:** Run the installation command specifically in PowerShell 7+ or Git Bash.
-> [!NOTE]
-> Claude Code on Windows strongly recommends having `git-bash` installed and accessible in your `PATH`.
+| Symptom | Go to |
+| --- | --- |
+| `command not found`, install fails, PATH issues, `EACCES`, TLS errors | [Troubleshoot installation and login](./troubleshoot-install "_troubleshoot-install".md) |
+| Login loops, OAuth errors, `403 Forbidden`, “organization disabled”, Bedrock/Vertex/Foundry credentials | [Troubleshoot installation and login](./troubleshoot-install#login-and-authentication "_troubleshoot-install#login-and-authentication".md) |
+| Settings not applying, hooks not firing, MCP servers not loading | [Debug your configuration](./debug-your-config "_debug-your-config".md) |
+| `API Error: 5xx`, `529 Overloaded`, `429`, request validation errors | [Error reference](./errors "_errors".md) |
+| `model not found` or `you may not have access to it` | [Error reference](./errors#theres-an-issue-with-the-selected-model "_errors#theres-an-issue-with-the-selected-model".md) |
+| VS Code extension not connecting or detecting Claude | [VS Code integration](./vs-code#fix-common-issues "_vs-code#fix-common-issues".md) |
+| JetBrains plugin or IDE not detected | [JetBrains integration](./jetbrains#troubleshooting "_jetbrains#troubleshooting".md) |
+| High CPU or memory, slow responses, hangs, search not finding files | [Performance and stability](#performance-and-stability "#performance-and-stability") below |
 
-### WSL2 Errors & Permissions
-WSL2 requires specific network port accessibility and sandbox setup.
-If `npm install -g @anthropic-ai/claude-code` throws `EACCES` permission denied errors:
-**Fix:** Do not run `sudo npm install`. Instead, configure npm to use a local directory:
-```bash
-mkdir ~/.npm-global
-npm config set prefix '~/.npm-global'
-export PATH=~/.npm-global/bin:$PATH
+If you’re not sure which applies, run `/doctor` inside Claude Code for an automated check of your installation, settings, MCP servers, and context usage. If `claude` won’t start at all, run `claude doctor` from your shell instead.
+
+## [​](#performance-and-stability "#performance-and-stability") Performance and stability
+
+These sections cover issues related to resource usage, responsiveness, and search behavior.
+
+### [​](#high-cpu-or-memory-usage "#high-cpu-or-memory-usage") High CPU or memory usage
+
+Claude Code is designed to work with most development environments, but may consume significant resources when processing large codebases. If you’re experiencing performance issues:
+
+1. Use `/compact` regularly to reduce context size
+2. Close and restart Claude Code between major tasks
+3. Consider adding large build directories to your `.gitignore` file
+
+If memory usage stays high after these steps, run `/heapdump` to write a JavaScript heap snapshot and a memory breakdown to `~/Desktop`. On Linux without a Desktop folder, the files are written to your home directory.
+The breakdown shows resident set size, JS heap, array buffers, and unaccounted native memory, which helps identify whether the growth is in JavaScript objects or in native code. To inspect retainers, open the `.heapsnapshot` file in Chrome DevTools under Memory → Load. Attach both files when reporting a memory issue on [GitHub](https://github.com/anthropics/claude-code/issues "https://github.com/anthropics/claude-code/issues").
+
+### [​](#auto-compaction-stops-with-a-thrashing-error "#auto-compaction-stops-with-a-thrashing-error") Auto-compaction stops with a thrashing error
+
+If you see `Autocompact is thrashing: the context refilled to the limit...`, automatic compaction succeeded but a file or tool output immediately refilled the context window several times in a row. Claude Code stops retrying to avoid wasting API calls on a loop that isn’t making progress.
+To recover:
+
+1. Ask Claude to read the oversized file in smaller chunks, such as a specific line range or function, instead of the whole file
+2. Run `/compact` with a focus that drops the large output, for example `/compact keep only the plan and the diff`
+3. Move the large-file work to a [subagent](./sub-agents "_sub-agents".md) so it runs in a separate context window
+4. Run `/clear` if the earlier conversation is no longer needed
+
+### [​](#command-hangs-or-freezes "#command-hangs-or-freezes") Command hangs or freezes
+
+If Claude Code seems unresponsive:
+
+1. Press Ctrl+C to attempt to cancel the current operation
+2. If unresponsive, you may need to close the terminal and restart
+
+Restarting doesn’t lose your conversation. Run `claude --resume` in the same directory to pick the session back up.
+
+### [​](#search-and-discovery-issues "#search-and-discovery-issues") Search and discovery issues
+
+If the Search tool, `@file` mentions, custom agents, or custom skills aren’t finding files, the bundled `ripgrep` binary may not run on your system. Install your platform’s `ripgrep` package and tell Claude Code to use it instead:
+
+* macOS
+* Ubuntu/Debian
+* Alpine
+* Arch
+* Windows
+
 ```
-
-### IDE Detection Failed (JetBrains on WSL2)
-If you're using Claude Code on WSL2 with JetBrains IDEs and getting "No available IDEs detected" errors, this is likely due to WSL2's networking configuration or Windows Firewall blocking the connection.
-
-WSL2 uses NAT networking by default, which can prevent IDE detection. You have two options:
-
-**Option 1: Configure Windows Firewall (recommended)**
-1. Find your WSL2 IP address: `wsl hostname -I` (e.g. 172.21.123.45)
-2. Open PowerShell as Administrator and create a firewall rule:
-   ```powershell
-   New-NetFirewallRule -DisplayName "Allow WSL2 Internal Traffic" -Direction Inbound -Protocol TCP -Action Allow -RemoteAddress 172.21.0.0/16 -LocalAddress 172.21.0.0/16
-```
-   *(Adjust the IP range based on your WSL2 subnet from step 1)*
-3. Restart both your IDE and Claude Code.
-
-**Option 2: Switch to mirrored networking**
-Add to `.wslconfig` in your Windows user directory:
-```ini
-[wsl2]
-networkingMode=mirrored
-```
-Then restart WSL with `wsl --shutdown` from PowerShell.
-
-*(Note: These networking issues only affect WSL2. WSL1 uses the host's network directly.)*
-
-## Authentication and Tokens
-
-### 403 Forbidden After Login
-If `claude auth login` succeeds in the browser but the CLI throws a 403 Forbidden:
-1. Ensure your Claude Pro or Claude Max subscription is currently active at `claude.com`. Pay-as-you-go API credits do not grant access to Claude Code.
-2. Ensure you are not connected to a corporate VPN that blocks Anthropic IP addresses.
-
-### OAuth Error: Invalid code
-If you see `OAuth error: Invalid code. Please make sure the full code was copied`, the login code expired or was truncated during copy-paste.
-**Fix:**
-- Press Enter to retry and complete the login quickly after the browser opens.
-- Type `c` to copy the full URL if the browser doesn't open automatically.
-- If using a remote/SSH session, copy the URL displayed in the terminal and open it in your local browser instead.
-
-### OAuth login fails in WSL2
-Browser-based login in WSL2 may fail if WSL can't open your Windows browser.
-**Fix:** Set the `BROWSER` environment variable:
-```bash
-export BROWSER="/mnt/c/Program Files/Google/Chrome/Application/chrome.exe"
-claude
-```
-Or copy the URL manually: when the login prompt appears, press `c` to copy the OAuth URL, then paste it into your Windows browser.
-
-### Repeated Permission Prompts / Token Expired
-If Claude constantly asks you to re-authenticate or loses its OAuth token:
-**Fix:** Your global configuration file may have incorrect permissions.
-*   **Mac/Linux:** `rm -rf ~/.claude.json && claude auth login`
-*   **Windows:** Delete `%USERPROFILE%\.claude.json` and re-authenticate.
-
-## General Usage Bugs
-
-### Escape Key Not Working (JetBrains Terminal)
-The Escape key might not exit the Session Picker or autocomplete menus when running the `claude` CLI inside a JetBrains terminal tab.
-**Fix:** This is caused by a keybinding clash with JetBrains' default shortcuts. To fix:
-1. Go to Settings → Tools → Terminal
-2. Either:
-   - Uncheck "Move focus to the editor with Escape", or
-   - Click "Configure terminal keybindings" and delete the "Switch focus to Editor" shortcut
-3. Apply the changes
-This allows the `Esc` key to properly interrupt Claude Code operations.
-
-### Missing Language Tags in Code Blocks
-Occasionally, Claude might generate a markdown code block without a language specifier (e.g. just ` ``` ` instead of ` ```python `), causing syntax highlighting plugins to fail.
-**Fix:** Add a custom `CLAUDE.md` to your root directory with the strict prompt: `"Always include markdown language tags for all code snippets."`
-
-### Search and Discovery Issues
-If Search tool, `@file` mentions, custom agents, and custom skills aren't working, install system `ripgrep`:
-```bash
-# macOS (Homebrew)
 brew install ripgrep
-# Windows (winget)
-winget install BurntSushi.ripgrep.MSVC
-# Ubuntu/Debian
+```
+
+```
 sudo apt install ripgrep
 ```
-Then set `USE_BUILTIN_RIPGREP=0` in your environment.
 
-### Slow Search Results on WSL
-Disk read performance penalties when working across file systems on WSL may result in fewer-than-expected matches.
-**Fix:** Submit more specific searches, or ensure your project is located on the Linux filesystem (`/home/`) rather than the Windows filesystem (`/mnt/c/`).
+```
+apk add ripgrep
+```
 
-## Get More Help
-Run `/doctor` to diagnose issues. It checks:
-- Installation type, version, and search functionality
-- Invalid settings files (malformed JSON, incorrect types)
-- MCP server configuration errors
-- Keybinding configuration problems
-- Context usage warnings (large CLAUDE.md files, high MCP token usage)
-- Plugin and agent loading errors
+```
+pacman -S ripgrep
+```
 
-Use the `/bug` command within Claude Code to report problems directly to Anthropic.
+```
+winget install BurntSushi.ripgrep.MSVC
+```
+
+Then set `USE_BUILTIN_RIPGREP=0` in your [environment](./env-vars "_env-vars".md).
+
+### [​](#slow-or-incomplete-search-results-on-wsl "#slow-or-incomplete-search-results-on-wsl") Slow or incomplete search results on WSL
+
+Disk read performance penalties when [working across file systems on WSL](https://learn.microsoft.com/en-us/windows/wsl/filesystems "https://learn.microsoft.com/en-us/windows/wsl/filesystems") may result in fewer-than-expected matches when using Claude Code on WSL. Search still functions, but returns fewer results than on a native filesystem.
+
+`/doctor` will show Search as OK in this case.
+
+**Solutions:**
+
+1. **Submit more specific searches**: reduce the number of files searched by specifying directories or file types: “Search for JWT validation logic in the auth-service package” or “Find use of md5 hash in JS files”.
+2. **Move project to Linux filesystem**: if possible, ensure your project is located on the Linux filesystem (`/home/`) rather than the Windows filesystem (`/mnt/c/`).
+3. **Use native Windows instead**: consider running Claude Code natively on Windows instead of through WSL, for better file system performance.
+
+## [​](#get-more-help "#get-more-help") Get more help
+
+If you’re experiencing issues not covered here:
+
+1. Run `/doctor` to check installation health, settings validity, MCP configuration, and context usage in one pass
+2. Use the `/feedback` command within Claude Code to report problems directly to Anthropic
+3. Check the [GitHub repository](https://github.com/anthropics/claude-code "https://github.com/anthropics/claude-code") for known issues
+4. Ask Claude directly about its capabilities and features. Claude has built-in access to its documentation.
