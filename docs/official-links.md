@@ -96,7 +96,7 @@ This file is the single source of truth for verified official URLs.
 - https://code.claude.com/docs/en/agent-sdk/streaming-vs-single-mode
 - https://code.claude.com/docs/en/agent-sdk/structured-outputs
 - https://code.claude.com/docs/en/agent-sdk/subagents
-- https://code.claude.com/docs/en/agent-sdk/todo-tracking
+- https://code.claude.com/docs/en/agent-sdk/task-tracking
 - https://code.claude.com/docs/en/agent-sdk/tool-search
 - https://code.claude.com/docs/en/agent-sdk/typescript
 - https://code.claude.com/docs/en/agent-sdk/typescript-v2-preview
