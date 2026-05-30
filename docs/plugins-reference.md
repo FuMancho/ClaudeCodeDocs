@@ -1,10 +1,12 @@
+# Plugins Reference
+
 > ## Documentation Index
 >
 > Fetch the complete documentation index at: [https://code.claude.com/docs/llms.txt](https://code.claude.com/docs/llms.txt "https://code.claude.com/docs/llms.txt")
 >
 > Use this file to discover all available pages before exploring further.
 
-Looking to install plugins? See [Discover and install plugins](./discover-plugins "_discover-plugins".md). For creating plugins, see [Plugins](./plugins "_plugins".md). For distributing plugins, see [Plugin marketplaces](./plugin-marketplaces "_plugin-marketplaces".md).
+Looking to install plugins? See [Discover and install plugins](./discover-plugins.md "/docs/en/discover-plugins"). For creating plugins, see [Plugins](./plugins.md "/docs/en/plugins"). For distributing plugins, see [Plugin marketplaces](./plugin-marketplaces.md "/docs/en/plugin-marketplaces").
 
 This reference provides complete technical specifications for the Claude Code plugin system, including component schemas, CLI commands, and development tools.
 A **plugin** is a self-contained directory of components that extends Claude Code with custom functionality. Plugin components include skills, agents, hooks, MCP servers, LSP servers, and monitors.
@@ -34,7 +36,7 @@ skills/
 * Claude can invoke them automatically based on task context
 * Skills can include supporting files alongside SKILL.md
 
-For complete details, see [Skills](./skills "_skills".md).
+For complete details, see [Skills](./skills.md "/docs/en/skills").
 
 ### [​](#agents "#agents") Agents
 
@@ -64,7 +66,7 @@ Plugin agents support `name`, `description`, `model`, `effort`, `maxTurns`, `too
 * Agents can be invoked manually by users
 * Plugin agents work alongside built-in Claude agents
 
-For complete details, see [Subagents](./sub-agents "_sub-agents".md).
+For complete details, see [Subagents](./sub-agents.md "/docs/en/sub-agents").
 
 ### [​](#hooks "#hooks") Hooks
 
@@ -91,7 +93,7 @@ Plugins can provide event handlers that respond to Claude Code events automatica
 }
 ```
 
-Plugin hooks respond to the same lifecycle events as [user-defined hooks](./hooks "_hooks".md):
+Plugin hooks respond to the same lifecycle events as [user-defined hooks](./hooks.md "/docs/en/hooks"):
 
 | Event | When it fires |
 | --- | --- |
@@ -106,13 +108,14 @@ Plugin hooks respond to the same lifecycle events as [user-defined hooks](./hook
 | `PostToolUseFailure` | After a tool call fails |
 | `PostToolBatch` | After a full batch of parallel tool calls resolves, before the next model call |
 | `Notification` | When Claude Code sends a notification |
+| `MessageDisplay` | While assistant message text is displayed |
 | `SubagentStart` | When a subagent is spawned |
 | `SubagentStop` | When a subagent finishes |
 | `TaskCreated` | When a task is being created via `TaskCreate` |
 | `TaskCompleted` | When a task is being marked as completed |
 | `Stop` | When Claude finishes responding |
 | `StopFailure` | When the turn ends due to an API error. Output and exit code are ignored |
-| `TeammateIdle` | When an [agent team](./agent-teams "_agent-teams".md) teammate is about to go idle |
+| `TeammateIdle` | When an [agent team](./agent-teams.md "/docs/en/agent-teams") teammate is about to go idle |
 | `InstructionsLoaded` | When a CLAUDE.md or `.claude/rules/*.md` file is loaded into context. Fires at session start and when files are lazily loaded during a session |
 | `ConfigChange` | When a configuration file changes during a session |
 | `CwdChanged` | When the working directory changes, for example when Claude executes a `cd` command. Useful for reactive environment management with tools like direnv |
@@ -129,8 +132,8 @@ Plugin hooks respond to the same lifecycle events as [user-defined hooks](./hook
 
 * `command`: execute shell commands or scripts
 * `http`: send the event JSON as a POST request to a URL
-* `mcp_tool`: call a tool on a configured [MCP server](./mcp "_mcp".md)
-* `prompt`: evaluate a prompt with an LLM (uses `$ARGUMENTS` example content for context)
+* `mcp_tool`: call a tool on a configured [MCP server](./mcp.md "/docs/en/mcp")
+* `prompt`: evaluate a prompt with an LLM (uses `$ARGUMENTS` task for context)
 * `agent`: run an agentic verifier with tools for complex verification tasks
 
 ### [​](#mcp-servers "#mcp-servers") MCP servers
@@ -247,7 +250,7 @@ Install the language server first, then install the plugin from the marketplace.
 ### [​](#monitors "#monitors") Monitors
 
 Plugins can declare background monitors that Claude Code starts automatically when the plugin is active. Each monitor runs a shell command for the lifetime of the session and delivers every stdout line to Claude as a notification, so Claude can react to log entries, status changes, or polled events without being asked to start the watch itself.
-Plugin monitors use the same mechanism as the [Monitor tool](./tools-reference#monitor-tool "_tools-reference#monitor-tool".md) and share its availability constraints. They run only in interactive CLI sessions, run unsandboxed at the same trust level as [hooks](#hooks "#hooks"), and are skipped on hosts where the Monitor tool is unavailable.
+Plugin monitors use the same mechanism as the [Monitor tool](./tools-reference.md#monitor-tool "/docs/en/tools-reference#monitor-tool") and share its availability constraints. They run only in interactive CLI sessions, run unsandboxed at the same trust level as [hooks](#hooks "#hooks"), and are skipped on hosts where the Monitor tool is unavailable.
 
 Plugin monitors require Claude Code v2.1.105 or later.
 
@@ -319,10 +322,49 @@ When you install a plugin, you choose a **scope** that determines where the plug
 | `user` | `~/.claude/settings.json` | Personal plugins available across all projects (default) |
 | `project` | `.claude/settings.json` | Team plugins shared via version control |
 | `local` | `.claude/settings.local.json` | Project-specific plugins, gitignored |
-| `managed` | [Managed settings](./settings#settings-files "_settings#settings-files".md) | Managed plugins (read-only, update only) |
+| `managed` | [Managed settings](./settings.md#settings-files "/docs/en/settings#settings-files") | Managed plugins (read-only, update only) |
 
-Plugins use the same scope system as other Claude Code configurations. For installation instructions and scope flags, see [Install plugins](./discover-plugins#install-plugins "_discover-plugins#install-plugins".md). For a complete explanation of scopes, see [Configuration scopes](./settings#configuration-scopes "_settings#configuration-scopes".md).
+Plugins use the same scope system as other Claude Code configurations. For installation instructions and scope flags, see [Install plugins](./discover-plugins.md#install-plugins "/docs/en/discover-plugins#install-plugins"). For a complete explanation of scopes, see [Configuration scopes](./settings.md#configuration-scopes "/docs/en/settings#configuration-scopes").
 
+
+---
+
+## [​](#skills-directory-plugins "#skills-directory-plugins") Skills-directory plugins
+
+Any folder under a skills directory that contains a `.claude-plugin/plugin.json` manifest is loaded as a plugin named `<name>@skills-dir` on the next session, with no marketplace and no install step. Scaffold one with [`plugin init`](#plugin-init "#plugin-init"). Unlike a marketplace install, the plugin is discovered in place rather than copied into the plugin cache.
+A skills directory tree supports three distinct things:
+
+| What you have | What it is |
+| --- | --- |
+| `<skills-dir>/foo/SKILL.md` with no manifest | A plain [skill](./skills.md "/docs/en/skills") named `foo` |
+| `<skills-dir>/foo/.claude-plugin/plugin.json` | A plugin `foo@skills-dir`, which can bundle its own skills, agents, hooks, and more |
+| `<plugin>/skills/bar/SKILL.md` | A skill `bar` packaged inside a plugin |
+
+### [​](#choose-where-the-plugin-loads-from "#choose-where-the-plugin-loads-from") Choose where the plugin loads from
+
+| Skills directory | Scope | Loads |
+| --- | --- | --- |
+| `~/.claude/skills/` | personal | In every project, since the location is yours alone |
+| `<cwd>/.claude/skills/` | project | Only after you accept the workspace [trust dialog](./settings.md "/docs/en/settings") for that folder |
+
+A project-scope plugin is checked into the repository and reaches every collaborator who clones it. Because that content comes from the repository rather than from you, it loads only after the same trust gate that governs `.claude/settings.json`, and components that run code are restricted further:
+
+* MCP servers it declares go through the [same per-server approval](./mcp.md "/docs/en/mcp") as a project `.mcp.json`
+* LSP servers start only after you trust the workspace
+* [Background monitors](#monitors "#monitors") do not load
+
+Personal-scope plugins have none of these restrictions.
+
+Project-scope `@skills-dir` plugins load only from the `.claude/skills/` of the directory where you start Claude Code. They do not [walk up to the repository root](./skills.md#automatic-discovery-from-parent-and-nested-directories "/docs/en/skills#automatic-discovery-from-parent-and-nested-directories") the way plain skills and commands do, so launching from a subdirectory misses a plugin that lives at the repo root. Launch from the repository root, or run `/reload-plugins` after changing directories.
+
+### [​](#edit-reload-and-disable-a-skills-directory-plugin "#edit-reload-and-disable-a-skills-directory-plugin") Edit, reload, and disable a skills-directory plugin
+
+Changes you make to a skill’s `SKILL.md` take effect immediately in the current session. Changes to the plugin’s other components, such as `hooks/`, `.mcp.json`, `agents/`, and `output-styles/`, do not. Run `/reload-plugins` or restart Claude Code to pick those up. See [Live change detection](./skills.md#live-change-detection "/docs/en/skills#live-change-detection").
+To stop loading a skills-directory plugin, delete its folder or disable it by name. There is no `uninstall` step because nothing was installed from a marketplace.
+
+```
+claude plugin disable my-tool@skills-dir
+```
 
 ---
 
@@ -413,6 +455,17 @@ claude plugin validate ./my-plugin --strict
 | `repository` | string | Source code URL | `"https://github.com/user/plugin"` |
 | `license` | string | License identifier | `"MIT"`, `"Apache-2.0"` |
 | `keywords` | array | Discovery tags | `["deployment", "ci-cd"]` |
+| `defaultEnabled` | boolean | Whether the plugin starts in an enabled state when the user has not set one. Defaults to `true`. See [Default enablement](#default-enablement "#default-enablement"). Requires Claude Code v2.1.154 or later. | `false` |
+
+### [​](#default-enablement "#default-enablement") Default enablement
+
+Set `defaultEnabled: false` in `plugin.json` to ship a plugin that installs disabled. The user turns it on with `claude plugin enable <plugin>` or the `/plugin` interface. Use this for plugins that add cost or scope a user should opt into, such as one that connects to an external service. This requires Claude Code v2.1.154 or later. Earlier versions ignore the field and enable the plugin on install.
+`defaultEnabled` is the fallback when nothing else has decided the plugin’s state. Two things take precedence over it:
+
+* **The user’s setting**: an entry for the plugin in `enabledPlugins` at any settings scope. Once written, it persists across plugin updates and reinstalls, so changing `defaultEnabled` in a later release does not flip an existing user.
+* **A dependency requirement**: when a plugin is required by another one that is active, Claude Code writes `true` for it at install or enable time. That gives it an explicit setting, so its own default no longer applies. See [Enable or disable a plugin with dependencies](./plugin-dependencies.md#enable-or-disable-a-plugin-with-dependencies "/docs/en/plugin-dependencies#enable-or-disable-a-plugin-with-dependencies").
+
+The same field can appear in a plugin’s marketplace entry, where it takes precedence over the value in `plugin.json`. See [Optional plugin fields](./plugin-marketplaces.md#optional-plugin-fields "/docs/en/plugin-marketplaces#optional-plugin-fields").
 
 ### [​](#component-path-fields "#component-path-fields") Component path fields
 
@@ -426,10 +479,10 @@ claude plugin validate ./my-plugin --strict
 | `outputStyles` | string|array | Custom output style files/directories (replaces default `output-styles/`) | `"./styles/"` |
 | `lspServers` | string|array|object | [Language Server Protocol](https://microsoft.github.io/language-server-protocol/ "https://microsoft.github.io/language-server-protocol/") configs for code intelligence (go to definition, find references, etc.) | `"./.lsp.json"` |
 | `experimental.themes` | string|array | Color theme files/directories (replaces default `themes/`). See [Themes](#themes "#themes") | `"./themes/"` |
-| `experimental.monitors` | string|array | Background [Monitor](./tools-reference#monitor-tool "_tools-reference#monitor-tool".md) configurations that start automatically when the plugin is active. See [Monitors](#monitors "#monitors") | `"./monitors.json"` |
+| `experimental.monitors` | string|array | Background [Monitor](./tools-reference.md#monitor-tool "/docs/en/tools-reference#monitor-tool") configurations that start automatically when the plugin is active. See [Monitors](#monitors "#monitors") | `"./monitors.json"` |
 | `userConfig` | object | User-configurable values prompted at enable time. See [User configuration](#user-configuration "#user-configuration") | See below |
 | `channels` | array | Channel declarations for message injection (Telegram, Slack, Discord style). See [Channels](#channels "#channels") | See below |
-| `dependencies` | array | Other plugins this plugin requires, optionally with semver version constraints. See [Constrain plugin dependency versions](./plugin-dependencies "_plugin-dependencies".md) | `[{ "name": "secrets-vault", "version": "~2.1.0" }]` |
+| `dependencies` | array | Other plugins this plugin requires, optionally with semver version constraints. See [Constrain plugin dependency versions](./plugin-dependencies.md "/docs/en/plugin-dependencies") | `[{ "name": "secrets-vault", "version": "~2.1.0" }]` |
 
 ### [​](#experimental-components "#experimental-components") Experimental components
 
@@ -537,7 +590,7 @@ A plugin that has a `SKILL.md` at its root, no `skills/` subdirectory, and no `s
 ### [​](#environment-variables "#environment-variables") Environment variables
 
 Claude Code provides three variables for referencing paths. All are substituted inline anywhere they appear in skill content, agent content, hook commands, monitor commands, and MCP or LSP server configs. All are also exported as environment variables to hook processes and MCP or LSP server subprocesses.
-**`${CLAUDE_PLUGIN_ROOT}`**: the absolute path to your plugin’s installation directory. Use this to reference scripts, binaries, and config files bundled with the plugin. In hook commands, use [exec form](./hooks#exec-form-and-shell-form "_hooks#exec-form-and-shell-form".md) with `args` so the path is passed as one argument with no quoting. In shell-form hooks and monitor commands, wrap it in double quotes, as in `"${CLAUDE_PLUGIN_ROOT}"`. This path changes when the plugin updates. The previous version’s directory remains on disk for about seven days after an update before cleanup, but treat it as ephemeral and do not write state here.
+**`${CLAUDE_PLUGIN_ROOT}`**: the absolute path to your plugin’s installation directory. Use this to reference scripts, binaries, and config files bundled with the plugin. In hook commands, use [exec form](./hooks.md#exec-form-and-shell-form "/docs/en/hooks#exec-form-and-shell-form") with `args` so the path is passed as one argument with no quoting. In shell-form hooks and monitor commands, wrap it in double quotes, as in `"${CLAUDE_PLUGIN_ROOT}"`. This path changes when the plugin updates. The previous version’s directory remains on disk for about seven days after an update before cleanup, but treat it as ephemeral and do not write state here.
 When a plugin updates mid-session, hook commands, monitors, MCP servers, and LSP servers keep using the previous version’s path. Run `/reload-plugins` to switch hooks, MCP servers, and LSP servers to the new path; monitors require a session restart.
 **`${CLAUDE_PLUGIN_DATA}`**: a persistent directory for plugin state that survives updates. Use this for installed dependencies such as `node_modules` or Python virtual environments, generated code, caches, and any other files that should persist across plugin versions. The directory is created automatically the first time this variable is referenced.
 **`${CLAUDE_PROJECT_DIR}`**: the project root. This is the same directory hooks receive in their `CLAUDE_PROJECT_DIR` variable. Use this to reference project-local scripts or config files. Wrap in quotes to handle paths with spaces, for example `"${CLAUDE_PROJECT_DIR}/scripts/server.sh"`. MCP servers can also call the MCP `roots/list` request, which returns the directory Claude Code was launched from.
@@ -703,13 +756,64 @@ A `CLAUDE.md` file at the plugin root is not loaded as project context. Plugins 
 | **LSP servers** | `.lsp.json` | Language server configurations |
 | **Monitors** | `monitors/monitors.json` | Background monitor configurations |
 | **Executables** | `bin/` | Executables added to the Bash tool’s `PATH`. Files here are invokable as bare commands in any Bash tool call while the plugin is enabled |
-| **Settings** | `settings.json` | Default configuration applied when the plugin is enabled. Only the [`agent`](./sub-agents "_sub-agents".md) and [`subagentStatusLine`](./statusline#subagent-status-lines "_statusline#subagent-status-lines".md) keys are currently supported |
+| **Settings** | `settings.json` | Default configuration applied when the plugin is enabled. Only the [`agent`](./sub-agents.md "/docs/en/sub-agents") and [`subagentStatusLine`](./statusline.md#subagent-status-lines "/docs/en/statusline#subagent-status-lines") keys are currently supported |
 
 ---
 
 ## [​](#cli-commands-reference "#cli-commands-reference") CLI commands reference
 
 Claude Code provides CLI commands for non-interactive plugin management, useful for scripting and automation.
+
+### [​](#plugin-init "#plugin-init") plugin init
+
+Scaffold a new plugin at `~/.claude/skills/<name>/`. On the next Claude Code session it loads automatically as `<name>@skills-dir` and appears in `/plugin` and `claude plugin list` with no install step.
+See [Skills-directory plugins](#skills-directory-plugins "#skills-directory-plugins") for scope and trust requirements.
+
+```
+claude plugin init <name> [options]
+```
+
+**Arguments:**
+
+* `<name>`: Plugin name. Becomes the skill namespace and the directory name under `~/.claude/skills/`, so it cannot contain spaces or path separators.
+
+**Options:**
+
+| Option | Description | Default |
+| --- | --- | --- |
+| `--description <text>` | Manifest description |  |
+| `--author <name>` | Author name | `git config user.name` |
+| `--author-email <email>` | Author email | `git config user.email` |
+| `--with <components...>` | Also scaffold component folders. Valid values: `skills`, `agents`, `hooks`, `mcp`, `lsp`, `output-style`, `channel` |  |
+| `-f, --force` | Overwrite an existing `.claude-plugin/` at the target |  |
+| `-h, --help` | Display help for command |  |
+
+**Aliases:** `new`
+Each `--with` value adds a starter file for that component, ready to edit:
+
+| Component | What it scaffolds |
+| --- | --- |
+| `skills` | An extra namespaced `<name>:example` skill alongside the default one |
+| `agents` | An `agents/` subagent definition |
+| `hooks` | A `hooks/hooks.json` with a sample event handler |
+| `mcp` | A `.mcp.json` with HTTP and stdio server examples |
+| `lsp` | A `.lsp.json` language-server example |
+| `output-style` | An `output-styles/<name>.md` that applies automatically while the plugin is enabled |
+| `channel` | An MCP-based [channel](./channels.md "/docs/en/channels"): a stdio server (`server.ts`), its `.mcp.json`, and a `package.json` |
+
+The scaffolded plugin uses the `@skills-dir` source rather than a marketplace. Admins can block this source with `strictKnownMarketplaces` or by adding `{"source": "skills-dir"}` to `blockedMarketplaces` in [managed settings](./plugin-marketplaces.md#managed-marketplace-restrictions "/docs/en/plugin-marketplaces#managed-marketplace-restrictions"). When blocked, `plugin init` fails before writing.
+**Examples:**
+
+```
+# Scaffold a minimal plugin
+claude plugin init my-helper
+
+# Scaffold with skill and hook folders
+claude plugin init my-helper --with skills hooks
+
+# Overwrite an existing scaffold
+claude plugin init my-helper --force
+```
 
 ### [​](#plugin-install "#plugin-install") plugin install
 
@@ -771,7 +875,7 @@ By default, uninstalling from the last remaining scope also deletes the plugin�
 
 ### [​](#plugin-prune "#plugin-prune") plugin prune
 
-Remove auto-installed plugin dependencies that are no longer required by any installed plugin. Dependencies that Claude Code pulled in to satisfy another plugin’s [`dependencies`](./plugin-dependencies "_plugin-dependencies".md) field are removed; plugins you installed directly are never touched.
+Remove auto-installed plugin dependencies that are no longer required by any installed plugin. Dependencies that Claude Code pulled in to satisfy another plugin’s [`dependencies`](./plugin-dependencies.md "/docs/en/plugin-dependencies") field are removed; plugins you installed directly are never touched.
 
 ```
 claude plugin prune [options]
@@ -793,7 +897,7 @@ The command lists orphaned dependencies and asks for confirmation before removin
 
 ### [​](#plugin-enable "#plugin-enable") plugin enable
 
-Enable a disabled plugin. If the plugin declares [dependencies](./plugin-dependencies "_plugin-dependencies".md), Claude Code enables them transitively at the same scope, and the command fails when a dependency is not installed.
+Enable a disabled plugin. If the plugin declares [dependencies](./plugin-dependencies.md "/docs/en/plugin-dependencies"), Claude Code enables them transitively at the same scope, and the command fails when a dependency is not installed.
 
 ```
 claude plugin enable <plugin> [options]
@@ -812,7 +916,7 @@ claude plugin enable <plugin> [options]
 
 ### [​](#plugin-disable "#plugin-disable") plugin disable
 
-Disable a plugin without uninstalling it. Fails when another enabled plugin [depends on](./plugin-dependencies#enable-or-disable-a-plugin-with-dependencies "_plugin-dependencies#enable-or-disable-a-plugin-with-dependencies".md) the target. The error message includes a chained command that disables every dependent first.
+Disable a plugin without uninstalling it. Fails when another enabled plugin [depends on](./plugin-dependencies.md#enable-or-disable-a-plugin-with-dependencies "/docs/en/plugin-dependencies#enable-or-disable-a-plugin-with-dependencies") the target. The error message includes a chained command that disables every dependent first.
 
 ```
 claude plugin disable <plugin> [options]
@@ -892,9 +996,9 @@ The output shows two cost figures for each component:
 This example shows what the output looks like for a plugin with two skills:
 
 ```
-security-guidance 1.2.0
-  Real-time security analysis for Claude Code sessions
-  Source: security-guidance@claude-code-marketplace
+dependency-guard 1.2.0
+  Dependency analysis for Claude Code sessions
+  Source: dependency-guard@example-marketplace
 
 Component inventory
   Skills (2)  scan-dependencies, review-changes
@@ -919,7 +1023,7 @@ The always-on total is computed via the `count_tokens` API for your active model
 
 ### [​](#plugin-tag "#plugin-tag") plugin tag
 
-Create a release git tag for the plugin in the current directory. Run from inside the plugin’s folder. See [Tag plugin releases](./plugin-dependencies#tag-plugin-releases-for-version-resolution "_plugin-dependencies#tag-plugin-releases-for-version-resolution".md).
+Create a release git tag for the plugin in the current directory. Run from inside the plugin’s folder. See [Tag plugin releases](./plugin-dependencies.md#tag-plugin-releases-for-version-resolution "/docs/en/plugin-dependencies#tag-plugin-releases-for-version-resolution").
 
 ```
 claude plugin tag [options]
@@ -1054,10 +1158,10 @@ If you use explicit versions, follow [semantic versioning](https://semver.org "h
 
 ## [​](#see-also "#see-also") See also
 
-* [Plugins](./plugins "_plugins".md) - Tutorials and practical usage
-* [Plugin marketplaces](./plugin-marketplaces "_plugin-marketplaces".md) - Creating and managing marketplaces
-* [Skills](./skills "_skills".md) - Skill development details
-* [Subagents](./sub-agents "_sub-agents".md) - Agent configuration and capabilities
-* [Hooks](./hooks "_hooks".md) - Event handling and automation
-* [MCP](./mcp "_mcp".md) - External tool integration
-* [Settings](./settings "_settings".md) - Configuration options for plugins
+* [Plugins](./plugins.md "/docs/en/plugins") - Tutorials and practical usage
+* [Plugin marketplaces](./plugin-marketplaces.md "/docs/en/plugin-marketplaces") - Creating and managing marketplaces
+* [Skills](./skills.md "/docs/en/skills") - Skill development details
+* [Subagents](./sub-agents.md "/docs/en/sub-agents") - Agent configuration and capabilities
+* [Hooks](./hooks.md "/docs/en/hooks") - Event handling and automation
+* [MCP](./mcp.md "/docs/en/mcp") - External tool integration
+* [Settings](./settings.md "/docs/en/settings") - Configuration options for plugins

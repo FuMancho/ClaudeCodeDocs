@@ -1,3 +1,5 @@
+# Agent Sdk Sessions
+
 > ## Documentation Index
 >
 > Fetch the complete documentation index at: [https://code.claude.com/docs/llms.txt](https://code.claude.com/docs/llms.txt "https://code.claude.com/docs/llms.txt")
@@ -7,13 +9,13 @@
 A session is the conversation history the SDK accumulates while your agent works. It contains your prompt, every tool call the agent made, every tool result, and every response. The SDK writes it to disk automatically so you can return to it later.
 Returning to a session means the agent has full context from before: files it already read, analysis it already performed, decisions it already made. You can ask a follow-up question, recover from an interruption, or branch off to try a different approach.
 
-Sessions persist the **conversation**, not the filesystem. To snapshot and revert file changes the agent made, use [file checkpointing](./agent-sdk_file-checkpointing "_agent-sdk_file-checkpointing".md).
+Sessions persist the **conversation**, not the filesystem. To snapshot and revert file changes the agent made, use [file checkpointing](./agent-sdk/file-checkpointing.md "/docs/en/agent-sdk/file-checkpointing").
 
 This guide covers how to pick the right approach for your app, the SDK interfaces that track sessions automatically, how to capture session IDs and use `resume` and `fork` manually, and what to know about resuming sessions across hosts.
 
 ## [​](#choose-an-approach "#choose-an-approach") Choose an approach
 
-How much session handling you need depends on your application’s shape. Session management comes into play when you send multiple prompts that should share context. Within a single `query()` call, the agent already takes as many turns as it needs, and permission prompts and `AskUserQuestion` are [handled in-loop](./agent-sdk_user-input "_agent-sdk_user-input".md) (they don’t end the call).
+How much session handling you need depends on your application’s shape. Session management comes into play when you send multiple prompts that should share context. Within a single `query()` call, the agent already takes as many turns as it needs, and permission prompts and `AskUserQuestion` are [handled in-loop](./agent-sdk/user-input.md "/docs/en/agent-sdk/user-input") (they don’t end the call).
 
 | What you’re building | What to use |
 | --- | --- |
@@ -22,11 +24,11 @@ How much session handling you need depends on your application’s shape. Sessio
 | Pick up where you left off after a process restart | `continue_conversation=True` (Python) / `continue: true` (TypeScript). Resumes the most recent session in the directory, no ID needed. |
 | Resume a specific past session (not the most recent) | Capture the session ID and pass it to `resume`. |
 | Try an alternative approach without losing the original | Fork the session. |
-| Stateless task, don’t want anything written to disk (TypeScript only) | Set [`persistSession: false`](./agent-sdk_typescript#options "_agent-sdk_typescript#options".md). The session exists only in memory for the duration of the call. Python always persists to disk. |
+| Stateless task, don’t want anything written to disk (TypeScript only) | Set [`persistSession: false`](./agent-sdk/typescript.md#options "/docs/en/agent-sdk/typescript#options"). The session exists only in memory for the duration of the call. Python always persists to disk. |
 
 ### [​](#continue-resume-and-fork "#continue-resume-and-fork") Continue, resume, and fork
 
-Continue, resume, and fork are option fields you set on `query()` ([`ClaudeAgentOptions`](./agent-sdk_python#claudeagentoptions "_agent-sdk_python#claudeagentoptions".md) in Python, [`Options`](./agent-sdk_typescript#options "_agent-sdk_typescript#options".md) in TypeScript).
+Continue, resume, and fork are option fields you set on `query()` ([`ClaudeAgentOptions`](./agent-sdk/python.md#claudeagentoptions "/docs/en/agent-sdk/python#claudeagentoptions") in Python, [`Options`](./agent-sdk/typescript.md#options "/docs/en/agent-sdk/typescript#options") in TypeScript).
 **Continue** and **resume** both pick up an existing session and add to it. The difference is how they find that session:
 
 * **Continue** finds the most recent session in the current directory. You don’t track anything. Works well when your app runs one conversation at a time.
@@ -40,7 +42,7 @@ Both SDKs offer an interface that tracks session state for you across calls, so 
 
 ### [​](#python-claudesdkclient "#python-claudesdkclient") Python: `ClaudeSDKClient`
 
-[`ClaudeSDKClient`](./agent-sdk_python#claudesdkclient "_agent-sdk_python#claudesdkclient".md) handles session IDs internally. Each call to `client.query()` automatically continues the same session. Call [`client.receive_response()`](./agent-sdk_python#claudesdkclient "_agent-sdk_python#claudesdkclient".md) to iterate over the messages for the current query. The client is typically used as an async context manager.
+[`ClaudeSDKClient`](./agent-sdk/python.md#claudesdkclient "/docs/en/agent-sdk/python#claudesdkclient") handles session IDs internally. Each call to `client.query()` automatically continues the same session. Call [`client.receive_response()`](./agent-sdk/python.md#claudesdkclient "/docs/en/agent-sdk/python#claudesdkclient") to iterate over the messages for the current query. The client is typically used as an async context manager.
 This example runs two queries against the same `client`. The first asks the agent to analyze a module; the second asks it to refactor that module. Because both calls go through the same client instance, the second query has full context from the first without any explicit `resume` or session ID:
 
 Python
@@ -91,7 +93,7 @@ async def main():
 asyncio.run(main())
 ```
 
-See the [Python SDK reference](./agent-sdk_python#choosing-between-query-and-claudesdkclient "_agent-sdk_python#choosing-between-query-and-claudesdkclient".md) for details on when to use `ClaudeSDKClient` vs the standalone `query()` function.
+See the [Python SDK reference](./agent-sdk/python.md#choosing-between-query-and-claudesdkclient "/docs/en/agent-sdk/python#choosing-between-query-and-claudesdkclient") for details on when to use `ClaudeSDKClient` vs the standalone `query()` function.
 
 ### [​](#typescript-continue-true "#typescript-continue-true") TypeScript: `continue: true`
 
@@ -127,13 +129,13 @@ for await (const message of query({
 }
 ```
 
-The experimental [V2 session API](./agent-sdk_typescript-v2-preview "_agent-sdk_typescript-v2-preview".md), which provided `createSession()` with a `send` / `stream` pattern, was removed in TypeScript Agent SDK 0.3.142. Use the `query()` function and the session options described on this page instead.
+The experimental [V2 session API](./agent-sdk/typescript-v2-preview.md "/docs/en/agent-sdk/typescript-v2-preview"), which provided `createSession()` with a `send` / `stream` pattern, was removed in TypeScript Agent SDK 0.3.142. Use the `query()` function and the session options described on this page instead.
 
 ## [​](#use-session-options-with-query "#use-session-options-with-query") Use session options with `query()`
 
 ### [​](#capture-the-session-id "#capture-the-session-id") Capture the session ID
 
-Resume and fork require a session ID. Read it from the `session_id` field on the result message ([`ResultMessage`](./agent-sdk_python#resultmessage "_agent-sdk_python#resultmessage".md) in Python, [`SDKResultMessage`](./agent-sdk_typescript#sdkresultmessage "_agent-sdk_typescript#sdkresultmessage".md) in TypeScript), which is present on every result regardless of success or error. In TypeScript the ID is also available earlier as a direct field on the init `SystemMessage`; in Python it’s nested inside `SystemMessage.data`.
+Resume and fork require a session ID. Read it from the `session_id` field on the result message ([`ResultMessage`](./agent-sdk/python.md#resultmessage "/docs/en/agent-sdk/python#resultmessage") in Python, [`SDKResultMessage`](./agent-sdk/typescript.md#sdkresultmessage "/docs/en/agent-sdk/typescript#sdkresultmessage") in TypeScript), which is present on every result regardless of success or error. In TypeScript the ID is also available earlier as a direct field on the init `SystemMessage`; in Python it’s nested inside `SystemMessage.data`.
 
 Python
 
@@ -170,7 +172,7 @@ session_id = asyncio.run(main())
 Pass a session ID to `resume` to return to that specific session. The agent picks up with full context from wherever the session left off. Common reasons to resume:
 
 * **Follow up on a completed task.** The agent already analyzed something; now you want it to act on that analysis without re-reading files.
-* **Recover from a limit.** The first run ended with `error_max_turns` or `error_max_budget_usd` (see [Handle the result](./agent-sdk_agent-loop#handle-the-result "_agent-sdk_agent-loop#handle-the-result".md)); resume with a higher limit.
+* **Recover from a limit.** The first run ended with `error_max_turns` or `error_max_budget_usd` (see [Handle the result](./agent-sdk/agent-loop.md#handle-the-result "/docs/en/agent-sdk/agent-loop#handle-the-result")); resume with a higher limit.
 * **Restart your process.** You captured the ID before shutdown and want to restore the conversation.
 
 This example resumes the session from [Capture the session ID](#capture-the-session-id "#capture-the-session-id") with a follow-up prompt. Because you’re resuming, the agent already has the prior analysis in context:
@@ -194,13 +196,13 @@ async for message in query(
 
 If a `resume` call returns a fresh session instead of the expected history, the most common cause is a mismatched `cwd`. Sessions are stored under `~/.claude/projects/<encoded-cwd>/*.jsonl`, where `<encoded-cwd>` is the absolute working directory with every non-alphanumeric character replaced by `-` (so `/Users/me/proj` becomes `-Users-me-proj`). If your resume call runs from a different directory, the SDK looks in the wrong place. The session file also needs to exist on the current machine.
 
-To resume sessions across machines or in serverless environments, mirror transcripts to shared storage with a [`SessionStore` adapter](./agent-sdk_session-storage "_agent-sdk_session-storage".md).
+To resume sessions across machines or in serverless environments, mirror transcripts to shared storage with a [`SessionStore` adapter](./agent-sdk/session-storage.md "/docs/en/agent-sdk/session-storage").
 
 ### [​](#fork-to-explore-alternatives "#fork-to-explore-alternatives") Fork to explore alternatives
 
 Forking creates a new session that starts with a copy of the original’s history but diverges from that point. The fork gets its own session ID; the original’s ID and history stay unchanged. You end up with two independent sessions you can resume separately.
 
-Forking branches the conversation history, not the filesystem. If a forked agent edits files, those changes are real and visible to any session working in the same directory. To branch and revert file changes, use [file checkpointing](./agent-sdk_file-checkpointing "_agent-sdk_file-checkpointing".md).
+Forking branches the conversation history, not the filesystem. If a forked agent edits files, those changes are real and visible to any session working in the same directory. To branch and revert file changes, use [file checkpointing](./agent-sdk/file-checkpointing.md "/docs/en/agent-sdk/file-checkpointing").
 
 This example builds on [Capture the session ID](#capture-the-session-id "#capture-the-session-id"): you’ve already analyzed an auth module in `session_id` and want to explore OAuth2 without losing the JWT-focused thread. The first block forks the session and captures the fork’s ID (`forked_id`); the second block resumes the original `session_id` to continue down the JWT path. You now have two session IDs pointing at two separate histories:
 
@@ -241,12 +243,12 @@ Session files are local to the machine that created them. To resume a session on
 * **Move the session file.** Persist `~/.claude/projects/<encoded-cwd>/<session-id>.jsonl` from the first run and restore it to the same path on the new host before calling `resume`. The `cwd` must match.
 * **Don’t rely on session resume.** Capture the results you need (analysis output, decisions, file diffs) as application state and pass them into a fresh session’s prompt. This is often more robust than shipping transcript files around.
 
-Both SDKs expose functions for enumerating sessions on disk and reading their messages: [`listSessions()`](./agent-sdk_typescript#listsessions "_agent-sdk_typescript#listsessions".md) and [`getSessionMessages()`](./agent-sdk_typescript#getsessionmessages "_agent-sdk_typescript#getsessionmessages".md) in TypeScript, [`list_sessions()`](./agent-sdk_python#list_sessions "_agent-sdk_python#list_sessions".md) and [`get_session_messages()`](./agent-sdk_python#get_session_messages "_agent-sdk_python#get_session_messages".md) in Python. Use them to build custom session pickers, cleanup logic, or transcript viewers.
-Both SDKs also expose functions for looking up and mutating individual sessions: [`get_session_info()`](./agent-sdk_python#get_session_info "_agent-sdk_python#get_session_info".md), [`rename_session()`](./agent-sdk_python#rename_session "_agent-sdk_python#rename_session".md), and [`tag_session()`](./agent-sdk_python#tag_session "_agent-sdk_python#tag_session".md) in Python, and [`getSessionInfo()`](./agent-sdk_typescript#getsessioninfo "_agent-sdk_typescript#getsessioninfo".md), [`renameSession()`](./agent-sdk_typescript#renamesession "_agent-sdk_typescript#renamesession".md), and [`tagSession()`](./agent-sdk_typescript#tagsession "_agent-sdk_typescript#tagsession".md) in TypeScript. Use them to organize sessions by tag or give them human-readable titles.
+Both SDKs expose functions for enumerating sessions on disk and reading their messages: [`listSessions()`](./agent-sdk/typescript.md#listsessions "/docs/en/agent-sdk/typescript#listsessions") and [`getSessionMessages()`](./agent-sdk/typescript.md#getsessionmessages "/docs/en/agent-sdk/typescript#getsessionmessages") in TypeScript, [`list_sessions()`](./agent-sdk/python.md#list_sessions "/docs/en/agent-sdk/python#list_sessions") and [`get_session_messages()`](./agent-sdk/python.md#get_session_messages "/docs/en/agent-sdk/python#get_session_messages") in Python. Use them to build custom session pickers, cleanup logic, or transcript viewers.
+Both SDKs also expose functions for looking up and mutating individual sessions: [`get_session_info()`](./agent-sdk/python.md#get_session_info "/docs/en/agent-sdk/python#get_session_info"), [`rename_session()`](./agent-sdk/python.md#rename_session "/docs/en/agent-sdk/python#rename_session"), and [`tag_session()`](./agent-sdk/python.md#tag_session "/docs/en/agent-sdk/python#tag_session") in Python, and [`getSessionInfo()`](./agent-sdk/typescript.md#getsessioninfo "/docs/en/agent-sdk/typescript#getsessioninfo"), [`renameSession()`](./agent-sdk/typescript.md#renamesession "/docs/en/agent-sdk/typescript#renamesession"), and [`tagSession()`](./agent-sdk/typescript.md#tagsession "/docs/en/agent-sdk/typescript#tagsession") in TypeScript. Use them to organize sessions by tag or give them human-readable titles.
 
 ## [​](#related-resources "#related-resources") Related resources
 
-* [How the agent loop works](./agent-sdk_agent-loop "_agent-sdk_agent-loop".md): Understand turns, messages, and context accumulation within a session
-* [File checkpointing](./agent-sdk_file-checkpointing "_agent-sdk_file-checkpointing".md): Track and revert file changes across sessions
-* [Python `ClaudeAgentOptions`](./agent-sdk_python#claudeagentoptions "_agent-sdk_python#claudeagentoptions".md): Full session option reference for Python
-* [TypeScript `Options`](./agent-sdk_typescript#options "_agent-sdk_typescript#options".md): Full session option reference for TypeScript
+* [How the agent loop works](./agent-sdk/agent-loop.md "/docs/en/agent-sdk/agent-loop"): Understand turns, messages, and context accumulation within a session
+* [File checkpointing](./agent-sdk/file-checkpointing.md "/docs/en/agent-sdk/file-checkpointing"): Track and revert file changes across sessions
+* [Python `ClaudeAgentOptions`](./agent-sdk/python.md#claudeagentoptions "/docs/en/agent-sdk/python#claudeagentoptions"): Full session option reference for Python
+* [TypeScript `Options`](./agent-sdk/typescript.md#options "/docs/en/agent-sdk/typescript#options"): Full session option reference for TypeScript

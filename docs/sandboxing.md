@@ -14,7 +14,7 @@ This page covers how to:
 * [Combine sandboxing with permission rules and permission modes](#how-sandboxing-relates-to-permissions-and-permission-modes "#how-sandboxing-relates-to-permissions-and-permission-modes")
 * [Enforce sandboxing across an organization](#configure-the-sandbox-for-your-organization "#configure-the-sandbox-for-your-organization") with managed settings
 
-To compare other isolation approaches such as dev containers, custom containers, and virtual machines, see [Sandbox environments](./sandbox-environments "_sandbox-environments".md). To reduce permission prompts for tools other than Bash, see [permission modes](./permission-modes "_permission-modes".md).
+To compare other isolation approaches such as dev containers, custom containers, and virtual machines, see [Sandbox environments](./sandbox-environments.md "/docs/en/sandbox-environments"). To reduce permission prompts for tools other than Bash, see [permission modes](./permission-modes.md "/docs/en/permission-modes").
 
 ## [​](#get-started "#get-started") Get started
 
@@ -34,7 +34,7 @@ Start a Claude Code session and run the `/sandbox` command:
 This opens the sandbox panel with three tabs:
 
 * **Mode**: choose how sandboxed commands are approved, covered in the next step
-* **Overrides**: choose whether commands that fail under the sandbox can fall back to running unsandboxed. This is the [`allowUnsandboxedCommands`](./settings#sandbox-settings "_settings#sandbox-settings".md) setting
+* **Overrides**: choose whether commands that fail under the sandbox can fall back to running unsandboxed. This is the [`allowUnsandboxedCommands`](./settings.md#sandbox-settings "/docs/en/settings#sandbox-settings") setting
 * **Config**: view the resolved sandbox settings
 
 If the panel shows only a Dependencies tab, a required package is missing. Install it as described in [Set up Linux and WSL2](#set-up-linux-and-wsl2 "#set-up-linux-and-wsl2"), restart Claude Code, and run `/sandbox` again.
@@ -51,9 +51,9 @@ Run a Bash command
 
 Ask Claude to run a command, such as a build or a test suite. By default, commands inside the sandbox can write only to the working directory. The first time a command needs a new network domain, Claude Code prompts for approval.Commands that cannot run sandboxed fall back to the regular permission flow. To widen or narrow these boundaries, see [Configure sandboxing](#configure-sandboxing "#configure-sandboxing").
 
-Selecting a mode in the panel writes to your project’s local settings at `.claude/settings.local.json`, which apply to the current project and are not checked into git. To enable the sandbox across all of your projects, set [`sandbox.enabled`](./settings#sandbox-settings "_settings#sandbox-settings".md) to `true` in your user settings at `~/.claude/settings.json`. To enforce sandboxing for every developer in an organization, use [managed settings](#enforce-sandboxing-with-managed-settings "#enforce-sandboxing-with-managed-settings").
+Selecting a mode in the panel writes to your project’s local settings at `.claude/settings.local.json`, which apply to the current project and are not checked into git. To enable the sandbox across all of your projects, set [`sandbox.enabled`](./settings.md#sandbox-settings "/docs/en/settings#sandbox-settings") to `true` in your user settings at `~/.claude/settings.json`. To enforce sandboxing for every developer in an organization, use [managed settings](#enforce-sandboxing-with-managed-settings "#enforce-sandboxing-with-managed-settings").
 
-By default, if the sandbox cannot start because dependencies are missing or the platform is unsupported, Claude Code shows a warning and runs commands without sandboxing. To make this a hard failure instead, set [`sandbox.failIfUnavailable`](./settings#sandbox-settings "_settings#sandbox-settings".md) to `true`. This is intended for managed deployments that require sandboxing as a security gate.
+By default, if the sandbox cannot start because dependencies are missing or the platform is unsupported, Claude Code shows a warning and runs commands without sandboxing. To make this a hard failure instead, set [`sandbox.failIfUnavailable`](./settings.md#sandbox-settings "/docs/en/settings#sandbox-settings") to `true`. This is intended for managed deployments that require sandboxing as a security gate.
 
 ### [​](#set-up-linux-and-wsl2 "#set-up-linux-and-wsl2") Set up Linux and WSL2
 
@@ -102,28 +102,28 @@ sudo systemctl reload apparmor
 
 WSL2 notes
 
-Check your WSL version with `wsl -l -v` from PowerShell. If you see `Sandboxing requires WSL2`, your distribution is running WSL1. Upgrade it to WSL2 or run Claude Code without sandboxing.On WSL2, sandboxed commands cannot launch Windows binaries such as `cmd.exe`, `powershell.exe`, or anything under `/mnt/c/`. WSL hands these off to the Windows host over a Unix socket, which the sandbox blocks. If a command needs to invoke a Windows binary, add it to [`excludedCommands`](./settings#sandbox-settings "_settings#sandbox-settings".md) so it runs outside the sandbox.
+Check your WSL version with `wsl -l -v` from PowerShell. If you see `Sandboxing requires WSL2`, your distribution is running WSL1. Upgrade it to WSL2 or run Claude Code without sandboxing.On WSL2, sandboxed commands cannot launch Windows binaries such as `cmd.exe`, `powershell.exe`, or anything under `/mnt/c/`. WSL hands these off to the Windows host over a Unix socket, which the sandbox blocks. If a command needs to invoke a Windows binary, add it to [`excludedCommands`](./settings.md#sandbox-settings "/docs/en/settings#sandbox-settings") so it runs outside the sandbox.
 
 ### [​](#sandbox-modes "#sandbox-modes") Sandbox modes
 
 Claude Code offers two sandbox modes:
-**Auto-allow mode**: Bash commands will attempt to run inside the sandbox and are automatically allowed without requiring permission. Commands that cannot be sandboxed, such as those needing network access to non-allowed hosts, fall back to the regular permission flow, where Claude Code checks your [permission rules](./permissions "_permissions".md) and prompts you for any command those rules do not already allow.
+**Auto-allow mode**: Bash commands will attempt to run inside the sandbox and are automatically allowed without requiring permission. Commands that cannot be sandboxed, such as those needing network access to non-allowed hosts, fall back to the regular permission flow, where Claude Code checks your [permission rules](./permissions.md "/docs/en/permissions") and prompts you for any command those rules do not already allow.
 Even in auto-allow mode, the following still apply:
 
-* Explicit [deny rules](./permissions "_permissions".md) are always respected
+* Explicit [deny rules](./permissions.md "/docs/en/permissions") are always respected
 * `rm` or `rmdir` commands that target `/`, your home directory, or other critical system paths still trigger a permission prompt
-* [Ask rules](./permissions "_permissions".md) apply to commands that fall back to the regular permission flow
+* [Ask rules](./permissions.md "/docs/en/permissions") apply to commands that fall back to the regular permission flow
 
 **Regular permissions mode**: All Bash commands go through the regular permission flow, even when sandboxed. This provides more control but requires more approvals.
 In both modes, the sandbox enforces the same filesystem and network restrictions. The difference is only in whether sandboxed commands are auto-approved or require explicit permission.
 Some commands cannot run inside the sandbox at all, such as tools that are incompatible with it or that need a host you have not allowed. Rather than failing the task or requiring you to turn sandboxing off, Claude Code includes an escape hatch: when a command fails because of sandbox restrictions, Claude analyzes the failure and may retry the command with the `dangerouslyDisableSandbox` parameter. The retried command runs outside the sandbox, so it goes through the regular permission flow and requires your approval.
-You can disable this escape hatch by setting `"allowUnsandboxedCommands": false` in your [sandbox settings](./settings#sandbox-settings "_settings#sandbox-settings".md). When disabled, which the `/sandbox` Overrides tab shows as **Strict sandbox mode**, the `dangerouslyDisableSandbox` parameter is completely ignored and all commands must run sandboxed or be explicitly listed in `excludedCommands`.
+You can disable this escape hatch by setting `"allowUnsandboxedCommands": false` in your [sandbox settings](./settings.md#sandbox-settings "/docs/en/settings#sandbox-settings"). When disabled, which the `/sandbox` Overrides tab shows as **Strict sandbox mode**, the `dangerouslyDisableSandbox` parameter is completely ignored and all commands must run sandboxed or be explicitly listed in `excludedCommands`.
 
 Auto-allow mode works independently of your permission mode setting. Even if you’re not in “accept edits” mode, sandboxed Bash commands will run automatically when auto-allow is enabled. This means Bash commands that modify files within the sandbox boundaries will execute without prompting, even when file edit tools would normally require approval.
 
 ## [​](#configure-sandboxing "#configure-sandboxing") Configure sandboxing
 
-Customize sandbox behavior through your `settings.json` file. See [Settings](./settings#sandbox-settings "_settings#sandbox-settings".md) for the complete configuration reference.
+Customize sandbox behavior through your `settings.json` file. See [Settings](./settings.md#sandbox-settings "/docs/en/settings#sandbox-settings") for the complete configuration reference.
 By default, sandboxed commands can only write to the current working directory. If subprocess commands like `kubectl`, `terraform`, or `npm` need to write outside the project directory, use `sandbox.filesystem.allowWrite` to grant access to specific paths:
 
 ```
@@ -138,7 +138,7 @@ By default, sandboxed commands can only write to the current working directory. 
 ```
 
 These paths are enforced at the OS level, so all commands running inside the sandbox, including their child processes, respect them. This is the recommended approach when a tool needs write access to a specific location, rather than excluding the tool from the sandbox entirely with `excludedCommands`.
-When the same filesystem array is defined in multiple [settings scopes](./settings#settings-precedence "_settings#settings-precedence".md), the arrays are merged: paths from every scope are combined, not replaced.
+When the same filesystem array is defined in multiple [settings scopes](./settings.md#settings-precedence "/docs/en/settings#settings-precedence"), the arrays are merged: paths from every scope are combined, not replaced.
 Path prefixes control how paths are resolved:
 
 | Prefix | Meaning | Example |
@@ -147,7 +147,7 @@ Path prefixes control how paths are resolved:
 | `~/` | Relative to home directory | `~/.kube` becomes `$HOME/.kube` |
 | `./` or no prefix | Relative to the project root for project settings, or to `~/.claude` for user settings | `./output` in `.claude/settings.json` resolves to `<project-root>/output` |
 
-This syntax differs from [Read and Edit permission rules](./permissions#read-and-edit "_permissions#read-and-edit".md), which use `//path` for absolute and `/path` for project-relative. Sandbox filesystem paths use standard conventions: `/tmp/build` is absolute.
+This syntax differs from [Read and Edit permission rules](./permissions.md#read-and-edit "/docs/en/permissions#read-and-edit"), which use `//path` for absolute and `/path` for project-relative. Sandbox filesystem paths use standard conventions: `/tmp/build` is absolute.
 You can also deny write or read access using `sandbox.filesystem.denyWrite` and `sandbox.filesystem.denyRead`, and re-allow specific paths within a denied region using `sandbox.filesystem.allowRead`.
 The example below blocks reading from the entire home directory while still allowing reads from the current project. Place it in your project’s `.claude/settings.json`, because the relative path `.` resolves to the project root only when the configuration lives in project settings:
 
@@ -174,6 +174,7 @@ The sandboxed Bash tool restricts file system access to specific directories:
 * **Default write behavior**: read and write access to the current working directory and its subdirectories
 * **Default read behavior**: read access to the entire computer, except certain denied directories. Note that this default still allows reading credential files such as `~/.aws/credentials` and `~/.ssh/`. Add them to `denyRead` to block them.
 * **Blocked access**: cannot modify files outside the current working directory without explicit permission, including shell configuration files such as `~/.bashrc` and system binaries in `/bin/`
+* **Git worktrees**: when the working directory is a [linked git worktree](./worktrees.md "/docs/en/worktrees"), the sandbox also allows writes to the main repository’s shared `.git` directory so commands such as `git commit` can update refs and the index. Writes to `hooks/` and `config` inside that directory remain denied.
 * **Configurable**: define custom allowed and denied paths through settings
 
 You can grant write access to additional paths using `sandbox.filesystem.allowWrite` in your settings. These restrictions are enforced at the OS level, so they apply to all subprocess commands, including tools like `kubectl`, `terraform`, and `npm`, not just Claude’s file tools.
@@ -182,8 +183,8 @@ You can grant write access to additional paths using `sandbox.filesystem.allowWr
 
 Network access is controlled through a proxy server running outside the sandbox:
 
-* **Domain restrictions**: no domains are pre-allowed. The first time a command needs a new domain, Claude Code prompts for approval. Pre-allow domains with [`allowedDomains`](./settings#sandbox-settings "_settings#sandbox-settings".md) to avoid the prompt.
-* **Managed lockdown**: if [`allowManagedDomainsOnly`](./settings#sandbox-settings "_settings#sandbox-settings".md) is set in managed settings, non-allowed domains are blocked automatically instead of prompting, and only `allowedDomains` from managed settings are honored.
+* **Domain restrictions**: no domains are pre-allowed. The first time a command needs a new domain, Claude Code prompts for approval. Pre-allow domains with [`allowedDomains`](./settings.md#sandbox-settings "/docs/en/settings#sandbox-settings") to avoid the prompt.
+* **Managed lockdown**: if [`allowManagedDomainsOnly`](./settings.md#sandbox-settings "/docs/en/settings#sandbox-settings") is set in managed settings, non-allowed domains are blocked automatically instead of prompting, and only `allowedDomains` from managed settings are honored.
 * **Custom proxy support**: advanced users can implement custom rules on outgoing traffic
 * **Comprehensive coverage**: restrictions apply to all scripts, programs, and subprocesses spawned by commands
 
@@ -198,11 +199,11 @@ The sandboxed Bash tool leverages operating system security primitives:
 * **WSL2**: uses bubblewrap, same as Linux
 
 WSL1 is not supported because bubblewrap requires kernel features only available in WSL2. These OS-level restrictions ensure that all child processes spawned by Claude Code’s commands inherit the same security boundaries.
-These same primitives are available as the standalone [`@anthropic-ai/sandbox-runtime`](https://github.com/anthropic-experimental/sandbox-runtime "https://github.com/anthropic-experimental/sandbox-runtime") package, which the [Sandbox environments](./sandbox-environments#sandbox-runtime "_sandbox-environments#sandbox-runtime".md) page covers as a separate approach for wrapping the entire Claude Code process.
+These same primitives are available as the standalone [`@anthropic-ai/sandbox-runtime`](https://github.com/anthropic-experimental/sandbox-runtime "https://github.com/anthropic-experimental/sandbox-runtime") package, which the [Sandbox environments](./sandbox-environments.md#sandbox-runtime "/docs/en/sandbox-environments#sandbox-runtime") page covers as a separate approach for wrapping the entire Claude Code process.
 
 ## [​](#how-sandboxing-relates-to-permissions-and-permission-modes "#how-sandboxing-relates-to-permissions-and-permission-modes") How sandboxing relates to permissions and permission modes
 
-Sandboxing, [permission rules](./permissions "_permissions".md), and [permission modes](./permission-modes "_permission-modes".md) are complementary layers. The sections below cover how the sandbox interacts with each.
+Sandboxing, [permission rules](./permissions.md "/docs/en/permissions"), and [permission modes](./permission-modes.md "/docs/en/permission-modes") are complementary layers. The sections below cover how the sandbox interacts with each.
 
 ### [​](#permission-rules "#permission-rules") Permission rules
 
@@ -230,15 +231,15 @@ The [claude-code repository’s examples directory](https://github.com/anthropic
 
 ### [​](#permission-modes "#permission-modes") Permission modes
 
-`/sandbox` is not a [permission mode](./permission-modes "_permission-modes".md). Permission modes decide whether a tool call runs and whether you are prompted first, while the sandbox restricts what a Bash command can access once it runs. They differ in what they control and what replaces the per-action prompt:
+`/sandbox` is not a [permission mode](./permission-modes.md "/docs/en/permission-modes"). Permission modes decide whether a tool call runs and whether you are prompted first, while the sandbox restricts what a Bash command can access once it runs. They differ in what they control and what replaces the per-action prompt:
 
 |  | What it controls | What replaces the prompt |
 | --- | --- | --- |
 | `/sandbox` | What a Bash command can access once it runs | The sandbox boundary itself, in [auto-allow mode](#sandbox-modes "#sandbox-modes") |
-| [Auto mode](./permission-modes#eliminate-prompts-with-auto-mode "_permission-modes#eliminate-prompts-with-auto-mode".md) | Whether each tool call runs | A classifier that reviews actions |
-| `--dangerously-skip-permissions` | Whether each tool call runs | Nothing. [Protected path](./permission-modes#protected-paths "_permission-modes#protected-paths".md) checks are also skipped; only removing `/` or your home directory still prompts |
+| [Auto mode](./permission-modes.md#eliminate-prompts-with-auto-mode "/docs/en/permission-modes#eliminate-prompts-with-auto-mode") | Whether each tool call runs | A classifier that reviews actions |
+| `--dangerously-skip-permissions` | Whether each tool call runs | Nothing. [Protected path](./permission-modes.md#protected-paths "/docs/en/permission-modes#protected-paths") checks are also skipped; only removing `/` or your home directory still prompts |
 
-The sandbox’s [auto-allow mode](#sandbox-modes "#sandbox-modes") is separate from [auto mode](./permission-modes#eliminate-prompts-with-auto-mode "_permission-modes#eliminate-prompts-with-auto-mode".md): auto-allow approves Bash commands because the sandbox boundary contains them, while auto mode uses a classifier to review actions. The two work independently and can be combined. To choose an isolation boundary for unattended runs, see [Sandbox environments](./sandbox-environments#how-isolation-relates-to-permission-modes "_sandbox-environments#how-isolation-relates-to-permission-modes".md).
+The sandbox’s [auto-allow mode](#sandbox-modes "#sandbox-modes") is separate from [auto mode](./permission-modes.md#eliminate-prompts-with-auto-mode "/docs/en/permission-modes#eliminate-prompts-with-auto-mode"): auto-allow approves Bash commands because the sandbox boundary contains them, while auto mode uses a classifier to review actions. The two work independently and can be combined. To choose an isolation boundary for unattended runs, see [Sandbox environments](./sandbox-environments.md#how-isolation-relates-to-permission-modes "/docs/en/sandbox-environments#how-isolation-relates-to-permission-modes").
 
 ## [​](#configure-the-sandbox-for-your-organization "#configure-the-sandbox-for-your-organization") Configure the sandbox for your organization
 
@@ -246,7 +247,7 @@ Administrators can require sandboxing for every user, keep developers from widen
 
 ### [​](#enforce-sandboxing-with-managed-settings "#enforce-sandboxing-with-managed-settings") Enforce sandboxing with managed settings
 
-To require the sandbox for every developer, deliver the `sandbox` keys through [managed settings](./settings#settings-files "_settings#settings-files".md), either as a file managed by your MDM or through [server-managed settings](./server-managed-settings "_server-managed-settings".md) on Claude.ai.
+To require the sandbox for every developer, deliver the `sandbox` keys through [managed settings](./settings.md#settings-files "/docs/en/settings#settings-files"), either as a file managed by your MDM or through [server-managed settings](./server-managed-settings.md "/docs/en/server-managed-settings") on Claude.ai.
 The following managed settings configuration enables the sandbox, refuses to start Claude Code if the sandbox cannot initialize, and prevents the model from retrying commands outside the sandbox:
 
 ```
@@ -270,7 +271,7 @@ The sandbox does not run on native Windows, so if your fleet includes Windows ho
 ### [​](#keep-developers-from-widening-the-policy "#keep-developers-from-widening-the-policy") Keep developers from widening the policy
 
 For boolean keys such as `enabled` and `failIfUnavailable`, Claude Code uses the managed value and ignores anything a developer sets locally. For array keys such as `excludedCommands` and `allowRead`, Claude Code merges entries from every scope, so a developer can append entries that widen the policy.
-Set `allowManagedReadPathsOnly` to `true` in managed settings so that only `allowRead` entries from managed settings are honored. User, project, and local `allowRead` entries are ignored. This prevents developers from widening read access beyond the organization-approved paths. To lock network domains to the managed values the same way, set [`allowManagedDomainsOnly`](./settings#sandbox-settings "_settings#sandbox-settings".md).
+Set `allowManagedReadPathsOnly` to `true` in managed settings so that only `allowRead` entries from managed settings are honored. User, project, and local `allowRead` entries are ignored. This prevents developers from widening read access beyond the organization-approved paths. To lock network domains to the managed values the same way, set [`allowManagedDomainsOnly`](./settings.md#sandbox-settings "/docs/en/settings#sandbox-settings").
 `excludedCommands` has no equivalent managed-only lockdown, so a developer can always append entries that run additional commands outside the sandbox. Keep the managed list narrow.
 
 ### [​](#custom-proxy-configuration "#custom-proxy-configuration") Custom proxy configuration
@@ -282,7 +283,7 @@ For organizations requiring advanced network security, you can implement a custo
 * Log all network requests
 * Integrate with existing security infrastructure
 
-To point Claude Code at your proxy, set the proxy ports in [sandbox settings](./settings#sandbox-settings "_settings#sandbox-settings".md):
+To point Claude Code at your proxy, set the proxy ports in [sandbox settings](./settings.md#sandbox-settings "/docs/en/settings#sandbox-settings"):
 
 ```
 {
@@ -301,11 +302,11 @@ Some commands fail inside the sandbox even though they work outside it. The fixe
 
 * **Commands fail with a host-not-allowed error**: many CLI tools need to reach specific hosts. Granting permission when prompted adds the host to your allowed list so the tool runs inside the sandbox in future.
 * **`jest` hangs or fails**: `watchman` is incompatible with the sandbox. Run `jest --no-watchman` instead.
-* **Go-based CLIs fail TLS verification on macOS**: tools such as `gh`, `gcloud`, and `terraform` may fail TLS verification under Seatbelt. List these tools in `excludedCommands` to run them outside the sandbox. If you are using `httpProxyPort` with a MITM proxy and custom CA, set [`enableWeakerNetworkIsolation`](./settings#sandbox-settings "_settings#sandbox-settings".md) to `true` instead.
+* **Go-based CLIs fail TLS verification on macOS**: tools such as `gh`, `gcloud`, and `terraform` may fail TLS verification under Seatbelt. List these tools in `excludedCommands` to run them outside the sandbox. If you are using `httpProxyPort` with a MITM proxy and custom CA, set [`enableWeakerNetworkIsolation`](./settings.md#sandbox-settings "/docs/en/settings#sandbox-settings") to `true` instead.
 * **`docker` commands fail**: `docker` is incompatible with the sandbox. Add `docker *` to `excludedCommands` to run it outside the sandbox.
-* **Bubblewrap fails to start inside a container**: in an unprivileged container, bubblewrap cannot mount a fresh `/proc` filesystem. Set [`enableWeakerNestedSandbox`](./settings#sandbox-settings "_settings#sandbox-settings".md) to `true` so the inner sandbox bind-mounts the container’s existing `/proc` instead. Only use this setting when the outer container already provides the isolation boundary you need, since it exposes process information to sandboxed commands that a fresh `/proc` mount would hide.
+* **Bubblewrap fails to start inside a container**: in an unprivileged container, bubblewrap cannot mount a fresh `/proc` filesystem. Set [`enableWeakerNestedSandbox`](./settings.md#sandbox-settings "/docs/en/settings#sandbox-settings") to `true` so the inner sandbox bind-mounts the container’s existing `/proc` instead. Only use this setting when the outer container already provides the isolation boundary you need, since it exposes process information to sandboxed commands that a fresh `/proc` mount would hide.
 * **Seccomp filter on Linux**: the seccomp filter is required to block Unix domain sockets. The Dependencies tab in `/sandbox` shows whether it is available. If it is missing, run `npm install -g @anthropic-ai/sandbox-runtime` to install the helper.
-* **`--dangerously-skip-permissions` fails as root**: this flag is blocked when running as root or via sudo on Linux and macOS, because root access combined with no permission prompts can modify any file or service on the system. The check is skipped automatically inside a recognized sandbox. To run autonomously in a container, use the [dev container](./devcontainer "_devcontainer".md) configuration, which runs Claude Code as a non-root user.
+* **`--dangerously-skip-permissions` fails as root**: this flag is blocked when running as root or via sudo on Linux and macOS, because root access combined with no permission prompts can modify any file or service on the system. The check is skipped automatically inside a recognized sandbox. To run autonomously in a container, use the [dev container](./devcontainer.md "/docs/en/devcontainer") configuration, which runs Claude Code as a non-root user.
 
 ## [​](#limitations "#limitations") Limitations
 
@@ -332,17 +333,17 @@ Allowing broad domains such as `github.com` can create paths for data exfiltrati
 
 The sandbox isolates Bash subprocesses. Other tools operate under different boundaries:
 
-* **Built-in file tools**: Read, Edit, and Write use the permission system directly rather than running through the sandbox. See [permissions](./permissions "_permissions".md).
-* **Computer use**: when Claude opens apps and controls your screen, it runs on your actual desktop rather than in an isolated environment. Per-app permission prompts gate each application. See [computer use in the CLI](./computer-use "_computer-use".md) or [computer use in Desktop](./desktop#let-claude-use-your-computer "_desktop#let-claude-use-your-computer".md).
-* **Environment variables**: sandboxed Bash commands inherit the parent process environment by default, including any credentials set there. To strip Anthropic and cloud provider credentials from subprocesses, set [`CLAUDE_CODE_SUBPROCESS_ENV_SCRUB`](./env-vars "_env-vars".md).
-* **Subagents**: [subagents](./sub-agents "_sub-agents".md) run in the same process as the parent session and use the same sandbox configuration. Bash commands inside a subagent are sandboxed when sandboxing is enabled in the parent session.
+* **Built-in file tools**: Read, Edit, and Write use the permission system directly rather than running through the sandbox. See [permissions](./permissions.md "/docs/en/permissions").
+* **Computer use**: when Claude opens apps and controls your screen, it runs on your actual desktop rather than in an isolated environment. Per-app permission prompts gate each application. See [computer use in the CLI](./computer-use.md "/docs/en/computer-use") or [computer use in Desktop](./desktop.md#let-claude-use-your-computer "/docs/en/desktop#let-claude-use-your-computer").
+* **Environment variables**: sandboxed Bash commands inherit the parent process environment by default, including any credentials set there. To strip Anthropic and cloud provider credentials from subprocesses, set [`CLAUDE_CODE_SUBPROCESS_ENV_SCRUB`](./env-vars.md "/docs/en/env-vars").
+* **Subagents**: [subagents](./sub-agents.md "/docs/en/sub-agents") run in the same process as the parent session and use the same sandbox configuration. Bash commands inside a subagent are sandboxed when sandboxing is enabled in the parent session.
 
 Effective sandboxing requires both filesystem and network isolation. Without network isolation, a compromised agent could exfiltrate sensitive files like SSH keys. Without filesystem isolation, a compromised agent could backdoor system resources to gain network access. When you widen the defaults, check that an `allowWrite` path, a broad `allowedDomains` entry, or an `excludedCommands` exception does not undo a restriction on the other side.
 
 ## [​](#see-also "#see-also") See also
 
-* [Sandbox environments](./sandbox-environments "_sandbox-environments".md): compare the built-in sandbox with dev containers, containers, and VMs
-* [Security](./security "_security".md): comprehensive security features and best practices
-* [Permissions](./permissions "_permissions".md): permission configuration and access control
-* [Settings](./settings "_settings".md): complete configuration reference
-* [CLI reference](./cli-reference "_cli-reference".md): command-line options
+* [Sandbox environments](./sandbox-environments.md "/docs/en/sandbox-environments"): compare the built-in sandbox with dev containers, containers, and VMs
+* [Security](./security.md "/docs/en/security"): comprehensive security features and best practices
+* [Permissions](./permissions.md "/docs/en/permissions"): permission configuration and access control
+* [Settings](./settings.md "/docs/en/settings"): complete configuration reference
+* [CLI reference](./cli-reference.md "/docs/en/cli-reference"): command-line options

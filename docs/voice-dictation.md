@@ -12,10 +12,10 @@ Voice dictation requires Claude Code v2.1.69 or later. Tap mode requires v2.1.11
 
 ## [​](#requirements "#requirements") Requirements
 
-Voice dictation streams your recorded audio to Anthropic’s servers for transcription. Audio is not processed locally. The speech-to-text service is only available when you authenticate with a Claude.ai account, and is not available when Claude Code is configured to use an Anthropic API key directly, Amazon Bedrock, Google Vertex AI, or Microsoft Foundry. Transcription does not consume Claude messages or tokens and does not count toward the limits shown in `/usage`. See [data usage](./data-usage "_data-usage".md) for how Anthropic handles your data.
-Voice dictation also needs local microphone access, so it does not work in remote environments such as [Claude Code on the web](./claude-code-on-the-web "_claude-code-on-the-web".md) or SSH sessions. In WSL, voice dictation requires WSLg for audio access. WSLg is included with WSL2 when installed from the Microsoft Store on Windows 10 or 11. If WSLg is not available, for example on WSL1, run Claude Code in native Windows instead.
+Voice dictation streams your recorded audio to Anthropic’s servers for transcription. Audio is not processed locally. The speech-to-text service is only available when you authenticate with a Claude.ai account, and is not available when Claude Code is configured to use an Anthropic API key directly, Amazon Bedrock, Google Vertex AI, or Microsoft Foundry. Voice dictation is also not available when your organization has HIPAA compliance enabled. Transcription does not consume Claude messages or tokens and does not count toward the limits shown in `/usage`. See [data usage](./data-usage.md "/docs/en/data-usage") for how Anthropic handles your data.
+Voice dictation also needs local microphone access, so it does not work in remote environments such as [Claude Code on the web](./claude-code-on-the-web.md "/docs/en/claude-code-on-the-web") or SSH sessions. In WSL, voice dictation requires WSLg for audio access. WSLg is included with WSL2 when installed from the Microsoft Store on Windows 10 or 11. If WSLg is not available, for example on WSL1, run Claude Code in native Windows instead.
 Audio recording uses a built-in native module on macOS, Linux, and Windows. On Linux, if the native module cannot load, Claude Code falls back to `arecord` from ALSA utils or `rec` from SoX. If neither is available, `/voice` prints an install command for your package manager.
-The Claude Code [VS Code extension](./vs-code "_vs-code".md) also supports voice dictation with the same Claude.ai account requirement. It is not available in VS Code Remote sessions, including SSH, Dev Containers, and Codespaces, because the microphone is on your local machine and the extension runs on the remote host.
+The Claude Code [VS Code extension](./vs-code.md "/docs/en/vs-code") also supports voice dictation with the same Claude.ai account requirement. It is not available in VS Code Remote sessions, including SSH, Dev Containers, and Codespaces, because the microphone is on your local machine and the extension runs on the remote host.
 
 ## [​](#enable-voice-dictation "#enable-voice-dictation") Enable voice dictation
 
@@ -35,7 +35,7 @@ Voice mode enabled (hold). Hold Space to record. Dictation language: en (/config
 | `/voice tap` | Enable in [tap mode](#tap-to-record-and-send "#tap-to-record-and-send") |
 | `/voice off` | Disable |
 
-Voice dictation persists across sessions. Set it directly in your [user settings file](./settings "_settings".md) instead of running `/voice`:
+Voice dictation persists across sessions. Set it directly in your [user settings file](./settings.md "/docs/en/settings") instead of running `/voice`:
 
 ```
 {
@@ -46,7 +46,7 @@ Voice dictation persists across sessions. Set it directly in your [user settings
 }
 ```
 
-While voice dictation is enabled, the input footer shows a `hold Space to speak` hint when the prompt is empty. The hint reflects your current `voice:pushToTalk` binding and updates if you [rebind the dictation key](#rebind-the-dictation-key "#rebind-the-dictation-key"). The hint text is the same in both modes, and it does not appear if you have a [custom status line](./statusline "_statusline".md) configured.
+While voice dictation is enabled, the input footer shows a `hold Space to speak` hint when the prompt is empty. The hint reflects your current `voice:pushToTalk` binding and updates if you [rebind the dictation key](#rebind-the-dictation-key "#rebind-the-dictation-key"). The hint text is the same in both modes, and it does not appear if you have a [custom status line](./statusline.md "/docs/en/statusline") configured.
 Transcription is tuned for coding vocabulary in both modes. Common development terms like `regex`, `OAuth`, `JSON`, and `localhost` are recognized correctly, and your current project name and git branch name are added as recognition hints automatically.
 
 ## [​](#hold-to-record "#hold-to-record") Hold to record
@@ -75,7 +75,7 @@ The first tap only starts recording when the prompt input is empty, so you can s
 
 ## [​](#change-the-dictation-language "#change-the-dictation-language") Change the dictation language
 
-Voice dictation uses the same [`language` setting](./settings "_settings".md) that controls Claude’s response language. If that setting is empty, dictation defaults to English. In the VS Code extension, if `language` is empty, dictation uses VS Code’s `accessibility.voice.speechLanguage` setting before defaulting to English.
+Voice dictation uses the same [`language` setting](./settings.md "/docs/en/settings") that controls Claude’s response language. If that setting is empty, dictation defaults to English. In the VS Code extension, if `language` is empty, dictation uses VS Code’s `accessibility.voice.speechLanguage` setting before defaulting to English.
 
 
 Supported dictation languages
@@ -115,7 +115,7 @@ If your `language` setting is not in the supported list, `/voice` warns you on e
 
 ## [​](#rebind-the-dictation-key "#rebind-the-dictation-key") Rebind the dictation key
 
-The dictation key is bound to `voice:pushToTalk` in the `Chat` context and defaults to `Space`. The same binding controls both hold and tap modes. Rebind it in [`~/.claude/keybindings.json`](./keybindings "_keybindings".md):
+The dictation key is bound to `voice:pushToTalk` in the `Chat` context and defaults to `Space`. The same binding controls both hold and tap modes. Rebind it in [`~/.claude/keybindings.json`](./keybindings.md "/docs/en/keybindings"):
 
 ```
 {
@@ -133,7 +133,7 @@ The dictation key is bound to `voice:pushToTalk` in the `Chat` context and defau
 
 The `voice:pushToTalk` action uses one key at a time. When you bind a custom key, it replaces the default `Space` binding rather than adding a second trigger, so the `"space": null` line in this example is for clarity and can be omitted without changing behavior.
 In hold mode, avoid binding a bare letter key like `v` since hold detection relies on key-repeat and the letter types into the prompt during warmup. Use `Space`, or use a modifier combination like `meta+k` to start recording on the first keypress with no warmup. Tap mode has no warmup, so most keys work.
-Some keys are not delivered to terminal applications and cannot be bound at all. For example, `Caps Lock` shows an error if you try to bind it. See [customize keyboard shortcuts](./keybindings "_keybindings".md) for the full keybinding syntax and the list of reserved shortcuts.
+Some keys are not delivered to terminal applications and cannot be bound at all. For example, `Caps Lock` shows an error if you try to bind it. See [customize keyboard shortcuts](./keybindings.md "/docs/en/keybindings") for the full keybinding syntax and the list of reserved shortcuts.
 
 ## [​](#troubleshooting "#troubleshooting") Troubleshooting
 
@@ -176,7 +176,7 @@ Start Claude Code and run `/voice`. macOS prompts for microphone access; allow i
 
 ## [​](#see-also "#see-also") See also
 
-* [Customize keyboard shortcuts](./keybindings "_keybindings".md): rebind `voice:pushToTalk` and other CLI keyboard actions
-* [Configure settings](./settings "_settings".md): full reference for `voice`, `language`, and other settings keys
-* [Interactive mode](./interactive-mode "_interactive-mode".md): keyboard shortcuts, input modes, and session controls
-* [Commands](./commands "_commands".md): reference for `/voice`, `/config`, and all other commands
+* [Customize keyboard shortcuts](./keybindings.md "/docs/en/keybindings"): rebind `voice:pushToTalk` and other CLI keyboard actions
+* [Configure settings](./settings.md "/docs/en/settings"): full reference for `voice`, `language`, and other settings keys
+* [Interactive mode](./interactive-mode.md "/docs/en/interactive-mode"): keyboard shortcuts, input modes, and session controls
+* [Commands](./commands.md "/docs/en/commands"): reference for `/voice`, `/config`, and all other commands

@@ -8,7 +8,7 @@
 
 By default, the Agent SDK yields complete `AssistantMessage` objects after Claude finishes generating each response. To receive incremental updates as text and tool calls are generated, enable partial message streaming by setting `include_partial_messages` (Python) or `includePartialMessages` (TypeScript) to `true` in your options.
 
-This page covers output streaming (receiving tokens in real-time). For input modes (how you send messages), see [Send messages to agents](./agent-sdk_streaming-vs-single-mode "_agent-sdk_streaming-vs-single-mode".md). You can also [stream responses using the Agent SDK via the CLI](./headless "_headless".md).
+This page covers output streaming (receiving tokens in real-time). For input modes (how you send messages), see [Send messages to agents](./agent-sdk/streaming-vs-single-mode.md "/docs/en/agent-sdk/streaming-vs-single-mode"). You can also [stream responses using the Agent SDK via the CLI](./headless.md "/docs/en/headless").
 
 ## [​](#enable-streaming-output "#enable-streaming-output") Enable streaming output
 
@@ -260,12 +260,12 @@ asyncio.run(streaming_ui())
 Some SDK features are incompatible with streaming:
 
 * **Extended thinking**: when you explicitly set `max_thinking_tokens` (Python) or `maxThinkingTokens` (TypeScript), `StreamEvent` messages are not emitted. You’ll only receive complete messages after each turn. Note that thinking is disabled by default in the SDK, so streaming works unless you enable it.
-* **Structured output**: the JSON result appears only in the final `ResultMessage.structured_output`, not as streaming deltas. See [structured outputs](./agent-sdk_structured-outputs "_agent-sdk_structured-outputs".md) for details.
+* **Structured output**: the JSON result appears only in the final `ResultMessage.structured_output`, not as streaming deltas. See [structured outputs](./agent-sdk/structured-outputs.md "/docs/en/agent-sdk/structured-outputs") for details.
 
 ## [​](#next-steps "#next-steps") Next steps
 
 Now that you can stream text and tool calls in real-time, explore these related topics:
 
-* [Interactive vs one-shot queries](./agent-sdk_streaming-vs-single-mode "_agent-sdk_streaming-vs-single-mode".md): choose between input modes for your use case
-* [Structured outputs](./agent-sdk_structured-outputs "_agent-sdk_structured-outputs".md): get typed JSON responses from the agent
-* [Permissions](./agent-sdk_permissions "_agent-sdk_permissions".md): control which tools the agent can use
+* [Interactive vs one-shot queries](./agent-sdk/streaming-vs-single-mode.md "/docs/en/agent-sdk/streaming-vs-single-mode"): choose between input modes for your use case
+* [Structured outputs](./agent-sdk/structured-outputs.md "/docs/en/agent-sdk/structured-outputs"): get typed JSON responses from the agent
+* [Permissions](./agent-sdk/permissions.md "/docs/en/agent-sdk/permissions"): control which tools the agent can use

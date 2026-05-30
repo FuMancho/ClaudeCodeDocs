@@ -1,3 +1,5 @@
+# Agent Sdk Python
+
 > ## Documentation Index
 >
 > Fetch the complete documentation index at: [https://code.claude.com/docs/llms.txt](https://code.claude.com/docs/llms.txt "https://code.claude.com/docs/llms.txt")
@@ -51,7 +53,7 @@ The Python SDK provides two ways to interact with Claude Code:
 
 ### [​](#query "#query") `query()`
 
-Creates a new session for each interaction with Claude Code by default. Returns an async iterator that yields messages as they arrive. Each call to `query()` starts fresh with no memory of previous interactions unless you pass `continue_conversation=True` or `resume` in [`ClaudeAgentOptions`](#claudeagentoptions "#claudeagentoptions"). See [Sessions](./agent-sdk_sessions "_agent-sdk_sessions".md).
+Creates a new session for each interaction with Claude Code by default. Returns an async iterator that yields messages as they arrive. Each call to `query()` starts fresh with no memory of previous interactions unless you pass `continue_conversation=True` or `resume` in [`ClaudeAgentOptions`](#claudeagentoptions "#claudeagentoptions"). See [Sessions](./agent-sdk/sessions.md "/docs/en/agent-sdk/sessions").
 
 ```
 async def query(
@@ -473,7 +475,7 @@ class ClaudeSDKClient:
 | `interrupt()` | Send interrupt signal (only works in streaming mode) |
 | `set_permission_mode(mode)` | Change the permission mode for the current session |
 | `set_model(model)` | Change the model for the current session. Pass `None` to reset to default |
-| `rewind_files(user_message_id)` | Restore files to their state at the specified user message. Requires `enable_file_checkpointing=True`. See [File checkpointing](./agent-sdk_file-checkpointing "_agent-sdk_file-checkpointing".md) |
+| `rewind_files(user_message_id)` | Restore files to their state at the specified user message. Requires `enable_file_checkpointing=True`. See [File checkpointing](./agent-sdk/file-checkpointing.md "/docs/en/agent-sdk/file-checkpointing") |
 | `get_mcp_status()` | Get the status of all configured MCP servers. Returns [`McpStatusResponse`](#mcpstatusresponse "#mcpstatusresponse") |
 | `reconnect_mcp_server(server_name)` | Retry connecting to an MCP server that failed or was disconnected |
 | `toggle_mcp_server(server_name, enabled)` | Enable or disable an MCP server mid-session. Disabling removes its tools |
@@ -791,7 +793,7 @@ class ClaudeAgentOptions:
 | Property | Type | Default | Description |
 | --- | --- | --- | --- |
 | `tools` | `list[str] | ToolsPreset | None` | `None` | Tools configuration. Use `{"type": "preset", "preset": "claude_code"}` for Claude Code’s default tools |
-| `allowed_tools` | `list[str]` | `[]` | Tools to auto-approve without prompting. This does not restrict Claude to only these tools; unlisted tools fall through to `permission_mode` and `can_use_tool`. Use `disallowed_tools` to block tools. See [Permissions](./agent-sdk_permissions#allow-and-deny-rules "_agent-sdk_permissions#allow-and-deny-rules".md) |
+| `allowed_tools` | `list[str]` | `[]` | Tools to auto-approve without prompting. This does not restrict Claude to only these tools; unlisted tools fall through to `permission_mode` and `can_use_tool`. Use `disallowed_tools` to block tools. See [Permissions](./agent-sdk/permissions.md#allow-and-deny-rules "/docs/en/agent-sdk/permissions#allow-and-deny-rules") |
 | `system_prompt` | `str | SystemPromptPreset | None` | `None` | System prompt configuration. Pass a string for custom prompt, or use `{"type": "preset", "preset": "claude_code"}` for Claude Code’s system prompt. Add `"append"` to extend the preset |
 | `mcp_servers` | `dict[str, McpServerConfig] | str | Path` | `{}` | MCP server configurations or path to config file |
 | `strict_mcp_config` | `bool` | `False` | When `True`, use only the servers passed in `mcp_servers` and ignore project `.mcp.json`, user settings, and plugin-provided MCP servers. Maps to the CLI `--strict-mcp-config` flag |
@@ -799,19 +801,19 @@ class ClaudeAgentOptions:
 | `continue_conversation` | `bool` | `False` | Continue the most recent conversation |
 | `resume` | `str | None` | `None` | Session ID to resume |
 | `max_turns` | `int | None` | `None` | Maximum agentic turns (tool-use round trips) |
-| `max_budget_usd` | `float | None` | `None` | Stop the query when the client-side cost estimate reaches this USD value. Compared against the same estimate as `total_cost_usd`; see [Track cost and usage](./agent-sdk_cost-tracking "_agent-sdk_cost-tracking".md) for accuracy caveats |
-| `disallowed_tools` | `list[str]` | `[]` | Tools to deny. A bare name such as `"Bash"` removes the tool from Claude’s context. A scoped rule such as `"Bash(rm *)"` leaves the tool available and denies matching calls in every permission mode, including `bypassPermissions`. See [Permissions](./agent-sdk_permissions#allow-and-deny-rules "_agent-sdk_permissions#allow-and-deny-rules".md) |
-| `enable_file_checkpointing` | `bool` | `False` | Enable file change tracking for rewinding. See [File checkpointing](./agent-sdk_file-checkpointing "_agent-sdk_file-checkpointing".md) |
+| `max_budget_usd` | `float | None` | `None` | Stop the query when the client-side cost estimate reaches this USD value. Compared against the same estimate as `total_cost_usd`; see [Track cost and usage](./agent-sdk/cost-tracking.md "/docs/en/agent-sdk/cost-tracking") for accuracy caveats |
+| `disallowed_tools` | `list[str]` | `[]` | Tools to deny. A bare name such as `"Bash"` removes the tool from Claude’s context. A scoped rule such as `"Bash(rm *)"` leaves the tool available and denies matching calls in every permission mode, including `bypassPermissions`. See [Permissions](./agent-sdk/permissions.md#allow-and-deny-rules "/docs/en/agent-sdk/permissions#allow-and-deny-rules") |
+| `enable_file_checkpointing` | `bool` | `False` | Enable file change tracking for rewinding. See [File checkpointing](./agent-sdk/file-checkpointing.md "/docs/en/agent-sdk/file-checkpointing") |
 | `model` | `str | None` | `None` | Claude model to use |
 | `fallback_model` | `str | None` | `None` | Fallback model to use if the primary model fails |
 | `betas` | `list[SdkBeta]` | `[]` | Beta features to enable. See [`SdkBeta`](#sdkbeta "#sdkbeta") for available options |
-| `output_format` | `dict[str, Any] | None` | `None` | Output format for structured responses (e.g., `{"type": "json_schema", "schema": {...}}`). See [Structured outputs](./agent-sdk_structured-outputs "_agent-sdk_structured-outputs".md) for details |
+| `output_format` | `dict[str, Any] | None` | `None` | Output format for structured responses (e.g., `{"type": "json_schema", "schema": {...}}`). See [Structured outputs](./agent-sdk/structured-outputs.md "/docs/en/agent-sdk/structured-outputs") for details |
 | `permission_prompt_tool_name` | `str | None` | `None` | MCP tool name for permission prompts |
 | `cwd` | `str | Path | None` | `None` | Current working directory |
 | `cli_path` | `str | Path | None` | `None` | Custom path to the Claude Code CLI executable |
 | `settings` | `str | None` | `None` | Path to settings file |
 | `add_dirs` | `list[str | Path]` | `[]` | Additional directories Claude can access |
-| `env` | `dict[str, str]` | `{}` | Environment variables merged on top of the inherited process environment. See [Environment variables](./env-vars "_env-vars".md) for variables the underlying CLI reads, and [Handle slow or stalled API responses](#handle-slow-or-stalled-api-responses "#handle-slow-or-stalled-api-responses") for timeout-related variables |
+| `env` | `dict[str, str]` | `{}` | Environment variables merged on top of the inherited process environment. See [Environment variables](./env-vars.md "/docs/en/env-vars") for variables the underlying CLI reads, and [Handle slow or stalled API responses](#handle-slow-or-stalled-api-responses "#handle-slow-or-stalled-api-responses") for timeout-related variables |
 | `extra_args` | `dict[str, str | None]` | `{}` | Additional CLI arguments to pass directly to the CLI |
 | `max_buffer_size` | `int | None` | `None` | Maximum bytes when buffering CLI stdout |
 | `debug_stderr` | `Any` | `sys.stderr` | *Deprecated* - File-like object for debug output. Use `stderr` callback instead |
@@ -823,14 +825,14 @@ class ClaudeAgentOptions:
 | `include_hook_events` | `bool` | `False` | Include hook lifecycle events in the message stream as `HookEventMessage` objects |
 | `fork_session` | `bool` | `False` | When resuming with `resume`, fork to a new session ID instead of continuing the original session |
 | `agents` | `dict[str, AgentDefinition] | None` | `None` | Programmatically defined subagents |
-| `plugins` | `list[SdkPluginConfig]` | `[]` | Load custom plugins from local paths. See [Plugins](./agent-sdk_plugins "_agent-sdk_plugins".md) for details |
+| `plugins` | `list[SdkPluginConfig]` | `[]` | Load custom plugins from local paths. See [Plugins](./agent-sdk/plugins.md "/docs/en/agent-sdk/plugins") for details |
 | `sandbox` | [`SandboxSettings`](#sandboxsettings "#sandboxsettings")  `| None` | `None` | Configure sandbox behavior programmatically. See [Sandbox settings](#sandboxsettings "#sandboxsettings") for details |
-| `setting_sources` | `list[SettingSource] | None` | `None` (CLI defaults: all sources) | Control which filesystem settings to load. Pass `[]` to disable user, project, and local settings. Managed policy settings load regardless. See [Use Claude Code features](./agent-sdk_claude-code-features#what-settingsources-does-not-control "_agent-sdk_claude-code-features#what-settingsources-does-not-control".md) |
-| `skills` | `list[str] | Literal["all"] | None` | `None` | Skills available to the session. Pass `"all"` to enable every discovered skill, or a list of skill names. When set, the SDK enables the Skill tool automatically without listing it in `allowed_tools`. See [Skills](./agent-sdk_skills "_agent-sdk_skills".md) |
+| `setting_sources` | `list[SettingSource] | None` | `None` (CLI defaults: all sources) | Control which filesystem settings to load. Pass `[]` to disable user, project, and local settings. Managed policy settings load regardless. See [Use Claude Code features](./agent-sdk/claude-code-features.md#what-settingsources-does-not-control "/docs/en/agent-sdk/claude-code-features#what-settingsources-does-not-control") |
+| `skills` | `list[str] | Literal["all"] | None` | `None` | Skills available to the session. Pass `"all"` to enable every discovered skill, or a list of skill names. When set, the SDK enables the Skill tool automatically without listing it in `allowed_tools`. See [Skills](./agent-sdk/skills.md "/docs/en/agent-sdk/skills") |
 | `max_thinking_tokens` | `int | None` | `None` | *Deprecated* - Maximum tokens for thinking blocks. Use `thinking` instead |
 | `thinking` | [`ThinkingConfig`](#thinkingconfig "#thinkingconfig")  `| None` | `None` | Controls extended thinking behavior. Takes precedence over `max_thinking_tokens` |
 | `effort` | [`EffortLevel`](#effortlevel "#effortlevel")  `| None` | `None` | Effort level for thinking depth |
-| `session_store` | [`SessionStore`](./agent-sdk_session-storage#the-sessionstore-interface "_agent-sdk_session-storage#the-sessionstore-interface".md)  `| None` | `None` | Mirror session transcripts to an external backend so any host can resume them. See [Persist sessions to external storage](./agent-sdk_session-storage "_agent-sdk_session-storage".md) |
+| `session_store` | [`SessionStore`](./agent-sdk/session-storage.md#the-sessionstore-interface "/docs/en/agent-sdk/session-storage#the-sessionstore-interface")  `| None` | `None` | Mirror session transcripts to an external backend so any host can resume them. See [Persist sessions to external storage](./agent-sdk/session-storage.md "/docs/en/agent-sdk/session-storage") |
 | `session_store_flush` | `Literal["batched", "eager"]` | `"batched"` | When to flush mirrored transcript entries to `session_store`. `"batched"` flushes once per turn or when the buffer fills; `"eager"` triggers a background flush after every frame. Ignored when `session_store` is `None` |
 
 #### [​](#handle-slow-or-stalled-api-responses "#handle-slow-or-stalled-api-responses") Handle slow or stalled API responses
@@ -886,7 +888,7 @@ class SystemPromptPreset(TypedDict):
 | `type` | Yes | Must be `"preset"` to use a preset system prompt |
 | `preset` | Yes | Must be `"claude_code"` to use Claude Code’s system prompt |
 | `append` | No | Additional instructions to append to the preset system prompt |
-| `exclude_dynamic_sections` | No | Move per-session context such as working directory, the git-repo flag, and auto-memory paths from the system prompt into the first user message. Improves prompt-cache reuse across users and machines. See [Modify system prompts](./agent-sdk_modifying-system-prompts#improve-prompt-caching-across-users-and-machines "_agent-sdk_modifying-system-prompts#improve-prompt-caching-across-users-and-machines".md) |
+| `exclude_dynamic_sections` | No | Move per-session context such as working directory, the git-repo flag, and auto-memory paths from the system prompt into the first user message. Improves prompt-cache reuse across users and machines. See [Modify system prompts](./agent-sdk/modifying-system-prompts.md#improve-prompt-caching-across-users-and-machines "/docs/en/agent-sdk/modifying-system-prompts#improve-prompt-caching-across-users-and-machines") |
 
 ### [​](#settingsource "#settingsource") `SettingSource`
 
@@ -904,7 +906,7 @@ SettingSource = Literal["user", "project", "local"]
 
 #### [​](#default-behavior "#default-behavior") Default behavior
 
-When `setting_sources` is omitted or `None`, `query()` loads the same filesystem settings as the Claude Code CLI: user, project, and local. Managed policy settings are loaded in all cases. See [What settingSources does not control](./agent-sdk_claude-code-features#what-settingsources-does-not-control "_agent-sdk_claude-code-features#what-settingsources-does-not-control".md) for inputs that are read regardless of this option, and how to disable them.
+When `setting_sources` is omitted or `None`, `query()` loads the same filesystem settings as the Claude Code CLI: user, project, and local. Managed policy settings are loaded in all cases. See [What settingSources does not control](./agent-sdk/claude-code-features.md#what-settingsources-does-not-control "/docs/en/agent-sdk/claude-code-features#what-settingsources-does-not-control") for inputs that are read regardless of this option, and how to disable them.
 
 #### [​](#why-use-setting_sources "#why-use-setting_sources") Why use setting\_sources
 
@@ -1403,7 +1405,7 @@ plugins = [
 ]
 ```
 
-For complete information on creating and using plugins, see [Plugins](./agent-sdk_plugins "_agent-sdk_plugins".md).
+For complete information on creating and using plugins, see [Plugins](./agent-sdk/plugins.md "/docs/en/agent-sdk/plugins").
 
 ## [​](#message-types "#message-types") Message Types
 
@@ -1528,7 +1530,7 @@ The `usage` dict contains the following keys when present:
 | `cache_creation_input_tokens` | `int` | Tokens used to create new cache entries. |
 | `cache_read_input_tokens` | `int` | Tokens read from existing cache entries. |
 
-The `model_usage` dict maps model names to per-model usage. The inner dict keys use camelCase because the value is passed through unmodified from the underlying CLI process, matching the TypeScript [`ModelUsage`](./agent-sdk_typescript#modelusage "_agent-sdk_typescript#modelusage".md) type:
+The `model_usage` dict maps model names to per-model usage. The inner dict keys use camelCase because the value is passed through unmodified from the underlying CLI process, matching the TypeScript [`ModelUsage`](./agent-sdk/typescript.md#modelusage "/docs/en/agent-sdk/typescript#modelusage") type:
 
 | Key | Type | Description |
 | --- | --- | --- |
@@ -1537,7 +1539,7 @@ The `model_usage` dict maps model names to per-model usage. The inner dict keys 
 | `cacheReadInputTokens` | `int` | Cache read tokens for this model. |
 | `cacheCreationInputTokens` | `int` | Cache creation tokens for this model. |
 | `webSearchRequests` | `int` | Web search requests made by this model. |
-| `costUSD` | `float` | Estimated cost in USD for this model, computed client-side. See [Track cost and usage](./agent-sdk_cost-tracking "_agent-sdk_cost-tracking".md) for billing caveats. |
+| `costUSD` | `float` | Estimated cost in USD for this model, computed client-side. See [Track cost and usage](./agent-sdk/cost-tracking.md "/docs/en/agent-sdk/cost-tracking") for billing caveats. |
 | `contextWindow` | `int` | Context window size for this model. |
 | `maxOutputTokens` | `int` | Maximum output token limit for this model. |
 
@@ -1824,7 +1826,7 @@ class CLIJSONDecodeError(ClaudeSDKError):
 
 ## [​](#hook-types "#hook-types") Hook Types
 
-For a comprehensive guide on using hooks with examples and common patterns, see the [Hooks guide](./agent-sdk_hooks "_agent-sdk_hooks".md).
+For a comprehensive guide on using hooks with examples and common patterns, see the [Hooks guide](./agent-sdk/hooks.md "/docs/en/agent-sdk/hooks").
 
 ### [​](#hookevent "#hookevent") `HookEvent`
 
@@ -1845,7 +1847,7 @@ HookEvent = Literal[
 ]
 ```
 
-The TypeScript SDK supports additional hook events not yet available in Python: `SessionStart`, `SessionEnd`, `Setup`, `TeammateIdle`, `TaskCompleted`, `ConfigChange`, `WorktreeCreate`, `WorktreeRemove`, and `PostToolBatch`.
+The TypeScript SDK supports additional hook events not yet available in Python: `SessionStart`, `SessionEnd`, `Setup`, `TeammateIdle`, `TaskCompleted`, `ConfigChange`, `WorktreeCreate`, `WorktreeRemove`, `PostToolBatch`, and `MessageDisplay`.
 
 ### [​](#hookcallback "#hookcallback") `HookCallback`
 
@@ -2162,7 +2164,7 @@ Use `continue_` (with underscore) in Python code. It is automatically converted 
 
 #### [​](#hookspecificoutput "#hookspecificoutput") `HookSpecificOutput`
 
-A `TypedDict` containing the hook event name and event-specific fields. The shape depends on the `hookEventName` value. For full details on available fields per hook event, see [Control execution with hooks](./agent-sdk_hooks#outputs "_agent-sdk_hooks#outputs".md).
+A `TypedDict` containing the hook event name and event-specific fields. The shape depends on the `hookEventName` value. For full details on available fields per hook event, see [Control execution with hooks](./agent-sdk/hooks.md#outputs "/docs/en/agent-sdk/hooks#outputs").
 A discriminated union of event-specific output types. The `hookEventName` field determines which fields are valid.
 
 ```
@@ -2312,7 +2314,7 @@ Documentation of input/output schemas for all built-in Claude Code tools. While 
 ### [​](#askuserquestion "#askuserquestion") AskUserQuestion
 
 **Tool name:** `AskUserQuestion`
-Asks the user clarifying questions during execution. See [Handle approvals and user input](./agent-sdk_user-input#handle-clarifying-questions "_agent-sdk_user-input#handle-clarifying-questions".md) for usage details.
+Asks the user clarifying questions during execution. See [Handle approvals and user input](./agent-sdk/user-input.md#handle-clarifying-questions "/docs/en/agent-sdk/user-input#handle-clarifying-questions") for usage details.
 **Input:**
 
 ```
@@ -2381,7 +2383,7 @@ Asks the user clarifying questions during execution. See [Handle approvals and u
 ### [​](#monitor "#monitor") Monitor
 
 **Tool name:** `Monitor`
-Runs a background script and delivers each stdout line to Claude as an event so it can react without polling. Monitor follows the same permission rules as Bash. See the [Monitor tool reference](./tools-reference#monitor-tool "_tools-reference#monitor-tool".md) for behavior and provider availability.
+Runs a background script and delivers each stdout line to Claude as an event so it can react without polling. Monitor follows the same permission rules as Bash. See the [Monitor tool reference](./tools-reference.md#monitor-tool "/docs/en/tools-reference#monitor-tool") for behavior and provider availability.
 **Input:**
 
 ```
@@ -2630,7 +2632,7 @@ Runs a background script and delivers each stdout line to Claude as an event so 
 
 **Tool name:** `TodoWrite`
 
-As of Claude Code v2.1.142, `TodoWrite` is disabled by default. Use `TaskCreate`, `TaskGet`, `TaskUpdate`, and `TaskList` instead. See [Migrate to Task tools](./agent-sdk_todo-tracking#migrate-to-task-tools "_agent-sdk_todo-tracking#migrate-to-task-tools".md) to update your monitoring code, or set `CLAUDE_CODE_ENABLE_TASKS=0` to revert to `TodoWrite`.
+As of Claude Code v2.1.142, `TodoWrite` is disabled by default. Use `TaskCreate`, `TaskGet`, `TaskUpdate`, and `TaskList` instead. See [Migrate to Task tools](./agent-sdk/task-tracking.md#migrate-to-task-tools "/docs/en/agent-sdk/task-tracking#migrate-to-task-tools") to update your monitoring code, or set `CLAUDE_CODE_ENABLE_TASKS=0` to revert to `TodoWrite`.
 
 **Input:**
 
@@ -3250,6 +3252,8 @@ class SandboxSettings(TypedDict, total=False):
 | `ignoreViolations` | [`SandboxIgnoreViolations`](#sandboxignoreviolations "#sandboxignoreviolations") | `None` | Configure which sandbox violations to ignore |
 | `enableWeakerNestedSandbox` | `bool` | `False` | Enable a weaker nested sandbox for compatibility |
 
+The sandbox depends on platform support and, on Linux, tools like `bubblewrap` and `socat`. By default, when `enabled` is `True` but the sandbox can’t start, commands run unsandboxed with a warning on stderr. This default differs from the TypeScript SDK, where `failIfUnavailable` defaults to `true`.Set `"failIfUnavailable": True` in your sandbox settings to stop instead. The key isn’t declared on `SandboxSettings` yet, but the SDK forwards it to Claude Code, which honors it. `query()` then reports a `ResultMessage` with `subtype="error_during_execution"` and the reason in `errors`. Watch for that subtype rather than expecting `query()` to raise before yielding messages.
+
 #### [​](#example-usage-2 "#example-usage-2") Example usage
 
 ```
@@ -3299,7 +3303,7 @@ class SandboxNetworkConfig(TypedDict, total=False):
 | `httpProxyPort` | `int` | `None` | HTTP proxy port for network requests |
 | `socksProxyPort` | `int` | `None` | SOCKS proxy port for network requests |
 
-The built-in sandbox proxy enforces the network allowlist based on the requested hostname and does not terminate or inspect TLS traffic, so techniques such as [domain fronting](https://en.wikipedia.org/wiki/Domain_fronting "https://en.wikipedia.org/wiki/Domain_fronting") can potentially bypass it. See [Sandboxing security limitations](./sandboxing#security-limitations "_sandboxing#security-limitations".md) for details and [Secure deployment](./agent-sdk_secure-deployment#traffic-forwarding "_agent-sdk_secure-deployment#traffic-forwarding".md) for configuring a TLS-terminating proxy.
+The built-in sandbox proxy enforces the network allowlist based on the requested hostname and does not terminate or inspect TLS traffic, so techniques such as [domain fronting](https://en.wikipedia.org/wiki/Domain_fronting "https://en.wikipedia.org/wiki/Domain_fronting") can potentially bypass it. See [Sandboxing security limitations](./sandboxing.md#security-limitations "/docs/en/sandboxing#security-limitations") for details and [Secure deployment](./agent-sdk/secure-deployment.md#traffic-forwarding "/docs/en/agent-sdk/secure-deployment#traffic-forwarding") for configuring a TLS-terminating proxy.
 
 ### [​](#sandboxignoreviolations "#sandboxignoreviolations") `SandboxIgnoreViolations`
 
@@ -3390,7 +3394,7 @@ Commands running with `dangerouslyDisableSandbox: True` have full system access.
 
 ## [​](#see-also "#see-also") See also
 
-* [SDK overview](./agent-sdk_overview "_agent-sdk_overview".md) - General SDK concepts
-* [TypeScript SDK reference](./agent-sdk_typescript "_agent-sdk_typescript".md) - TypeScript SDK documentation
-* [CLI reference](./cli-reference "_cli-reference".md) - Command-line interface
-* [Common workflows](./common-workflows "_common-workflows".md) - Step-by-step guides
+* [SDK overview](./agent-sdk/overview.md "/docs/en/agent-sdk/overview") - General SDK concepts
+* [TypeScript SDK reference](./agent-sdk/typescript.md "/docs/en/agent-sdk/typescript") - TypeScript SDK documentation
+* [CLI reference](./cli-reference.md "/docs/en/cli-reference") - Command-line interface
+* [Common workflows](./common-workflows.md "/docs/en/common-workflows") - Step-by-step guides

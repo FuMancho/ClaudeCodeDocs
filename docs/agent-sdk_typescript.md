@@ -351,7 +351,7 @@ function resolveSettings(
 | --- | --- | --- | --- |
 | `options.cwd` | `string` | `process.cwd()` | Directory to resolve project and local settings relative to |
 | `options.settingSources` | [`SettingSource`](#settingsource "#settingsource")`[]` | All sources | Which filesystem sources to load. Pass `[]` to skip user, project, and local settings. Managed policy settings load in all cases |
-| `options.managedSettings` | `Settings` | `undefined` | Restrictive policy-tier settings supplied by the embedding host. Dropped by default when an admin-deployed managed tier is present; merged under that tier when [`parentSettingsBehavior`](./settings#available-settings "_settings#available-settings".md) is `"merge"`. Non-restrictive keys such as `model` are silently dropped so this option can tighten managed policy but not loosen it |
+| `options.managedSettings` | `Settings` | `undefined` | Restrictive policy-tier settings supplied by the embedding host. Dropped by default when an admin-deployed managed tier is present; merged under that tier when [`parentSettingsBehavior`](./settings.md#available-settings "/docs/en/settings#available-settings") is `"merge"`. Non-restrictive keys such as `model` are silently dropped so this option can tighten managed policy but not loosen it |
 | `options.serverManagedSettings` | `Settings` | `undefined` | Server-managed settings payload from `/api/claude_code/settings`. Non-restrictive keys pass through unfiltered |
 
 #### [​](#return-type-resolvedsettings "#return-type-resolvedsettings") Return type: `ResolvedSettings`
@@ -394,17 +394,17 @@ Configuration object for the `query()` function.
 | `agents` | `Record<string, [`AgentDefinition`](#agentdefinition)>` | `undefined` | Programmatically define subagents |
 | `agentProgressSummaries` | `boolean` | `false` | When `true`, generate one-line progress summaries for subagents and forward them on [`task_progress`](#sdktaskprogressmessage "#sdktaskprogressmessage") events via the `summary` field. Applies to foreground and background subagents |
 | `allowDangerouslySkipPermissions` | `boolean` | `false` | Enable bypassing permissions. Required when using `permissionMode: 'bypassPermissions'` |
-| `allowedTools` | `string[]` | `[]` | Tools to auto-approve without prompting. This does not restrict Claude to only these tools; unlisted tools fall through to `permissionMode` and `canUseTool`. Use `disallowedTools` to block tools. See [Permissions](./agent-sdk_permissions#allow-and-deny-rules "_agent-sdk_permissions#allow-and-deny-rules".md) |
+| `allowedTools` | `string[]` | `[]` | Tools to auto-approve without prompting. This does not restrict Claude to only these tools; unlisted tools fall through to `permissionMode` and `canUseTool`. Use `disallowedTools` to block tools. See [Permissions](./agent-sdk/permissions.md#allow-and-deny-rules "/docs/en/agent-sdk/permissions#allow-and-deny-rules") |
 | `betas` | [`SdkBeta`](#sdkbeta "#sdkbeta")`[]` | `[]` | Enable beta features |
 | `canUseTool` | [`CanUseTool`](#canusetool "#canusetool") | `undefined` | Custom permission function for tool usage |
 | `continue` | `boolean` | `false` | Continue the most recent conversation |
 | `cwd` | `string` | `process.cwd()` | Current working directory |
 | `debug` | `boolean` | `false` | Enable debug mode for the Claude Code process |
 | `debugFile` | `string` | `undefined` | Write debug logs to a specific file path. Implicitly enables debug mode |
-| `disallowedTools` | `string[]` | `[]` | Tools to deny. A bare name such as `"Bash"` removes the tool from Claude’s context. A scoped rule such as `"Bash(rm *)"` leaves the tool available and denies matching calls in every permission mode, including `bypassPermissions`. See [Permissions](./agent-sdk_permissions#allow-and-deny-rules "_agent-sdk_permissions#allow-and-deny-rules".md) |
+| `disallowedTools` | `string[]` | `[]` | Tools to deny. A bare name such as `"Bash"` removes the tool from Claude’s context. A scoped rule such as `"Bash(rm *)"` leaves the tool available and denies matching calls in every permission mode, including `bypassPermissions`. See [Permissions](./agent-sdk/permissions.md#allow-and-deny-rules "/docs/en/agent-sdk/permissions#allow-and-deny-rules") |
 | `effort` | `'low' | 'medium' | 'high' | 'xhigh' | 'max'` | `'high'` | Controls how much effort Claude puts into its response. Works with adaptive thinking to guide thinking depth |
-| `enableFileCheckpointing` | `boolean` | `false` | Enable file change tracking for rewinding. See [File checkpointing](./agent-sdk_file-checkpointing "_agent-sdk_file-checkpointing".md) |
-| `env` | `Record<string, string | undefined>` | `process.env` | Environment variables. See [Environment variables](./env-vars "_env-vars".md) for variables the underlying CLI reads, and [Handle slow or stalled API responses](#handle-slow-or-stalled-api-responses "#handle-slow-or-stalled-api-responses") for timeout-related variables. Set `CLAUDE_AGENT_SDK_CLIENT_APP` to identify your app in the User-Agent header |
+| `enableFileCheckpointing` | `boolean` | `false` | Enable file change tracking for rewinding. See [File checkpointing](./agent-sdk/file-checkpointing.md "/docs/en/agent-sdk/file-checkpointing") |
+| `env` | `Record<string, string | undefined>` | `process.env` | Environment variables. When set, this replaces the subprocess environment instead of merging with `process.env`, so pass `{ ...process.env, YOUR_VAR: 'value' }` to keep inherited variables like `PATH`. See [Handle slow or stalled API responses](#handle-slow-or-stalled-api-responses "#handle-slow-or-stalled-api-responses") for an example of this pattern, and [Environment variables](./env-vars.md "/docs/en/env-vars") for variables the underlying CLI reads. Set `CLAUDE_AGENT_SDK_CLIENT_APP` to identify your app in the User-Agent header |
 | `executable` | `'bun' | 'deno' | 'node'` | Auto-detected | JavaScript runtime to use |
 | `executableArgs` | `string[]` | `[]` | Arguments to pass to the executable |
 | `extraArgs` | `Record<string, string | null>` | `{}` | Additional arguments |
@@ -416,34 +416,34 @@ Configuration object for the `query()` function.
 | `includePartialMessages` | `boolean` | `false` | Include partial message events |
 | `loadTimeoutMs` | `number` | `60000` | *Alpha.* Timeout in milliseconds for each `sessionStore.load()` and `sessionStore.listSubkeys()` call during resume materialization. If the adapter doesn’t settle within this window, the query fails instead of hanging. Ignored when `sessionStore` is not set |
 | `managedSettings` | `Settings` | `undefined` | Policy-tier settings supplied by the spawning parent process. Dropped when an IT-controlled managed-settings tier already exists on the machine, unless that admin opts in with `parentSettingsBehavior: 'merge'`. Filtered to restrictive-only keys regardless |
-| `maxBudgetUsd` | `number` | `undefined` | Stop the query when the client-side cost estimate reaches this USD value. Compared against the same estimate as `total_cost_usd`; see [Track cost and usage](./agent-sdk_cost-tracking "_agent-sdk_cost-tracking".md) for accuracy caveats |
+| `maxBudgetUsd` | `number` | `undefined` | Stop the query when the client-side cost estimate reaches this USD value. Compared against the same estimate as `total_cost_usd`; see [Track cost and usage](./agent-sdk/cost-tracking.md "/docs/en/agent-sdk/cost-tracking") for accuracy caveats |
 | `maxThinkingTokens` | `number` | `undefined` | *Deprecated:* Use `thinking` instead. Maximum tokens for thinking process |
 | `maxTurns` | `number` | `undefined` | Maximum agentic turns (tool-use round trips) |
 | `mcpServers` | `Record<string, [`McpServerConfig`](#mcpserverconfig)>` | `{}` | MCP server configurations |
 | `model` | `string` | Default from CLI | Claude model to use |
 | `onElicitation` | `(request: ElicitationRequest, options: { signal: AbortSignal }) => Promise<ElicitationResult>` | `undefined` | Callback for handling MCP elicitation requests. Called when an MCP server requests user input and no hook handles it first. When not provided, unhandled elicitation requests are declined automatically |
-| `outputFormat` | `{ type: 'json_schema', schema: JSONSchema }` | `undefined` | Define output format for agent results. See [Structured outputs](./agent-sdk_structured-outputs "_agent-sdk_structured-outputs".md) for details |
-| `outputStyle` | `string` | `undefined` | Not an `Options` field. Set `outputStyle` in the inline [`settings`](./settings "_settings".md) object or a settings file instead. See [Activate an output style](./agent-sdk_modifying-system-prompts#activate-an-output-style "_agent-sdk_modifying-system-prompts#activate-an-output-style".md) |
+| `outputFormat` | `{ type: 'json_schema', schema: JSONSchema }` | `undefined` | Define output format for agent results. See [Structured outputs](./agent-sdk/structured-outputs.md "/docs/en/agent-sdk/structured-outputs") for details |
+| `outputStyle` | `string` | `undefined` | Not an `Options` field. Set `outputStyle` in the inline [`settings`](./settings.md "/docs/en/settings") object or a settings file instead. See [Activate an output style](./agent-sdk/modifying-system-prompts.md#activate-an-output-style "/docs/en/agent-sdk/modifying-system-prompts#activate-an-output-style") |
 | `pathToClaudeCodeExecutable` | `string` | Auto-resolved from bundled native binary | Path to Claude Code executable. Only needed if optional dependencies were skipped during install or your platform isn’t in the supported set |
 | `permissionMode` | [`PermissionMode`](#permissionmode "#permissionmode") | `'default'` | Permission mode for the session |
 | `permissionPromptToolName` | `string` | `undefined` | MCP tool name for permission prompts |
 | `persistSession` | `boolean` | `true` | When `false`, disables session persistence to disk. Sessions cannot be resumed later |
 | `planModeInstructions` | `string` | `undefined` | Custom workflow instructions for plan mode. When `permissionMode` is `'plan'`, this string replaces the default plan-mode workflow body. The CLI still wraps it with the read-only enforcement preamble and the ExitPlanMode protocol footer |
-| `plugins` | [`SdkPluginConfig`](#sdkpluginconfig "#sdkpluginconfig")`[]` | `[]` | Load custom plugins from local paths. See [Plugins](./agent-sdk_plugins "_agent-sdk_plugins".md) for details |
+| `plugins` | [`SdkPluginConfig`](#sdkpluginconfig "#sdkpluginconfig")`[]` | `[]` | Load custom plugins from local paths. See [Plugins](./agent-sdk/plugins.md "/docs/en/agent-sdk/plugins") for details |
 | `promptSuggestions` | `boolean` | `false` | Enable prompt suggestions. Emits a `prompt_suggestion` message after each turn with a predicted next user prompt |
 | `resume` | `string` | `undefined` | Session ID to resume |
 | `resumeSessionAt` | `string` | `undefined` | Resume session at a specific message UUID |
 | `sandbox` | [`SandboxSettings`](#sandboxsettings "#sandboxsettings") | `undefined` | Configure sandbox behavior programmatically. See [Sandbox settings](#sandboxsettings "#sandboxsettings") for details |
 | `sessionId` | `string` | Auto-generated | Use a specific UUID for the session instead of auto-generating one |
-| `sessionStore` | [`SessionStore`](./agent-sdk_session-storage#the-sessionstore-interface "_agent-sdk_session-storage#the-sessionstore-interface".md) | `undefined` | Mirror session transcripts to an external backend so any host can resume them. See [Persist sessions to external storage](./agent-sdk_session-storage "_agent-sdk_session-storage".md) |
+| `sessionStore` | [`SessionStore`](./agent-sdk/session-storage.md#the-sessionstore-interface "/docs/en/agent-sdk/session-storage#the-sessionstore-interface") | `undefined` | Mirror session transcripts to an external backend so any host can resume them. See [Persist sessions to external storage](./agent-sdk/session-storage.md "/docs/en/agent-sdk/session-storage") |
 | `sessionStoreFlush` | `'batched' | 'eager'` | `'batched'` | *Alpha.* Flush mode for `sessionStore`. Ignored when `sessionStore` is not set |
-| `settings` | `string | Settings` | `undefined` | Inline [settings](./settings "_settings".md) object or path to a settings file. Populates the flag-settings layer in the [precedence order](./settings#settings-precedence "_settings#settings-precedence".md). Change at runtime with [`applyFlagSettings()`](#applyflagsettings "#applyflagsettings") |
-| `settingSources` | [`SettingSource`](#settingsource "#settingsource")`[]` | CLI defaults (all sources) | Control which filesystem settings to load. Pass `[]` to disable user, project, and local settings. Managed policy settings load regardless. See [Use Claude Code features](./agent-sdk_claude-code-features#what-settingsources-does-not-control "_agent-sdk_claude-code-features#what-settingsources-does-not-control".md) |
-| `skills` | `string[] | 'all'` | `undefined` | Skills available to the session. Pass `'all'` to enable every discovered skill, or a list of skill names. When set, the SDK enables the Skill tool automatically without listing it in `allowedTools`. See [Skills](./agent-sdk_skills "_agent-sdk_skills".md) |
+| `settings` | `string | Settings` | `undefined` | Inline [settings](./settings.md "/docs/en/settings") object or path to a settings file. Populates the flag-settings layer in the [precedence order](./settings.md#settings-precedence "/docs/en/settings#settings-precedence"). Change at runtime with [`applyFlagSettings()`](#applyflagsettings "#applyflagsettings") |
+| `settingSources` | [`SettingSource`](#settingsource "#settingsource")`[]` | CLI defaults (all sources) | Control which filesystem settings to load. Pass `[]` to disable user, project, and local settings. Managed policy settings load regardless. See [Use Claude Code features](./agent-sdk/claude-code-features.md#what-settingsources-does-not-control "/docs/en/agent-sdk/claude-code-features#what-settingsources-does-not-control") |
+| `skills` | `string[] | 'all'` | `undefined` | Skills available to the session. Pass `'all'` to enable every discovered skill, or a list of skill names. When set, the SDK enables the Skill tool automatically without listing it in `allowedTools`. See [Skills](./agent-sdk/skills.md "/docs/en/agent-sdk/skills") |
 | `spawnClaudeCodeProcess` | `(options: SpawnOptions) => SpawnedProcess` | `undefined` | Custom function to spawn the Claude Code process. Use to run Claude Code in VMs, containers, or remote environments |
 | `stderr` | `(data: string) => void` | `undefined` | Callback for stderr output |
 | `strictMcpConfig` | `boolean` | `false` | Use only the servers passed in `mcpServers` and ignore project `.mcp.json`, user settings, and plugin-provided MCP servers |
-| `systemPrompt` | `string | { type: 'preset'; preset: 'claude_code'; append?: string; excludeDynamicSections?: boolean }` | `undefined` (minimal prompt) | System prompt configuration. Pass a string for custom prompt, or `{ type: 'preset', preset: 'claude_code' }` to use Claude Code’s system prompt. When using the preset object form, add `append` to extend it with additional instructions, and set `excludeDynamicSections: true` to move per-session context into the first user message for [better prompt-cache reuse across machines](./agent-sdk_modifying-system-prompts#improve-prompt-caching-across-users-and-machines "_agent-sdk_modifying-system-prompts#improve-prompt-caching-across-users-and-machines".md) |
+| `systemPrompt` | `string | { type: 'preset'; preset: 'claude_code'; append?: string; excludeDynamicSections?: boolean }` | `undefined` (minimal prompt) | System prompt configuration. Pass a string for custom prompt, or `{ type: 'preset', preset: 'claude_code' }` to use Claude Code’s system prompt. When using the preset object form, add `append` to extend it with additional instructions, and set `excludeDynamicSections: true` to move per-session context into the first user message for [better prompt-cache reuse across machines](./agent-sdk/modifying-system-prompts.md#improve-prompt-caching-across-users-and-machines "/docs/en/agent-sdk/modifying-system-prompts#improve-prompt-caching-across-users-and-machines") |
 | `taskBudget` | `{ total: number }` | `undefined` | *Alpha.* API-side task budget in tokens. When set, the model is told its remaining token budget so it can pace tool use and wrap up before the limit |
 | `thinking` | [`ThinkingConfig`](#thinkingconfig "#thinkingconfig") | `{ type: 'adaptive' }` for supported models | Controls Claude’s thinking/reasoning behavior. See [`ThinkingConfig`](#thinkingconfig "#thinkingconfig") for options |
 | `title` | `string` | `undefined` | Display title for the session. When resuming via `resume` or `continue`, the resumed session’s persisted title takes precedence; use [`renameSession()`](#renamesession "#renamesession") to retitle an existing session |
@@ -509,7 +509,7 @@ interface Query extends AsyncGenerator<SDKMessage, void> {
 | Method | Description |
 | --- | --- |
 | `interrupt()` | Interrupts the query (only available in streaming input mode) |
-| `rewindFiles(userMessageId, options?)` | Restores files to their state at the specified user message. Pass `{ dryRun: true }` to preview changes. Requires `enableFileCheckpointing: true`. See [File checkpointing](./agent-sdk_file-checkpointing "_agent-sdk_file-checkpointing".md) |
+| `rewindFiles(userMessageId, options?)` | Restores files to their state at the specified user message. Pass `{ dryRun: true }` to preview changes. Requires `enableFileCheckpointing: true`. See [File checkpointing](./agent-sdk/file-checkpointing.md "/docs/en/agent-sdk/file-checkpointing") |
 | `setPermissionMode()` | Changes the permission mode (only available in streaming input mode) |
 | `setModel()` | Changes the model (only available in streaming input mode) |
 | `setMaxThinkingTokens()` | *Deprecated:* Use the `thinking` option instead. Changes the maximum thinking tokens |
@@ -529,8 +529,13 @@ interface Query extends AsyncGenerator<SDKMessage, void> {
 
 #### [​](#applyflagsettings "#applyflagsettings") `applyFlagSettings()`
 
-Changes any [setting](./settings "_settings".md) on a running session without restarting the query. Use it when a setting that has no dedicated setter needs to change mid-session, such as tightening `permissions` after the agent reads untrusted input. `setModel()` and `setPermissionMode()` are dedicated setters for those two keys; `applyFlagSettings()` is the general form that accepts any subset of the settings keys, and passing `model` here behaves the same as `setModel()`.
-The values are written to the flag-settings layer, the same layer the inline `settings` option of `query()` populates at startup. Flag settings sit near the top of the [settings precedence order](./settings#settings-precedence "_settings#settings-precedence".md): they override user, project, and local settings, and only managed policy settings can override them. This is the same tier the [on-page precedence section](#settings-precedence "#settings-precedence") calls programmatic options.
+Changes [settings](./settings.md "/docs/en/settings") on a running session without restarting the query. Use it when a setting that has no dedicated setter needs to change mid-session, such as tightening `permissions` after the agent reads untrusted input. `setModel()` and `setPermissionMode()` are dedicated setters for those two keys; `applyFlagSettings()` is the general form that accepts any subset of the settings keys, and passing `model` here behaves the same as `setModel()`.
+Only some keys take effect mid-session:
+
+* **Applied on the next turn**: `model`, `effortLevel`, `ultracode`, `permissions`, `hooks`, `skillOverrides`, `fastMode`, `awaySummaryEnabled`
+* **No effect mid-session**: `agent` and the system prompt options. These are resolved once at startup, so the running session keeps the original value even though the call succeeds. To change them, start a new session.
+
+The values are written to the flag-settings layer, the same layer the inline `settings` option of `query()` populates at startup. Flag settings sit near the top of the [settings precedence order](./settings.md#settings-precedence "/docs/en/settings#settings-precedence"): they override user, project, and local settings, and only managed policy settings can override them. This is the same tier the [on-page precedence section](#settings-precedence "#settings-precedence") calls programmatic options.
 Successive calls shallow-merge top-level keys. A second call with `{ permissions: {...} }` replaces the entire `permissions` object from the prior call rather than deep-merging into it. To clear a key from the flag layer and fall back to lower-precedence sources, pass `null` for that key. Passing `undefined` has no effect because JSON serialization drops it.
 Only available in streaming input mode, the same constraint as `setModel()` and `setPermissionMode()`.
 The example below switches the active model mid-session, then clears the override so the model falls back to whatever the user or project settings specify.
@@ -649,7 +654,7 @@ type SettingSource = "user" | "project" | "local";
 
 #### [​](#default-behavior "#default-behavior") Default behavior
 
-When `settingSources` is omitted or `undefined`, `query()` loads the same filesystem settings as the Claude Code CLI: user, project, and local. Managed policy settings are loaded in all cases. See [What settingSources does not control](./agent-sdk_claude-code-features#what-settingsources-does-not-control "_agent-sdk_claude-code-features#what-settingsources-does-not-control".md) for inputs that are read regardless of this option, and how to disable them.
+When `settingSources` is omitted or `undefined`, `query()` loads the same filesystem settings as the Claude Code CLI: user, project, and local. Managed policy settings are loaded in all cases. See [What settingSources does not control](./agent-sdk/claude-code-features.md#what-settingsources-does-not-control "/docs/en/agent-sdk/claude-code-features#what-settingsources-does-not-control") for inputs that are read regardless of this option, and how to disable them.
 
 #### [​](#why-use-settingsources "#why-use-settingsources") Why use settingSources
 
@@ -820,7 +825,7 @@ type ToolConfig = {
 
 | Field | Type | Description |
 | --- | --- | --- |
-| `askUserQuestion.previewFormat` | `'markdown' | 'html'` | Opts into the `preview` field on [`AskUserQuestion`](./agent-sdk_user-input#question-format "_agent-sdk_user-input#question-format".md) options and sets its content format. When unset, Claude does not emit previews |
+| `askUserQuestion.previewFormat` | `'markdown' | 'html'` | Opts into the `preview` field on [`AskUserQuestion`](./agent-sdk/user-input.md#question-format "/docs/en/agent-sdk/user-input#question-format") options and sets its content format. When unset, Claude does not emit previews |
 
 ### [​](#mcpserverconfig "#mcpserverconfig") `McpServerConfig`
 
@@ -910,7 +915,7 @@ plugins: [
 ];
 ```
 
-For complete information on creating and using plugins, see [Plugins](./agent-sdk_plugins "_agent-sdk_plugins".md).
+For complete information on creating and using plugins, see [Plugins](./agent-sdk/plugins.md "/docs/en/agent-sdk/plugins").
 
 ## [​](#message-types "#message-types") Message Types
 
@@ -1070,7 +1075,7 @@ Several fields on the result carry diagnostic detail beyond `subtype`:
 * `fast_mode_state`: one of `"on"`, `"off"`, or `"cooldown"`.
 
 The `origin` field forwards the [`SDKMessageOrigin`](#sdkmessageorigin "#sdkmessageorigin") of the user message that triggered this result. When a background task finishes and the SDK injects a synthetic follow-up turn, the resulting `SDKResultMessage` carries `origin: { kind: "task-notification" }`. Check this field to distinguish results that answer your prompt from results emitted for background-task follow-ups, so you can route or suppress the latter. The field is absent for results emitted before any user turn, such as startup errors.
-When a `PreToolUse` hook returns `permissionDecision: "defer"`, the result has `stop_reason: "tool_deferred"` and `deferred_tool_use` carries the pending tool’s `id`, `name`, and `input`. Read this field to surface the request in your own UI, then resume with the same `session_id` to continue. See [Defer a tool call for later](./hooks#defer-a-tool-call-for-later "_hooks#defer-a-tool-call-for-later".md) for the full round trip.
+When a `PreToolUse` hook returns `permissionDecision: "defer"`, the result has `stop_reason: "tool_deferred"` and `deferred_tool_use` carries the pending tool’s `id`, `name`, and `input`. Read this field to surface the request in your own UI, then resume with the same `session_id` to continue. See [Defer a tool call for later](./hooks.md#defer-a-tool-call-for-later "/docs/en/hooks#defer-a-tool-call-for-later") for the full round trip.
 
 ### [​](#sdksystemmessage "#sdksystemmessage") `SDKSystemMessage`
 
@@ -1134,7 +1139,7 @@ type SDKCompactBoundaryMessage = {
 
 ### [​](#sdkplugininstallmessage "#sdkplugininstallmessage") `SDKPluginInstallMessage`
 
-Plugin installation progress event. Emitted when [`CLAUDE_CODE_SYNC_PLUGIN_INSTALL`](./env-vars "_env-vars".md) is set, so your Agent SDK application can track marketplace plugin installation before the first turn. The `started` and `completed` statuses bracket the overall install. The `installed` and `failed` statuses report individual marketplaces and include `name`.
+Plugin installation progress event. Emitted when [`CLAUDE_CODE_SYNC_PLUGIN_INSTALL`](./env-vars.md "/docs/en/env-vars") is set, so your Agent SDK application can track marketplace plugin installation before the first turn. The `started` and `completed` statuses bracket the overall install. The `installed` and `failed` statuses report individual marketplaces and include `name`.
 
 ```
 type SDKPluginInstallMessage = {
@@ -1205,14 +1210,14 @@ type SDKMessageOrigin =
 | `kind` | Meaning |
 | --- | --- |
 | `human` | Direct input from the end user. On user messages, an absent `origin` also means human input. |
-| `channel` | Message arriving on a [channel](./channels "_channels".md). `server` is the source MCP server name. |
+| `channel` | Message arriving on a [channel](./channels.md "/docs/en/channels"). `server` is the source MCP server name. |
 | `peer` | Message from another agent session via `SendMessage`. `from` is the sender address; `name` is the sender’s display name when available. |
 | `task-notification` | Synthetic turn injected after a background task finished. See [`SDKTaskNotificationMessage`](#sdktasknotificationmessage "#sdktasknotificationmessage"). |
-| `coordinator` | Message from a team coordinator in an [agent team](./agent-teams "_agent-teams".md). |
+| `coordinator` | Message from a team coordinator in an [agent team](./agent-teams.md "/docs/en/agent-teams"). |
 
 ## [​](#hook-types "#hook-types") Hook Types
 
-For a comprehensive guide on using hooks with examples and common patterns, see the [Hooks guide](./agent-sdk_hooks "_agent-sdk_hooks".md).
+For a comprehensive guide on using hooks with examples and common patterns, see the [Hooks guide](./agent-sdk/hooks.md "/docs/en/agent-sdk/hooks").
 
 ### [​](#hookevent "#hookevent") `HookEvent`
 
@@ -1238,7 +1243,8 @@ type HookEvent =
   | "TaskCompleted"
   | "ConfigChange"
   | "WorktreeCreate"
-  | "WorktreeRemove";
+  | "WorktreeRemove"
+  | "MessageDisplay";
 ```
 
 ### [​](#hookcallback "#hookcallback") `HookCallback`
@@ -1289,7 +1295,8 @@ type HookInput =
   | TaskCompletedHookInput
   | ConfigChangeHookInput
   | WorktreeCreateHookInput
-  | WorktreeRemoveHookInput;
+  | WorktreeRemoveHookInput
+  | MessageDisplayHookInput;
 ```
 
 ### [​](#basehookinput "#basehookinput") `BaseHookInput`
@@ -1546,6 +1553,19 @@ type WorktreeRemoveHookInput = BaseHookInput & {
 };
 ```
 
+#### [​](#messagedisplayhookinput "#messagedisplayhookinput") `MessageDisplayHookInput`
+
+```
+type MessageDisplayHookInput = BaseHookInput & {
+  hook_event_name: "MessageDisplay";
+  turn_id: string;
+  message_id: string;
+  index: number;
+  final: boolean;
+  delta: string;
+};
+```
+
 ### [​](#hookjsonoutput "#hookjsonoutput") `HookJSONOutput`
 
 Hook return value.
@@ -1670,7 +1690,8 @@ type ToolInputSchemas =
   | UnsubscribeMcpResourceInput
   | UnsubscribePollingInput
   | WebFetchInput
-  | WebSearchInput;
+  | WebSearchInput
+  | WorkflowInput;
 ```
 
 ### [​](#agent "#agent") Agent
@@ -1710,7 +1731,7 @@ type AskUserQuestionInput = {
 };
 ```
 
-Asks the user clarifying questions during execution. See [Handle approvals and user input](./agent-sdk_user-input#handle-clarifying-questions "_agent-sdk_user-input#handle-clarifying-questions".md) for usage details.
+Asks the user clarifying questions during execution. See [Handle approvals and user input](./agent-sdk/user-input.md#handle-clarifying-questions "/docs/en/agent-sdk/user-input#handle-clarifying-questions") for usage details.
 
 ### [​](#bash "#bash") Bash
 
@@ -1741,7 +1762,7 @@ type MonitorInput = {
 };
 ```
 
-Runs a background script and delivers each stdout line to Claude as an event so it can react without polling. Set `persistent: true` for session-length watches such as log tails. Monitor follows the same permission rules as Bash. See the [Monitor tool reference](./tools-reference#monitor-tool "_tools-reference#monitor-tool".md) for behavior and provider availability.
+Runs a background script and delivers each stdout line to Claude as an event so it can react without polling. Set `persistent: true` for session-length watches such as log tails. Monitor follows the same permission rules as Bash. See the [Monitor tool reference](./tools-reference.md#monitor-tool "/docs/en/tools-reference#monitor-tool") for behavior and provider availability.
 
 ### [​](#taskoutput "#taskoutput") TaskOutput
 
@@ -1894,6 +1915,30 @@ type WebSearchInput = {
 
 Searches the web and returns formatted results.
 
+### [​](#workflow "#workflow") Workflow
+
+**Tool name:** `Workflow`
+
+```
+type WorkflowInput = {
+  script?: string;
+  name?: string;
+  scriptPath?: string;
+  args?: unknown;
+  resumeFromRunId?: string;
+};
+```
+
+Runs a [dynamic workflow](./workflows.md "/docs/en/workflows"): a script that orchestrates many subagents in the background and returns one consolidated result. The `Workflow` tool is available in Agent SDK v0.3.149 and later. At least one of `script`, `name`, or `scriptPath` is required.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `script` | `string` | Inline workflow script. Must begin with `export const meta = { name, description, phases }` as a literal, followed by the script body using `agent()`, `parallel()`, `pipeline()`, and `phase()` |
+| `name` | `string` | Name of a built-in workflow or one saved in `.claude/workflows/`. Resolved to a script |
+| `scriptPath` | `string` | Path to a workflow script file on disk. Takes precedence over `script` and `name`. Every invocation persists its script and returns the path in the result, so you can edit that file and re-invoke with the same `scriptPath` to iterate |
+| `args` | `unknown` | Input value exposed to the script as the global `args`, for parameterized named workflows such as a research question or a list of file paths. Pass arrays and objects as actual JSON values, not as a JSON-encoded string |
+| `resumeFromRunId` | `string` | Run ID of a prior `Workflow` invocation to resume. Completed `agent()` calls with unchanged inputs return cached results; only changed or new calls run live. Same session only |
+
 ### [​](#todowrite "#todowrite") TodoWrite
 
 **Tool name:** `TodoWrite`
@@ -1910,7 +1955,7 @@ type TodoWriteInput = {
 
 Creates and manages a structured task list for tracking progress.
 
-As of TypeScript Agent SDK 0.3.142, `TodoWrite` is disabled by default. Use `TaskCreate`, `TaskGet`, `TaskUpdate`, and `TaskList` instead. See [Migrate to Task tools](./agent-sdk_todo-tracking#migrate-to-task-tools "_agent-sdk_todo-tracking#migrate-to-task-tools".md) to update your monitoring code, or set `CLAUDE_CODE_ENABLE_TASKS=0` to revert to `TodoWrite`.
+As of TypeScript Agent SDK 0.3.142, `TodoWrite` is disabled by default. Use `TaskCreate`, `TaskGet`, `TaskUpdate`, and `TaskList` instead. See [Migrate to Task tools](./agent-sdk/task-tracking.md#migrate-to-task-tools "/docs/en/agent-sdk/task-tracking#migrate-to-task-tools") to update your monitoring code, or set `CLAUDE_CODE_ENABLE_TASKS=0` to revert to `TodoWrite`.
 
 ### [​](#taskcreate "#taskcreate") TaskCreate
 
@@ -2053,7 +2098,8 @@ type ToolOutputSchemas =
   | TaskUpdateOutput
   | TodoWriteOutput
   | WebFetchOutput
-  | WebSearchOutput;
+  | WebSearchOutput
+  | WorkflowOutput;
 ```
 
 ### [​](#agent-2 "#agent-2") Agent
@@ -2116,10 +2162,11 @@ type AskUserQuestionOutput = {
     multiSelect: boolean;
   }>;
   answers: Record<string, string>;
+  response?: string;
 };
 ```
 
-Returns the questions asked and the user’s answers.
+Returns the questions asked and the user’s answers. `response` is set when the user typed a freeform reply instead of answering the structured questions; when present, Claude receives “The user responded: …” instead of the per-question answer list.
 
 ### [​](#bash-2 "#bash-2") Bash
 
@@ -2384,6 +2431,34 @@ type WebSearchOutput = {
 
 Returns search results from the web.
 
+### [​](#workflow-2 "#workflow-2") Workflow
+
+**Tool name:** `Workflow`
+
+```
+type WorkflowOutput = {
+  status: "async_launched";
+  taskId: string;
+  runId?: string;
+  summary?: string;
+  transcriptDir?: string;
+  scriptPath?: string;
+  error?: string;
+};
+```
+
+Returns immediately after the tool accepts the invocation. The final result arrives later as a task completion. Check `error` before treating the run as started: a script that fails its syntax check returns `status: "async_launched"` with `error` set, and never runs.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `status` | `"async_launched"` | The tool accepted the invocation. This is the only value the field takes |
+| `taskId` | `string` | Background task identifier for the run |
+| `runId` | `string` | Workflow run identifier to pass as `resumeFromRunId` on a later invocation |
+| `summary` | `string` | One-line description of what the workflow does |
+| `transcriptDir` | `string` | Directory where subagent transcripts are written during execution |
+| `scriptPath` | `string` | Path to the persisted workflow script for this run. Edit it and pass back as `scriptPath` to rerun without resending the script |
+| `error` | `string` | Set when the script fails its syntax check. When present, the run did not start despite the `async_launched` status |
+
 ### [​](#todowrite-2 "#todowrite-2") TodoWrite
 
 **Tool name:** `TodoWrite`
@@ -2405,7 +2480,7 @@ type TodoWriteOutput = {
 
 Returns the previous and updated task lists.
 
-As of TypeScript Agent SDK 0.3.142, `TodoWrite` is disabled by default. Use `TaskCreate`, `TaskGet`, `TaskUpdate`, and `TaskList` instead. See [Migrate to Task tools](./agent-sdk_todo-tracking#migrate-to-task-tools "_agent-sdk_todo-tracking#migrate-to-task-tools".md) to update your monitoring code, or set `CLAUDE_CODE_ENABLE_TASKS=0` to revert to `TodoWrite`.
+As of TypeScript Agent SDK 0.3.142, `TodoWrite` is disabled by default. Use `TaskCreate`, `TaskGet`, `TaskUpdate`, and `TaskList` instead. See [Migrate to Task tools](./agent-sdk/task-tracking.md#migrate-to-task-tools "/docs/en/agent-sdk/task-tracking#migrate-to-task-tools") to update your monitoring code, or set `CLAUDE_CODE_ENABLE_TASKS=0` to revert to `TodoWrite`.
 
 ### [​](#taskcreate-2 "#taskcreate-2") TaskCreate
 
@@ -2733,7 +2808,7 @@ type AccountInfo = {
 
 ### [​](#modelusage "#modelusage") `ModelUsage`
 
-Per-model usage statistics returned in result messages. The `costUSD` value is a client-side estimate. See [Track cost and usage](./agent-sdk_cost-tracking "_agent-sdk_cost-tracking".md) for billing caveats.
+Per-model usage statistics returned in result messages. The `costUSD` value is a client-side estimate. See [Track cost and usage](./agent-sdk/cost-tracking.md "/docs/en/agent-sdk/cost-tracking") for billing caveats.
 
 ```
 type ModelUsage = {
@@ -2790,7 +2865,7 @@ type Usage = {
 
 ### [​](#calltoolresult "#calltoolresult") `CallToolResult`
 
-MCP tool result type (from `@modelcontextprotocol/sdk/types.js`). `structuredContent` is a JSON object that can be returned alongside `content`, including image blocks. See [Return structured data](./agent-sdk_custom-tools#return-structured-data "_agent-sdk_custom-tools#return-structured-data".md).
+MCP tool result type (from `@modelcontextprotocol/sdk/types.js`). `structuredContent` is a JSON object that can be returned alongside `content`, including image blocks. See [Return structured data](./agent-sdk/custom-tools.md#return-structured-data "/docs/en/agent-sdk/custom-tools#return-structured-data").
 
 ```
 type CallToolResult = {
@@ -3169,6 +3244,7 @@ Configuration for sandbox behavior. Use this to enable command sandboxing and co
 ```
 type SandboxSettings = {
   enabled?: boolean;
+  failIfUnavailable?: boolean;
   autoAllowBashIfSandboxed?: boolean;
   excludedCommands?: string[];
   allowUnsandboxedCommands?: boolean;
@@ -3183,6 +3259,7 @@ type SandboxSettings = {
 | Property | Type | Default | Description |
 | --- | --- | --- | --- |
 | `enabled` | `boolean` | `false` | Enable sandbox mode for command execution |
+| `failIfUnavailable` | `boolean` | `true` | Stop at startup if `enabled` is `true` but the sandbox can’t start. Set `false` to fall back to unsandboxed execution with a warning on stderr |
 | `autoAllowBashIfSandboxed` | `boolean` | `true` | Auto-approve bash commands when sandbox is enabled |
 | `excludedCommands` | `string[]` | `[]` | Commands that always bypass sandbox restrictions (e.g., `['docker']`). These run unsandboxed automatically without model involvement |
 | `allowUnsandboxedCommands` | `boolean` | `true` | Allow the model to request running commands outside the sandbox. When `true`, the model can set `dangerouslyDisableSandbox` in tool input, which falls back to the [permissions system](#permissions-fallback-for-unsandboxed-commands "#permissions-fallback-for-unsandboxed-commands") |
@@ -3191,6 +3268,8 @@ type SandboxSettings = {
 | `ignoreViolations` | `Record<string, string[]>` | `undefined` | Map of violation categories to patterns to ignore (e.g., `{ file: ['/tmp/*'], network: ['localhost'] }`) |
 | `enableWeakerNestedSandbox` | `boolean` | `false` | Enable a weaker nested sandbox for compatibility |
 | `ripgrep` | `{ command: string; args?: string[] }` | `undefined` | Custom ripgrep binary configuration for sandbox environments |
+
+The sandbox depends on platform support and, on Linux, tools like `bubblewrap` and `socat`. When `enabled` is `true` and the sandbox can’t start, `query()` reports a `result` message with `subtype: "error_during_execution"` and the reason in `errors`, then stops. Watch for that subtype rather than expecting `query()` to throw before yielding messages.To run unsandboxed instead, set `failIfUnavailable: false`.
 
 #### [​](#example-usage "#example-usage") Example usage
 
@@ -3236,14 +3315,14 @@ type SandboxNetworkConfig = {
 | --- | --- | --- | --- |
 | `allowedDomains` | `string[]` | `[]` | Domain names that sandboxed processes can access |
 | `deniedDomains` | `string[]` | `[]` | Domain names that sandboxed processes cannot access. Takes precedence over `allowedDomains` |
-| `allowManagedDomainsOnly` | `boolean` | `false` | Managed-settings only. When set in [managed settings](./permissions#managed-settings "_permissions#managed-settings".md), only `allowedDomains` entries from managed settings are honored and entries from user, project, or local settings are ignored. Has no effect when set via SDK options |
+| `allowManagedDomainsOnly` | `boolean` | `false` | Managed-settings only. When set in [managed settings](./permissions.md#managed-settings "/docs/en/permissions#managed-settings"), only `allowedDomains` entries from managed settings are honored and entries from user, project, or local settings are ignored. Has no effect when set via SDK options |
 | `allowLocalBinding` | `boolean` | `false` | Allow processes to bind to local ports (e.g., for dev servers) |
 | `allowUnixSockets` | `string[]` | `[]` | Unix socket paths that processes can access (e.g., Docker socket) |
 | `allowAllUnixSockets` | `boolean` | `false` | Allow access to all Unix sockets |
 | `httpProxyPort` | `number` | `undefined` | HTTP proxy port for network requests |
 | `socksProxyPort` | `number` | `undefined` | SOCKS proxy port for network requests |
 
-The built-in sandbox proxy enforces `allowedDomains` based on the requested hostname and does not terminate or inspect TLS traffic, so techniques such as [domain fronting](https://en.wikipedia.org/wiki/Domain_fronting "https://en.wikipedia.org/wiki/Domain_fronting") can potentially bypass it. See [Sandboxing security limitations](./sandboxing#security-limitations "_sandboxing#security-limitations".md) for details and [Secure deployment](./agent-sdk_secure-deployment#traffic-forwarding "_agent-sdk_secure-deployment#traffic-forwarding".md) for configuring a TLS-terminating proxy.
+The built-in sandbox proxy enforces `allowedDomains` based on the requested hostname and does not terminate or inspect TLS traffic, so techniques such as [domain fronting](https://en.wikipedia.org/wiki/Domain_fronting "https://en.wikipedia.org/wiki/Domain_fronting") can potentially bypass it. See [Sandboxing security limitations](./sandboxing.md#security-limitations "/docs/en/sandboxing#security-limitations") for details and [Secure deployment](./agent-sdk/secure-deployment.md#traffic-forwarding "/docs/en/agent-sdk/secure-deployment#traffic-forwarding") for configuring a TLS-terminating proxy.
 
 ### [​](#sandboxfilesystemconfig "#sandboxfilesystemconfig") `SandboxFilesystemConfig`
 
@@ -3315,7 +3394,7 @@ Commands running with `dangerouslyDisableSandbox: true` have full system access.
 
 ## [​](#see-also "#see-also") See also
 
-* [SDK overview](./agent-sdk_overview "_agent-sdk_overview".md) - General SDK concepts
-* [Python SDK reference](./agent-sdk_python "_agent-sdk_python".md) - Python SDK documentation
-* [CLI reference](./cli-reference "_cli-reference".md) - Command-line interface
-* [Common workflows](./common-workflows "_common-workflows".md) - Step-by-step guides
+* [SDK overview](./agent-sdk/overview.md "/docs/en/agent-sdk/overview") - General SDK concepts
+* [Python SDK reference](./agent-sdk/python.md "/docs/en/agent-sdk/python") - Python SDK documentation
+* [CLI reference](./cli-reference.md "/docs/en/cli-reference") - Command-line interface
+* [Common workflows](./common-workflows.md "/docs/en/common-workflows") - Step-by-step guides

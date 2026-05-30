@@ -6,7 +6,7 @@
 >
 > Use this file to discover all available pages before exploring further.
 
-This page collects short recipes for everyday development. For higher-level guidance on prompting and context management, see [Best practices](./best-practices "_best-practices".md).
+This page collects short recipes for everyday development. For higher-level guidance on prompting and context management, see [Best practices](./best-practices.md "/docs/en/best-practices").
 This page covers:
 
 * [Prompt recipes](#prompt-recipes "#prompt-recipes") for exploring code, fixing bugs, refactoring, testing, PRs, and documentation
@@ -21,6 +21,8 @@ This page covers:
 These are prompt patterns for everyday tasks like exploring unfamiliar code, debugging, refactoring, writing tests, and creating PRs. Each works in any Claude Code surface; adapt the wording to your project.
 
 ### [​](#understand-new-codebases "#understand-new-codebases") Understand new codebases
+
+For configuring Claude Code in a monorepo or large codebase, see [Monorepos and large repos](./large-codebases.md "/docs/en/large-codebases").
 
 #### [​](#get-a-quick-codebase-overview "#get-a-quick-codebase-overview") Get a quick codebase overview
 
@@ -104,7 +106,7 @@ Tips:
 
 * Be specific about what you’re looking for
 * Use domain language from the project
-* Install a [code intelligence plugin](./discover-plugins#code-intelligence "_discover-plugins#code-intelligence".md) for your language to give Claude precise “go to definition” and “find references” navigation
+* Install a [code intelligence plugin](./discover-plugins.md#code-intelligence "/docs/en/discover-plugins#code-intelligence") for your language to give Claude precise “go to definition” and “find references” navigation
 
 ---
 
@@ -258,7 +260,7 @@ Review and refine
 enhance the PR description with more context about the security improvements
 ```
 
-When you create a PR using `gh pr create`, the session is automatically linked to that PR. To return to it later, run `claude --from-pr <number>` or paste the PR URL into the [`/resume` picker](./sessions#use-the-session-picker "_sessions#use-the-session-picker".md) search.
+When you create a PR using `gh pr create`, the session is automatically linked to that PR. To return to it later, run `claude --from-pr <number>` or paste the PR URL into the [`/resume` picker](./sessions.md#use-the-session-picker "/docs/en/sessions#use-the-session-picker") search.
 
 Review Claude’s generated PR before submitting and ask Claude to highlight potential risks or considerations.
 
@@ -410,7 +412,7 @@ Reference MCP resources
 Show me the data from @github:repos/owner/repo/issues
 ```
 
-This fetches data from connected MCP servers using the format @server:resource. See [MCP resources](./mcp#use-mcp-resources "_mcp#use-mcp-resources".md) for details.
+This fetches data from connected MCP servers using the format @server:resource. See [MCP resources](./mcp.md#use-mcp-resources "/docs/en/mcp#use-mcp-resources") for details.
 
 Tips:
 
@@ -428,10 +430,10 @@ Pick a scheduling option based on where you want the task to run:
 
 | Option | Where it runs | Best for |
 | --- | --- | --- |
-| [Routines](./routines "_routines".md) | Anthropic-managed infrastructure | Tasks that should run even when your computer is off. Can also trigger on API calls or GitHub events in addition to a schedule. Configure at [claude.ai/code/routines](https://claude.ai/code/routines "https://claude.ai/code/routines"). |
-| [Desktop scheduled tasks](./desktop-scheduled-tasks "_desktop-scheduled-tasks".md) | Your machine, via the desktop app | Tasks that need direct access to local files, tools, or uncommitted changes. |
-| [GitHub Actions](./github-actions "_github-actions".md) | Your CI pipeline | Tasks tied to repo events like opened PRs, or cron schedules that should live alongside your workflow config. |
-| [`/loop`](./scheduled-tasks "_scheduled-tasks".md) | The current CLI session | Quick polling while a session is open. Tasks stop when you start a new conversation; `--resume` and `--continue` restore unexpired ones. |
+| [Routines](./routines.md "/docs/en/routines") | Anthropic-managed infrastructure | Tasks that should run even when your computer is off. Can also trigger on API calls or GitHub events in addition to a schedule. Configure at [claude.ai/code/routines](https://claude.ai/code/routines "https://claude.ai/code/routines"). |
+| [Desktop scheduled tasks](./desktop-scheduled-tasks.md "/docs/en/desktop-scheduled-tasks") | Your machine, via the desktop app | Tasks that need direct access to local files, tools, or uncommitted changes. |
+| [GitHub Actions](./github-actions.md "/docs/en/github-actions") | Your CI pipeline | Tasks tied to repo events like opened PRs, or cron schedules that should live alongside your workflow config. |
+| [`/loop`](./scheduled-tasks.md "/docs/en/scheduled-tasks") | The current CLI session | Quick polling while a session is open. Tasks stop when you start a new conversation; `--resume` and `--continue` restore unexpired ones. |
 
 When writing prompts for scheduled tasks, be explicit about what success looks like and what to do with results. The task runs autonomously, so it can’t ask clarifying questions. For example: “Review open PRs labeled `needs-review`, leave inline comments on any issues, and post a summary in the `#eng-reviews` Slack channel.”
 
@@ -485,7 +487,7 @@ When a task spans multiple sittings, pick up where you left off instead of re-ex
 claude --continue
 ```
 
-This resumes the most recent session in the current directory; if there isn’t one yet, it prints `No conversation found to continue` and exits. Use `claude --resume` to choose from a list, or `/resume` from inside a running session. See [Manage sessions](./sessions "_sessions".md) for naming, branching, and the full picker reference.
+This resumes the most recent session in the current directory; if there isn’t one yet, it prints `No conversation found to continue` and exits. Use `claude --resume` to choose from a list, or `/resume` from inside a running session. See [Manage sessions](./sessions.md "/docs/en/sessions") for naming, branching, and the full picker reference.
 
 ## [​](#run-parallel-sessions-with-worktrees "#run-parallel-sessions-with-worktrees") Run parallel sessions with worktrees
 
@@ -495,7 +497,7 @@ Work on a feature in one terminal while Claude fixes a bug in another, without t
 claude --worktree feature-auth
 ```
 
-Run the same command with a different name in a second terminal to start an isolated parallel session. See [Worktrees](./worktrees "_worktrees".md) for cleanup, `.worktreeinclude`, and non-git VCS support. To monitor parallel sessions from one screen instead of separate terminals, see [background agents](./agent-view "_agent-view".md).
+Run the same command with a different name in a second terminal to start an isolated parallel session. See [Worktrees](./worktrees.md "/docs/en/worktrees") for cleanup, `.worktreeinclude`, and non-git VCS support. To monitor parallel sessions from one screen instead of separate terminals, see [background agents](./agent-view.md "/docs/en/agent-view").
 
 ## [​](#plan-before-editing "#plan-before-editing") Plan before editing
 
@@ -505,7 +507,7 @@ For changes you want to review before they touch disk, switch to plan mode. Clau
 claude --permission-mode plan
 ```
 
-You can also press `Shift+Tab` mid-session to toggle into plan mode. See [Plan mode](./permission-modes#analyze-before-you-edit-with-plan-mode "_permission-modes#analyze-before-you-edit-with-plan-mode".md) for the approval flow and editing the plan in your text editor.
+You can also press `Shift+Tab` mid-session to toggle into plan mode. See [Plan mode](./permission-modes.md#analyze-before-you-edit-with-plan-mode "/docs/en/permission-modes#analyze-before-you-edit-with-plan-mode") for the approval flow and editing the plan in your text editor.
 
 ## [​](#delegate-research-to-subagents "#delegate-research-to-subagents") Delegate research to subagents
 
@@ -515,7 +517,7 @@ Exploring a large codebase fills your context with file reads. Delegate the expl
 use a subagent to investigate how our auth system handles token refresh
 ```
 
-The subagent reads files in its own context window and reports a summary. See [Subagents](./sub-agents "_sub-agents".md) for defining custom agents with their own tools and prompts.
+The subagent reads files in its own context window and reports a summary. See [Subagents](./sub-agents.md "/docs/en/sub-agents") for defining custom agents with their own tools and prompts.
 
 ## [​](#pipe-claude-into-scripts "#pipe-claude-into-scripts") Pipe Claude into scripts
 
@@ -525,7 +527,7 @@ Run Claude non-interactively for CI, pre-commit hooks, or batch processing. Stdi
 git log --oneline -20 | claude -p "summarize these recent commits"
 ```
 
-See [Non-interactive mode](./headless "_headless".md) for output formats, permission flags, and fan-out patterns.
+See [Non-interactive mode](./headless.md "/docs/en/headless") for output formats, permission flags, and fan-out patterns.
 
 ## [​](#next-steps "#next-steps") Next steps
 

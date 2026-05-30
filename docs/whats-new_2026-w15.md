@@ -6,7 +6,7 @@
 >
 > Use this file to discover all available pages before exploring further.
 
-Releases [v2.1.92 → v2.1.101](./changelog#2-1-92 "_changelog#2-1-92".md)4 features · April 6–10
+Releases [v2.1.92 → v2.1.101](./changelog.md#2-1-92 "/docs/en/changelog#2-1-92")4 features · April 6–10
 
 Ultraplanresearch preview
 
@@ -22,7 +22,7 @@ Claude Code
 > /ultraplan migrate the auth service from sessions to JWTs
 ```
 
-[Ultraplan guide](./ultraplan "_ultraplan".md)
+[Ultraplan guide](./ultraplan.md "/docs/en/ultraplan")
 
 Monitor toolv2.1.98
 
@@ -46,7 +46,7 @@ Claude Code
 > /loop check CI on my PR
 ```
 
-[Monitor tool reference](./tools-reference#monitor-tool "_tools-reference#monitor-tool".md)
+[Monitor tool reference](./tools-reference.md#monitor-tool "/docs/en/tools-reference#monitor-tool")
 
 /autofix-prCLI
 
@@ -62,7 +62,7 @@ Claude Code
 > /autofix-pr
 ```
 
-[Auto-fix pull requests](./claude-code-on-the-web#auto-fix-pull-requests "_claude-code-on-the-web#auto-fix-pull-requests".md)
+[Auto-fix pull requests](./claude-code-on-the-web.md#auto-fix-pull-requests "/docs/en/claude-code-on-the-web#auto-fix-pull-requests")
 
 /team-onboardingv2.1.101
 
@@ -76,13 +76,13 @@ Claude Code
 > /team-onboarding
 ```
 
-[Commands reference](./commands "_commands".md)
+[Commands reference](./commands.md "/docs/en/commands")
 
 Other wins
 
 Focus view: press `Ctrl+O` in flicker-free mode to collapse the view to your last prompt, a one-line tool summary with diffstats, and Claude’s final response
 
-Guided [Bedrock](./amazon-bedrock "_amazon-bedrock".md) and [Vertex AI](./google-vertex-ai "_google-vertex-ai".md) setup wizards on the login screen: pick “3rd-party platform” for step-by-step auth, region, credential check, and model pinning
+Guided [Bedrock](./amazon-bedrock.md "/docs/en/amazon-bedrock") and [Vertex AI](./google-vertex-ai.md "/docs/en/google-vertex-ai") setup wizards on the login screen: pick “3rd-party platform” for step-by-step auth, region, credential check, and model pinning
 
 `/agents` gets a tabbed layout: a Running tab shows live subagents with a `● N running` count, plus Run agent and View running instance actions in the Library tab
 
@@ -104,4 +104,4 @@ Hardened Bash tool permissions: backslash-escaped flags, env-var prefixes, `/dev
 
 `UserPromptSubmit` hooks can set the session title via `hookSpecificOutput.sessionTitle`
 
-[Full changelog for v2.1.92–v2.1.101 →](./changelog#2-1-92 "_changelog#2-1-92".md)
+[Full changelog for v2.1.92–v2.1.101 →](./changelog.md#2-1-92 "/docs/en/changelog#2-1-92")

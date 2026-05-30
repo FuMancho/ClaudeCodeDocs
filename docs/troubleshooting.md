@@ -10,13 +10,13 @@ This page covers performance, stability, and search problems once Claude Code is
 
 | Symptom | Go to |
 | --- | --- |
-| `command not found`, install fails, PATH issues, `EACCES`, TLS errors | [Troubleshoot installation and login](./troubleshoot-install "_troubleshoot-install".md) |
-| Login loops, OAuth errors, `403 Forbidden`, “organization disabled”, Bedrock/Vertex/Foundry credentials | [Troubleshoot installation and login](./troubleshoot-install#login-and-authentication "_troubleshoot-install#login-and-authentication".md) |
-| Settings not applying, hooks not firing, MCP servers not loading | [Debug your configuration](./debug-your-config "_debug-your-config".md) |
-| `API Error: 5xx`, `529 Overloaded`, `429`, request validation errors | [Error reference](./errors "_errors".md) |
-| `model not found` or `you may not have access to it` | [Error reference](./errors#theres-an-issue-with-the-selected-model "_errors#theres-an-issue-with-the-selected-model".md) |
-| VS Code extension not connecting or detecting Claude | [VS Code integration](./vs-code#fix-common-issues "_vs-code#fix-common-issues".md) |
-| JetBrains plugin or IDE not detected | [JetBrains integration](./jetbrains#troubleshooting "_jetbrains#troubleshooting".md) |
+| `command not found`, install fails, PATH issues, `EACCES`, TLS errors | [Troubleshoot installation and login](./troubleshoot-install.md "/docs/en/troubleshoot-install") |
+| Login loops, OAuth errors, `403 Forbidden`, “organization disabled”, Bedrock/Vertex/Foundry credentials | [Troubleshoot installation and login](./troubleshoot-install.md#login-and-authentication "/docs/en/troubleshoot-install#login-and-authentication") |
+| Settings not applying, hooks not firing, MCP servers not loading | [Debug your configuration](./debug-your-config.md "/docs/en/debug-your-config") |
+| `API Error: 5xx`, `529 Overloaded`, `429`, request validation errors | [Error reference](./errors.md "/docs/en/errors") |
+| `model not found` or `you may not have access to it` | [Error reference](./errors.md#theres-an-issue-with-the-selected-model "/docs/en/errors#theres-an-issue-with-the-selected-model") |
+| VS Code extension not connecting or detecting Claude | [VS Code integration](./vs-code.md#fix-common-issues "/docs/en/vs-code#fix-common-issues") |
+| JetBrains plugin or IDE not detected | [JetBrains integration](./jetbrains.md#troubleshooting "/docs/en/jetbrains#troubleshooting") |
 | High CPU or memory, slow responses, hangs, search not finding files | [Performance and stability](#performance-and-stability "#performance-and-stability") below |
 
 If you’re not sure which applies, run `/doctor` inside Claude Code for an automated check of your installation, settings, MCP servers, and context usage. If `claude` won’t start at all, run `claude doctor` from your shell instead.
@@ -43,7 +43,7 @@ To recover:
 
 1. Ask Claude to read the oversized file in smaller chunks, such as a specific line range or function, instead of the whole file
 2. Run `/compact` with a focus that drops the large output, for example `/compact keep only the plan and the diff`
-3. Move the large-file work to a [subagent](./sub-agents "_sub-agents".md) so it runs in a separate context window
+3. Move the large-file work to a [subagent](./sub-agents.md "/docs/en/sub-agents") so it runs in a separate context window
 4. Run `/clear` if the earlier conversation is no longer needed
 
 ### [​](#command-hangs-or-freezes "#command-hangs-or-freezes") Command hangs or freezes
@@ -85,7 +85,7 @@ pacman -S ripgrep
 winget install BurntSushi.ripgrep.MSVC
 ```
 
-Then set `USE_BUILTIN_RIPGREP=0` in your [environment](./env-vars "_env-vars".md).
+Then set `USE_BUILTIN_RIPGREP=0` in your [environment](./env-vars.md "/docs/en/env-vars").
 
 ### [​](#slow-or-incomplete-search-results-on-wsl "#slow-or-incomplete-search-results-on-wsl") Slow or incomplete search results on WSL
 

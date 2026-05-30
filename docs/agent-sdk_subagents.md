@@ -1,3 +1,5 @@
+# Agent Sdk Subagents
+
 > ## Documentation Index
 >
 > Fetch the complete documentation index at: [https://code.claude.com/docs/llms.txt](https://code.claude.com/docs/llms.txt "https://code.claude.com/docs/llms.txt")
@@ -12,8 +14,8 @@ This guide explains how to define and use subagents in the SDK using the `agents
 
 You can create subagents in three ways:
 
-* **Programmatically**: use the `agents` parameter in your `query()` options ([TypeScript](./agent-sdk_typescript#agentdefinition "_agent-sdk_typescript#agentdefinition".md), [Python](./agent-sdk_python#agentdefinition "_agent-sdk_python#agentdefinition".md))
-* **Filesystem-based**: define agents as markdown files in `.claude/agents/` directories (see [defining subagents as files](./sub-agents "_sub-agents".md))
+* **Programmatically**: use the `agents` parameter in your `query()` options ([TypeScript](./agent-sdk/typescript.md#agentdefinition "/docs/en/agent-sdk/typescript#agentdefinition"), [Python](./agent-sdk/python.md#agentdefinition "/docs/en/agent-sdk/python#agentdefinition"))
+* **Filesystem-based**: define agents as markdown files in `.claude/agents/` directories (see [defining subagents as files](./sub-agents.md "/docs/en/sub-agents"))
 * **Built-in general-purpose**: Claude can invoke the built-in `general-purpose` subagent at any time via the Agent tool without you defining anything
 
 This guide focuses on the programmatic approach, which is recommended for SDK applications.
@@ -120,13 +122,13 @@ asyncio.run(main())
 | `effort` | `'low' | 'medium' | 'high' | 'xhigh' | 'max' | number` | No | Reasoning effort level for this agent |
 | `permissionMode` | `PermissionMode` | No | Permission mode for tool execution within this agent |
 
-In the Python SDK, these field names use camelCase to match the wire format. See the [`AgentDefinition` reference](./agent-sdk_python#agentdefinition "_agent-sdk_python#agentdefinition".md) for details.
+In the Python SDK, these field names use camelCase to match the wire format. See the [`AgentDefinition` reference](./agent-sdk/python.md#agentdefinition "/docs/en/agent-sdk/python#agentdefinition") for details.
 
 Subagents cannot spawn their own subagents. Don’t include `Agent` in a subagent’s `tools` array.
 
 ### [​](#filesystem-based-definition-alternative "#filesystem-based-definition-alternative") Filesystem-based definition (alternative)
 
-You can also define subagents as markdown files in `.claude/agents/` directories. See the [Claude Code subagents documentation](./sub-agents "_sub-agents".md) for details on this approach. Programmatically defined agents take precedence over filesystem-based agents with the same name.
+You can also define subagents as markdown files in `.claude/agents/` directories. See the [Claude Code subagents documentation](./sub-agents.md "/docs/en/sub-agents") for details on this approach. Programmatically defined agents take precedence over filesystem-based agents with the same name.
 
 Even without defining custom subagents, Claude can spawn the built-in `general-purpose` subagent. This is useful for delegating research or exploration tasks without creating specialized agents. Include `Agent` in `allowedTools` so these invocations auto-approve without a permission prompt.
 
@@ -373,6 +375,11 @@ asyncio.run(main())
 | Code modification | `Read`, `Edit`, `Write`, `Grep`, `Glob` | Full read/write access without command execution |
 | Full access | All tools | Inherits all tools from parent (omit `tools` field) |
 
+## [​](#scale-up-with-dynamic-workflows "#scale-up-with-dynamic-workflows") Scale up with dynamic workflows
+
+Subagents work well for a few delegated tasks per turn. For runs that coordinate dozens to hundreds of agents, use the `Workflow` tool, which moves the orchestration into a script the runtime executes outside the conversation context. See [dynamic workflows](./workflows.md "/docs/en/workflows") for how workflows differ from turn-by-turn subagent delegation.
+The `Workflow` tool is available in the TypeScript Agent SDK v0.3.149 and later. Include `Workflow` in `allowedTools` to auto-approve workflow runs. The tool input and output schemas are listed in the [TypeScript reference](./agent-sdk/typescript.md#workflow "/docs/en/agent-sdk/typescript#workflow").
+
 ## [​](#troubleshooting "#troubleshooting") Troubleshooting
 
 ### [​](#claude-not-delegating-to-subagents "#claude-not-delegating-to-subagents") Claude not delegating to subagents
@@ -393,5 +400,6 @@ On Windows, subagents with very long prompts may fail due to command line length
 
 ## [​](#related-documentation "#related-documentation") Related documentation
 
-* [Claude Code subagents](./sub-agents "_sub-agents".md): comprehensive subagent documentation including filesystem-based definitions
-* [SDK overview](./agent-sdk_overview "_agent-sdk_overview".md): getting started with the Claude Agent SDK
+* [Claude Code subagents](./sub-agents.md "/docs/en/sub-agents"): comprehensive subagent documentation including filesystem-based definitions
+* [Dynamic workflows](./workflows.md "/docs/en/workflows"): orchestrate many subagents from a script for jobs too large for one conversation
+* [SDK overview](./agent-sdk/overview.md "/docs/en/agent-sdk/overview"): getting started with the Claude Agent SDK

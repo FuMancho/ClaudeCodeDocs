@@ -1,3 +1,5 @@
+# Agent Sdk Migration Guide
+
 > ## Documentation Index
 >
 > Fetch the complete documentation index at: [https://code.claude.com/docs/llms.txt](https://code.claude.com/docs/llms.txt "https://code.claude.com/docs/llms.txt")
@@ -16,7 +18,7 @@ The Claude Code SDK has been renamed to the **Claude Agent SDK** and its documen
 | **Python Package** | `claude-code-sdk` | `claude-agent-sdk` |
 | **Documentation Location** | Claude Code docs | API Guide → Agent SDK section |
 
-**Documentation Changes:** The Agent SDK documentation has moved from the Claude Code docs to the API Guide under a dedicated [Agent SDK](./agent-sdk_overview "_agent-sdk_overview".md) section. The Claude Code docs now focus on the CLI tool and automation features.
+**Documentation Changes:** The Agent SDK documentation has moved from the Claude Code docs to the API Guide under a dedicated [Agent SDK](./agent-sdk/overview.md "/docs/en/agent-sdk/overview") section. The Claude Code docs now focus on the CLI tool and automation features.
 
 ## [​](#migration-steps "#migration-steps") Migration Steps
 
@@ -197,7 +199,7 @@ const result = query({
 
 Isolation is especially important for CI/CD pipelines, deployed applications, test environments, and multi-tenant systems where local customizations should not leak in.
 
-SDK v0.1.0 briefly defaulted to no settings loaded; this was reverted in subsequent releases. Python SDK 0.1.59 and earlier treated an empty list the same as omitting the option, so upgrade before relying on `setting_sources=[]`. See [What settingSources does not control](./agent-sdk_claude-code-features#what-settingsources-does-not-control "_agent-sdk_claude-code-features#what-settingsources-does-not-control".md) for inputs that are read even when `settingSources` is `[]`.
+SDK v0.1.0 briefly defaulted to no settings loaded; this was reverted in subsequent releases. Python SDK 0.1.59 and earlier treated an empty list the same as omitting the option, so upgrade before relying on `setting_sources=[]`. See [What settingSources does not control](./agent-sdk/claude-code-features.md#what-settingsources-does-not-control "/docs/en/agent-sdk/claude-code-features#what-settingsources-does-not-control") for inputs that are read even when `settingSources` is `[]`.
 
 ## [​](#why-the-rename "#why-the-rename") Why the Rename?
 
@@ -224,7 +226,7 @@ If you encounter any issues during migration:
 
 ## [​](#next-steps "#next-steps") Next Steps
 
-* Explore the [Agent SDK Overview](./agent-sdk_overview "_agent-sdk_overview".md) to learn about available features
-* Check out the [TypeScript SDK Reference](./agent-sdk_typescript "_agent-sdk_typescript".md) for detailed API documentation
-* Review the [Python SDK Reference](./agent-sdk_python "_agent-sdk_python".md) for Python-specific documentation
-* Learn about [Custom Tools](./agent-sdk_custom-tools "_agent-sdk_custom-tools".md) and [MCP Integration](./agent-sdk_mcp "_agent-sdk_mcp".md)
+* Explore the [Agent SDK Overview](./agent-sdk/overview.md "/docs/en/agent-sdk/overview") to learn about available features
+* Check out the [TypeScript SDK Reference](./agent-sdk/typescript.md "/docs/en/agent-sdk/typescript") for detailed API documentation
+* Review the [Python SDK Reference](./agent-sdk/python.md "/docs/en/agent-sdk/python") for Python-specific documentation
+* Learn about [Custom Tools](./agent-sdk/custom-tools.md "/docs/en/agent-sdk/custom-tools") and [MCP Integration](./agent-sdk/mcp.md "/docs/en/agent-sdk/mcp")

@@ -13,9 +13,9 @@ Claude Code’s context window holds everything Claude knows about your session:
 
 The session walks through a realistic flow with representative token counts:
 
-* **Before you type anything**: CLAUDE.md, auto memory, MCP tool names, and skill descriptions all load into context. Your own setup may add more here, like an [output style](./output-styles "_output-styles".md) or text from [`--append-system-prompt`](./cli-reference "_cli-reference".md), which both go into the system prompt the same way.
-* **As Claude works**: each file read adds to context, [path-scoped rules](./memory#path-specific-rules "_memory#path-specific-rules".md) load automatically alongside matching files, and a [PostToolUse hook](./hooks-guide "_hooks-guide".md) fires after each edit.
-* **The follow-up prompt**: a [subagent](./sub-agents "_sub-agents".md) handles the research in its own separate context window, so the large file reads stay out of yours. Only the summary and a small metadata trailer come back.
+* **Before you type anything**: CLAUDE.md, auto memory, MCP tool names, and skill descriptions all load into context. Your own setup may add more here, like an [output style](./output-styles.md "/docs/en/output-styles") or text from [`--append-system-prompt`](./cli-reference.md "/docs/en/cli-reference"), which both go into the system prompt the same way.
+* **As Claude works**: each file read adds to context, [path-scoped rules](./memory.md#path-specific-rules "/docs/en/memory#path-specific-rules") load automatically alongside matching files, and a [PostToolUse hook](./hooks-guide.md "/docs/en/hooks-guide") fires after each edit.
+* **The follow-up prompt**: a [subagent](./sub-agents.md "/docs/en/sub-agents") handles the research in its own separate context window, so the large file reads stay out of yours. Only the summary and a small metadata trailer come back.
 * **At the end**: `/compact` replaces the conversation with a structured summary. Most startup content reloads automatically; the table below shows what happens to each mechanism.
 
 ## [​](#what-survives-compaction "#what-survives-compaction") What survives compaction
@@ -43,9 +43,9 @@ The visualization uses representative numbers. To see your actual context usage 
 
 For deeper coverage of the features shown in the timeline, see these pages:
 
-* [Extend Claude Code](./features-overview "_features-overview".md): when to use CLAUDE.md vs skills vs rules vs hooks vs MCP
-* [Store instructions and memories](./memory "_memory".md): CLAUDE.md hierarchy and auto memory
-* [Subagents](./sub-agents "_sub-agents".md): delegate research to a separate context window
-* [Best practices](./best-practices "_best-practices".md): managing context as your primary constraint
-* [Prompt caching](./prompt-caching "_prompt-caching".md): which actions invalidate the cached prefix
-* [Reduce token usage](./costs#reduce-token-usage "_costs#reduce-token-usage".md): strategies for keeping context usage low
+* [Extend Claude Code](./features-overview.md "/docs/en/features-overview"): when to use CLAUDE.md vs skills vs rules vs hooks vs MCP
+* [Store instructions and memories](./memory.md "/docs/en/memory"): CLAUDE.md hierarchy and auto memory
+* [Subagents](./sub-agents.md "/docs/en/sub-agents"): delegate research to a separate context window
+* [Best practices](./best-practices.md "/docs/en/best-practices"): managing context as your primary constraint
+* [Prompt caching](./prompt-caching.md "/docs/en/prompt-caching"): which actions invalidate the cached prefix
+* [Reduce token usage](./costs.md#reduce-token-usage "/docs/en/costs#reduce-token-usage"): strategies for keeping context usage low

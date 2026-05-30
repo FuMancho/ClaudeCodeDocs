@@ -6,7 +6,7 @@
 >
 > Use this file to discover all available pages before exploring further.
 
-The V2 session API is no longer supported. TypeScript Agent SDK 0.3.142 removes `unstable_v2_createSession`, `unstable_v2_resumeSession`, `unstable_v2_prompt`, and the `SDKSession` and `SDKSessionOptions` types.To migrate, use the [`query()` API](./agent-sdk_typescript "_agent-sdk_typescript".md) and the [session options](./agent-sdk_sessions "_agent-sdk_sessions".md) it accepts. Pass an `AsyncIterable<SDKUserMessage>` for multi-turn conversations, or `options.resume` to continue a saved session. This page is kept for reference if you maintain code on Agent SDK 0.2.x or earlier.
+The V2 session API is no longer supported. TypeScript Agent SDK 0.3.142 removes `unstable_v2_createSession`, `unstable_v2_resumeSession`, `unstable_v2_prompt`, and the `SDKSession` and `SDKSessionOptions` types.To migrate, use the [`query()` API](./agent-sdk/typescript.md "/docs/en/agent-sdk/typescript") and the [session options](./agent-sdk/sessions.md "/docs/en/agent-sdk/sessions") it accepts. Pass an `AsyncIterable<SDKUserMessage>` for multi-turn conversations, or `options.resume` to continue a saved session. This page is kept for reference if you maintain code on Agent SDK 0.2.x or earlier.
 
 V2 was an experimental session API that removed the need for async generators and yield coordination. Instead of managing generator state across turns, each turn was a separate `send()`/`stream()` cycle. The API surface reduced to three concepts:
 
@@ -240,13 +240,13 @@ interface SDKSession {
 
 ## [​](#feature-availability "#feature-availability") Feature availability
 
-The V2 session API does not support every V1 feature. The following require the [V1 SDK](./agent-sdk_typescript "_agent-sdk_typescript".md):
+The V2 session API does not support every V1 feature. The following require the [V1 SDK](./agent-sdk/typescript.md "/docs/en/agent-sdk/typescript"):
 
 * Session forking (`forkSession` option)
 * Some advanced streaming input patterns
 
 ## [​](#see-also "#see-also") See also
 
-* [TypeScript SDK reference (V1)](./agent-sdk_typescript "_agent-sdk_typescript".md) - Full V1 SDK documentation
-* [SDK overview](./agent-sdk_overview "_agent-sdk_overview".md) - General SDK concepts
+* [TypeScript SDK reference (V1)](./agent-sdk/typescript.md "/docs/en/agent-sdk/typescript") - Full V1 SDK documentation
+* [SDK overview](./agent-sdk/overview.md "/docs/en/agent-sdk/overview") - General SDK concepts
 * [V2 examples on GitHub](https://github.com/anthropics/claude-agent-sdk-demos/tree/main/hello-world-v2 "https://github.com/anthropics/claude-agent-sdk-demos/tree/main/hello-world-v2") - Working code examples

@@ -1,3 +1,5 @@
+# Hooks Guide
+
 > ## Documentation Index
 >
 > Fetch the complete documentation index at: [https://code.claude.com/docs/llms.txt](https://code.claude.com/docs/llms.txt "https://code.claude.com/docs/llms.txt")
@@ -6,9 +8,9 @@
 
 Hooks are user-defined shell commands that execute at specific points in Claude Code’s lifecycle. They provide deterministic control over Claude Code’s behavior, ensuring certain actions always happen rather than relying on the LLM to choose to run them. Use hooks to enforce project rules, automate repetitive tasks, and integrate Claude Code with your existing tools.
 For decisions that require judgment rather than deterministic rules, you can also use [prompt-based hooks](#prompt-based-hooks "#prompt-based-hooks") or [agent-based hooks](#agent-based-hooks "#agent-based-hooks") that use a Claude model to evaluate conditions.
-For other ways to extend Claude Code, see [skills](./skills "_skills".md) for giving Claude additional instructions and executable commands, [subagents](./sub-agents "_sub-agents".md) for running tasks in isolated contexts, and [plugins](./plugins "_plugins".md) for packaging extensions to share across projects.
+For other ways to extend Claude Code, see [skills](./skills.md "/docs/en/skills") for giving Claude additional instructions and executable commands, [subagents](./sub-agents.md "/docs/en/sub-agents") for running tasks in isolated contexts, and [plugins](./plugins.md "/docs/en/plugins") for packaging extensions to share across projects.
 
-This guide covers common use cases and how to get started. For full event schemas, JSON input/output formats, and advanced features like async hooks and MCP tool hooks, see the [Hooks reference](./hooks "_hooks".md).
+This guide covers common use cases and how to get started. For full event schemas, JSON input/output formats, and advanced features like async hooks and MCP tool hooks, see the [Hooks reference](./hooks.md "/docs/en/hooks").
 
 ## [​](#set-up-your-first-hook "#set-up-your-first-hook") Set up your first hook
 
@@ -77,7 +79,7 @@ The `/hooks` menu is read-only. To add, modify, or remove hooks, edit your setti
 
 ## [​](#what-you-can-automate "#what-you-can-automate") What you can automate
 
-Hooks let you run code at key points in Claude Code’s lifecycle: format files after edits, block commands before they execute, send notifications when Claude needs input, inject context at session start, and more. For the full list of hook events, see the [Hooks reference](./hooks#hook-lifecycle "_hooks#hook-lifecycle".md).
+Hooks let you run code at key points in Claude Code’s lifecycle: format files after edits, block commands before they execute, send notifications when Claude needs input, inject context at session start, and more. For the full list of hook events, see the [Hooks reference](./hooks.md#hook-lifecycle "/docs/en/hooks#hook-lifecycle").
 Each example includes a ready-to-use configuration block that you add to a [settings file](#configure-hook-location "#configure-hook-location"). The most common patterns:
 
 * [Get notified when Claude needs input](#get-notified-when-claude-needs-input "#get-notified-when-claude-needs-input")
@@ -87,6 +89,8 @@ Each example includes a ready-to-use configuration block that you add to a [sett
 * [Audit configuration changes](#audit-configuration-changes "#audit-configuration-changes")
 * [Reload environment when directory or files change](#reload-environment-when-directory-or-files-change "#reload-environment-when-directory-or-files-change")
 * [Auto-approve specific permission prompts](#auto-approve-specific-permission-prompts "#auto-approve-specific-permission-prompts")
+
+For a production example of hooks that run a separate model review and feed findings back into the session, see [how the `security-guidance` plugin integrates with Claude Code](./security-guidance.md#how-the-plugin-integrates-with-claude-code "/docs/en/security-guidance#how-the-plugin-integrates-with-claude-code").
 
 ### [​](#get-notified-when-claude-needs-input "#get-notified-when-claude-needs-input") Get notified when Claude needs input
 
@@ -172,7 +176,7 @@ The empty `matcher` fires on all notification types. To fire only on specific ev
 | `elicitation_complete` | An MCP elicitation form is submitted or dismissed |
 | `elicitation_response` | An MCP elicitation response is sent back to the server |
 
-Type `/hooks` and select `Notification` to confirm the hook is registered. For the full event schema, see the [Notification reference](./hooks#notification "_hooks#notification".md).
+Type `/hooks` and select `Notification` to confirm the hook is registered. For the full event schema, see the [Notification reference](./hooks.md#notification "/docs/en/hooks#notification").
 
 ### [​](#auto-format-code-after-edits "#auto-format-code-after-edits") Auto-format code after edits
 
@@ -286,7 +290,7 @@ Any text your command writes to stdout is added to Claude’s context. This exam
 }
 ```
 
-You can replace the `echo` with any command that produces dynamic output, like `git log --oneline -5` to show recent commits. For injecting context on every session start, consider using [CLAUDE.md](./memory "_memory".md) instead. For environment variables, see [`CLAUDE_ENV_FILE`](./hooks#persist-environment-variables "_hooks#persist-environment-variables".md) in the reference.
+You can replace the `echo` with any command that produces dynamic output, like `git log --oneline -5` to show recent commits. For injecting context on every session start, consider using [CLAUDE.md](./memory.md "/docs/en/memory") instead. For environment variables, see [`CLAUDE_ENV_FILE`](./hooks.md#persist-environment-variables "/docs/en/hooks#persist-environment-variables") in the reference.
 
 ### [​](#audit-configuration-changes "#audit-configuration-changes") Audit configuration changes
 
@@ -311,7 +315,7 @@ This example appends each change to an audit log. Add this to `~/.claude/setting
 }
 ```
 
-The matcher filters by configuration type: `user_settings`, `project_settings`, `local_settings`, `policy_settings`, or `skills`. To block a change from taking effect, exit with code 2 or return `{"decision": "block"}`. See the [ConfigChange reference](./hooks#configchange "_hooks#configchange".md) for the full input schema.
+The matcher filters by configuration type: `user_settings`, `project_settings`, `local_settings`, `policy_settings`, or `skills`. To block a change from taking effect, exit with code 2 or return `{"decision": "block"}`. See the [ConfigChange reference](./hooks.md#configchange "/docs/en/hooks#configchange") for the full input schema.
 
 ### [​](#reload-environment-when-directory-or-files-change "#reload-environment-when-directory-or-files-change") Reload environment when directory or files change
 
@@ -346,7 +350,7 @@ Pairing a `SessionStart` hook with a `CwdChanged` hook fixes this. `SessionStart
 ```
 
 Run `direnv allow` once in each directory that has an `.envrc` so direnv is permitted to load it. If you use devbox or nix instead of direnv, the same pattern works with `devbox shellenv` or `devbox global shellenv` in place of `direnv export bash`.
-To react to specific files instead of every directory change, use `FileChanged` with a `matcher` listing the filenames to watch, separated by `|`. To build the watch list, this value is split into literal filenames rather than evaluated as a regex. See [FileChanged](./hooks#filechanged "_hooks#filechanged".md) for how the same value also filters which hook groups run when a file changes. This example watches `.envrc` and `.env` in the working directory:
+To react to specific files instead of every directory change, use `FileChanged` with a `matcher` listing the filenames to watch, separated by `|`. To build the watch list, this value is split into literal filenames rather than evaluated as a regex. See [FileChanged](./hooks.md#filechanged "/docs/en/hooks#filechanged") for how the same value also filters which hook groups run when a file changes. This example watches `.envrc` and `.env` in the working directory:
 
 ```
 {
@@ -366,7 +370,7 @@ To react to specific files instead of every directory change, use `FileChanged` 
 }
 ```
 
-See the [CwdChanged](./hooks#cwdchanged "_hooks#cwdchanged".md) and [FileChanged](./hooks#filechanged "_hooks#filechanged".md) reference entries for input schemas, `watchPaths` output, and `CLAUDE_ENV_FILE` details.
+See the [CwdChanged](./hooks.md#cwdchanged "/docs/en/hooks#cwdchanged") and [FileChanged](./hooks.md#filechanged "/docs/en/hooks#filechanged") reference entries for input schemas, `watchPaths` output, and `CLAUDE_ENV_FILE` details.
 
 ### [​](#auto-approve-specific-permission-prompts "#auto-approve-specific-permission-prompts") Auto-approve specific permission prompts
 
@@ -395,7 +399,7 @@ The matcher scopes the hook to `ExitPlanMode` only, so no other prompts are affe
 When the hook approves, Claude Code exits plan mode and restores whatever permission mode was active before you entered plan mode. The transcript shows “Allowed by PermissionRequest hook” where the dialog would have appeared. The hook path always keeps the current conversation: it cannot clear context and start a fresh implementation session the way the dialog can.
 To set a specific permission mode instead, your hook’s output can include an `updatedPermissions` array with a `setMode` entry. The `mode` value is any permission mode like `default`, `acceptEdits`, or `bypassPermissions`, and `destination: "session"` applies it for the current session only.
 
-`bypassPermissions` only applies if the session was launched with bypass mode already available: `--dangerously-skip-permissions`, `--permission-mode bypassPermissions`, `--allow-dangerously-skip-permissions`, or `permissions.defaultMode: "bypassPermissions"` in settings, and not disabled by [`permissions.disableBypassPermissionsMode`](./permissions#managed-settings "_permissions#managed-settings".md). It is never persisted as `defaultMode`.
+`bypassPermissions` only applies if the session was launched with bypass mode already available: `--dangerously-skip-permissions`, `--permission-mode bypassPermissions`, `--allow-dangerously-skip-permissions`, or `permissions.defaultMode: "bypassPermissions"` in settings, and not disabled by [`permissions.disableBypassPermissionsMode`](./permissions.md#managed-settings "/docs/en/permissions#managed-settings"). It is never persisted as `defaultMode`.
 
 To switch the session to `acceptEdits`, your hook writes this JSON to stdout:
 
@@ -413,7 +417,7 @@ To switch the session to `acceptEdits`, your hook writes this JSON to stdout:
 }
 ```
 
-Keep the matcher as narrow as possible. Matching on `.*` or leaving the matcher empty would auto-approve every permission prompt, including file writes and shell commands. See the [PermissionRequest reference](./hooks#permissionrequest-decision-control "_hooks#permissionrequest-decision-control".md) for the full set of decision fields.
+Keep the matcher as narrow as possible. Matching on `.*` or leaving the matcher empty would auto-approve every permission prompt, including file writes and shell commands. See the [PermissionRequest reference](./hooks.md#permissionrequest-decision-control "/docs/en/hooks#permissionrequest-decision-control") for the full set of decision fields.
 
 ## [​](#how-hooks-work "#how-hooks-work") How hooks work
 
@@ -432,13 +436,14 @@ Hook events fire at specific lifecycle points in Claude Code. When an event fire
 | `PostToolUseFailure` | After a tool call fails |
 | `PostToolBatch` | After a full batch of parallel tool calls resolves, before the next model call |
 | `Notification` | When Claude Code sends a notification |
+| `MessageDisplay` | While assistant message text is displayed |
 | `SubagentStart` | When a subagent is spawned |
 | `SubagentStop` | When a subagent finishes |
 | `TaskCreated` | When a task is being created via `TaskCreate` |
 | `TaskCompleted` | When a task is being marked as completed |
 | `Stop` | When Claude finishes responding |
 | `StopFailure` | When the turn ends due to an API error. Output and exit code are ignored |
-| `TeammateIdle` | When an [agent team](./agent-teams "_agent-teams".md) teammate is about to go idle |
+| `TeammateIdle` | When an [agent team](./agent-teams.md "/docs/en/agent-teams") teammate is about to go idle |
 | `InstructionsLoaded` | When a CLAUDE.md or `.claude/rules/*.md` file is loaded into context. Fires at session start and when files are lazily loaded during a session |
 | `ConfigChange` | When a configuration file changes during a session |
 | `CwdChanged` | When the working directory changes, for example when Claude executes a `cd` command. Useful for reactive environment management with tools like direnv |
@@ -454,7 +459,7 @@ Hook events fire at specific lifecycle points in Claude Code. When an event fire
 Each hook has a `type` that determines how it runs. Most hooks use `"type": "command"`, which runs a shell command. Four other types are available:
 
 * `"type": "http"`: POST event data to a URL. See [HTTP hooks](#http-hooks "#http-hooks").
-* `"type": "mcp_tool"`: call a tool on an already-connected MCP server. See [MCP tool hooks](./hooks#mcp-tool-hook-fields "_hooks#mcp-tool-hook-fields".md).
+* `"type": "mcp_tool"`: call a tool on an already-connected MCP server. See [MCP tool hooks](./hooks.md#mcp-tool-hook-fields "/docs/en/hooks#mcp-tool-hook-fields").
 * `"type": "prompt"`: single-turn LLM evaluation. See [Prompt-based hooks](#prompt-based-hooks "#prompt-based-hooks").
 * `"type": "agent"`: multi-turn verification with tool access. Agent hooks are experimental and may change. See [Agent-based hooks](#agent-based-hooks "#agent-based-hooks").
 
@@ -508,7 +513,7 @@ Every event includes common fields like `session_id` and `cwd`, but each event t
 }
 ```
 
-Your script can parse that JSON and act on any of those fields. `UserPromptSubmit` hooks get the `prompt` text instead, `SessionStart` hooks get the `source` (startup, resume, clear, compact), and so on. See [Common input fields](./hooks#common-input-fields "_hooks#common-input-fields".md) in the reference for shared fields, and each event’s section for event-specific schemas.
+Your script can parse that JSON and act on any of those fields. `UserPromptSubmit` hooks get the `prompt` text instead, `SessionStart` hooks get the `source` (startup, resume, clear, compact), and so on. See [Common input fields](./hooks.md#common-input-fields "/docs/en/hooks#common-input-fields") in the reference for shared fields, and each event’s section for event-specific schemas.
 
 #### [​](#hook-output "#hook-output") Hook output
 
@@ -529,9 +534,9 @@ exit 0  # exit 0 = no decision; the normal permission flow applies
 
 The exit code determines what happens next:
 
-* **Exit 0**: the hook reports no objection and the action proceeds normally. For a `PreToolUse` hook this doesn’t approve the tool call: the normal [permission flow](./permissions "_permissions".md) still applies. For `UserPromptSubmit`, `UserPromptExpansion`, and `SessionStart` hooks, anything you write to stdout is added to Claude’s context.
-* **Exit 2**: the action is blocked. Write a reason to stderr, and Claude receives it as feedback so it can adjust. Some events cannot be blocked: for `SessionStart`, `Setup`, `Notification`, and others, exit 2 shows stderr to the user and execution continues. See [exit code 2 behavior per event](./hooks#exit-code-2-behavior-per-event "_hooks#exit-code-2-behavior-per-event".md) for the full list.
-* **Any other exit code**: the action proceeds. The transcript shows a `<hook name> hook error` notice followed by the first line of stderr; the full stderr goes to the [debug log](./hooks#debug-hooks "_hooks#debug-hooks".md).
+* **Exit 0**: the hook reports no objection and the action proceeds normally. For a `PreToolUse` hook this doesn’t approve the tool call: the normal [permission flow](./permissions.md "/docs/en/permissions") still applies. For `UserPromptSubmit`, `UserPromptExpansion`, and `SessionStart` hooks, anything you write to stdout is added to Claude’s context.
+* **Exit 2**: the action is blocked. Write a reason to stderr, and Claude receives it as feedback so it can adjust. Some events cannot be blocked: for `SessionStart`, `Setup`, `Notification`, and others, exit 2 shows stderr to the user and execution continues. See [exit code 2 behavior per event](./hooks.md#exit-code-2-behavior-per-event "/docs/en/hooks#exit-code-2-behavior-per-event") for the full list.
+* **Any other exit code**: the action proceeds. The transcript shows a `<hook name> hook error` notice followed by the first line of stderr; the full stderr goes to the [debug log](./hooks.md#debug-hooks "/docs/en/hooks#debug-hooks").
 
 #### [​](#structured-json-output "#structured-json-output") Structured JSON output
 
@@ -557,9 +562,9 @@ With `"deny"`, Claude Code cancels the tool call and feeds `permissionDecisionRe
 * `"deny"`: cancel the tool call and send the reason to Claude
 * `"ask"`: show the permission prompt to the user as normal
 
-A fourth value, `"defer"`, is available in [non-interactive mode](./headless "_headless".md) with the `-p` flag. It exits the process with the tool call preserved so an Agent SDK wrapper can collect input and resume. See [Defer a tool call for later](./hooks#defer-a-tool-call-for-later "_hooks#defer-a-tool-call-for-later".md) in the reference.
-Returning `"allow"` skips the interactive prompt but does not override [permission rules](./permissions#manage-permissions "_permissions#manage-permissions".md). If a deny rule matches the tool call, the call is blocked even when your hook returns `"allow"`. If an ask rule matches, the user is still prompted. This means deny rules from any settings scope, including [managed settings](./settings#settings-files "_settings#settings-files".md), always take precedence over hook approvals.
-Other events use different decision patterns. For example, `PostToolUse` and `Stop` hooks use a top-level `decision: "block"` field, while `PermissionRequest` uses `hookSpecificOutput.decision.behavior`. See the [summary table](./hooks#decision-control "_hooks#decision-control".md) in the reference for a full breakdown by event.
+A fourth value, `"defer"`, is available in [non-interactive mode](./headless.md "/docs/en/headless") with the `-p` flag. It exits the process with the tool call preserved so an Agent SDK wrapper can collect input and resume. See [Defer a tool call for later](./hooks.md#defer-a-tool-call-for-later "/docs/en/hooks#defer-a-tool-call-for-later") in the reference.
+Returning `"allow"` skips the interactive prompt but does not override [permission rules](./permissions.md#manage-permissions "/docs/en/permissions#manage-permissions"). If a deny rule matches the tool call, the call is blocked even when your hook returns `"allow"`. If an ask rule matches, the user is still prompted. This means deny rules from any settings scope, including [managed settings](./settings.md#settings-files "/docs/en/settings#settings-files"), always take precedence over hook approvals.
+Other events use different decision patterns. For example, `PostToolUse` and `Stop` hooks use a top-level `decision: "block"` field, while `PermissionRequest` uses `hookSpecificOutput.decision.behavior`. See the [summary table](./hooks.md#decision-control "/docs/en/hooks#decision-control") in the reference for a full breakdown by event.
 For `UserPromptSubmit` hooks, use `additionalContext` instead to inject text into Claude’s context. Prompt-based hooks (`type: "prompt"`) handle output differently: see [Prompt-based hooks](#prompt-based-hooks "#prompt-based-hooks").
 
 ### [​](#filter-hooks-with-matchers "#filter-hooks-with-matchers") Filter hooks with matchers
@@ -581,9 +586,9 @@ Without a matcher, a hook fires on every occurrence of its event. Matchers let y
 }
 ```
 
-The `"Edit|Write"` matcher fires only when Claude uses the `Edit` or `Write` tool, not when it uses `Bash`, `Read`, or any other tool. See [Matcher patterns](./hooks#matcher-patterns "_hooks#matcher-patterns".md) for how plain names and regular expressions are evaluated.
+The `"Edit|Write"` matcher fires only when Claude uses the `Edit` or `Write` tool, not when it uses `Bash`, `Read`, or any other tool. See [Matcher patterns](./hooks.md#matcher-patterns "/docs/en/hooks#matcher-patterns") for how plain names and regular expressions are evaluated.
 
-Claude can also create or modify files by running shell commands through the `Bash` tool. If your hook must see every file change, such as for compliance scanning or audit logging, add a [`Stop`](./hooks#stop "_hooks#stop".md) hook that scans the working tree once per turn. For per-call coverage instead, also match `Bash` and have your script list modified and untracked files with `git status --porcelain`.
+Claude can also create or modify files by running shell commands through the `Bash` tool. If your hook must see every file change, such as for compliance scanning or audit logging, add a [`Stop`](./hooks.md#stop "/docs/en/hooks#stop") hook that scans the working tree once per turn. For per-call coverage instead, also match `Bash` and have your script list modified and untracked files with `git status --porcelain`.
 
 Each event type matches on a specific field:
 
@@ -602,9 +607,9 @@ Each event type matches on a specific field:
 | `InstructionsLoaded` | load reason | `session_start`, `nested_traversal`, `path_glob_match`, `include`, `compact` |
 | `Elicitation` | MCP server name | your configured MCP server names |
 | `ElicitationResult` | MCP server name | same values as `Elicitation` |
-| `FileChanged` | literal filenames to watch (see [FileChanged](./hooks#filechanged "_hooks#filechanged".md)) | `.envrc|.env` |
+| `FileChanged` | literal filenames to watch (see [FileChanged](./hooks.md#filechanged "/docs/en/hooks#filechanged")) | `.envrc|.env` |
 | `UserPromptExpansion` | command name | your skill or command names |
-| `UserPromptSubmit`, `PostToolBatch`, `Stop`, `TeammateIdle`, `TaskCreated`, `TaskCompleted`, `WorktreeCreate`, `WorktreeRemove`, `CwdChanged` | no matcher support | always fires on every occurrence |
+| `UserPromptSubmit`, `PostToolBatch`, `Stop`, `TeammateIdle`, `TaskCreated`, `TaskCompleted`, `WorktreeCreate`, `WorktreeRemove`, `CwdChanged`, `MessageDisplay` | no matcher support | always fires on every occurrence |
 
 A few more examples showing matchers on different event types:
 
@@ -632,7 +637,7 @@ Match only `Bash` tool calls and log each command to a file. The `PostToolUse` e
 }
 ```
 
-MCP tools use a different naming convention than built-in tools: `mcp__<server>__<tool>`, where `<server>` is the MCP server name and `<tool>` is the tool it provides. For example, `mcp__github__search_repositories` or `mcp__filesystem__read_file`. Use a regex matcher to target all tools from a specific server, or match across servers with a pattern like `mcp__.*__write.*`. See [Match MCP tools](./hooks#match-mcp-tools "_hooks#match-mcp-tools".md) in the reference for the full list of examples.The command below extracts the tool name from the hook’s JSON input with `jq` and writes it to stderr. Writing to stderr keeps stdout clean for JSON output and sends the message to the [debug log](./hooks#debug-hooks "_hooks#debug-hooks".md):
+MCP tools use a different naming convention than built-in tools: `mcp__<server>__<tool>`, where `<server>` is the MCP server name and `<tool>` is the tool it provides. For example, `mcp__github__search_repositories` or `mcp__filesystem__read_file`. Use a regex matcher to target all tools from a specific server, or match across servers with a pattern like `mcp__.*__write.*`. See [Match MCP tools](./hooks.md#match-mcp-tools "/docs/en/hooks#match-mcp-tools") in the reference for the full list of examples.The command below extracts the tool name from the hook’s JSON input with `jq` and writes it to stderr. Writing to stderr keeps stdout clean for JSON output and sends the message to the [debug log](./hooks.md#debug-hooks "/docs/en/hooks#debug-hooks"):
 
 ```
 {
@@ -672,13 +677,13 @@ The `SessionEnd` event supports matchers on the reason the session ended. This h
 }
 ```
 
-For full matcher syntax, see the [Hooks reference](./hooks#configuration "_hooks#configuration".md).
+For full matcher syntax, see the [Hooks reference](./hooks.md#configuration "/docs/en/hooks#configuration").
 
 #### [​](#filter-by-tool-name-and-arguments-with-the-if-field "#filter-by-tool-name-and-arguments-with-the-if-field") Filter by tool name and arguments with the `if` field
 
 The `if` field requires Claude Code v2.1.85 or later. Earlier versions ignore it and run the hook on every matched call.
 
-The `if` field uses [permission rule syntax](./permissions "_permissions".md) to filter hooks by tool name and arguments together, so the hook process only spawns when the tool call matches, or when a Bash command is too complex to parse. This goes beyond `matcher`, which filters at the group level by tool name only.
+The `if` field uses [permission rule syntax](./permissions.md "/docs/en/permissions") to filter hooks by tool name and arguments together, so the hook process only spawns when the tool call matches, or when a Bash command is too complex to parse. This goes beyond `matcher`, which filters at the group level by tool name only.
 For example, to run a hook only when Claude uses `git` commands rather than all Bash commands:
 
 ```
@@ -713,10 +718,10 @@ Where you add a hook determines its scope:
 | `.claude/settings.json` | Single project | Yes, can be committed to the repo |
 | `.claude/settings.local.json` | Single project | No, gitignored |
 | Managed policy settings | Organization-wide | Yes, admin-controlled |
-| [Plugin](./plugins "_plugins".md) `hooks/hooks.json` | When plugin is enabled | Yes, bundled with the plugin |
-| [Skill](./skills "_skills".md) or [agent](./sub-agents "_sub-agents".md) frontmatter | While the skill or agent is active | Yes, defined in the component file |
+| [Plugin](./plugins.md "/docs/en/plugins") `hooks/hooks.json` | When plugin is enabled | Yes, bundled with the plugin |
+| [Skill](./skills.md "/docs/en/skills") or [agent](./sub-agents.md "/docs/en/sub-agents") frontmatter | While the skill or agent is active | Yes, defined in the component file |
 
-Run [`/hooks`](./hooks#the-hooks-menu "_hooks#the-hooks-menu".md) in Claude Code to browse all configured hooks grouped by event. To disable hooks, set `"disableAllHooks": true` in your settings file. Hooks configured in managed settings still run unless `disableAllHooks` is also set there.
+Run [`/hooks`](./hooks.md#the-hooks-menu "/docs/en/hooks#the-hooks-menu") in Claude Code to browse all configured hooks grouped by event. To disable hooks, set `"disableAllHooks": true` in your settings file. Hooks configured in managed settings still run unless `disableAllHooks` is also set there.
 If you edit settings files directly while Claude Code is running, the file watcher normally picks up hook changes automatically.
 
 ## [​](#prompt-based-hooks "#prompt-based-hooks") Prompt-based hooks
@@ -749,11 +754,11 @@ This example uses a `Stop` hook to ask the model whether all requested tasks are
 }
 ```
 
-For full configuration options, see [Prompt-based hooks](./hooks#prompt-based-hooks "_hooks#prompt-based-hooks".md) in the reference.
+For full configuration options, see [Prompt-based hooks](./hooks.md#prompt-based-hooks "/docs/en/hooks#prompt-based-hooks") in the reference.
 
 ## [​](#agent-based-hooks "#agent-based-hooks") Agent-based hooks
 
-Agent hooks are experimental. Behavior and configuration may change in future releases. For production workflows, prefer [command hooks](./hooks#command-hook-fields "_hooks#command-hook-fields".md).
+Agent hooks are experimental. Behavior and configuration may change in future releases. For production workflows, prefer [command hooks](./hooks.md#command-hook-fields "/docs/en/hooks#command-hook-fields").
 
 When verification requires inspecting files or running commands, use `type: "agent"` hooks. Unlike prompt hooks which make a single LLM call, agent hooks spawn a subagent that can read files, search code, and use other tools to verify conditions before returning a decision.
 Agent hooks use the same `"ok"` / `"reason"` response format as prompt hooks, but with a longer default timeout of 60 seconds and up to 50 tool-use turns.
@@ -778,7 +783,7 @@ This example verifies that tests pass before allowing Claude to stop:
 ```
 
 Use prompt hooks when the hook input data alone is enough to make a decision. Use agent hooks when you need to verify something against the actual state of the codebase.
-For full configuration options, see [Agent-based hooks](./hooks#agent-based-hooks "_hooks#agent-based-hooks".md) in the reference.
+For full configuration options, see [Agent-based hooks](./hooks.md#agent-based-hooks "/docs/en/hooks#agent-based-hooks") in the reference.
 
 ## [​](#http-hooks "#http-hooks") HTTP hooks
 
@@ -807,9 +812,9 @@ This example posts every tool use to a local logging service:
 }
 ```
 
-The endpoint should return a JSON response body using the same [output format](./hooks#json-output "_hooks#json-output".md) as command hooks. To block a tool call, return a 2xx response with the appropriate `hookSpecificOutput` fields. HTTP status codes alone cannot block actions.
+The endpoint should return a JSON response body using the same [output format](./hooks.md#json-output "/docs/en/hooks#json-output") as command hooks. To block a tool call, return a 2xx response with the appropriate `hookSpecificOutput` fields. HTTP status codes alone cannot block actions.
 Header values support environment variable interpolation using `$VAR_NAME` or `${VAR_NAME}` syntax. Only variables listed in the `allowedEnvVars` array are resolved; all other `$VAR` references remain empty.
-For full configuration options and response handling, see [HTTP hooks](./hooks#http-hook-fields "_hooks#http-hook-fields".md) in the reference.
+For full configuration options and response handling, see [HTTP hooks](./hooks.md#http-hook-fields "/docs/en/hooks#http-hook-fields") in the reference.
 
 ## [​](#limitations-and-troubleshooting "#limitations-and-troubleshooting") Limitations and troubleshooting
 
@@ -821,9 +826,9 @@ For full configuration options and response handling, see [HTTP hooks](./hooks#h
   + `prompt`: 30 seconds.
   + `agent`: 60 seconds.
 * `PostToolUse` hooks cannot undo actions since the tool has already executed.
-* `PermissionRequest` hooks do not fire in [non-interactive mode](./headless "_headless".md) (`-p`). Use `PreToolUse` hooks for automated permission decisions.
-* `Stop` hooks fire whenever Claude finishes responding, not only at task completion. They do not fire on user interrupts. API errors fire [StopFailure](./hooks#stopfailure "_hooks#stopfailure".md) instead.
-* When multiple PreToolUse hooks return [`updatedInput`](./hooks#pretooluse "_hooks#pretooluse".md) to rewrite a tool’s arguments, the last one to finish wins. Since hooks run in parallel, the order is non-deterministic. Avoid having more than one hook modify the same tool’s input.
+* `PermissionRequest` hooks do not fire in [non-interactive mode](./headless.md "/docs/en/headless") (`-p`). Use `PreToolUse` hooks for automated permission decisions.
+* `Stop` hooks fire whenever Claude finishes responding, not only at task completion. They do not fire on user interrupts. API errors fire [StopFailure](./hooks.md#stopfailure "/docs/en/hooks#stopfailure") instead.
+* When multiple PreToolUse hooks return [`updatedInput`](./hooks.md#pretooluse "/docs/en/hooks#pretooluse") to rewrite a tool’s arguments, the last one to finish wins. Since hooks run in parallel, the order is non-deterministic. Avoid having more than one hook modify the same tool’s input.
 
 ### [​](#hooks-and-permission-modes "#hooks-and-permission-modes") Hooks and permission modes
 
@@ -849,7 +854,7 @@ You see a message like “PreToolUse hook error: …” in the transcript.
   echo '{"tool_name":"Bash","tool_input":{"command":"ls"}}' | ./my-hook.sh
   echo $?  # Check the exit code
   ```
-* If you see “command not found”, use absolute paths or `${CLAUDE_PROJECT_DIR}` to reference scripts. To avoid shell quoting entirely, add `"args": []` to switch to [exec form](./hooks#exec-form-and-shell-form "_hooks#exec-form-and-shell-form".md), which spawns the script directly without a shell
+* If you see “command not found”, use absolute paths or `${CLAUDE_PROJECT_DIR}` to reference scripts. To avoid shell quoting entirely, add `"args": []` to switch to [exec form](./hooks.md#exec-form-and-shell-form "/docs/en/hooks#exec-form-and-shell-form"), which spawns the script directly without a shell
 * If you see “jq: command not found”, install `jq` or use Python/Node.js for JSON parsing
 * If the script isn’t running at all, make it executable: `chmod +x ./my-hook.sh`
 
@@ -875,7 +880,7 @@ fi
 # ... rest of your hook logic
 ```
 
-If your hook legitimately needs more than eight iterations to converge, raise the cap with [`CLAUDE_CODE_STOP_HOOK_BLOCK_CAP`](./env-vars "_env-vars".md).
+If your hook legitimately needs more than eight iterations to converge, raise the cap with [`CLAUDE_CODE_STOP_HOOK_BLOCK_CAP`](./env-vars.md "/docs/en/env-vars").
 
 ### [​](#json-validation-failed "#json-validation-failed") JSON validation failed
 
@@ -905,6 +910,6 @@ For full execution details including which hooks matched, their exit codes, stdo
 
 ## [​](#learn-more "#learn-more") Learn more
 
-* [Hooks reference](./hooks "_hooks".md): full event schemas, JSON output format, async hooks, and MCP tool hooks
-* [Security considerations](./hooks#security-considerations "_hooks#security-considerations".md): review before deploying hooks in shared or production environments
+* [Hooks reference](./hooks.md "/docs/en/hooks"): full event schemas, JSON output format, async hooks, and MCP tool hooks
+* [Security considerations](./hooks.md#security-considerations "/docs/en/hooks#security-considerations"): review before deploying hooks in shared or production environments
 * [Bash command validator example](https://github.com/anthropics/claude-code/blob/main/examples/hooks/bash_command_validator_example.py "https://github.com/anthropics/claude-code/blob/main/examples/hooks/bash_command_validator_example.py"): complete reference implementation

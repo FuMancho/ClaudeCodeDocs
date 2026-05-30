@@ -6,7 +6,7 @@
 >
 > Use this file to discover all available pages before exploring further.
 
-If installation fails or you can’t sign in, find your error below. For runtime issues after Claude Code is working, see [Troubleshooting](./troubleshooting "_troubleshooting".md). For configuration problems such as settings not applying or hooks not firing, see [Debug your configuration](./debug-your-config "_debug-your-config".md).
+If installation fails or you can’t sign in, find your error below. For runtime issues after Claude Code is working, see [Troubleshooting](./troubleshooting.md "/docs/en/troubleshooting"). For configuration problems such as settings not applying or hooks not firing, see [Debug your configuration](./debug-your-config.md "/docs/en/debug-your-config").
 
 ## [​](#find-your-error "#find-your-error") Find your error
 
@@ -37,11 +37,11 @@ Match the error message or symptom you’re seeing to a fix:
 | `OAuth error` or `403 Forbidden` | [Fix authentication](#login-and-authentication "#login-and-authentication") |
 | `Could not load the default credentials` or `Could not load credentials from any providers` | [Bedrock, Vertex, or Foundry credentials](#bedrock-vertex-or-foundry-credentials-not-loading "#bedrock-vertex-or-foundry-credentials-not-loading") |
 | `ChainedTokenCredential authentication failed` or `CredentialUnavailableError` | [Bedrock, Vertex, or Foundry credentials](#bedrock-vertex-or-foundry-credentials-not-loading "#bedrock-vertex-or-foundry-credentials-not-loading") |
-| `API Error: 500`, `529 Overloaded`, `429`, or other 4xx and 5xx errors not listed above | See the [Error reference](./errors "_errors".md) |
+| `API Error: 500`, `529 Overloaded`, `429`, or other 4xx and 5xx errors not listed above | See the [Error reference](./errors.md "/docs/en/errors") |
 
 If your issue isn’t listed, work through the diagnostic checks below to narrow down the cause.
 
-If you’d rather skip the terminal entirely, the [Claude Code Desktop app](./desktop-quickstart "_desktop-quickstart".md) lets you install and use Claude Code through a graphical interface. Download it for [macOS](https://claude.ai/api/desktop/darwin/universal/dmg/latest/redirect?utm_source=claude_code&utm_medium=docs "https://claude.ai/api/desktop/darwin/universal/dmg/latest/redirect?utm_source=claude_code&utm_medium=docs") or [Windows](https://claude.com/download?utm_source=claude_code&utm_medium=docs "https://claude.com/download?utm_source=claude_code&utm_medium=docs") and start coding without any command-line setup.
+If you’d rather skip the terminal entirely, the [Claude Code Desktop app](./desktop-quickstart.md "/docs/en/desktop-quickstart") lets you install and use Claude Code through a graphical interface. Download it for [macOS](https://claude.ai/api/desktop/darwin/universal/dmg/latest/redirect?utm_source=claude_code&utm_medium=docs "https://claude.ai/api/desktop/darwin/universal/dmg/latest/redirect?utm_source=claude_code&utm_medium=docs") or [Windows](https://claude.com/download?utm_source=claude_code&utm_medium=docs "https://claude.com/download?utm_source=claude_code&utm_medium=docs") and start coding without any command-line setup.
 
 ## [​](#run-diagnostic-checks "#run-diagnostic-checks") Run diagnostic checks
 
@@ -239,7 +239,7 @@ On Windows, use PowerShell:
 Get-Command claude | Select-Object Source
 ```
 
-On Linux, check for missing shared libraries. If `ldd` shows missing libraries, you may need to install system packages. On Alpine Linux and other musl-based distributions, see [Alpine Linux setup](./setup#alpine-linux-and-musl-based-distributions "_setup#alpine-linux-and-musl-based-distributions".md).
+On Linux, check for missing shared libraries. If `ldd` shows missing libraries, you may need to install system packages. On Alpine Linux and other musl-based distributions, see [Alpine Linux setup](./setup.md#alpine-linux-and-musl-based-distributions "/docs/en/setup#alpine-linux-and-musl-based-distributions").
 
 ```
 ldd "$(command -v claude)" | grep "not found"
@@ -383,7 +383,7 @@ The installer couldn’t reach the download server. This typically means `downlo
    ```
    curl -sI https://downloads.claude.ai/claude-code-releases/latest
    ```
-2. **If behind a proxy**, set `HTTPS_PROXY` so the installer can route through it. See [proxy configuration](./network-config#proxy-configuration "_network-config#proxy-configuration".md) for details.
+2. **If behind a proxy**, set `HTTPS_PROXY` so the installer can route through it. See [proxy configuration](./network-config.md#proxy-configuration "/docs/en/network-config#proxy-configuration") for details.
 
    ```
    export HTTPS_PROXY=http://proxy.example.com:8080
@@ -494,10 +494,10 @@ Update Claude Desktop to the latest version to fix this issue.
 
 ### [​](#claude-code-on-windows-requires-either-git-for-windows-for-bash-or-powershell "#claude-code-on-windows-requires-either-git-for-windows-for-bash-or-powershell") Claude Code on Windows requires either Git for Windows (for bash) or PowerShell
 
-Git for Windows is optional. Claude Code uses the [PowerShell tool](./tools-reference#powershell-tool "_tools-reference#powershell-tool".md) when Git Bash is absent, so this error means neither shell was found.
+Git for Windows is optional. Claude Code uses the [PowerShell tool](./tools-reference.md#powershell-tool "/docs/en/tools-reference#powershell-tool") when Git Bash is absent, so this error means neither shell was found.
 **If PowerShell is missing from your PATH**, its default location is `C:\Windows\System32\WindowsPowerShell\v1.0\`. Add that directory to your `PATH`, or install [PowerShell 7](https://aka.ms/powershell "https://aka.ms/powershell"), which provides `pwsh`.
 **To install Git for Windows instead**, download it from [git-scm.com/downloads/win](https://git-scm.com/downloads/win "https://git-scm.com/downloads/win"). During setup, select “Add to PATH.” Restart your terminal after installing. Installing it enables the Bash tool, useful when working with Bash-based scripts and tooling.
-**If Git is already installed** but Claude Code can’t find it, set the path in your [settings.json file](./settings "_settings".md):
+**If Git is already installed** but Claude Code can’t find it, set the path in your [settings.json file](./settings.md "/docs/en/settings"):
 
 ```
 {
@@ -518,7 +518,7 @@ Windows includes two PowerShell entries in the Start menu: `Windows PowerShell` 
 ```
 
 If this prints `True`, your operating system is fine. Close the window, open `Windows PowerShell` without the x86 suffix, and run the install command again.
-If this prints `False`, you are on a 32-bit edition of Windows. Claude Code requires a 64-bit operating system. See the [system requirements](./setup#system-requirements "_setup#system-requirements".md).
+If this prints `False`, you are on a 32-bit edition of Windows. Claude Code requires a 64-bit operating system. See the [system requirements](./setup.md#system-requirements "/docs/en/setup#system-requirements").
 
 ### [​](#linux-musl-or-glibc-binary-mismatch "#linux-musl-or-glibc-binary-mismatch") Linux musl or glibc binary mismatch
 
@@ -597,7 +597,7 @@ Then run `source ~/.bashrc` and retry `claude`.
 
 ### [​](#npm-install-errors-in-wsl "#npm-install-errors-in-wsl") npm install errors in WSL
 
-These issues apply if you installed Claude Code with `npm install -g` inside WSL. If you used the [native installer](./setup "_setup".md), skip this section.
+These issues apply if you installed Claude Code with `npm install -g` inside WSL. If you used the [native installer](./setup.md "/docs/en/setup"), skip this section.
 **OS or platform detection issues.** If npm reports a platform mismatch during install, WSL is likely picking up the Windows `npm`. Run `npm config set os linux` first, then install with `npm install -g @anthropic-ai/claude-code --force`. Do not use `sudo`.
 **`exec: node: not found` when running `claude`.** Your WSL environment is likely using the Windows installation of Node.js. Confirm with `which npm` and `which node`: paths starting with `/mnt/c/` are Windows binaries, while Linux paths start with `/usr/`. To fix this, install Node via your Linux distribution’s package manager or via [`nvm`](https://github.com/nvm-sh/nvm "https://github.com/nvm-sh/nvm").
 **nvm version conflicts.** If you have nvm installed in both WSL and Windows, switching Node versions in WSL may break because WSL imports the Windows PATH by default and the Windows nvm takes priority. The most common cause is that nvm isn’t loaded in your shell. Add the nvm loader to `~/.bashrc` or `~/.zshrc`:
@@ -636,7 +636,7 @@ curl -fsSL https://claude.ai/install.sh | bash
 The `@anthropic-ai/claude-code` npm package pulls in the native binary through a per-platform optional dependency such as `@anthropic-ai/claude-code-darwin-arm64`. If running `claude` after install prints `Could not find native binary package "@anthropic-ai/claude-code-<platform>"`, check the following causes:
 
 * **Optional dependencies are disabled.** Remove `--omit=optional` from your npm install command, `--no-optional` from pnpm, or `--ignore-optional` from yarn, and check that `.npmrc` does not set `optional=false`. Then reinstall. The native binary is delivered only as an optional dependency, so there is no JavaScript fallback if it is skipped.
-* **Unsupported platform.** Prebuilt binaries are published for `darwin-arm64`, `darwin-x64`, `linux-x64`, `linux-arm64`, `linux-x64-musl`, `linux-arm64-musl`, `win32-x64`, and `win32-arm64`. Claude Code does not ship a binary for other platforms; see the [system requirements](./setup#system-requirements "_setup#system-requirements".md).
+* **Unsupported platform.** Prebuilt binaries are published for `darwin-arm64`, `darwin-x64`, `linux-x64`, `linux-arm64`, `linux-x64-musl`, `linux-arm64-musl`, `win32-x64`, and `win32-arm64`. Claude Code does not ship a binary for other platforms; see the [system requirements](./setup.md#system-requirements "/docs/en/setup#system-requirements").
 * **Corporate npm mirror is missing the platform packages.** Ensure your registry mirrors all eight `@anthropic-ai/claude-code-*` platform packages in addition to the meta package.
 
 Installing with `--ignore-scripts` does not trigger this error. The postinstall step that links the binary into place is skipped, so Claude Code falls back to a wrapper that locates and spawns the platform binary on each launch. This works but starts more slowly; reinstall with scripts enabled for direct execution.
@@ -670,12 +670,12 @@ If you see `API Error: 403 {"error":{"type":"forbidden","message":"Request not a
 
 * **Claude Pro/Max users**: verify your subscription is active at [claude.ai/settings](https://claude.ai/settings "https://claude.ai/settings")
 * **Anthropic Console users**: confirm your account has the “Claude Code” or “Developer” role. Admins assign this in the Anthropic Console under Settings → Members.
-* **Behind a proxy**: corporate proxies can interfere with API requests. See [network configuration](./network-config "_network-config".md) for proxy setup.
+* **Behind a proxy**: corporate proxies can interfere with API requests. See [network configuration](./network-config.md "/docs/en/network-config") for proxy setup.
 
 ### [​](#this-organization-has-been-disabled-with-an-active-subscription "#this-organization-has-been-disabled-with-an-active-subscription") This organization has been disabled with an active subscription
 
 If you see `API Error: 400 ... "This organization has been disabled"` despite having an active Claude subscription, an `ANTHROPIC_API_KEY` environment variable is overriding your subscription. This commonly happens when an old API key from a previous employer or project is still set in your shell profile.
-When `ANTHROPIC_API_KEY` is present and you have approved it, Claude Code uses that key instead of your subscription’s OAuth credentials. In non-interactive mode with the `-p` flag, the key is always used when present. See [authentication precedence](./authentication#authentication-precedence "_authentication#authentication-precedence".md) for the full resolution order.
+When `ANTHROPIC_API_KEY` is present and you have approved it, Claude Code uses that key instead of your subscription’s OAuth credentials. In non-interactive mode with the `-p` flag, the key is always used when present. See [authentication precedence](./authentication.md#authentication-precedence "/docs/en/authentication#authentication-precedence") for the full resolution order.
 To use your subscription instead, unset the environment variable and remove it from your shell profile:
 
 ```
@@ -732,7 +732,7 @@ az login
 ```
 
 If credentials work in your terminal but not in the VS Code or JetBrains extension, the IDE process likely didn’t inherit your shell environment. Set the provider environment variables in the IDE’s own settings, or launch the IDE from a terminal where they’re already exported.
-See [Amazon Bedrock](./amazon-bedrock "_amazon-bedrock".md), [Google Vertex AI](./google-vertex-ai "_google-vertex-ai".md), or [Microsoft Foundry](./microsoft-foundry "_microsoft-foundry".md) for full provider setup.
+See [Amazon Bedrock](./amazon-bedrock.md "/docs/en/amazon-bedrock"), [Google Vertex AI](./google-vertex-ai.md "/docs/en/google-vertex-ai"), or [Microsoft Foundry](./microsoft-foundry.md "/docs/en/microsoft-foundry") for full provider setup.
 
 ## [​](#still-stuck "#still-stuck") Still stuck
 

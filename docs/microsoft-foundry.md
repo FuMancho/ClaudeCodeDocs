@@ -1,3 +1,5 @@
+# Microsoft Foundry
+
 > ## Documentation Index
 >
 > Fetch the complete documentation index at: [https://code.claude.com/docs/llms.txt](https://code.claude.com/docs/llms.txt "https://code.claude.com/docs/llms.txt")
@@ -50,7 +52,7 @@ On local environments, you commonly may use the Azure CLI:
 az login
 ```
 
-When using Microsoft Foundry, the `/login` and `/logout` commands are disabled since authentication is handled through Azure credentials.
+When using Microsoft Foundry, the `/logout` command is unavailable since authentication is handled through Azure credentials.
 
 ### [​](#3-configure-claude-code "#3-configure-claude-code") 3. Configure Claude Code
 
@@ -71,17 +73,17 @@ export ANTHROPIC_FOUNDRY_RESOURCE={resource}
 Pin specific model versions for every deployment. If you use model aliases (`sonnet`, `opus`, `haiku`) without pinning, Claude Code may attempt to use a newer model version that isn’t available in your Foundry account, breaking existing users when Anthropic releases updates. When you create Azure deployments, select a specific model version rather than “auto-update to latest.”
 
 Set the model variables to match the deployment names you created in step 1.
-Without `ANTHROPIC_DEFAULT_OPUS_MODEL`, the `opus` alias on Foundry resolves to Opus 4.6. Set it to the Opus 4.7 ID to use the latest model:
+Without `ANTHROPIC_DEFAULT_OPUS_MODEL`, the `opus` alias on Foundry resolves to Opus 4.6. Set it to the Opus 4.8 ID to use the latest model:
 
 ```
-export ANTHROPIC_DEFAULT_OPUS_MODEL='claude-opus-4-7'
+export ANTHROPIC_DEFAULT_OPUS_MODEL='claude-opus-4-8'
 export ANTHROPIC_DEFAULT_SONNET_MODEL='claude-sonnet-4-6'
 export ANTHROPIC_DEFAULT_HAIKU_MODEL='claude-haiku-4-5'
 ```
 
 Background tasks such as session title generation use the small/fast model, normally a Haiku-class model. On Foundry, Claude Code defaults this to the primary model because not every account has a Haiku deployment. To use Haiku for background tasks, set `ANTHROPIC_DEFAULT_HAIKU_MODEL` to a Haiku deployment that is available in your account, as shown above.
-For current and legacy model IDs, see [Models overview](https://platform.claude.com/docs/en/about-claude/models/overview "https://platform.claude.com/docs/en/about-claude/models/overview"). See [Model configuration](./model-config#pin-models-for-third-party-deployments "_model-config#pin-models-for-third-party-deployments".md) for the full list of environment variables.
-[Prompt caching](./prompt-caching "_prompt-caching".md) is enabled automatically. To request a 1-hour cache TTL instead of the 5-minute default, set the following variable; cache writes with a 1-hour TTL are billed at a higher rate:
+For current and legacy model IDs, see [Models overview](https://platform.claude.com/docs/en/about-claude/models/overview "https://platform.claude.com/docs/en/about-claude/models/overview"). See [Model configuration](./model-config.md#pin-models-for-third-party-deployments "/docs/en/model-config#pin-models-for-third-party-deployments") for the full list of environment variables.
+[Prompt caching](./prompt-caching.md "/docs/en/prompt-caching") is enabled automatically. To request a 1-hour cache TTL instead of the 5-minute default, set the following variable; cache writes with a 1-hour TTL are billed at a higher rate:
 
 ```
 export ENABLE_PROMPT_CACHING_1H=1

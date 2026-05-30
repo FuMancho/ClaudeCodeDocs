@@ -34,7 +34,7 @@ Tool search is on by default. It is disabled by default on Vertex AI, where it i
 | `auto:N` | Same as `auto` with a custom percentage. `auto:5` activates when tool definitions exceed 5% of the context window. Lower values activate sooner. |
 | `false` | Tool search is off. All tool definitions are loaded into context on every turn. |
 
-Tool search applies to all registered tools, whether they come from remote MCP servers or [custom SDK MCP servers](./agent-sdk_custom-tools "_agent-sdk_custom-tools".md). When using `auto`, the threshold is based on the combined size of all tool definitions across all servers.
+Tool search applies to all registered tools, whether they come from remote MCP servers or [custom SDK MCP servers](./agent-sdk/custom-tools.md "/docs/en/agent-sdk/custom-tools"). When using `auto`, the threshold is based on the combined size of all tool definitions across all servers.
 Set the value in the `env` option on `query()`. This example connects to a remote MCP server that exposes many tools, pre-approves all of them with a wildcard, and uses `auto:5` so tool search activates when their definitions exceed 5% of the context window:
 
 TypeScript
@@ -86,7 +86,7 @@ You can search for tools to interact with Slack, GitHub, and Jira.
 ## [​](#related-documentation "#related-documentation") Related documentation
 
 * [Tool search in the API](https://platform.claude.com/docs/en/agents-and-tools/tool-use/tool-search-tool "https://platform.claude.com/docs/en/agents-and-tools/tool-use/tool-search-tool"): Full API documentation for tool search, including custom implementations
-* [Connect MCP servers](./agent-sdk_mcp "_agent-sdk_mcp".md): Connect to external tools via MCP servers
-* [Custom tools](./agent-sdk_custom-tools "_agent-sdk_custom-tools".md): Build your own tools with SDK MCP servers
-* [TypeScript SDK reference](./agent-sdk_typescript "_agent-sdk_typescript".md): Full API reference
-* [Python SDK reference](./agent-sdk_python "_agent-sdk_python".md): Full API reference
+* [Connect MCP servers](./agent-sdk/mcp.md "/docs/en/agent-sdk/mcp"): Connect to external tools via MCP servers
+* [Custom tools](./agent-sdk/custom-tools.md "/docs/en/agent-sdk/custom-tools"): Build your own tools with SDK MCP servers
+* [TypeScript SDK reference](./agent-sdk/typescript.md "/docs/en/agent-sdk/typescript"): Full API reference
+* [Python SDK reference](./agent-sdk/python.md "/docs/en/agent-sdk/python"): Full API reference

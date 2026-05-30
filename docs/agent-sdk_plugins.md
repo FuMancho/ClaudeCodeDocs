@@ -6,7 +6,7 @@
 >
 > Use this file to discover all available pages before exploring further.
 
-Plugins allow you to extend Claude Code with custom functionality that can be shared across projects. Through the Agent SDK, you can programmatically load plugins from local directories to add custom slash commands, agents, skills, hooks, and MCP servers to your agent sessions.
+Plugins allow you to extend Claude Code with custom functionality that can be shared across projects. Through the Agent SDK, you can programmatically load plugins from local directories to add skills, agents, hooks, and MCP servers to your agent sessions.
 
 ## [​](#what-are-plugins "#what-are-plugins") What are plugins?
 
@@ -19,11 +19,11 @@ Plugins are packages of Claude Code extensions that can include:
 
 The `commands/` directory is a legacy format. Use `skills/` for new plugins. Claude Code continues to support both formats for backward compatibility.
 
-For complete information on plugin structure and how to create plugins, see [Plugins](./plugins "_plugins".md).
+For complete information on plugin structure and how to create plugins, see [Plugins](./plugins.md "/docs/en/plugins").
 
 ## [​](#loading-plugins "#loading-plugins") Loading plugins
 
-Load plugins by providing their local file system paths in your options configuration. The `type` field must be `"local"`, the only value the SDK accepts. To use a plugin distributed through a [marketplace](./plugin-marketplaces "_plugin-marketplaces".md) or remote repository, download it first and provide the local directory path. The SDK supports loading multiple plugins from different locations.
+Load plugins by providing their local file system paths in your options configuration. The `type` field must be `"local"`, the only value the SDK accepts. To use a plugin distributed through a [marketplace](./plugin-marketplaces.md "/docs/en/plugin-marketplaces") or remote repository, download it first and provide the local directory path. The SDK supports loading multiple plugins from different locations.
 
 TypeScript
 
@@ -76,16 +76,20 @@ for await (const message of query({
     console.log("Plugins:", message.plugins);
     // Example: [{ name: "my-plugin", path: "./my-plugin" }]
 
-    // Check available commands from plugins
+    // Plugin skills appear with the plugin name as a prefix
+    console.log("Skills:", message.skills);
+    // Example: ["my-plugin:greet"]
+
+    // Plugin commands use the same prefix, and skills appear here too
     console.log("Commands:", message.slash_commands);
-    // Example: ["compact", "context", "my-plugin:custom-command"]
+    // Example: ["compact", "context", "my-plugin:custom-command", "my-plugin:greet"]
   }
 }
 ```
 
 ## [​](#using-plugin-skills "#using-plugin-skills") Using plugin skills
 
-Skills from plugins are automatically namespaced with the plugin name to avoid conflicts. When invoked as slash commands, the format is `plugin-name:skill-name`.
+Skills from plugins are automatically namespaced with the plugin name to avoid conflicts. To invoke one directly, send `/plugin-name:skill-name` as the prompt.
 
 TypeScript
 
@@ -136,6 +140,7 @@ async function runWithPlugin() {
   })) {
     if (message.type === "system" && message.subtype === "init") {
       console.log("Loaded plugins:", message.plugins);
+      console.log("Available skills:", message.skills);
       console.log("Available commands:", message.slash_commands);
     }
 
@@ -170,8 +175,8 @@ my-plugin/
 
 For detailed information on creating plugins, see:
 
-* [Plugins](./plugins "_plugins".md) - Complete plugin development guide
-* [Plugins reference](./plugins-reference "_plugins-reference".md) - Technical specifications and schemas
+* [Plugins](./plugins.md "/docs/en/plugins") - Complete plugin development guide
+* [Plugins reference](./plugins-reference.md "/docs/en/plugins-reference") - Technical specifications and schemas
 
 ## [​](#common-use-cases "#common-use-cases") Common use cases
 
@@ -216,9 +221,9 @@ If your plugin doesn’t appear in the init message:
 
 If plugin skills don’t work:
 
-1. **Use the namespace**: Plugin skills require the `plugin-name:skill-name` format when invoked as slash commands
-2. **Check init message**: Verify the skill appears in `slash_commands` with the correct namespace
-3. **Validate skill files**: Ensure each skill has a `SKILL.md` file in its own subdirectory under `skills/` (for example, `skills/my-skill/SKILL.md`)
+1. **Use the namespace**: invoke plugin skills as `/plugin-name:skill-name`
+2. **Check init message**: verify the skill appears in the `skills` list with the correct namespace
+3. **Validate skill files**: ensure each skill has a `SKILL.md` file in its own subdirectory under `skills/`, for example `skills/my-skill/SKILL.md`
 
 ### [​](#path-resolution-issues "#path-resolution-issues") Path resolution issues
 
@@ -230,8 +235,8 @@ If relative paths don’t work:
 
 ## [​](#see-also "#see-also") See also
 
-* [Plugins](./plugins "_plugins".md) - Complete plugin development guide
-* [Plugins reference](./plugins-reference "_plugins-reference".md) - Technical specifications
-* [Slash Commands](./agent-sdk_slash-commands "_agent-sdk_slash-commands".md) - Using slash commands in the SDK
-* [Subagents](./agent-sdk_subagents "_agent-sdk_subagents".md) - Working with specialized agents
-* [Skills](./agent-sdk_skills "_agent-sdk_skills".md) - Using Agent Skills
+* [Plugins](./plugins.md "/docs/en/plugins") - Complete plugin development guide
+* [Plugins reference](./plugins-reference.md "/docs/en/plugins-reference") - Technical specifications
+* [Commands](./agent-sdk/slash-commands.md "/docs/en/agent-sdk/slash-commands") - Using commands in the SDK
+* [Subagents](./agent-sdk/subagents.md "/docs/en/agent-sdk/subagents") - Working with specialized agents
+* [Skills](./agent-sdk/skills.md "/docs/en/agent-sdk/skills") - Using Agent Skills

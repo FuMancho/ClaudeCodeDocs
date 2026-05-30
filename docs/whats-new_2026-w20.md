@@ -80,4 +80,4 @@ Plugins with a root-level `SKILL.md` and no `skills/` subdirectory are now surfa
 
 Agent tool `subagent_type` now matches case- and separator-insensitively, so `“Code Reviewer”` resolves to `code-reviewer`
 
-[Full changelog for v2.1.139–v2.1.142 →](./changelog#2-1-139 "_changelog#2-1-139".md)
+[Full changelog for v2.1.139–v2.1.142 →](./changelog.md#2-1-139 "/docs/en/changelog#2-1-139")

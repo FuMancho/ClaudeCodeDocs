@@ -1,3 +1,5 @@
+# Network Config
+
 > ## Documentation Index
 >
 > Fetch the complete documentation index at: [https://code.claude.com/docs/llms.txt](https://code.claude.com/docs/llms.txt "https://code.claude.com/docs/llms.txt")
@@ -6,7 +8,7 @@
 
 Claude Code supports various enterprise network and security configurations through environment variables. This includes routing traffic through corporate proxy servers, trusting custom Certificate Authorities (CA), and authenticating with mutual Transport Layer Security (mTLS) certificates for enhanced security.
 
-All environment variables shown on this page can also be configured in [`settings.json`](./settings "_settings".md).
+All environment variables shown on this page can also be configured in [`settings.json`](./settings.md "/docs/en/settings").
 
 ## [​](#proxy-configuration "#proxy-configuration") Proxy configuration
 
@@ -95,17 +97,17 @@ Claude Code requires access to the following URLs. Allowlist these in your proxy
 | `platform.claude.com` | Anthropic Console account authentication |
 | `downloads.claude.ai` | Plugin executable downloads; native installer and native auto-updater |
 | `storage.googleapis.com` | Native installer and native auto-updater on versions prior to 2.1.116 |
-| `bridge.claudeusercontent.com` | [Claude in Chrome](./chrome "_chrome".md) extension WebSocket bridge |
-| `raw.githubusercontent.com` | Changelog feed for [`/release-notes`](./commands "_commands".md) and the release notes shown after updating; plugin marketplace install counts |
+| `bridge.claudeusercontent.com` | [Claude in Chrome](./chrome.md "/docs/en/chrome") extension WebSocket bridge |
+| `raw.githubusercontent.com` | Changelog feed for [`/release-notes`](./commands.md "/docs/en/commands") and the release notes shown after updating; plugin marketplace install counts |
 
 If you install Claude Code through npm or manage your own binary distribution, end users may not need access to `downloads.claude.ai` or `storage.googleapis.com`.
-Claude Code also sends optional operational telemetry by default, which you can disable with environment variables. See [Telemetry services](./data-usage#telemetry-services "_data-usage#telemetry-services".md) for how to disable it before finalizing your allowlist.
-When using [Amazon Bedrock](./amazon-bedrock "_amazon-bedrock".md), [Google Vertex AI](./google-vertex-ai "_google-vertex-ai".md), or [Microsoft Foundry](./microsoft-foundry "_microsoft-foundry".md), model traffic and authentication go to your provider instead of `api.anthropic.com`, `claude.ai`, or `platform.claude.com`. The WebFetch tool still calls `api.anthropic.com` for its [domain safety check](./data-usage#webfetch-domain-safety-check "_data-usage#webfetch-domain-safety-check".md) unless you set `skipWebFetchPreflight: true` in [settings](./settings "_settings".md).
-[Claude Code on the web](./claude-code-on-the-web "_claude-code-on-the-web".md) and [Code Review](./code-review "_code-review".md) connect to your repositories from Anthropic-managed infrastructure. If your GitHub Enterprise Cloud organization restricts access by IP address, enable [IP allow list inheritance for installed GitHub Apps](https://docs.github.com/en/enterprise-cloud@latest/organizations/keeping-your-organization-secure/managing-security-settings-for-your-organization/managing-allowed-ip-addresses-for-your-organization#allowing-access-by-github-apps "https://docs.github.com/en/enterprise-cloud@latest/organizations/keeping-your-organization-secure/managing-security-settings-for-your-organization/managing-allowed-ip-addresses-for-your-organization#allowing-access-by-github-apps"). The Claude GitHub App registers its IP ranges, so enabling this setting allows access without manual configuration. To [add the ranges to your allow list manually](https://docs.github.com/en/enterprise-cloud@latest/organizations/keeping-your-organization-secure/managing-security-settings-for-your-organization/managing-allowed-ip-addresses-for-your-organization#adding-an-allowed-ip-address "https://docs.github.com/en/enterprise-cloud@latest/organizations/keeping-your-organization-secure/managing-security-settings-for-your-organization/managing-allowed-ip-addresses-for-your-organization#adding-an-allowed-ip-address") instead, or to configure other firewalls, see the [Anthropic API IP addresses](https://platform.claude.com/docs/en/api/ip-addresses "https://platform.claude.com/docs/en/api/ip-addresses").
-For self-hosted [GitHub Enterprise Server](./github-enterprise-server "_github-enterprise-server".md) instances behind a firewall, allowlist the same [Anthropic API IP addresses](https://platform.claude.com/docs/en/api/ip-addresses "https://platform.claude.com/docs/en/api/ip-addresses") so Anthropic infrastructure can reach your GHES host to clone repositories and post review comments.
+Claude Code also sends optional operational telemetry by default, which you can disable with environment variables. See [Telemetry services](./data-usage.md#telemetry-services "/docs/en/data-usage#telemetry-services") for how to disable it before finalizing your allowlist.
+When using [Amazon Bedrock](./amazon-bedrock.md "/docs/en/amazon-bedrock"), [Google Vertex AI](./google-vertex-ai.md "/docs/en/google-vertex-ai"), or [Microsoft Foundry](./microsoft-foundry.md "/docs/en/microsoft-foundry"), model traffic and authentication go to your provider instead of `api.anthropic.com`, `claude.ai`, or `platform.claude.com`. The WebFetch tool still calls `api.anthropic.com` for its [domain safety check](./data-usage.md#webfetch-domain-safety-check "/docs/en/data-usage#webfetch-domain-safety-check") unless you set `skipWebFetchPreflight: true` in [settings](./settings.md "/docs/en/settings").
+[Claude Code on the web](./claude-code-on-the-web.md "/docs/en/claude-code-on-the-web") and [Code Review](./code-review.md "/docs/en/code-review") connect to your repositories from Anthropic-managed infrastructure. If your GitHub Enterprise Cloud organization restricts access by IP address, enable [IP allow list inheritance for installed GitHub Apps](https://docs.github.com/en/enterprise-cloud@latest/organizations/keeping-your-organization-secure/managing-security-settings-for-your-organization/managing-allowed-ip-addresses-for-your-organization#allowing-access-by-github-apps "https://docs.github.com/en/enterprise-cloud@latest/organizations/keeping-your-organization-secure/managing-security-settings-for-your-organization/managing-allowed-ip-addresses-for-your-organization#allowing-access-by-github-apps"). The Claude GitHub App registers its IP ranges, so enabling this setting allows access without manual configuration. To [add the ranges to your allow list manually](https://docs.github.com/en/enterprise-cloud@latest/organizations/keeping-your-organization-secure/managing-security-settings-for-your-organization/managing-allowed-ip-addresses-for-your-organization#adding-an-allowed-ip-address "https://docs.github.com/en/enterprise-cloud@latest/organizations/keeping-your-organization-secure/managing-security-settings-for-your-organization/managing-allowed-ip-addresses-for-your-organization#adding-an-allowed-ip-address") instead, or to configure other firewalls, see the [Anthropic API IP addresses](https://platform.claude.com/docs/en/api/ip-addresses "https://platform.claude.com/docs/en/api/ip-addresses").
+For self-hosted [GitHub Enterprise Server](./github-enterprise-server.md "/docs/en/github-enterprise-server") instances behind a firewall, allowlist the same [Anthropic API IP addresses](https://platform.claude.com/docs/en/api/ip-addresses "https://platform.claude.com/docs/en/api/ip-addresses") so Anthropic infrastructure can reach your GHES host to clone repositories and post review comments.
 
 ## [​](#additional-resources "#additional-resources") Additional resources
 
-* [Claude Code settings](./settings "_settings".md)
-* [Environment variables reference](./env-vars "_env-vars".md)
-* [Troubleshooting guide](./troubleshooting "_troubleshooting".md)
+* [Claude Code settings](./settings.md "/docs/en/settings")
+* [Environment variables reference](./env-vars.md "/docs/en/env-vars")
+* [Troubleshooting guide](./troubleshooting.md "/docs/en/troubleshooting")
