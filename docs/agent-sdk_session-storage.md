@@ -187,21 +187,21 @@ The SDK never deletes from your store on its own. Retention is the adapter’s r
 
 The following SDK functions accept a `sessionStore` option and operate against the store instead of the local filesystem when it is provided:
 
-* [`query()`](./agent-sdk_typescript#query "_agent-sdk_typescript#query".md)
-* [`startup()`](./agent-sdk_typescript#startup "_agent-sdk_typescript#startup".md)
-* [`listSessions()`](./agent-sdk_typescript#listsessions "_agent-sdk_typescript#listsessions".md)
-* [`getSessionInfo()`](./agent-sdk_typescript#getsessioninfo "_agent-sdk_typescript#getsessioninfo".md)
-* [`getSessionMessages()`](./agent-sdk_typescript#getsessionmessages "_agent-sdk_typescript#getsessionmessages".md)
-* [`renameSession()`](./agent-sdk_typescript#renamesession "_agent-sdk_typescript#renamesession".md)
-* [`tagSession()`](./agent-sdk_typescript#tagsession "_agent-sdk_typescript#tagsession".md)
-* [`deleteSession()`](./agent-sdk_typescript "_agent-sdk_typescript".md)
-* [`forkSession()`](./agent-sdk_typescript "_agent-sdk_typescript".md)
-* [`listSubagents()`](./agent-sdk_typescript "_agent-sdk_typescript".md)
-* [`getSubagentMessages()`](./agent-sdk_typescript "_agent-sdk_typescript".md)
+* [`query()`](./agent-sdk/typescript.md#query "/docs/en/agent-sdk/typescript#query")
+* [`startup()`](./agent-sdk/typescript.md#startup "/docs/en/agent-sdk/typescript#startup")
+* [`listSessions()`](./agent-sdk/typescript.md#listsessions "/docs/en/agent-sdk/typescript#listsessions")
+* [`getSessionInfo()`](./agent-sdk/typescript.md#getsessioninfo "/docs/en/agent-sdk/typescript#getsessioninfo")
+* [`getSessionMessages()`](./agent-sdk/typescript.md#getsessionmessages "/docs/en/agent-sdk/typescript#getsessionmessages")
+* [`renameSession()`](./agent-sdk/typescript.md#renamesession "/docs/en/agent-sdk/typescript#renamesession")
+* [`tagSession()`](./agent-sdk/typescript.md#tagsession "/docs/en/agent-sdk/typescript#tagsession")
+* [`deleteSession()`](./agent-sdk/typescript.md "/docs/en/agent-sdk/typescript")
+* [`forkSession()`](./agent-sdk/typescript.md "/docs/en/agent-sdk/typescript")
+* [`listSubagents()`](./agent-sdk/typescript.md "/docs/en/agent-sdk/typescript")
+* [`getSubagentMessages()`](./agent-sdk/typescript.md "/docs/en/agent-sdk/typescript")
 
 ## [​](#related-resources "#related-resources") Related resources
 
-* [Work with sessions](./agent-sdk_sessions "_agent-sdk_sessions".md): Continue, resume, and fork without a custom store
-* [Host the SDK](./agent-sdk_hosting "_agent-sdk_hosting".md): Deployment patterns for multi-host environments
-* [TypeScript `Options`](./agent-sdk_typescript#options "_agent-sdk_typescript#options".md): Full option reference
+* [Work with sessions](./agent-sdk/sessions.md "/docs/en/agent-sdk/sessions"): Continue, resume, and fork without a custom store
+* [Host the SDK](./agent-sdk/hosting.md "/docs/en/agent-sdk/hosting"): Deployment patterns for multi-host environments
+* [TypeScript `Options`](./agent-sdk/typescript.md#options "/docs/en/agent-sdk/typescript#options"): Full option reference
 * [`examples/session-stores/`](https://github.com/anthropics/claude-agent-sdk-typescript/tree/main/examples/session-stores "https://github.com/anthropics/claude-agent-sdk-typescript/tree/main/examples/session-stores"): Runnable S3, Redis, and Postgres reference adapters

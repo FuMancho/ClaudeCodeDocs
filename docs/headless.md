@@ -1,3 +1,5 @@
+# Headless
+
 > ## Documentation Index
 >
 > Fetch the complete documentation index at: [https://code.claude.com/docs/llms.txt](https://code.claude.com/docs/llms.txt "https://code.claude.com/docs/llms.txt")
@@ -6,18 +8,18 @@
 
 Starting June 15, 2026, Agent SDK and `claude -p` usage on subscription plans will draw from a new monthly Agent SDK credit, separate from your interactive usage limits. See [Use the Claude Agent SDK with your Claude plan](https://support.claude.com/en/articles/15036540-use-the-claude-agent-sdk-with-your-claude-plan "https://support.claude.com/en/articles/15036540-use-the-claude-agent-sdk-with-your-claude-plan") for details.
 
-The [Agent SDK](./agent-sdk_overview "_agent-sdk_overview".md) gives you the same tools, agent loop, and context management that power Claude Code. It’s available as a CLI for scripts and CI/CD, or as [Python](./agent-sdk_python "_agent-sdk_python".md) and [TypeScript](./agent-sdk_typescript "_agent-sdk_typescript".md) packages for full programmatic control.
-To run Claude Code in non-interactive mode, pass `-p` with your prompt and any [CLI options](./cli-reference "_cli-reference".md):
+The [Agent SDK](./agent-sdk/overview.md "/docs/en/agent-sdk/overview") gives you the same tools, agent loop, and context management that power Claude Code. It’s available as a CLI for scripts and CI/CD, or as [Python](./agent-sdk/python.md "/docs/en/agent-sdk/python") and [TypeScript](./agent-sdk/typescript.md "/docs/en/agent-sdk/typescript") packages for full programmatic control.
+To run Claude Code in non-interactive mode, pass `-p` with your prompt and any [CLI options](./cli-reference.md "/docs/en/cli-reference"):
 
 ```
 claude -p "Find and fix the bug in auth.py" --allowedTools "Read,Edit,Bash"
 ```
 
-This page covers using the Agent SDK via the CLI (`claude -p`). For the Python and TypeScript SDK packages with structured outputs, tool approval callbacks, and native message objects, see the [full Agent SDK documentation](./agent-sdk_overview "_agent-sdk_overview".md).
+This page covers using the Agent SDK via the CLI (`claude -p`). For the Python and TypeScript SDK packages with structured outputs, tool approval callbacks, and native message objects, see the [full Agent SDK documentation](./agent-sdk/overview.md "/docs/en/agent-sdk/overview").
 
 ## [​](#basic-usage "#basic-usage") Basic usage
 
-Add the `-p` (or `--print`) flag to any `claude` command to run it non-interactively. All [CLI options](./cli-reference "_cli-reference".md) work with `-p`, including:
+Add the `-p` (or `--print`) flag to any `claude` command to run it non-interactively. All [CLI options](./cli-reference.md "/docs/en/cli-reference") work with `-p`, including:
 
 * `--continue` for [continuing conversations](#continue-conversations "#continue-conversations")
 * `--allowedTools` for [auto-approving tools](#auto-approve-tools "#auto-approve-tools")
@@ -31,7 +33,7 @@ claude -p "What does the auth module do?"
 
 ### [​](#start-faster-with-bare-mode "#start-faster-with-bare-mode") Start faster with bare mode
 
-Add `--bare` to reduce startup time by skipping auto-discovery of hooks, skills, plugins, MCP servers, auto memory, and CLAUDE.md. Without it, `claude -p` loads the same [context](./how-claude-code-works#the-context-window "_how-claude-code-works#the-context-window".md) an interactive session would, including anything configured in the working directory or `~/.claude`.
+Add `--bare` to reduce startup time by skipping auto-discovery of hooks, skills, plugins, MCP servers, auto memory, and CLAUDE.md. Without it, `claude -p` loads the same [context](./how-claude-code-works.md#the-context-window "/docs/en/how-claude-code-works#the-context-window") an interactive session would, including anything configured in the working directory or `~/.claude`.
 Bare mode is useful for CI and scripts where you need the same result on every machine. A hook in a teammate’s `~/.claude` or an MCP server in the project’s `.mcp.json` won’t run, because bare mode never reads them. Only flags you pass explicitly take effect.
 This example runs a one-off summarize task in bare mode and pre-approves the Read tool so the call completes without a permission prompt:
 
@@ -66,7 +68,7 @@ This example pipes a build log into Claude and writes the explanation to a file:
 cat build-error.txt | claude -p 'concisely explain the root cause of this build error' > output.txt
 ```
 
-With `--output-format json`, the response payload includes `total_cost_usd` and a per-model cost breakdown, so scripted callers can track spend per invocation without consulting the [usage dashboard](./costs "_costs".md).
+With `--output-format json`, the response payload includes `total_cost_usd` and a per-model cost breakdown, so scripted callers can track spend per invocation without consulting the [usage dashboard](./costs.md "/docs/en/costs").
 
 As of Claude Code v2.1.128, piped stdin is capped at 10MB. If you exceed the cap, Claude Code exits with a clear error and a non-zero status. To work with larger inputs, write the content to a file and reference the file path in your prompt instead of piping it.
 
@@ -148,14 +150,14 @@ When an API request fails with a retryable error, Claude Code emits a `system/ap
 | `uuid` | string | unique event identifier |
 | `session_id` | string | session the event belongs to |
 
-The `system/init` event reports session metadata including the model, tools, MCP servers, and loaded plugins. It is the first event in the stream unless [`CLAUDE_CODE_SYNC_PLUGIN_INSTALL`](./env-vars "_env-vars".md) is set, in which case `plugin_install` events precede it. Use the plugin fields to fail CI when a plugin did not load:
+The `system/init` event reports session metadata including the model, tools, MCP servers, and loaded plugins. It is the first event in the stream unless [`CLAUDE_CODE_SYNC_PLUGIN_INSTALL`](./env-vars.md "/docs/en/env-vars") is set, in which case `plugin_install` events precede it. Use the plugin fields to fail CI when a plugin did not load:
 
 | Field | Type | Description |
 | --- | --- | --- |
 | `plugins` | array | plugins that loaded successfully, each with `name` and `path` |
 | `plugin_errors` | array | plugin load-time errors, each with `plugin`, `type`, and `message`. Includes unsatisfied dependency versions and `--plugin-dir` load failures such as a missing path or invalid archive. Affected plugins are demoted and absent from `plugins`. The key is omitted when there are no errors |
 
-When [`CLAUDE_CODE_SYNC_PLUGIN_INSTALL`](./env-vars "_env-vars".md) is set, Claude Code emits `system/plugin_install` events while marketplace plugins install before the first turn. Use these to surface install progress in your own UI.
+When [`CLAUDE_CODE_SYNC_PLUGIN_INSTALL`](./env-vars.md "/docs/en/env-vars") is set, Claude Code emits `system/plugin_install` events while marketplace plugins install before the first turn. Use these to surface install progress in your own UI.
 
 | Field | Type | Description |
 | --- | --- | --- |
@@ -167,7 +169,7 @@ When [`CLAUDE_CODE_SYNC_PLUGIN_INSTALL`](./env-vars "_env-vars".md) is set, Clau
 | `uuid` | string | unique event identifier |
 | `session_id` | string | session the event belongs to |
 
-For programmatic streaming with callbacks and message objects, see [Stream responses in real-time](./agent-sdk_streaming-output "_agent-sdk_streaming-output".md) in the Agent SDK documentation.
+For programmatic streaming with callbacks and message objects, see [Stream responses in real-time](./agent-sdk/streaming-output.md "/docs/en/agent-sdk/streaming-output") in the Agent SDK documentation.
 
 ### [​](#auto-approve-tools "#auto-approve-tools") Auto-approve tools
 
@@ -178,7 +180,7 @@ claude -p "Run the test suite and fix any failures" \
   --allowedTools "Bash,Read,Edit"
 ```
 
-To set a baseline for the whole session instead of listing individual tools, pass a [permission mode](./permission-modes "_permission-modes".md). `dontAsk` denies anything not in your `permissions.allow` rules or the [read-only command set](./permissions#read-only-commands "_permissions#read-only-commands".md), which is useful for locked-down CI runs. `acceptEdits` lets Claude write files without prompting and also auto-approves common filesystem commands such as `mkdir`, `touch`, `mv`, and `cp`. Other shell commands and network requests still need an `--allowedTools` entry or a `permissions.allow` rule, otherwise the run aborts when one is attempted:
+To set a baseline for the whole session instead of listing individual tools, pass a [permission mode](./permission-modes.md "/docs/en/permission-modes"). `dontAsk` denies anything not in your `permissions.allow` rules or the [read-only command set](./permissions.md#read-only-commands "/docs/en/permissions#read-only-commands"), which is useful for locked-down CI runs. `acceptEdits` lets Claude write files without prompting and also auto-approves common filesystem commands such as `mkdir`, `touch`, `mv`, and `cp`. Other shell commands and network requests still need an `--allowedTools` entry or a `permissions.allow` rule, otherwise the run aborts when one is attempted:
 
 ```
 claude -p "Apply the lint fixes" --permission-mode acceptEdits
@@ -193,9 +195,9 @@ claude -p "Look at my staged changes and create an appropriate commit" \
   --allowedTools "Bash(git diff *),Bash(git log *),Bash(git status *),Bash(git commit *)"
 ```
 
-The `--allowedTools` flag uses [permission rule syntax](./settings#permission-rule-syntax "_settings#permission-rule-syntax".md). The trailing  `*` enables prefix matching, so `Bash(git diff *)` allows any command starting with `git diff`. The space before `*` is important: without it, `Bash(git diff*)` would also match `git diff-index`.
+The `--allowedTools` flag uses [permission rule syntax](./settings.md#permission-rule-syntax "/docs/en/settings#permission-rule-syntax"). The trailing  `*` enables prefix matching, so `Bash(git diff *)` allows any command starting with `git diff`. The space before `*` is important: without it, `Bash(git diff*)` would also match `git diff-index`.
 
-User-invoked [skills](./skills "_skills".md) like `/commit` and [built-in commands](./commands "_commands".md) are only available in interactive mode. In `-p` mode, describe the task you want to accomplish instead.
+User-invoked [skills](./skills.md "/docs/en/skills") like `/code-review` and [built-in commands](./commands.md "/docs/en/commands") are only available in interactive mode. In `-p` mode, describe the task you want to accomplish instead.
 
 ### [​](#customize-the-system-prompt "#customize-the-system-prompt") Customize the system prompt
 
@@ -207,7 +209,7 @@ gh pr diff "$1" | claude -p \
   --output-format json
 ```
 
-See [system prompt flags](./cli-reference#system-prompt-flags "_cli-reference#system-prompt-flags".md) for more options including `--system-prompt` to fully replace the default prompt.
+See [system prompt flags](./cli-reference.md#system-prompt-flags "/docs/en/cli-reference#system-prompt-flags") for more options including `--system-prompt` to fully replace the default prompt.
 
 ### [​](#continue-conversations "#continue-conversations") Continue conversations
 
@@ -231,7 +233,7 @@ claude -p "Continue that review" --resume "$session_id"
 
 ## [​](#next-steps "#next-steps") Next steps
 
-* [Agent SDK quickstart](./agent-sdk_quickstart "_agent-sdk_quickstart".md): build your first agent with Python or TypeScript
-* [CLI reference](./cli-reference "_cli-reference".md): all CLI flags and options
-* [GitHub Actions](./github-actions "_github-actions".md): use the Agent SDK in GitHub workflows
-* [GitLab CI/CD](./gitlab-ci-cd "_gitlab-ci-cd".md): use the Agent SDK in GitLab pipelines
+* [Agent SDK quickstart](./agent-sdk/quickstart.md "/docs/en/agent-sdk/quickstart"): build your first agent with Python or TypeScript
+* [CLI reference](./cli-reference.md "/docs/en/cli-reference"): all CLI flags and options
+* [GitHub Actions](./github-actions.md "/docs/en/github-actions"): use the Agent SDK in GitHub workflows
+* [GitLab CI/CD](./gitlab-ci-cd.md "/docs/en/gitlab-ci-cd"): use the Agent SDK in GitLab pipelines

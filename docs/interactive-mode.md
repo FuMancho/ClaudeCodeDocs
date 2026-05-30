@@ -8,36 +8,36 @@
 
 ## [​](#keyboard-shortcuts "#keyboard-shortcuts") Keyboard shortcuts
 
-Keyboard shortcuts may vary by platform and terminal. In [fullscreen rendering](./fullscreen "_fullscreen".md), press `?` in the transcript viewer to see available shortcuts there.**macOS users**: Option/Alt key shortcuts (`Alt+B`, `Alt+F`, `Alt+Y`, `Alt+M`, `Alt+P`) require configuring Option as Meta in your terminal:
+Keyboard shortcuts may vary by platform and terminal. In [fullscreen rendering](./fullscreen.md "/docs/en/fullscreen"), press `?` in the transcript viewer to see available shortcuts there.**macOS users**: Option/Alt key shortcuts (`Alt+B`, `Alt+F`, `Alt+Y`, `Alt+M`, `Alt+P`) require configuring Option as Meta in your terminal:
 
 * **iTerm2**: Settings → Profiles → Keys → General → set Left/Right Option key to “Esc+”
 * **Apple Terminal**: Settings → Profiles → Keyboard → check “Use Option as Meta Key”
 * **VS Code**: set `"terminal.integrated.macOptionIsMeta": true` in VS Code settings
 
-See [Terminal configuration](./terminal-config "_terminal-config".md) for details.
+See [Terminal configuration](./terminal-config.md "/docs/en/terminal-config") for details.
 
 ### [​](#general-controls "#general-controls") General controls
 
 | Shortcut | Description | Context |
 | --- | --- | --- |
 | `Ctrl+C` | Interrupt, or clear input | Interrupts a running operation. If nothing is running, the first press clears the prompt input and a second press exits Claude Code |
-| `Ctrl+X Ctrl+K` | Kill all running [background subagents](./sub-agents#run-subagents-in-foreground-or-background "_sub-agents#run-subagents-in-foreground-or-background".md) in this session. Press twice within 3 seconds to confirm | Subagent control |
+| `Ctrl+X Ctrl+K` | Kill all running [background subagents](./sub-agents.md#run-subagents-in-foreground-or-background "/docs/en/sub-agents#run-subagents-in-foreground-or-background") in this session. Press twice within 3 seconds to confirm | Subagent control |
 | `Ctrl+D` | Exit Claude Code session | EOF signal |
 | `Ctrl+G` or `Ctrl+X Ctrl+E` | Open in default text editor | Edit your prompt or custom response in your default text editor. `Ctrl+X Ctrl+E` is the readline-native binding. Turn on Show last response in external editor in `/config` to prepend Claude’s previous reply as `#`-commented context above your prompt; the comment block is stripped when you save |
 | `Ctrl+L` | Redraw screen | Forces a full terminal redraw. Input and conversation history are kept. Use this to recover if the display becomes garbled or partially blank |
 | `Ctrl+O` | Toggle transcript viewer | Shows detailed tool usage and execution. Also expands MCP calls, which collapse to a single line like “Called slack 3 times” by default |
 | `Ctrl+R` | Reverse search command history | Search through previous commands interactively |
-| `Ctrl+V` or `Cmd+V` (iTerm2) or `Alt+V` (Windows) | Paste image from clipboard | Inserts an `[Image #N]` chip at the cursor so you can reference it positionally in your prompt |
+| `Ctrl+V` or `Cmd+V` (iTerm2) or `Alt+V` (Windows and WSL) | Paste image from clipboard | Inserts an `[Image #N]` chip at the cursor so you can reference it positionally in your prompt. On WSL, both `Ctrl+V` and `Alt+V` are bound; use `Alt+V` if your terminal intercepts `Ctrl+V` |
 | `Ctrl+B` | Background running tasks | Backgrounds bash commands and agents. Tmux users press twice |
 | `Ctrl+T` | Toggle task list | Show or hide the [task list](#task-list "#task-list") in the terminal status area |
 | `Left/Right arrows` | Cycle through dialog tabs | Navigate between tabs in permission dialogs and menus |
 | `Up/Down arrows` or `Ctrl+P`/`Ctrl+N` | Move cursor or navigate command history | In multiline input, first moves the cursor within the prompt. Once the cursor is already on the top or bottom edge, pressing again navigates command history |
 | `Esc` | Interrupt Claude | Stop the current response or tool call mid-turn so you can redirect. Claude keeps the work done so far |
-| `Esc` + `Esc` | Clear input draft, or rewind | When the prompt input contains text, double `Esc` clears it and saves the draft to history so `Up` recalls it. When the input is empty, double `Esc` opens the [rewind menu](./checkpointing "_checkpointing".md) to restore or summarize code and conversation from a previous point |
-| `Shift+Tab` or `Alt+M` (some configurations) | Cycle permission modes | Cycle through `default`, `acceptEdits`, `plan`, and any modes you have enabled, such as `auto` or `bypassPermissions`. See [permission modes](./permission-modes "_permission-modes".md). |
+| `Esc` + `Esc` | Clear input draft, or rewind | When the prompt input contains text, double `Esc` clears it and saves the draft to history so `Up` recalls it. When the input is empty, double `Esc` opens the [rewind menu](./checkpointing.md "/docs/en/checkpointing") to restore or summarize code and conversation from a previous point |
+| `Shift+Tab` or `Alt+M` (some configurations) | Cycle permission modes | Cycle through `default`, `acceptEdits`, `plan`, and any modes you have enabled, such as `auto` or `bypassPermissions`. See [permission modes](./permission-modes.md "/docs/en/permission-modes"). |
 | `Option+P` (macOS) or `Alt+P` (Windows/Linux) | Switch model | Switch models without clearing your prompt |
 | `Option+T` (macOS) or `Alt+T` (Windows/Linux) | Toggle extended thinking | Enable or disable extended thinking mode. As of v2.1.132 this shortcut works on macOS without configuring Option as Meta |
-| `Option+O` (macOS) or `Alt+O` (Windows/Linux) | Toggle fast mode | Enable or disable [fast mode](./fast-mode "_fast-mode".md) |
+| `Option+O` (macOS) or `Alt+O` (Windows/Linux) | Toggle fast mode | Enable or disable [fast mode](./fast-mode.md "/docs/en/fast-mode") |
 
 ### [​](#text-editing "#text-editing") Text editing
 
@@ -64,7 +64,7 @@ See [Terminal configuration](./terminal-config "_terminal-config".md) for detail
 | Method | Shortcut | Context |
 | --- | --- | --- |
 | Quick escape | `\` + `Enter` | Works in all terminals |
-| Option key | `Option+Enter` | After enabling [Option as Meta](./terminal-config#enable-option-key-shortcuts-on-macos "_terminal-config#enable-option-key-shortcuts-on-macos".md) on macOS |
+| Option key | `Option+Enter` | After enabling [Option as Meta](./terminal-config.md#enable-option-key-shortcuts-on-macos "/docs/en/terminal-config#enable-option-key-shortcuts-on-macos") on macOS |
 | Shift+Enter | `Shift+Enter` | Native in iTerm2, WezTerm, Ghostty, Kitty, Warp, Apple Terminal, Windows Terminal |
 | Control sequence | `Ctrl+J` | Works in any terminal without configuration |
 | Paste mode | Paste directly | For code blocks, logs |
@@ -75,33 +75,33 @@ Shift+Enter works without configuration in iTerm2, WezTerm, Ghostty, Kitty, Warp
 
 | Shortcut | Description | Notes |
 | --- | --- | --- |
-| `/` at start | Command or skill | See [commands](#commands "#commands") and [skills](./skills "_skills".md) |
+| `/` at start | Command or skill | See [commands](#commands "#commands") and [skills](./skills.md "/docs/en/skills") |
 | `!` at start | Shell mode | Run commands directly and add execution output to the session |
 | `@` | File path mention | Trigger file path autocomplete |
 
 ### [​](#transcript-viewer "#transcript-viewer") Transcript viewer
 
-When the transcript viewer is open (toggled with `Ctrl+O`), these shortcuts are available. In [fullscreen rendering](./fullscreen "_fullscreen".md), press `?` to show the full shortcut reference panel inside the viewer. `Ctrl+E` can be rebound via [`transcript:toggleShowAll`](./keybindings "_keybindings".md).
+When the transcript viewer is open (toggled with `Ctrl+O`), these shortcuts are available. In [fullscreen rendering](./fullscreen.md "/docs/en/fullscreen"), press `?` to show the full shortcut reference panel inside the viewer. `Ctrl+E` can be rebound via [`transcript:toggleShowAll`](./keybindings.md "/docs/en/keybindings").
 
 | Shortcut | Description |
 | --- | --- |
-| `?` | Toggle the keyboard shortcut help panel. Requires [fullscreen rendering](./fullscreen "_fullscreen".md) |
-| `{` / `}` | Jump to the previous or next user prompt, like vim paragraph motion. Requires [fullscreen rendering](./fullscreen "_fullscreen".md) |
+| `?` | Toggle the keyboard shortcut help panel. Requires [fullscreen rendering](./fullscreen.md "/docs/en/fullscreen") |
+| `{` / `}` | Jump to the previous or next user prompt, like vim paragraph motion. Requires [fullscreen rendering](./fullscreen.md "/docs/en/fullscreen") |
 | `Ctrl+E` | Toggle show all content |
-| `[` | Write the full conversation to your terminal’s native scrollback so `Cmd+F`, tmux copy mode, and other native tools can search it. Requires [fullscreen rendering](./fullscreen#search-and-review-the-conversation "_fullscreen#search-and-review-the-conversation".md) |
-| `v` | Write the conversation to a temporary file and open it in `$VISUAL` or `$EDITOR`. Requires [fullscreen rendering](./fullscreen "_fullscreen".md) |
-| `q`, `Ctrl+C`, `Esc` | Exit transcript view. All three can be rebound via [`transcript:exit`](./keybindings "_keybindings".md) |
+| `[` | Write the full conversation to your terminal’s native scrollback so `Cmd+F`, tmux copy mode, and other native tools can search it. Requires [fullscreen rendering](./fullscreen.md#search-and-review-the-conversation "/docs/en/fullscreen#search-and-review-the-conversation") |
+| `v` | Write the conversation to a temporary file and open it in `$VISUAL` or `$EDITOR`. Requires [fullscreen rendering](./fullscreen.md "/docs/en/fullscreen") |
+| `q`, `Ctrl+C`, `Esc` | Exit transcript view. All three can be rebound via [`transcript:exit`](./keybindings.md "/docs/en/keybindings") |
 
 ### [​](#voice-input "#voice-input") Voice input
 
 | Shortcut | Description | Notes |
 | --- | --- | --- |
-| Hold or tap `Space` | Voice dictation | Requires [voice dictation](./voice-dictation "_voice-dictation".md) to be enabled. Hold to record, or run `/voice tap` for tap-to-toggle. [Rebindable](./voice-dictation#rebind-the-dictation-key "_voice-dictation#rebind-the-dictation-key".md) |
+| Hold or tap `Space` | Voice dictation | Requires [voice dictation](./voice-dictation.md "/docs/en/voice-dictation") to be enabled. Hold to record, or run `/voice tap` for tap-to-toggle. [Rebindable](./voice-dictation.md#rebind-the-dictation-key "/docs/en/voice-dictation#rebind-the-dictation-key") |
 
 ## [​](#commands "#commands") Commands
 
-Type `/` in Claude Code to see all available commands, or type `/` followed by any letters to filter. The `/` menu shows everything you can invoke: built-in commands, bundled and user-authored [skills](./skills "_skills".md), and commands contributed by [plugins](./plugins "_plugins".md) and [MCP servers](./mcp#use-mcp-prompts-as-commands "_mcp#use-mcp-prompts-as-commands".md). Not all built-in commands are visible to every user since some depend on your platform or plan.
-See the [commands reference](./commands "_commands".md) for the full list of commands included in Claude Code.
+Type `/` in Claude Code to see all available commands, or type `/` followed by any letters to filter. The `/` menu shows everything you can invoke: built-in commands, bundled and user-authored [skills](./skills.md "/docs/en/skills"), and commands contributed by [plugins](./plugins.md "/docs/en/plugins") and [MCP servers](./mcp.md#use-mcp-prompts-as-commands "/docs/en/mcp#use-mcp-prompts-as-commands"). Not all built-in commands are visible to every user since some depend on your platform or plan.
+See the [commands reference](./commands.md "/docs/en/commands") for the full list of commands included in Claude Code.
 
 ## [​](#vim-editor-mode "#vim-editor-mode") Vim editor mode
 
@@ -141,6 +141,7 @@ Enable vim-style editing via `/config` → Editor mode.
 | `T{char}` | Jump to just after previous occurrence of character |
 | `;` | Repeat last f/F/t/T motion |
 | `,` | Repeat last f/F/t/T motion in reverse |
+| `/` | Open reverse history search, same as `Ctrl+R` |
 
 In vim normal mode, if the cursor is at the beginning or end of input and cannot move further, `j`/`k` and the arrow keys navigate command history instead.
 
@@ -245,7 +246,7 @@ To run commands in the background, you can either:
 * Background tasks are automatically cleaned up when Claude Code exits
 * Background tasks are automatically terminated if output exceeds 5GB, with a note in stderr explaining why
 
-To disable all background task functionality, set the `CLAUDE_CODE_DISABLE_BACKGROUND_TASKS` environment variable to `1`. See [Environment variables](./env-vars "_env-vars".md) for details.
+To disable all background task functionality, set the `CLAUDE_CODE_DISABLE_BACKGROUND_TASKS` environment variable to `1`. See [Environment variables](./env-vars.md "/docs/en/env-vars") for details.
 **Common backgrounded commands:**
 
 * Build tools (webpack, vite, make)
@@ -285,7 +286,7 @@ After Claude responds, suggestions continue to appear based on your conversation
 * Start typing to dismiss it
 
 The suggestion runs as a background request that reuses the parent conversation’s prompt cache, so the additional cost is minimal. Claude Code skips suggestion generation when the cache is cold to avoid unnecessary cost.
-Suggestions are automatically skipped after the first turn of a conversation, in non-interactive mode, and in plan mode.
+Suggestions are automatically skipped after the first turn of a conversation and in plan mode. In print mode they are off by default. Pass [`--prompt-suggestions`](./cli-reference.md#cli-flags "/docs/en/cli-reference#cli-flags") with `--output-format stream-json --verbose` to emit a `prompt_suggestion` message after each turn instead.
 To disable prompt suggestions entirely, set the environment variable or toggle the setting in `/config`:
 
 ```
@@ -304,11 +305,19 @@ Side questions have full visibility into the current conversation, so you can as
 
 * **Available while Claude is working**: you can run `/btw` even while Claude is processing a response. The side question runs independently and does not interrupt the main turn.
 * **No tool access**: side questions answer only from what is already in context. Claude cannot read files, run commands, or search when answering a side question.
-* **Single response**: there are no follow-up turns. If you need a back-and-forth, use a normal prompt instead.
+* **Single response**: there are no follow-up turns in the overlay. To continue the thread, fork it into its own session with `f`.
 * **Low cost**: the side question reuses the parent conversation’s prompt cache, so the additional cost is minimal.
 
-Press **Space**, **Enter**, or **Escape** to dismiss the answer and return to the prompt.
-`/btw` is the inverse of a [subagent](./sub-agents "_sub-agents".md): it sees your full conversation but has no tools, while a subagent has full tools but starts with an empty context. Use `/btw` to ask about what Claude already knows from this session; use a subagent to go find out something new.
+Once the answer appears, the overlay accepts these keys. Earlier side questions from the same session appear as a dimmed list above the current answer; they stay out of the conversation history but remain visible in the overlay until you clear them.
+
+| Key | Action |
+| --- | --- |
+| `Space`, `Enter`, `Escape` | Dismiss the answer and return to the prompt |
+| `Up` / `Down` | Scroll the answer |
+| `f` | Fork into a new session. The fork inherits the parent conversation plus this question and answer as real transcript turns, so you can continue with full tool access. The original session is preserved under [`/resume`](./commands.md "/docs/en/commands"). Available in local sessions only |
+| `x` | Clear the list of earlier `/btw` exchanges shown above the current answer |
+
+`/btw` is the inverse of a [subagent](./sub-agents.md "/docs/en/sub-agents"): it sees your full conversation but has no tools, while a subagent has full tools but starts with an empty context. Use `/btw` to ask about what Claude already knows from this session; use a subagent to go find out something new.
 
 ## [​](#task-list "#task-list") Task list
 
@@ -340,8 +349,8 @@ PR status requires the `gh` CLI to be installed and authenticated (`gh auth logi
 
 ## [​](#see-also "#see-also") See also
 
-* [Skills](./skills "_skills".md) - Custom prompts and workflows
-* [Checkpointing](./checkpointing "_checkpointing".md) - Rewind Claude’s edits and restore previous states
-* [CLI reference](./cli-reference "_cli-reference".md) - Command-line flags and options
-* [Settings](./settings "_settings".md) - Configuration options
-* [Memory management](./memory "_memory".md) - Managing CLAUDE.md files
+* [Skills](./skills.md "/docs/en/skills") - Custom prompts and workflows
+* [Checkpointing](./checkpointing.md "/docs/en/checkpointing") - Rewind Claude’s edits and restore previous states
+* [CLI reference](./cli-reference.md "/docs/en/cli-reference") - Command-line flags and options
+* [Settings](./settings.md "/docs/en/settings") - Configuration options
+* [Memory management](./memory.md "/docs/en/memory") - Managing CLAUDE.md files

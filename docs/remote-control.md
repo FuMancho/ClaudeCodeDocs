@@ -11,11 +11,11 @@ Remote Control is in research preview and available on all plans. On Team and En
 Remote Control connects [claude.ai/code](https://claude.ai/code "https://claude.ai/code") or the Claude app for [iOS](https://apps.apple.com/us/app/claude-by-anthropic/id6473753684 "https://apps.apple.com/us/app/claude-by-anthropic/id6473753684") and [Android](https://play.google.com/store/apps/details?id=com.anthropic.claude "https://play.google.com/store/apps/details?id=com.anthropic.claude") to a Claude Code session running on your machine. Start a task at your desk, then pick it up from your phone on the couch or a browser on another computer.
 When you start a Remote Control session on your machine, Claude keeps running locally the entire time, so nothing moves to the cloud. With Remote Control you can:
 
-* **Use your full local environment remotely**: your filesystem, [MCP servers](./mcp "_mcp".md), tools, and project configuration all stay available, and typing `@` autocompletes file paths from your local project
+* **Use your full local environment remotely**: your filesystem, [MCP servers](./mcp.md "/docs/en/mcp"), tools, and project configuration all stay available, and typing `@` autocompletes file paths from your local project
 * **Work from both surfaces at once**: the conversation stays in sync across all connected devices, so you can send messages from your terminal, browser, and phone interchangeably
 * **Survive interruptions**: if your laptop sleeps or your network drops, the session reconnects automatically when your machine comes back online
 
-Unlike [Claude Code on the web](./claude-code-on-the-web "_claude-code-on-the-web".md), which runs on cloud infrastructure, Remote Control sessions run directly on your machine and interact with your local filesystem. The web and mobile interfaces are just a window into that local session.
+Unlike [Claude Code on the web](./claude-code-on-the-web.md "/docs/en/claude-code-on-the-web"), which runs on cloud infrastructure, Remote Control sessions run directly on your machine and interact with your local filesystem. The web and mobile interfaces are just a window into that local session.
 
 Remote Control requires Claude Code v2.1.51 or later. Check your version with `claude --version`.
 
@@ -50,10 +50,10 @@ The process stays running in your terminal in server mode, waiting for remote co
 | --- | --- |
 | `--name "My Project"` | Set a custom session title visible in the session list at claude.ai/code. |
 | `--remote-control-session-name-prefix <prefix>` | Prefix for auto-generated session names when no explicit name is set. Defaults to your machine’s hostname, producing names like `myhost-graceful-unicorn`. Set `CLAUDE_REMOTE_CONTROL_SESSION_NAME_PREFIX` for the same effect. |
-| `--spawn <mode>` | How the server creates sessions. • `same-dir` (default): all sessions share the current working directory, so they can conflict if editing the same files. • `worktree`: each on-demand session gets its own [git worktree](./worktrees "_worktrees".md). Requires a git repository. • `session`: single-session mode. Serves exactly one session and rejects additional connections. Set at startup only. Press `w` at runtime to toggle between `same-dir` and `worktree`. |
+| `--spawn <mode>` | How the server creates sessions. • `same-dir` (default): all sessions share the current working directory, so they can conflict if editing the same files. • `worktree`: each on-demand session gets its own [git worktree](./worktrees.md "/docs/en/worktrees"). Requires a git repository. • `session`: single-session mode. Serves exactly one session and rejects additional connections. Set at startup only. Press `w` at runtime to toggle between `same-dir` and `worktree`. |
 | `--capacity <N>` | Maximum number of concurrent sessions. Default is 32. Cannot be used with `--spawn=session`. |
 | `--verbose` | Show detailed connection and session logs. |
-| `--sandbox` / `--no-sandbox` | Enable or disable [sandboxing](./sandboxing "_sandboxing".md) for filesystem and network isolation. Off by default. |
+| `--sandbox` / `--no-sandbox` | Enable or disable [sandboxing](./sandboxing.md "/docs/en/sandboxing") for filesystem and network isolation. Off by default. |
 
 To start a normal interactive Claude Code session with Remote Control enabled, use the `--remote-control` flag (or `--rc`):
 
@@ -83,7 +83,7 @@ Pass a name as an argument to set a custom session title:
 
 This starts a Remote Control session that carries over your current conversation history and displays a session URL and QR code you can use to [connect from another device](#connect-from-another-device "#connect-from-another-device"). The `--verbose`, `--sandbox`, and `--no-sandbox` flags are not available with this command.
 
-In the [Claude Code VS Code extension](./vs-code "_vs-code".md), type `/remote-control` or `/rc` in the prompt box, or open the command menu with `/` and select it. Requires Claude Code v2.1.79 or later.
+In the [Claude Code VS Code extension](./vs-code.md "/docs/en/vs-code"), type `/remote-control` or `/rc` in the prompt box, or open the command menu with `/` and select it. Requires Claude Code v2.1.79 or later.
 
 ```
 /remote-control
@@ -106,7 +106,7 @@ The remote session title is chosen in this order:
 3. The last meaningful message in existing conversation history
 4. An auto-generated name like `myhost-graceful-unicorn`, where `myhost` is your machine’s hostname or the prefix you set with `--remote-control-session-name-prefix`
 
-If you didn’t set an explicit name, the title updates to reflect your prompt once you send one.
+If you didn’t set an explicit name, the title updates to reflect your prompt once you send one. Renaming a session from claude.ai or the Claude app also updates the local title shown in `claude --resume`.
 If the environment already has an active session, you’ll be asked whether to continue it or start a new one.
 If you don’t have the Claude app yet, use the `/mobile` command inside Claude Code to display a download QR code for [iOS](https://apps.apple.com/us/app/claude-by-anthropic/id6473753684 "https://apps.apple.com/us/app/claude-by-anthropic/id6473753684") or [Android](https://play.google.com/store/apps/details?id=com.anthropic.claude "https://play.google.com/store/apps/details?id=com.anthropic.claude").
 
@@ -122,7 +122,7 @@ All traffic travels through the Anthropic API over TLS, the same transport secur
 
 ## [​](#remote-control-vs-claude-code-on-the-web "#remote-control-vs-claude-code-on-the-web") Remote Control vs Claude Code on the web
 
-Remote Control and [Claude Code on the web](./claude-code-on-the-web "_claude-code-on-the-web".md) both use the claude.ai/code interface. The key difference is where the session runs: Remote Control executes on your machine, so your local MCP servers, tools, and project configuration stay available. Claude Code on the web executes in Anthropic-managed cloud infrastructure.
+Remote Control and [Claude Code on the web](./claude-code-on-the-web.md "/docs/en/claude-code-on-the-web") both use the claude.ai/code interface. The key difference is where the session runs: Remote Control executes on your machine, so your local MCP servers, tools, and project configuration stay available. Claude Code on the web executes in Anthropic-managed cloud infrastructure.
 Use Remote Control when you’re in the middle of local work and want to keep going from another device. Use Claude Code on the web when you want to kick off a task without any local setup, work on a repo you don’t have cloned, or run multiple tasks in parallel.
 
 ## [​](#mobile-push-notifications "#mobile-push-notifications") Mobile push notifications
@@ -169,7 +169,7 @@ If notifications don’t arrive:
 * **One remote session per interactive process**: outside of server mode, each Claude Code instance supports one remote session at a time. Use [server mode](#start-a-remote-control-session "#start-a-remote-control-session") to run multiple concurrent sessions from a single process.
 * **Local process must keep running**: Remote Control runs as a local process. If you close the terminal, quit VS Code, or otherwise stop the `claude` process, the session ends.
 * **Extended network outage**: if your machine is awake but unable to reach the network for more than roughly 10 minutes, the session times out and the process exits. Run `claude remote-control` again to start a new session.
-* **Ultraplan disconnects Remote Control**: starting an [ultraplan](./ultraplan "_ultraplan".md) session disconnects any active Remote Control session because both features occupy the claude.ai/code interface and only one can be connected at a time.
+* **Ultraplan disconnects Remote Control**: starting an [ultraplan](./ultraplan.md "/docs/en/ultraplan") session disconnects any active Remote Control session because both features occupy the claude.ai/code interface and only one can be connected at a time.
 * **Some commands are local-only**: commands that open an interactive picker in the terminal, such as `/mcp`, `/plugin`, or `/resume`, work only from the local CLI. Commands that produce text output, including `/compact`, `/clear`, `/context`, `/usage`, `/exit`, `/usage-credits`, `/recap`, and `/reload-plugins`, work from mobile and web.
 
 ## [​](#troubleshooting "#troubleshooting") Troubleshooting
@@ -202,7 +202,7 @@ This error has four distinct causes. Run `/status` first to see which login meth
 * **You’re authenticated with an API key or Console account**: Remote Control requires claude.ai OAuth. Run `/login` and choose the claude.ai option. If `ANTHROPIC_API_KEY` is set in your environment, unset it.
 * **Your Team or Enterprise admin hasn’t enabled it**: Remote Control is off by default on these plans. An admin can enable it at [claude.ai/admin-settings/claude-code](https://claude.ai/admin-settings/claude-code "https://claude.ai/admin-settings/claude-code") by turning on the **Remote Control** toggle. This toggle is a server-side organization setting.
 * **The admin toggle is grayed out**: your organization has a data retention or compliance configuration that is incompatible with Remote Control. This cannot be changed from the admin panel. Contact Anthropic support to discuss options.
-* **The error mentions `disableRemoteControl`**: your IT administrator has disabled Remote Control on this device through [managed settings](./settings#settings-files "_settings#settings-files".md), independent of the organization-wide toggle.
+* **The error mentions `disableRemoteControl`**: your IT administrator has disabled Remote Control on this device through [managed settings](./settings.md#settings-files "/docs/en/settings#settings-files"), independent of the organization-wide toggle.
 
 ### [​](#”remote-credentials-fetch-failed” "#”remote-credentials-fetch-failed”") ”Remote credentials fetch failed”
 
@@ -224,19 +224,19 @@ Claude Code offers several ways to work when you’re not at your terminal. They
 
 |  | Trigger | Claude runs on | Setup | Best for |
 | --- | --- | --- | --- | --- |
-| [Dispatch](./desktop#sessions-from-dispatch "_desktop#sessions-from-dispatch".md) | Message a task from the Claude mobile app | Your machine (Desktop) | [Pair the mobile app with Desktop](https://support.claude.com/en/articles/13947068 "https://support.claude.com/en/articles/13947068") | Delegating work while you’re away, minimal setup |
-| [Remote Control](./remote-control "_remote-control".md) | Drive a running session from [claude.ai/code](https://claude.ai/code "https://claude.ai/code") or the Claude mobile app | Your machine (CLI or VS Code) | Run `claude remote-control` | Steering in-progress work from another device |
-| [Channels](./channels "_channels".md) | Push events from a chat app like Telegram or Discord, or your own server | Your machine (CLI) | [Install a channel plugin](./channels#quickstart "_channels#quickstart".md) or [build your own](./channels-reference "_channels-reference".md) | Reacting to external events like CI failures or chat messages |
-| [Slack](./slack "_slack".md) | Mention `@Claude` in a team channel | Anthropic cloud | [Install the Slack app](./slack#setting-up-claude-code-in-slack "_slack#setting-up-claude-code-in-slack".md) with [Claude Code on the web](./claude-code-on-the-web "_claude-code-on-the-web".md) enabled | PRs and reviews from team chat |
-| [Scheduled tasks](./scheduled-tasks "_scheduled-tasks".md) | Set a schedule | [CLI](./scheduled-tasks "_scheduled-tasks".md), [Desktop](./desktop-scheduled-tasks "_desktop-scheduled-tasks".md), or [cloud](./routines "_routines".md) | Pick a frequency | Recurring automation like daily reviews |
+| [Dispatch](./desktop.md#sessions-from-dispatch "/docs/en/desktop#sessions-from-dispatch") | Message a task from the Claude mobile app | Your machine (Desktop) | [Pair the mobile app with Desktop](https://support.claude.com/en/articles/13947068 "https://support.claude.com/en/articles/13947068") | Delegating work while you’re away, minimal setup |
+| [Remote Control](./remote-control.md "/docs/en/remote-control") | Drive a running session from [claude.ai/code](https://claude.ai/code "https://claude.ai/code") or the Claude mobile app | Your machine (CLI or VS Code) | Run `claude remote-control` | Steering in-progress work from another device |
+| [Channels](./channels.md "/docs/en/channels") | Push events from a chat app like Telegram or Discord, or your own server | Your machine (CLI) | [Install a channel plugin](./channels.md#quickstart "/docs/en/channels#quickstart") or [build your own](./channels-reference.md "/docs/en/channels-reference") | Reacting to external events like CI failures or chat messages |
+| [Slack](./slack.md "/docs/en/slack") | Mention `@Claude` in a team channel | Anthropic cloud | [Install the Slack app](./slack.md#setting-up-claude-code-in-slack "/docs/en/slack#setting-up-claude-code-in-slack") with [Claude Code on the web](./claude-code-on-the-web.md "/docs/en/claude-code-on-the-web") enabled | PRs and reviews from team chat |
+| [Scheduled tasks](./scheduled-tasks.md "/docs/en/scheduled-tasks") | Set a schedule | [CLI](./scheduled-tasks.md "/docs/en/scheduled-tasks"), [Desktop](./desktop-scheduled-tasks.md "/docs/en/desktop-scheduled-tasks"), or [cloud](./routines.md "/docs/en/routines") | Pick a frequency | Recurring automation like daily reviews |
 
 ## [​](#related-resources "#related-resources") Related resources
 
-* [Claude Code on the web](./claude-code-on-the-web "_claude-code-on-the-web".md): run sessions in Anthropic-managed cloud environments instead of on your machine
-* [Ultraplan](./ultraplan "_ultraplan".md): launch a cloud planning session from your terminal and review the plan in your browser
-* [Channels](./channels "_channels".md): forward Telegram, Discord, or iMessage into a session so Claude reacts to messages while you’re away
-* [Dispatch](./desktop#sessions-from-dispatch "_desktop#sessions-from-dispatch".md): message a task from your phone and it can spawn a Desktop session to handle it
-* [Authentication](./authentication "_authentication".md): set up `/login` and manage credentials for claude.ai
-* [CLI reference](./cli-reference "_cli-reference".md): full list of flags and commands including `claude remote-control`
-* [Security](./security "_security".md): how Remote Control sessions fit into the Claude Code security model
-* [Data usage](./data-usage "_data-usage".md): what data flows through the Anthropic API during local and remote sessions
+* [Claude Code on the web](./claude-code-on-the-web.md "/docs/en/claude-code-on-the-web"): run sessions in Anthropic-managed cloud environments instead of on your machine
+* [Ultraplan](./ultraplan.md "/docs/en/ultraplan"): launch a cloud planning session from your terminal and review the plan in your browser
+* [Channels](./channels.md "/docs/en/channels"): forward Telegram, Discord, or iMessage into a session so Claude reacts to messages while you’re away
+* [Dispatch](./desktop.md#sessions-from-dispatch "/docs/en/desktop#sessions-from-dispatch"): message a task from your phone and it can spawn a Desktop session to handle it
+* [Authentication](./authentication.md "/docs/en/authentication"): set up `/login` and manage credentials for claude.ai
+* [CLI reference](./cli-reference.md "/docs/en/cli-reference"): full list of flags and commands including `claude remote-control`
+* [Security](./security.md "/docs/en/security"): how Remote Control sessions fit into the Claude Code security model
+* [Data usage](./data-usage.md "/docs/en/data-usage"): what data flows through the Anthropic API during local and remote sessions

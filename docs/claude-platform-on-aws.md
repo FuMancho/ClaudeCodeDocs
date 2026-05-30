@@ -35,7 +35,7 @@ export AWS_PROFILE=my-profile
 ```
 
 For CI and automation, give the runner an IAM role with permission to invoke the Anthropic service and set `AWS_REGION`. The credential chain picks the role up automatically.
-If your SSO credentials expire mid-session, configure [`awsAuthRefresh`](./amazon-bedrock#advanced-credential-configuration "_amazon-bedrock#advanced-credential-configuration".md) so Claude Code re-runs your login command and retries instead of failing. Add the command to your `settings.json`:
+If your SSO credentials expire mid-session, configure [`awsAuthRefresh`](./amazon-bedrock.md#advanced-credential-configuration "/docs/en/amazon-bedrock#advanced-credential-configuration") so Claude Code re-runs your login command and retries instead of failing. Add the command to your `settings.json`:
 
 ```
 {
@@ -51,7 +51,7 @@ export ANTHROPIC_AWS_API_KEY=sk-ant-xxxxx
 ```
 
 The key is sent as `x-api-key` and takes precedence over SigV4, so any AWS credentials in your environment are ignored. API keys from a separate Claude Console organization won’t work here.
-Treat workspace API keys like any other production credential. The [user settings file](./settings "_settings".md) `env` block is a convenient way to scope the key to your machine without exporting it globally.
+Treat workspace API keys like any other production credential. The [user settings file](./settings.md "/docs/en/settings") `env` block is a convenient way to scope the key to your machine without exporting it globally.
 
 The `/login` and `/logout` commands don’t change Claude Platform on AWS authentication. Authentication runs through your AWS credentials or workspace API key, not through a Claude.ai subscription.
 
@@ -79,12 +79,12 @@ export ANTHROPIC_DEFAULT_SONNET_MODEL=claude-sonnet-4-6
 export ANTHROPIC_DEFAULT_HAIKU_MODEL=claude-haiku-4-5
 ```
 
-For the full list of model IDs and aliases, see [Models overview](https://platform.claude.com/docs/en/about-claude/models/overview "https://platform.claude.com/docs/en/about-claude/models/overview"). For other model-related variables, see [Model configuration](./model-config "_model-config".md).
-[Prompt caching](./prompt-caching "_prompt-caching".md) is enabled automatically. To request a 1-hour cache TTL instead of the 5-minute default, set `ENABLE_PROMPT_CACHING_1H=1`. The API bills 1-hour cache writes at a higher rate. See [prompt caching pricing](https://platform.claude.com/docs/en/build-with-claude/prompt-caching#pricing "https://platform.claude.com/docs/en/build-with-claude/prompt-caching#pricing") for the rates.
+For the full list of model IDs and aliases, see [Models overview](https://platform.claude.com/docs/en/about-claude/models/overview "https://platform.claude.com/docs/en/about-claude/models/overview"). For other model-related variables, see [Model configuration](./model-config.md "/docs/en/model-config").
+[Prompt caching](./prompt-caching.md "/docs/en/prompt-caching") is enabled automatically. To request a 1-hour cache TTL instead of the 5-minute default, set `ENABLE_PROMPT_CACHING_1H=1`. The API bills 1-hour cache writes at a higher rate. See [prompt caching pricing](https://platform.claude.com/docs/en/build-with-claude/prompt-caching#pricing "https://platform.claude.com/docs/en/build-with-claude/prompt-caching#pricing") for the rates.
 
 ## [​](#use-the-agent-sdk "#use-the-agent-sdk") Use the Agent SDK
 
-The [Agent SDK](./agent-sdk_overview "_agent-sdk_overview".md) reads the same environment variables as the CLI, so any program that spawns the Claude Code subprocess can target Claude Platform on AWS by exporting `CLAUDE_CODE_USE_ANTHROPIC_AWS`, `ANTHROPIC_AWS_WORKSPACE_ID`, and either `ANTHROPIC_AWS_API_KEY` or AWS credentials before the call.
+The [Agent SDK](./agent-sdk/overview.md "/docs/en/agent-sdk/overview") reads the same environment variables as the CLI, so any program that spawns the Claude Code subprocess can target Claude Platform on AWS by exporting `CLAUDE_CODE_USE_ANTHROPIC_AWS`, `ANTHROPIC_AWS_WORKSPACE_ID`, and either `ANTHROPIC_AWS_API_KEY` or AWS credentials before the call.
 
 ```
 import { query } from "@anthropic-ai/claude-agent-sdk";
@@ -98,11 +98,11 @@ for await (const msg of query({ prompt: "What's in this repo?" })) {
 }
 ```
 
-This example relies on the ambient AWS credential chain for SigV4. To authenticate with a workspace API key instead, set `ANTHROPIC_AWS_API_KEY` the same way. For the broader Agent SDK surface, see [Agent SDK overview](./agent-sdk_overview "_agent-sdk_overview".md).
+This example relies on the ambient AWS credential chain for SigV4. To authenticate with a workspace API key instead, set `ANTHROPIC_AWS_API_KEY` the same way. For the broader Agent SDK surface, see [Agent SDK overview](./agent-sdk/overview.md "/docs/en/agent-sdk/overview").
 
 ## [​](#route-through-a-corporate-proxy "#route-through-a-corporate-proxy") Route through a corporate proxy
 
-To route traffic through a proxy or [LLM gateway](./llm-gateway "_llm-gateway".md), set `ANTHROPIC_AWS_BASE_URL` to the proxy’s address. Claude Code sends requests to that URL with the same workspace and authentication headers, so any gateway that forwards them unchanged works.
+To route traffic through a proxy or [LLM gateway](./llm-gateway.md "/docs/en/llm-gateway"), set `ANTHROPIC_AWS_BASE_URL` to the proxy’s address. Claude Code sends requests to that URL with the same workspace and authentication headers, so any gateway that forwards them unchanged works.
 
 ```
 export CLAUDE_CODE_USE_ANTHROPIC_AWS=1

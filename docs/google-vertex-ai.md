@@ -1,3 +1,5 @@
+# Google Vertex Ai
+
 > ## Documentation Index
 >
 > Fetch the complete documentation index at: [https://code.claude.com/docs/llms.txt](https://code.claude.com/docs/llms.txt "https://code.claude.com/docs/llms.txt")
@@ -38,7 +40,7 @@ Run `claude`. At the login prompt, select **3rd-party platform**, then **Google 
 
 Follow the wizard prompts
 
-Choose how you authenticate to Google Cloud: Application Default Credentials from `gcloud`, a service account key file, or credentials already in your environment. The wizard detects your project and region, verifies which Claude models your project can invoke, and lets you pin them. It saves the result to the `env` block of your [user settings file](./settings "_settings".md), so you don’t need to export environment variables yourself.
+Choose how you authenticate to Google Cloud: Application Default Credentials from `gcloud`, a service account key file, or credentials already in your environment. The wizard detects your project and region, verifies which Claude models your project can invoke, and lets you pin them. It saves the result to the `env` block of your [user settings file](./settings.md "/docs/en/settings"), so you don’t need to export environment variables yourself.
 
 After you’ve signed in, run `/setup-vertex` any time to reopen the wizard and change your credentials, project, region, or model pins.
 
@@ -120,24 +122,24 @@ export VERTEX_REGION_CLAUDE_HAIKU_4_5=us-east5
 export VERTEX_REGION_CLAUDE_4_6_SONNET=europe-west1
 ```
 
-Most model versions have a corresponding `VERTEX_REGION_CLAUDE_*` variable. See the [Environment variables reference](./env-vars "_env-vars".md) for the full list. Check [Vertex Model Garden](https://console.cloud.google.com/vertex-ai/model-garden "https://console.cloud.google.com/vertex-ai/model-garden") to determine which models support global endpoints versus regional only.
-[Prompt caching](./prompt-caching "_prompt-caching".md) is enabled automatically. To disable it, set `DISABLE_PROMPT_CACHING=1`. To request a 1-hour cache TTL instead of the 5-minute default, set `ENABLE_PROMPT_CACHING_1H=1`; cache writes with a 1-hour TTL are billed at a higher rate. For heightened rate limits, contact Google Cloud support. When using Vertex AI, the `/login` and `/logout` commands are disabled since authentication is handled through Google Cloud credentials.
-Claude Code disables [MCP tool search](./mcp#scale-with-mcp-tool-search "_mcp#scale-with-mcp-tool-search".md) by default on Vertex AI, so MCP tool definitions load upfront. Vertex AI supports tool search for Claude Sonnet 4.5 and later and Claude Opus 4.5 and later. Set `ENABLE_TOOL_SEARCH=true` to enable it on those models. Earlier models on Vertex AI do not accept the required beta header, and requests fail if you enable tool search with them.
+Most model versions have a corresponding `VERTEX_REGION_CLAUDE_*` variable. See the [Environment variables reference](./env-vars.md "/docs/en/env-vars") for the full list. Check [Vertex Model Garden](https://console.cloud.google.com/vertex-ai/model-garden "https://console.cloud.google.com/vertex-ai/model-garden") to determine which models support global endpoints versus regional only.
+[Prompt caching](./prompt-caching.md "/docs/en/prompt-caching") is enabled automatically. To disable it, set `DISABLE_PROMPT_CACHING=1`. To request a 1-hour cache TTL instead of the 5-minute default, set `ENABLE_PROMPT_CACHING_1H=1`; cache writes with a 1-hour TTL are billed at a higher rate. For heightened rate limits, contact Google Cloud support. When using Vertex AI, the `/logout` command is unavailable since authentication is handled through Google Cloud credentials.
+Claude Code disables [MCP tool search](./mcp.md#scale-with-mcp-tool-search "/docs/en/mcp#scale-with-mcp-tool-search") by default on Vertex AI, so MCP tool definitions load upfront. Vertex AI supports tool search for Claude Sonnet 4.5 and later and Claude Opus 4.5 and later. Set `ENABLE_TOOL_SEARCH=true` to enable it on those models. Earlier models on Vertex AI do not accept the required beta header, and requests fail if you enable tool search with them.
 
 ### [​](#5-pin-model-versions "#5-pin-model-versions") 5. Pin model versions
 
 Pin specific model versions when deploying to multiple users. Without pinning, model aliases such as `sonnet` and `opus` resolve to the latest version, which may not yet be enabled in your Vertex AI project when Anthropic releases an update. Claude Code [falls back](#startup-model-checks "#startup-model-checks") to the previous version at startup when the latest is unavailable, but pinning lets you control when your users move to a new model.
 
 Set these environment variables to specific Vertex AI model IDs.
-Without `ANTHROPIC_DEFAULT_OPUS_MODEL`, the `opus` alias on Vertex resolves to Opus 4.6. Set it to the Opus 4.7 ID to use the latest model:
+Without `ANTHROPIC_DEFAULT_OPUS_MODEL`, the `opus` alias on Vertex resolves to Opus 4.6. Set it to the Opus 4.8 ID to use the latest model:
 
 ```
-export ANTHROPIC_DEFAULT_OPUS_MODEL='claude-opus-4-7'
+export ANTHROPIC_DEFAULT_OPUS_MODEL='claude-opus-4-8'
 export ANTHROPIC_DEFAULT_SONNET_MODEL='claude-sonnet-4-6'
 export ANTHROPIC_DEFAULT_HAIKU_MODEL='claude-haiku-4-5@20251001'
 ```
 
-For current and legacy model IDs, see [Models overview](https://platform.claude.com/docs/en/about-claude/models/overview "https://platform.claude.com/docs/en/about-claude/models/overview"). See [Model configuration](./model-config#pin-models-for-third-party-deployments "_model-config#pin-models-for-third-party-deployments".md) for the full list of environment variables.
+For current and legacy model IDs, see [Models overview](https://platform.claude.com/docs/en/about-claude/models/overview "https://platform.claude.com/docs/en/about-claude/models/overview"). See [Model configuration](./model-config.md#pin-models-for-third-party-deployments "/docs/en/model-config#pin-models-for-third-party-deployments") for the full list of environment variables.
 Claude Code uses these default models when no pinning variables are set:
 
 | Model type | Default value |
@@ -149,14 +151,14 @@ Background tasks such as session title generation use the small/fast model, norm
 To customize models further:
 
 ```
-export ANTHROPIC_MODEL='claude-opus-4-7'
+export ANTHROPIC_MODEL='claude-opus-4-8'
 export ANTHROPIC_DEFAULT_HAIKU_MODEL='claude-haiku-4-5@20251001'
 ```
 
 ## [​](#startup-model-checks "#startup-model-checks") Startup model checks
 
 When Claude Code starts with Vertex AI configured, it verifies that the models it intends to use are accessible in your project. This check requires Claude Code v2.1.98 or later.
-If you have pinned a model version that is older than the current Claude Code default, and your project can invoke the newer version, Claude Code prompts you to update the pin. Accepting writes the new model ID to your [user settings file](./settings "_settings".md) and restarts Claude Code. Declining is remembered until the next default version change.
+If you have pinned a model version that is older than the current Claude Code default, and your project can invoke the newer version, Claude Code prompts you to update the pin. Accepting writes the new model ID to your [user settings file](./settings.md "/docs/en/settings") and restarts Claude Code. Declining is remembered until the next default version change.
 If you have not pinned a model and the current default is unavailable in your project, Claude Code falls back to the previous version for the current session and shows a notice. The fallback is not persisted. Enable the newer model in [Model Garden](https://console.cloud.google.com/vertex-ai/model-garden "https://console.cloud.google.com/vertex-ai/model-garden") or [pin a version](#5-pin-model-versions "#5-pin-model-versions") to make the choice permanent.
 
 ## [​](#iam-configuration "#iam-configuration") IAM configuration
@@ -173,8 +175,8 @@ Create a dedicated GCP project for Claude Code to simplify cost tracking and acc
 
 ## [​](#1m-token-context-window "#1m-token-context-window") 1M token context window
 
-Claude Opus 4.7, Opus 4.6, and Sonnet 4.6 support the [1M token context window](https://platform.claude.com/docs/en/build-with-claude/context-windows#1m-token-context-window "https://platform.claude.com/docs/en/build-with-claude/context-windows#1m-token-context-window") on Vertex AI. Claude Code automatically enables the extended context window when you select a 1M model variant.
-The [setup wizard](#sign-in-with-vertex-ai "#sign-in-with-vertex-ai") offers a 1M context option when it pins models. To enable it for a manually pinned model instead, append `[1m]` to the model ID. See [Pin models for third-party deployments](./model-config#pin-models-for-third-party-deployments "_model-config#pin-models-for-third-party-deployments".md) for details.
+Claude Opus 4.6 and later, and Sonnet 4.6, support the [1M token context window](https://platform.claude.com/docs/en/build-with-claude/context-windows#1m-token-context-window "https://platform.claude.com/docs/en/build-with-claude/context-windows#1m-token-context-window") on Vertex AI. Claude Code automatically enables the extended context window when you select a 1M model variant.
+The [setup wizard](#sign-in-with-vertex-ai "#sign-in-with-vertex-ai") offers a 1M context option when it pins models. To enable it for a manually pinned model instead, append `[1m]` to the model ID. See [Pin models for third-party deployments](./model-config.md#pin-models-for-third-party-deployments "/docs/en/model-config#pin-models-for-third-party-deployments") for details.
 
 ## [​](#troubleshooting "#troubleshooting") Troubleshooting
 

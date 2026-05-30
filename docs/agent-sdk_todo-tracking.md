@@ -155,7 +155,7 @@ for await (const message of query({
 
 ## [​](#related-documentation "#related-documentation") Related Documentation
 
-* [TypeScript SDK Reference](./agent-sdk_typescript "_agent-sdk_typescript".md)
-* [Python SDK Reference](./agent-sdk_python "_agent-sdk_python".md)
-* [Streaming vs Single Mode](./agent-sdk_streaming-vs-single-mode "_agent-sdk_streaming-vs-single-mode".md)
-* [Custom Tools](./agent-sdk_custom-tools "_agent-sdk_custom-tools".md)
+* [TypeScript SDK Reference](./agent-sdk/typescript.md "/docs/en/agent-sdk/typescript")
+* [Python SDK Reference](./agent-sdk/python.md "/docs/en/agent-sdk/python")
+* [Streaming vs Single Mode](./agent-sdk/streaming-vs-single-mode.md "/docs/en/agent-sdk/streaming-vs-single-mode")
+* [Custom Tools](./agent-sdk/custom-tools.md "/docs/en/agent-sdk/custom-tools")

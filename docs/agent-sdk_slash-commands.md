@@ -79,8 +79,8 @@ for await (const message of query({
 
 ### [​](#/clear-reset-conversation-context "#/clear-reset-conversation-context") `/clear` - Reset conversation context
 
-The `/clear` command resets the conversation to an empty context, so subsequent prompts start with no prior conversation history. The previous conversation remains on disk and can be returned to by passing its session ID to the [`resume` option](./agent-sdk_sessions#resume-by-id "_agent-sdk_sessions#resume-by-id".md).
-This is useful in [streaming input mode](./agent-sdk_streaming-vs-single-mode "_agent-sdk_streaming-vs-single-mode".md), where you send multiple prompts over a single connection. For one-shot `query()` calls, each call already starts with empty context, so sending `/clear` has no practical effect; start a new `query()` instead.
+The `/clear` command resets the conversation to an empty context, so subsequent prompts start with no prior conversation history. The previous conversation remains on disk and can be returned to by passing its session ID to the [`resume` option](./agent-sdk/sessions.md#resume-by-id "/docs/en/agent-sdk/sessions#resume-by-id").
+This is useful in [streaming input mode](./agent-sdk/streaming-vs-single-mode.md "/docs/en/agent-sdk/streaming-vs-single-mode"), where you send multiple prompts over a single connection. For one-shot `query()` calls, each call already starts with empty context, so sending `/clear` has no practical effect; start a new `query()` instead.
 
 `/clear` in the SDK requires Claude Code v2.1.117 or later. In earlier versions it is omitted from `slash_commands`.
 
@@ -88,7 +88,7 @@ This is useful in [streaming input mode](./agent-sdk_streaming-vs-single-mode "_
 
 In addition to using built-in slash commands, you can create your own custom commands that are available through the SDK. Custom commands are defined as markdown files in specific directories, similar to how subagents are configured.
 
-The `.claude/commands/` directory is the legacy format. The recommended format is `.claude/skills/<name>/SKILL.md`, which supports the same slash-command invocation (`/name`) plus autonomous invocation by Claude. See [Skills](./agent-sdk_skills "_agent-sdk_skills".md) for the current format. The CLI continues to support both formats, and the examples below remain accurate for `.claude/commands/`.
+The `.claude/commands/` directory is the legacy format. The recommended format is `.claude/skills/<name>/SKILL.md`, which supports the same slash-command invocation (`/name`) plus autonomous invocation by Claude. See [Skills](./agent-sdk/skills.md "/docs/en/agent-sdk/skills") for the current format. The CLI continues to support both formats, and the examples below remain accurate for `.claude/commands/`.
 
 ### [​](#file-locations "#file-locations") File Locations
 
@@ -339,8 +339,8 @@ for await (const message of query({
 
 ## [​](#see-also "#see-also") See Also
 
-* [Slash Commands](./skills "_skills".md) - Complete slash command documentation
-* [Subagents in the SDK](./agent-sdk_subagents "_agent-sdk_subagents".md) - Similar filesystem-based configuration for subagents
-* [TypeScript SDK reference](./agent-sdk_typescript "_agent-sdk_typescript".md) - Complete API documentation
-* [SDK overview](./agent-sdk_overview "_agent-sdk_overview".md) - General SDK concepts
-* [CLI reference](./cli-reference "_cli-reference".md) - Command-line interface
+* [Slash Commands](./skills.md "/docs/en/skills") - Complete slash command documentation
+* [Subagents in the SDK](./agent-sdk/subagents.md "/docs/en/agent-sdk/subagents") - Similar filesystem-based configuration for subagents
+* [TypeScript SDK reference](./agent-sdk/typescript.md "/docs/en/agent-sdk/typescript") - Complete API documentation
+* [SDK overview](./agent-sdk/overview.md "/docs/en/agent-sdk/overview") - General SDK concepts
+* [CLI reference](./cli-reference.md "/docs/en/cli-reference") - Command-line interface

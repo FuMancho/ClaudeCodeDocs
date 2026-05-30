@@ -1,3 +1,5 @@
+# Third Party Integrations
+
 > ## Documentation Index
 >
 > Fetch the complete documentation index at: [https://code.claude.com/docs/llms.txt](https://code.claude.com/docs/llms.txt "https://code.claude.com/docs/llms.txt")
@@ -28,28 +30,28 @@ If your organization has specific infrastructure requirements, compare the optio
 
 Select a deployment option to view setup instructions:
 
-* [Claude for Teams or Enterprise](./authentication#claude-for-teams-or-enterprise "_authentication#claude-for-teams-or-enterprise".md)
-* [Anthropic Console](./authentication#claude-console-authentication "_authentication#claude-console-authentication".md)
-* [Amazon Bedrock](./amazon-bedrock "_amazon-bedrock".md)
-* [Claude Platform on AWS](./claude-platform-on-aws "_claude-platform-on-aws".md)
-* [Google Vertex AI](./google-vertex-ai "_google-vertex-ai".md)
-* [Microsoft Foundry](./microsoft-foundry "_microsoft-foundry".md)
+* [Claude for Teams or Enterprise](./authentication.md#claude-for-teams-or-enterprise "/docs/en/authentication#claude-for-teams-or-enterprise")
+* [Anthropic Console](./authentication.md#claude-console-authentication "/docs/en/authentication#claude-console-authentication")
+* [Amazon Bedrock](./amazon-bedrock.md "/docs/en/amazon-bedrock")
+* [Claude Platform on AWS](./claude-platform-on-aws.md "/docs/en/claude-platform-on-aws")
+* [Google Vertex AI](./google-vertex-ai.md "/docs/en/google-vertex-ai")
+* [Microsoft Foundry](./microsoft-foundry.md "/docs/en/microsoft-foundry")
 
 ## [​](#configure-proxies-and-gateways "#configure-proxies-and-gateways") Configure proxies and gateways
 
 Most organizations can use a cloud provider directly without additional configuration. However, you may need to configure a corporate proxy or LLM gateway if your organization has specific network or management requirements. These are different configurations that can be used together:
 
-* **Corporate proxy**: Routes traffic through an HTTP/HTTPS proxy. Use this if your organization requires all outbound traffic to pass through a proxy server for security monitoring, compliance, or network policy enforcement. Configure with the `HTTPS_PROXY` or `HTTP_PROXY` environment variables. Learn more in [Enterprise network configuration](./network-config "_network-config".md).
-* **LLM Gateway**: A service that sits between Claude Code and the cloud provider to handle authentication and routing. Use this if you need centralized usage tracking across teams, custom rate limiting or budgets, or centralized authentication management. Configure with the `ANTHROPIC_BASE_URL`, `ANTHROPIC_BEDROCK_BASE_URL`, `ANTHROPIC_AWS_BASE_URL`, or `ANTHROPIC_VERTEX_BASE_URL` environment variables. Learn more in [LLM gateway configuration](./llm-gateway "_llm-gateway".md).
+* **Corporate proxy**: Routes traffic through an HTTP/HTTPS proxy. Use this if your organization requires all outbound traffic to pass through a proxy server for security monitoring, compliance, or network policy enforcement. Configure with the `HTTPS_PROXY` or `HTTP_PROXY` environment variables. Learn more in [Enterprise network configuration](./network-config.md "/docs/en/network-config").
+* **LLM Gateway**: A service that sits between Claude Code and the cloud provider to handle authentication and routing. Use this if you need centralized usage tracking across teams, custom rate limiting or budgets, or centralized authentication management. Configure with the `ANTHROPIC_BASE_URL`, `ANTHROPIC_BEDROCK_BASE_URL`, `ANTHROPIC_AWS_BASE_URL`, or `ANTHROPIC_VERTEX_BASE_URL` environment variables. Learn more in [LLM gateway configuration](./llm-gateway.md "/docs/en/llm-gateway").
 
-The following examples show the environment variables to set in your shell or shell profile (`.bashrc`, `.zshrc`). See [Settings](./settings "_settings".md) for other configuration methods.
+The following examples show the environment variables to set in your shell or shell profile (`.bashrc`, `.zshrc`). See [Settings](./settings.md "/docs/en/settings") for other configuration methods.
 
 ### [​](#amazon-bedrock "#amazon-bedrock") Amazon Bedrock
 
 * Corporate proxy
 * LLM Gateway
 
-Route Bedrock traffic through your corporate proxy by setting the following [environment variables](./env-vars "_env-vars".md):
+Route Bedrock traffic through your corporate proxy by setting the following [environment variables](./env-vars.md "/docs/en/env-vars"):
 
 ```
 # Enable Bedrock
@@ -60,7 +62,7 @@ export AWS_REGION=us-east-1
 export HTTPS_PROXY='https://proxy.example.com:8080'
 ```
 
-Route Bedrock traffic through your LLM gateway by setting the following [environment variables](./env-vars "_env-vars".md):
+Route Bedrock traffic through your LLM gateway by setting the following [environment variables](./env-vars.md "/docs/en/env-vars"):
 
 ```
 # Enable Bedrock
@@ -76,7 +78,7 @@ export CLAUDE_CODE_SKIP_BEDROCK_AUTH=1  # If gateway handles AWS auth
 * Corporate proxy
 * LLM Gateway
 
-Route Foundry traffic through your corporate proxy by setting the following [environment variables](./env-vars "_env-vars".md):
+Route Foundry traffic through your corporate proxy by setting the following [environment variables](./env-vars.md "/docs/en/env-vars"):
 
 ```
 # Enable Microsoft Foundry
@@ -88,7 +90,7 @@ export ANTHROPIC_FOUNDRY_API_KEY=your-api-key  # Or omit for Entra ID auth
 export HTTPS_PROXY='https://proxy.example.com:8080'
 ```
 
-Route Foundry traffic through your LLM gateway by setting the following [environment variables](./env-vars "_env-vars".md):
+Route Foundry traffic through your LLM gateway by setting the following [environment variables](./env-vars.md "/docs/en/env-vars"):
 
 ```
 # Enable Microsoft Foundry
@@ -104,7 +106,7 @@ export CLAUDE_CODE_SKIP_FOUNDRY_AUTH=1  # If gateway handles Azure auth
 * Corporate proxy
 * LLM Gateway
 
-Route Vertex AI traffic through your corporate proxy by setting the following [environment variables](./env-vars "_env-vars".md):
+Route Vertex AI traffic through your corporate proxy by setting the following [environment variables](./env-vars.md "/docs/en/env-vars"):
 
 ```
 # Enable Vertex
@@ -116,7 +118,7 @@ export ANTHROPIC_VERTEX_PROJECT_ID=your-project-id
 export HTTPS_PROXY='https://proxy.example.com:8080'
 ```
 
-Route Vertex AI traffic through your LLM gateway by setting the following [environment variables](./env-vars "_env-vars".md):
+Route Vertex AI traffic through your LLM gateway by setting the following [environment variables](./env-vars.md "/docs/en/env-vars"):
 
 ```
 # Enable Vertex
@@ -138,7 +140,7 @@ We strongly recommend investing in documentation so that Claude Code understands
 * **Organization-wide**: Deploy to system directories like `/Library/Application Support/ClaudeCode/CLAUDE.md` (macOS) for company-wide standards
 * **Repository-level**: Create `CLAUDE.md` files in repository roots containing project architecture, build commands, and contribution guidelines. Check these into source control so all users benefit
 
-Learn more in [Memory and CLAUDE.md files](./memory "_memory".md).
+Learn more in [Memory and CLAUDE.md files](./memory.md "/docs/en/memory").
 
 ### [​](#simplify-deployment "#simplify-deployment") Simplify deployment
 
@@ -150,21 +152,21 @@ Encourage new users to try Claude Code for codebase Q&A, or on smaller bug fixes
 
 ### [​](#pin-model-versions-for-cloud-providers "#pin-model-versions-for-cloud-providers") Pin model versions for cloud providers
 
-If you deploy through [Bedrock](./amazon-bedrock "_amazon-bedrock".md), [Vertex AI](./google-vertex-ai "_google-vertex-ai".md), [Foundry](./microsoft-foundry "_microsoft-foundry".md), or [Claude Platform on AWS](./claude-platform-on-aws "_claude-platform-on-aws".md), pin specific model versions using `ANTHROPIC_DEFAULT_OPUS_MODEL`, `ANTHROPIC_DEFAULT_SONNET_MODEL`, and `ANTHROPIC_DEFAULT_HAIKU_MODEL`. Without pinning, model aliases resolve to the latest version, which may not yet be enabled in your account when Anthropic releases an update. Pinning lets you control when your users move to a new model. See [Model configuration](./model-config#pin-models-for-third-party-deployments "_model-config#pin-models-for-third-party-deployments".md) for what each provider does when the latest version is unavailable.
+If you deploy through [Bedrock](./amazon-bedrock.md "/docs/en/amazon-bedrock"), [Vertex AI](./google-vertex-ai.md "/docs/en/google-vertex-ai"), [Foundry](./microsoft-foundry.md "/docs/en/microsoft-foundry"), or [Claude Platform on AWS](./claude-platform-on-aws.md "/docs/en/claude-platform-on-aws"), pin specific model versions using `ANTHROPIC_DEFAULT_OPUS_MODEL`, `ANTHROPIC_DEFAULT_SONNET_MODEL`, and `ANTHROPIC_DEFAULT_HAIKU_MODEL`. Without pinning, model aliases resolve to the latest version, which may not yet be enabled in your account when Anthropic releases an update. Pinning lets you control when your users move to a new model. See [Model configuration](./model-config.md#pin-models-for-third-party-deployments "/docs/en/model-config#pin-models-for-third-party-deployments") for what each provider does when the latest version is unavailable.
 
 ### [​](#configure-security-policies "#configure-security-policies") Configure security policies
 
-Security teams can configure managed permissions for what Claude Code is and is not allowed to do, which cannot be overwritten by local configuration. [Learn more](./security "_security".md).
+Security teams can configure managed permissions for what Claude Code is and is not allowed to do, which cannot be overwritten by local configuration. [Learn more](./security.md "/docs/en/security").
 
 ### [​](#leverage-mcp-for-integrations "#leverage-mcp-for-integrations") Leverage MCP for integrations
 
-MCP is a great way to give Claude Code more information, such as connecting to ticket management systems or error logs. We recommend that one central team configures MCP servers and checks a `.mcp.json` configuration into the codebase so that all users benefit. [Learn more](./mcp "_mcp".md).
+MCP is a great way to give Claude Code more information, such as connecting to ticket management systems or error logs. We recommend that one central team configures MCP servers and checks a `.mcp.json` configuration into the codebase so that all users benefit. [Learn more](./mcp.md "/docs/en/mcp").
 At Anthropic, we trust Claude Code to power development across every Anthropic codebase. We hope you enjoy using Claude Code as much as we do.
 
 ## [​](#next-steps "#next-steps") Next steps
 
 Once you’ve chosen a deployment option and configured access for your team:
 
-1. **Roll out to your team**: Share installation instructions and have team members [install Claude Code](./setup "_setup".md) and authenticate with their credentials.
-2. **Set up shared configuration**: Create a [CLAUDE.md file](./memory "_memory".md) in your repositories to help Claude Code understand your codebase and coding standards.
-3. **Configure permissions**: Review [security settings](./security "_security".md) to define what Claude Code can and cannot do in your environment.
+1. **Roll out to your team**: Share installation instructions and have team members [install Claude Code](./setup.md "/docs/en/setup") and authenticate with their credentials.
+2. **Set up shared configuration**: Create a [CLAUDE.md file](./memory.md "/docs/en/memory") in your repositories to help Claude Code understand your codebase and coding standards.
+3. **Configure permissions**: Review [security settings](./security.md "/docs/en/security") to define what Claude Code can and cannot do in your environment.

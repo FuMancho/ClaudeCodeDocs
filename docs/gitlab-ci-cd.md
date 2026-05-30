@@ -1,3 +1,5 @@
+# Gitlab Ci Cd
+
 > ## Documentation Index
 >
 > Fetch the complete documentation index at: [https://code.claude.com/docs/llms.txt](https://code.claude.com/docs/llms.txt "https://code.claude.com/docs/llms.txt")
@@ -6,7 +8,7 @@
 
 Claude Code for GitLab CI/CD is currently in beta. Features and functionality may evolve as we refine the experience.This integration is maintained by GitLab. For support, see the following [GitLab issue](https://gitlab.com/gitlab-org/gitlab/-/issues/573776 "https://gitlab.com/gitlab-org/gitlab/-/issues/573776").
 
-This integration is built on top of the [Claude Code CLI and Agent SDK](./agent-sdk_overview "_agent-sdk_overview".md), enabling programmatic use of Claude in your CI/CD jobs and custom automation workflows.
+This integration is built on top of the [Claude Code CLI and Agent SDK](./agent-sdk/overview.md "/docs/en/agent-sdk/overview"), enabling programmatic use of Claude in your CI/CD jobs and custom automation workflows.
 
 ## [​](#why-use-claude-code-with-gitlab "#why-use-claude-code-with-gitlab") Why use Claude Code with GitLab?
 

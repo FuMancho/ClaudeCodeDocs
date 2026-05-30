@@ -21,12 +21,12 @@ To use server-managed settings, you need:
 
 ## [​](#choose-between-server-managed-and-endpoint-managed-settings "#choose-between-server-managed-and-endpoint-managed-settings") Choose between server-managed and endpoint-managed settings
 
-Claude Code supports two approaches for centralized configuration. Server-managed settings deliver configuration from Anthropic’s servers. [Endpoint-managed settings](./settings#settings-files "_settings#settings-files".md) are deployed directly to devices through native OS policies (macOS managed preferences, Windows registry) or managed settings files.
+Claude Code supports two approaches for centralized configuration. Server-managed settings deliver configuration from Anthropic’s servers. [Endpoint-managed settings](./settings.md#settings-files "/docs/en/settings#settings-files") are deployed directly to devices through native OS policies (macOS managed preferences, Windows registry) or managed settings files.
 
 | Approach | Best for | Security model |
 | --- | --- | --- |
 | **Server-managed settings** | Organizations without MDM, or users on unmanaged devices | Settings delivered from Anthropic’s servers at authentication time |
-| **[Endpoint-managed settings](./settings#settings-files "_settings#settings-files".md)** | Organizations with MDM or endpoint management | Settings deployed to devices via MDM configuration profiles, registry policies, or managed settings files |
+| **[Endpoint-managed settings](./settings.md#settings-files "/docs/en/settings#settings-files")** | Organizations with MDM or endpoint management | Settings deployed to devices via MDM configuration profiles, registry policies, or managed settings files |
 
 If your devices are enrolled in an MDM or endpoint management solution, endpoint-managed settings provide stronger security guarantees because the settings file can be protected from user modification at the OS level.
 
@@ -42,7 +42,7 @@ In [Claude.ai](https://claude.ai "https://claude.ai"), navigate to **Admin Setti
 
 Define your settings
 
-Add your configuration as JSON. All [settings available in `settings.json`](./settings#available-settings "_settings#available-settings".md) are supported except those restricted to OS-level policy delivery; see [Current limitations](#current-limitations "#current-limitations") for that short list. This includes [hooks](./hooks "_hooks".md), [environment variables](./env-vars "_env-vars".md), and [managed-only settings](./permissions#managed-only-settings "_permissions#managed-only-settings".md) like `allowManagedPermissionRulesOnly`.This example enforces a permission deny list, prevents users from bypassing permissions, and restricts permission rules to those defined in managed settings:
+Add your configuration as JSON. All [settings available in `settings.json`](./settings.md#available-settings "/docs/en/settings#available-settings") are supported except those restricted to OS-level policy delivery; see [Current limitations](#current-limitations "#current-limitations") for that short list. This includes [hooks](./hooks.md "/docs/en/hooks"), [environment variables](./env-vars.md "/docs/en/env-vars"), and [managed-only settings](./permissions.md#managed-only-settings "/docs/en/permissions#managed-only-settings") like `allowManagedPermissionRulesOnly`.This example enforces a permission deny list, prevents users from bypassing permissions, and restricts permission rules to those defined in managed settings:
 
 ```
 {
@@ -76,7 +76,7 @@ Hooks use the same format as in `settings.json`.This example runs an audit scrip
 }
 ```
 
-To configure the [auto mode](./permission-modes#eliminate-prompts-with-auto-mode "_permission-modes#eliminate-prompts-with-auto-mode".md) classifier so it knows which repos, buckets, and domains your organization trusts:
+To configure the [auto mode](./permission-modes.md#eliminate-prompts-with-auto-mode "/docs/en/permission-modes#eliminate-prompts-with-auto-mode") classifier so it knows which repos, buckets, and domains your organization trusts:
 
 ```
 {
@@ -90,7 +90,7 @@ To configure the [auto mode](./permission-modes#eliminate-prompts-with-auto-mode
 }
 ```
 
-Because hooks execute shell commands, users see a [security approval dialog](#security-approval-dialogs "#security-approval-dialogs") before they’re applied. See [Configure auto mode](./auto-mode-config "_auto-mode-config".md) for how the `autoMode` entries affect what the classifier blocks and important warnings about the `environment`, `allow`, `soft_deny`, and `hard_deny` fields.
+Because hooks execute shell commands, users see a [security approval dialog](#security-approval-dialogs "#security-approval-dialogs") before they’re applied. See [Configure auto mode](./auto-mode-config.md "/docs/en/auto-mode-config") for how the `autoMode` entries affect what the classifier blocks and important warnings about the `environment`, `allow`, `soft_deny`, and `hard_deny` fields.
 
 3
 
@@ -113,21 +113,21 @@ Restrict access to trusted personnel, as settings changes apply to all users in 
 
 ### [​](#managed-only-settings "#managed-only-settings") Managed-only settings
 
-Most [settings keys](./settings#available-settings "_settings#available-settings".md) work in any scope. A handful of keys are only read from managed settings and have no effect when placed in user or project settings files. See [managed-only settings](./permissions#managed-only-settings "_permissions#managed-only-settings".md) for the full list. Any setting not on that list can still be placed in managed settings and takes the highest precedence.
+Most [settings keys](./settings.md#available-settings "/docs/en/settings#available-settings") work in any scope. A handful of keys are only read from managed settings and have no effect when placed in user or project settings files. See [managed-only settings](./permissions.md#managed-only-settings "/docs/en/permissions#managed-only-settings") for the full list. Any setting not on that list can still be placed in managed settings and takes the highest precedence.
 
 ### [​](#current-limitations "#current-limitations") Current limitations
 
 Server-managed settings have the following limitations:
 
 * Settings apply uniformly to all users in the organization. Per-group configurations are not yet supported.
-* A [`managed-mcp.json`](./managed-mcp "_managed-mcp".md) file cannot be distributed through server-managed settings. Deliver the `allowedMcpServers` and `deniedMcpServers` policy keys there instead.
+* A [`managed-mcp.json`](./managed-mcp.md "/docs/en/managed-mcp") file cannot be distributed through server-managed settings. Deliver the `allowedMcpServers` and `deniedMcpServers` policy keys there instead.
 * Settings restricted to OS-level policy sources, such as `policyHelper` and `wslInheritsWindowsSettings`, are not honored. Deploy them through MDM or a system `managed-settings.json` file instead.
 
 ## [​](#settings-delivery "#settings-delivery") Settings delivery
 
 ### [​](#settings-precedence "#settings-precedence") Settings precedence
 
-Server-managed settings and [endpoint-managed settings](./settings#settings-files "_settings#settings-files".md) both occupy the highest tier in the Claude Code [settings hierarchy](./settings#settings-precedence "_settings#settings-precedence".md). No other settings level can override them, including command line arguments.
+Server-managed settings and [endpoint-managed settings](./settings.md#settings-files "/docs/en/settings#settings-files") both occupy the highest tier in the Claude Code [settings hierarchy](./settings.md#settings-precedence "/docs/en/settings#settings-precedence"). No other settings level can override them, including command line arguments.
 Within the managed tier, the first source that delivers a non-empty configuration wins. Server-managed settings are checked first, then endpoint-managed settings. Sources do not merge: if server-managed settings deliver any keys at all, endpoint-managed settings are ignored entirely. If server-managed settings deliver nothing, endpoint-managed settings apply.
 If you clear your server-managed configuration in the admin console with the intent of falling back to an endpoint-managed plist or registry policy, be aware that [cached settings](#fetch-and-caching-behavior "#fetch-and-caching-behavior") persist on client machines until the next successful fetch. Run `/status` to see which managed source is active.
 
@@ -182,7 +182,7 @@ Server-managed settings require a direct connection to `api.anthropic.com` and a
 * Amazon Bedrock
 * Google Vertex AI
 * Microsoft Foundry
-* Custom API endpoints via `ANTHROPIC_BASE_URL` or [LLM gateways](./llm-gateway "_llm-gateway".md)
+* Custom API endpoints via `ANTHROPIC_BASE_URL` or [LLM gateways](./llm-gateway.md "/docs/en/llm-gateway")
 
 ## [​](#audit-logging "#audit-logging") Audit logging
 
@@ -201,14 +201,14 @@ Server-managed settings provide centralized policy enforcement, but they operate
 | User authenticates with a different organization | Settings are not delivered for accounts outside the managed organization |
 | User configures a [third-party model provider](#platform-availability "#platform-availability") | Server-managed settings are bypassed. This includes setting `CLAUDE_CODE_USE_BEDROCK`, `CLAUDE_CODE_USE_MANTLE`, `CLAUDE_CODE_USE_VERTEX`, `CLAUDE_CODE_USE_FOUNDRY`, or a non-default `ANTHROPIC_BASE_URL` |
 
-To detect runtime configuration changes, use [`ConfigChange` hooks](./hooks#configchange "_hooks#configchange".md) to log modifications or block unauthorized changes before they take effect.
-For stronger enforcement guarantees, use [endpoint-managed settings](./settings#settings-files "_settings#settings-files".md) on devices enrolled in an MDM solution.
+To detect runtime configuration changes, use [`ConfigChange` hooks](./hooks.md#configchange "/docs/en/hooks#configchange") to log modifications or block unauthorized changes before they take effect.
+For stronger enforcement guarantees, use [endpoint-managed settings](./settings.md#settings-files "/docs/en/settings#settings-files") on devices enrolled in an MDM solution.
 
 ## [​](#see-also "#see-also") See also
 
 Related pages for managing Claude Code configuration:
 
-* [Settings](./settings "_settings".md): complete configuration reference including all available settings
-* [Endpoint-managed settings](./settings#settings-files "_settings#settings-files".md): managed settings deployed to devices by IT
-* [Authentication](./authentication "_authentication".md): set up user access to Claude Code
-* [Security](./security "_security".md): security safeguards and best practices
+* [Settings](./settings.md "/docs/en/settings"): complete configuration reference including all available settings
+* [Endpoint-managed settings](./settings.md#settings-files "/docs/en/settings#settings-files"): managed settings deployed to devices by IT
+* [Authentication](./authentication.md "/docs/en/authentication"): set up user access to Claude Code
+* [Security](./security.md "/docs/en/security"): security safeguards and best practices

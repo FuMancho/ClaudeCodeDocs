@@ -15,7 +15,7 @@ The term fullscreen describes how Claude Code takes over the terminal’s drawin
 
 ## [​](#enable-fullscreen-rendering "#enable-fullscreen-rendering") Enable fullscreen rendering
 
-Run `/tui fullscreen` inside any Claude Code conversation. The CLI saves the [`tui` setting](./settings#available-settings "_settings#available-settings".md) and relaunches into fullscreen with your conversation intact, so you can switch mid-session without losing context. Run `/tui` with no argument to print which renderer is active.
+Run `/tui fullscreen` inside any Claude Code conversation. The CLI saves the [`tui` setting](./settings.md#available-settings "/docs/en/settings#available-settings") and relaunches into fullscreen with your conversation intact, so you can switch mid-session without losing context. Run `/tui` with no argument to print which renderer is active.
 You can also set the `CLAUDE_CODE_NO_FLICKER` environment variable before starting Claude Code:
 
 ```
@@ -63,7 +63,7 @@ Fullscreen rendering handles scrolling inside the app. Use these shortcuts to na
 | Mouse wheel | Scroll a few lines at a time |
 
 On keyboards without dedicated `PgUp`, `PgDn`, `Home`, or `End` keys, like MacBook keyboards, hold `Fn` with the arrow keys: `Fn+↑` sends `PgUp`, `Fn+↓` sends `PgDn`, `Fn+←` sends `Home`, and `Fn+→` sends `End`. That makes `Ctrl+Fn+→` the jump-to-bottom shortcut. If that feels awkward, scroll to the bottom with the mouse wheel to resume following, or rebind `scroll:bottom` to something reachable.
-These actions are rebindable. See [Scroll actions](./keybindings#scroll-actions "_keybindings#scroll-actions".md) for the full list of action names, including half-page and full-page variants that have no default binding.
+These actions are rebindable. See [Scroll actions](./keybindings.md#scroll-actions "/docs/en/keybindings#scroll-actions") for the full list of action names, including half-page and full-page variants that have no default binding.
 
 ### [​](#auto-follow "#auto-follow") Auto-follow
 
@@ -130,7 +130,7 @@ tmux does not support synchronized output, so you may see more flicker during re
 ## [​](#keep-native-text-selection "#keep-native-text-selection") Keep native text selection
 
 Mouse capture is the most common friction point, especially over SSH or inside tmux. When Claude Code captures mouse events, your terminal’s native copy-on-select stops working. The selection you make with click-and-drag exists inside Claude Code, not in your terminal’s selection buffer, so tmux copy mode, Kitty hints, and similar tools don’t see it.
-Claude Code tries to write the selection to your clipboard, but the path it uses depends on your setup. Inside tmux it writes to the tmux paste buffer. Over SSH it falls back to OSC 52 escape sequences, which some terminals block by default. iTerm2 blocks them until you turn on Settings → General → Selection → Applications in terminal may access clipboard. Running [`/terminal-setup`](./terminal-config "_terminal-config".md) in iTerm2 enables this for you. Claude Code prints a toast after each copy telling you which path it used.
+Claude Code tries to write the selection to your clipboard, but the path it uses depends on your setup. Inside tmux it writes to the tmux paste buffer. Over SSH it falls back to OSC 52 escape sequences, which some terminals block by default. iTerm2 blocks them until you turn on Settings → General → Selection → Applications in terminal may access clipboard. Running [`/terminal-setup`](./terminal-config.md "/docs/en/terminal-config") in iTerm2 enables this for you. Claude Code prints a toast after each copy telling you which path it used.
 For a one-off native selection, hold your terminal’s bypass modifier while you click and drag: `Option` in iTerm2, or `Shift` in most Linux and Windows terminals. The modifier tells your terminal to handle the selection itself instead of forwarding mouse events to Claude Code, so `Cmd+C` and your terminal’s other copy shortcuts work on it.
 If you rely on native selection all the time, set `CLAUDE_CODE_DISABLE_MOUSE=1` to opt out of mouse capture while keeping the flicker-free rendering and flat memory:
 

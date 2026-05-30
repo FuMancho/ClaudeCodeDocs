@@ -268,4 +268,4 @@ for await (const msg of query({
 
 * [JSON Schema documentation](https://json-schema.org/ "https://json-schema.org/"): learn JSON Schema syntax for defining complex schemas with nested objects, arrays, enums, and validation constraints
 * [API Structured Outputs](https://platform.claude.com/docs/en/build-with-claude/structured-outputs "https://platform.claude.com/docs/en/build-with-claude/structured-outputs"): use structured outputs with the Claude API directly for single-turn requests without tool use
-* [Custom tools](./agent-sdk_custom-tools "_agent-sdk_custom-tools".md): give your agent custom tools to call during execution before returning structured output
+* [Custom tools](./agent-sdk/custom-tools.md "/docs/en/agent-sdk/custom-tools"): give your agent custom tools to call during execution before returning structured output

@@ -1,3 +1,5 @@
+# Llm Gateway
+
 > ## Documentation Index
 >
 > Fetch the complete documentation index at: [https://code.claude.com/docs/llms.txt](https://code.claude.com/docs/llms.txt "https://code.claude.com/docs/llms.txt")
@@ -39,7 +41,7 @@ Claude Code includes the following headers on API requests:
 | `X-Claude-Code-Parent-Agent-Id` | Identifier of the agent that spawned the agent making the request. Use this with `X-Claude-Code-Agent-Id` to attribute API costs across nested agents in your proxy. Present only when the requesting agent was itself spawned by another agent. |
 
 Both agent ID headers are ephemeral per-spawn identifiers, not persistent user or device IDs.
-Claude Code also prepends a short attribution block to the system prompt containing the client version and a fingerprint derived from the conversation. The Anthropic API strips this block before processing, so it does not affect first-party prompt caching. If your gateway implements its own prompt cache keyed on the full request body, set [`CLAUDE_CODE_ATTRIBUTION_HEADER=0`](./env-vars "_env-vars".md) to omit it.
+Claude Code also prepends a short attribution block to the system prompt containing the client version and a fingerprint derived from the conversation. The Anthropic API strips this block before processing, so it does not affect first-party prompt caching. If your gateway implements its own prompt cache keyed on the full request body, set [`CLAUDE_CODE_ATTRIBUTION_HEADER=0`](./env-vars.md "/docs/en/env-vars") to omit it.
 
 ## [​](#configuration "#configuration") Configuration
 
@@ -49,7 +51,7 @@ By default, Claude Code uses standard model names for the selected API format.
 When `ANTHROPIC_BASE_URL` points at a gateway that exposes the Anthropic Messages format, Claude Code can query the gateway’s `/v1/models` endpoint at startup and add the returned models to the `/model` picker. Set `CLAUDE_CODE_ENABLE_GATEWAY_MODEL_DISCOVERY=1` to enable this. Discovery is off by default so that gateways backed by a shared API key do not surface every model the key can access to every user. Each discovered entry is labeled “From gateway” and uses the `display_name` field from the response when one is provided. This requires Claude Code v2.1.129 or later.
 Discovery applies only to the Anthropic Messages format. It does not run for Bedrock or Vertex pass-through endpoints, and it does not run when `ANTHROPIC_BASE_URL` is unset or points at `api.anthropic.com`.
 The discovery request authenticates the same way as inference requests: it sends `ANTHROPIC_AUTH_TOKEN` as a bearer token, or `ANTHROPIC_API_KEY` as the `x-api-key` header when no auth token is set, along with any headers from `ANTHROPIC_CUSTOM_HEADERS`. Only models whose ID begins with `claude` or `anthropic` are added to the picker. Results are cached to `~/.claude/cache/gateway-models.json` and refreshed on each startup. If the request fails or the gateway does not implement `/v1/models`, the picker falls back to the cached list from the previous startup or to the built-in model list.
-If your gateway uses model names that do not match the discovery filter, use the environment variables documented in [Model configuration](./model-config "_model-config".md) to add them manually.
+If your gateway uses model names that do not match the discovery filter, use the environment variables documented in [Model configuration](./model-config.md "/docs/en/model-config") to add them manually.
 
 ## [​](#litellm-configuration "#litellm-configuration") LiteLLM configuration
 
@@ -176,7 +178,7 @@ export CLOUD_ML_REGION=us-east5
 
 ##### Claude Platform on AWS through a gateway
 
-Route to a gateway that forwards to the [Claude Platform on AWS](./claude-platform-on-aws "_claude-platform-on-aws".md) endpoint:
+Route to a gateway that forwards to the [Claude Platform on AWS](./claude-platform-on-aws.md "/docs/en/claude-platform-on-aws") endpoint:
 
 ```
 export ANTHROPIC_AWS_BASE_URL=https://litellm-server:4000/anthropic-aws
@@ -190,6 +192,6 @@ For more detailed information, refer to the [LiteLLM documentation](https://docs
 ## [​](#additional-resources "#additional-resources") Additional resources
 
 * [LiteLLM documentation](https://docs.litellm.ai/ "https://docs.litellm.ai/")
-* [Claude Code settings](./settings "_settings".md)
-* [Enterprise network configuration](./network-config "_network-config".md)
-* [Third-party integrations overview](./third-party-integrations "_third-party-integrations".md)
+* [Claude Code settings](./settings.md "/docs/en/settings")
+* [Enterprise network configuration](./network-config.md "/docs/en/network-config")
+* [Third-party integrations overview](./third-party-integrations.md "/docs/en/third-party-integrations")

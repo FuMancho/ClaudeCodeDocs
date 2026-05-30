@@ -29,11 +29,11 @@ You can view and manage Claude Code’s tool permissions with `/permissions`. Th
 Rules are evaluated in order: **deny -> ask -> allow**. The first matching rule wins, so deny rules always take precedence.
 Deny rules behave differently depending on whether they name a tool or scope a pattern within one. A bare tool name like `Bash` removes the tool from Claude’s context entirely, so Claude never sees it. A scoped rule like `Bash(rm *)` leaves the tool available and blocks matching calls when Claude attempts them.
 
-Permission rules are enforced by Claude Code, not by the model. Instructions in your prompt or `CLAUDE.md` shape what Claude tries to do, but they don’t change what Claude Code allows. To grant or revoke access, use `/permissions`, the rules described here, a [permission mode](./permission-modes "_permission-modes".md), or a [PreToolUse hook](#extend-permissions-with-hooks "#extend-permissions-with-hooks").
+Permission rules are enforced by Claude Code, not by the model. Instructions in your prompt or `CLAUDE.md` shape what Claude tries to do, but they don’t change what Claude Code allows. To grant or revoke access, use `/permissions`, the rules described here, a [permission mode](./permission-modes.md "/docs/en/permission-modes"), or a [PreToolUse hook](#extend-permissions-with-hooks "#extend-permissions-with-hooks").
 
 ## [​](#permission-modes "#permission-modes") Permission modes
 
-Claude Code supports several permission modes that control how tools are approved. See [Permission modes](./permission-modes "_permission-modes".md) for when to use each one. Set the `defaultMode` in your [settings files](./settings#settings-files "_settings#settings-files".md):
+Claude Code supports several permission modes that control how tools are approved. See [Permission modes](./permission-modes.md "/docs/en/permission-modes") for when to use each one. Set the `defaultMode` in your [settings files](./settings.md#settings-files "/docs/en/settings#settings-files"):
 
 | Mode | Description |
 | --- | --- |
@@ -44,9 +44,9 @@ Claude Code supports several permission modes that control how tools are approve
 | `dontAsk` | Auto-denies tools unless pre-approved via `/permissions` or `permissions.allow` rules |
 | `bypassPermissions` | Skips all permission prompts. Root and home directory removals such as `rm -rf /` still prompt as a circuit breaker |
 
-`bypassPermissions` mode skips all permission prompts, including writes to `.git`, `.claude`, `.vscode`, `.idea`, and `.husky`. Removals targeting the filesystem root or home directory, such as `rm -rf /` and `rm -rf ~`, still prompt as a circuit breaker against model error. Only use this mode in isolated environments like containers or VMs where Claude Code cannot cause damage. Administrators can prevent this mode by setting `permissions.disableBypassPermissionsMode` to `"disable"` in [managed settings](#managed-settings "#managed-settings").
+`bypassPermissions` mode skips all permission prompts, including writes to `.git`, `.claude`, `.vscode`, `.idea`, `.husky`, and `.cargo`. Removals targeting the filesystem root or home directory, such as `rm -rf /` and `rm -rf ~`, still prompt as a circuit breaker against model error. Only use this mode in isolated environments like containers or VMs where Claude Code cannot cause damage. Administrators can prevent this mode by setting `permissions.disableBypassPermissionsMode` to `"disable"` in [managed settings](#managed-settings "#managed-settings").
 
-To prevent `bypassPermissions` or `auto` mode from being used, set `permissions.disableBypassPermissionsMode` or `permissions.disableAutoMode` to `"disable"` in any [settings file](./settings#settings-files "_settings#settings-files".md). These are most useful in [managed settings](#managed-settings "#managed-settings") where they cannot be overridden.
+To prevent `bypassPermissions` or `auto` mode from being used, set `permissions.disableBypassPermissionsMode` or `permissions.disableAutoMode` to `"disable"` in any [settings file](./settings.md#settings-files "/docs/en/settings#settings-files"). These are most useful in [managed settings](#managed-settings "#managed-settings") where they cannot be overridden.
 
 ## [​](#permission-rule-syntax "#permission-rule-syntax") Permission rule syntax
 
@@ -171,9 +171,9 @@ Claude Code parses the PowerShell AST and checks each command in a compound comm
 
 ### [​](#read-and-edit "#read-and-edit") Read and Edit
 
-`Edit` rules apply to all built-in tools that edit files. Claude makes a best-effort attempt to apply `Read` rules to all built-in tools that read files like Grep and Glob, to `@file` mentions in your prompts, and to the selection and open-file context that a connected [IDE](./vs-code#the-built-in-ide-mcp-server "_vs-code#the-built-in-ide-mcp-server".md) shares with Claude.
+`Edit` rules apply to all built-in tools that edit files. Claude makes a best-effort attempt to apply `Read` rules to all built-in tools that read files like Grep and Glob, to `@file` mentions in your prompts, and to the selection and open-file context that a connected [IDE](./vs-code.md#the-built-in-ide-mcp-server "/docs/en/vs-code#the-built-in-ide-mcp-server") shares with Claude.
 
-Read and Edit deny rules apply to Claude’s built-in file tools and to file commands Claude Code recognizes in Bash, such as `cat`, `head`, `tail`, and `sed`. They do not apply to arbitrary subprocesses that read or write files indirectly, like a Python or Node script that opens files itself. For OS-level enforcement that blocks all processes from accessing a path, [enable the sandbox](./sandboxing "_sandboxing".md).
+Read and Edit deny rules apply to Claude’s built-in file tools and to file commands Claude Code recognizes in Bash, such as `cat`, `head`, `tail`, and `sed`. They do not apply to arbitrary subprocesses that read or write files indirectly, like a Python or Node script that opens files itself. For OS-level enforcement that blocks all processes from accessing a path, [enable the sandbox](./sandboxing.md "/docs/en/sandboxing").
 
 Read and Edit rules both follow the [gitignore](https://git-scm.com/docs/gitignore "https://git-scm.com/docs/gitignore") specification with four distinct pattern types:
 
@@ -222,7 +222,7 @@ For example, with `Read(./project/**)` allowed and `Read(~/.ssh/**)` denied, a s
 
 ### [​](#agent-subagents "#agent-subagents") Agent (subagents)
 
-Use `Agent(AgentName)` rules to control which [subagents](./sub-agents "_sub-agents".md) Claude can use:
+Use `Agent(AgentName)` rules to control which [subagents](./sub-agents.md "/docs/en/sub-agents") Claude can use:
 
 * `Agent(Explore)` matches the Explore subagent
 * `Agent(Plan)` matches the Plan subagent
@@ -240,9 +240,9 @@ Add these rules to the `deny` array in your settings or use the `--disallowedToo
 
 ## [​](#extend-permissions-with-hooks "#extend-permissions-with-hooks") Extend permissions with hooks
 
-[Claude Code hooks](./hooks-guide "_hooks-guide".md) provide a way to register custom shell commands to perform permission evaluation at runtime. When Claude Code makes a tool call, PreToolUse hooks run before the permission prompt. The hook output can deny the tool call, force a prompt, or skip the prompt to let the call proceed.
+[Claude Code hooks](./hooks-guide.md "/docs/en/hooks-guide") provide a way to register custom shell commands to perform permission evaluation at runtime. When Claude Code makes a tool call, PreToolUse hooks run before the permission prompt. The hook output can deny the tool call, force a prompt, or skip the prompt to let the call proceed.
 Hook decisions do not bypass permission rules. Deny and ask rules are evaluated regardless of what a PreToolUse hook returns, so a matching deny rule blocks the call and a matching ask rule still prompts even when the hook returned `"allow"` or `"ask"`. This preserves the deny-first precedence described in [Manage permissions](#manage-permissions "#manage-permissions"), including deny rules set in managed settings.
-A blocking hook also takes precedence over allow rules. A hook that exits with code 2 stops the tool call before permission rules are evaluated, so the block applies even when an allow rule would otherwise let the call proceed. To run all Bash commands without prompts except for a few you want blocked, add `"Bash"` to your allow list and register a PreToolUse hook that rejects those specific commands. See [Block edits to protected files](./hooks-guide#block-edits-to-protected-files "_hooks-guide#block-edits-to-protected-files".md) for a hook script you can adapt.
+A blocking hook also takes precedence over allow rules. A hook that exits with code 2 stops the tool call before permission rules are evaluated, so the block applies even when an allow rule would otherwise let the call proceed. To run all Bash commands without prompts except for a few you want blocked, add `"Bash"` to your allow list and register a PreToolUse hook that rejects those specific commands. See [Block edits to protected files](./hooks-guide.md#block-edits-to-protected-files "/docs/en/hooks-guide#block-edits-to-protected-files") for a hook script you can adapt.
 
 ## [​](#working-directories "#working-directories") Working directories
 
@@ -250,30 +250,31 @@ By default, Claude has access to files in the directory where it was launched. Y
 
 * **During startup**: use `--add-dir <path>` CLI argument
 * **During session**: use `/add-dir` command
-* **Persistent configuration**: add to `additionalDirectories` in [settings files](./settings#settings-files "_settings#settings-files".md)
+* **Persistent configuration**: add to `additionalDirectories` in [settings files](./settings.md#settings-files "/docs/en/settings#settings-files")
 
 Files in additional directories follow the same permission rules as the original working directory: they become readable without prompts, and file editing permissions follow the current permission mode.
 
 ### [​](#additional-directories-grant-file-access-not-configuration "#additional-directories-grant-file-access-not-configuration") Additional directories grant file access, not configuration
 
 Adding a directory extends where Claude can read and edit files. It does not make that directory a full configuration root: most `.claude/` configuration is not discovered from additional directories, though a few types are loaded as exceptions.
+These exceptions apply only to directories added with the `--add-dir` flag or the `/add-dir` command. Directories listed in `permissions.additionalDirectories` in a settings file grant file access only and do not load any of the configuration below.
 The following configuration types are loaded from `--add-dir` directories:
 
 | Configuration | Loaded from `--add-dir` |
 | --- | --- |
-| [Skills](./skills "_skills".md) in `.claude/skills/` | Yes, with live reload |
+| [Skills](./skills.md "/docs/en/skills") in `.claude/skills/` | Yes, with live reload |
 | Plugin settings in `.claude/settings.json` | `enabledPlugins` and `extraKnownMarketplaces` only |
-| [CLAUDE.md](./memory "_memory".md) files, `.claude/rules/`, and `CLAUDE.local.md` | Only when `CLAUDE_CODE_ADDITIONAL_DIRECTORIES_CLAUDE_MD=1` is set. `CLAUDE.local.md` additionally requires the `local` setting source, which is enabled by default |
+| [CLAUDE.md](./memory.md "/docs/en/memory") files, `.claude/rules/`, and `CLAUDE.local.md` | Only when `CLAUDE_CODE_ADDITIONAL_DIRECTORIES_CLAUDE_MD=1` is set. `CLAUDE.local.md` additionally requires the `local` setting source, which is enabled by default |
 
 Subagents, commands, and output styles are discovered from the current working directory and its parents, your user directory at `~/.claude/`, and managed settings. Hooks and other `settings.json` keys load from the current working directory’s `.claude/` folder with no parent-directory fallback, alongside your user `~/.claude/settings.json` and managed settings. To share that configuration across projects, use one of these approaches:
 
 * **User-level configuration**: place files in `~/.claude/agents/`, `~/.claude/output-styles/`, or `~/.claude/settings.json` to make them available in every project
-* **Plugins**: package and distribute configuration as a [plugin](./plugins "_plugins".md) that teams can install
+* **Plugins**: package and distribute configuration as a [plugin](./plugins.md "/docs/en/plugins") that teams can install
 * **Launch from the config directory**: run Claude Code from the directory containing the `.claude/` configuration you want
 
 ## [​](#how-permissions-interact-with-sandboxing "#how-permissions-interact-with-sandboxing") How permissions interact with sandboxing
 
-Permissions and [sandboxing](./sandboxing "_sandboxing".md) are complementary security layers:
+Permissions and [sandboxing](./sandboxing.md "/docs/en/sandboxing") are complementary security layers:
 
 * **Permissions** control which tools Claude Code can use and which files or domains it can access. They apply to all tools (Bash, Read, Edit, WebFetch, MCP, and others).
 * **Sandboxing** provides OS-level enforcement that restricts the Bash tool’s filesystem and network access. It applies only to Bash commands and their child processes.
@@ -282,14 +283,14 @@ Use both for defense-in-depth:
 
 * Permission deny rules block Claude from even attempting to access restricted resources
 * Sandbox restrictions prevent Bash commands from reaching resources outside defined boundaries, even if a prompt injection bypasses Claude’s decision-making
-* Filesystem restrictions in the sandbox combine the [`sandbox.filesystem`](./sandboxing "_sandboxing".md) settings with Read and Edit deny rules; both are merged into the final sandbox boundary
+* Filesystem restrictions in the sandbox combine the [`sandbox.filesystem`](./sandboxing.md "/docs/en/sandboxing") settings with Read and Edit deny rules; both are merged into the final sandbox boundary
 * Network restrictions combine WebFetch permission rules with the sandbox’s `allowedDomains` and `deniedDomains` lists
 
-When sandboxing is enabled with `autoAllowBashIfSandboxed: true`, which is the default, sandboxed Bash commands run without prompting even if your permissions include `ask: Bash(*)`. The sandbox boundary substitutes for the per-command prompt. Explicit deny rules still apply, and `rm` or `rmdir` commands that target `/`, your home directory, or other critical system paths still trigger a prompt. See [sandbox modes](./sandboxing#sandbox-modes "_sandboxing#sandbox-modes".md) to change this behavior.
+When sandboxing is enabled with `autoAllowBashIfSandboxed: true`, which is the default, sandboxed Bash commands run without prompting even if your permissions include `ask: Bash(*)`. The sandbox boundary substitutes for the per-command prompt. Explicit deny rules still apply, and `rm` or `rmdir` commands that target `/`, your home directory, or other critical system paths still trigger a prompt. See [sandbox modes](./sandboxing.md#sandbox-modes "/docs/en/sandboxing#sandbox-modes") to change this behavior.
 
 ## [​](#managed-settings "#managed-settings") Managed settings
 
-For organizations that need centralized control over Claude Code configuration, administrators can deploy managed settings that cannot be overridden by user or project settings. These policy settings follow the same format as regular settings files and can be delivered through MDM/OS-level policies, managed settings files, or [server-managed settings](./server-managed-settings "_server-managed-settings".md). See [settings files](./settings#settings-files "_settings#settings-files".md) for delivery mechanisms and file locations.
+For organizations that need centralized control over Claude Code configuration, administrators can deploy managed settings that cannot be overridden by user or project settings. These policy settings follow the same format as regular settings files and can be delivered through MDM/OS-level policies, managed settings files, or [server-managed settings](./server-managed-settings.md "/docs/en/server-managed-settings"). See [settings files](./settings.md#settings-files "/docs/en/settings#settings-files") for delivery mechanisms and file locations.
 
 ### [​](#managed-only-settings "#managed-only-settings") Managed-only settings
 
@@ -297,27 +298,28 @@ The following settings are only read from managed settings. Placing them in user
 
 | Setting | Description |
 | --- | --- |
-| `allowedChannelPlugins` | Allowlist of channel plugins that may push messages. Replaces the default Anthropic allowlist when set. Requires `channelsEnabled: true`. See [Restrict which channel plugins can run](./channels#restrict-which-channel-plugins-can-run "_channels#restrict-which-channel-plugins-can-run".md) |
+| `allowAllClaudeAiMcps` | When `true`, claude.ai connectors load alongside a deployed `managed-mcp.json` instead of being suppressed by its exclusive control. See [Managed MCP configuration](./managed-mcp.md "/docs/en/managed-mcp") |
+| `allowedChannelPlugins` | Allowlist of channel plugins that may push messages. Replaces the default Anthropic allowlist when set. Requires `channelsEnabled: true`. See [Restrict which channel plugins can run](./channels.md#restrict-which-channel-plugins-can-run "/docs/en/channels#restrict-which-channel-plugins-can-run") |
 | `allowManagedHooksOnly` | When `true`, only managed hooks, SDK hooks, and hooks from plugins force-enabled in managed settings `enabledPlugins` are loaded. User, project, and all other plugin hooks are blocked |
-| `allowManagedMcpServersOnly` | When `true`, only `allowedMcpServers` from managed settings are respected. `deniedMcpServers` still merges from all sources. See [Managed MCP configuration](./managed-mcp "_managed-mcp".md) |
+| `allowManagedMcpServersOnly` | When `true`, only `allowedMcpServers` from managed settings are respected. `deniedMcpServers` still merges from all sources. See [Managed MCP configuration](./managed-mcp.md "/docs/en/managed-mcp") |
 | `allowManagedPermissionRulesOnly` | When `true`, prevents user and project settings from defining `allow`, `ask`, or `deny` permission rules. Only rules in managed settings apply. Does not affect the MCP server allowlist; for that, set `allowManagedMcpServersOnly` |
-| `blockedMarketplaces` | Blocklist of marketplace sources. Blocked sources are checked before downloading, so they never touch the filesystem. See [managed marketplace restrictions](./plugin-marketplaces#managed-marketplace-restrictions "_plugin-marketplaces#managed-marketplace-restrictions".md) |
-| `channelsEnabled` | Allow [channels](./channels "_channels".md) for the organization. See [enterprise controls](./channels#enterprise-controls "_channels#enterprise-controls".md) for the default on each plan |
-| `forceRemoteSettingsRefresh` | When `true`, blocks CLI startup until remote managed settings are freshly fetched and exits if the fetch fails. See [fail-closed enforcement](./server-managed-settings#enforce-fail-closed-startup "_server-managed-settings#enforce-fail-closed-startup".md) |
+| `blockedMarketplaces` | Blocklist of marketplace sources. Blocked sources are checked before downloading, so they never touch the filesystem. See [managed marketplace restrictions](./plugin-marketplaces.md#managed-marketplace-restrictions "/docs/en/plugin-marketplaces#managed-marketplace-restrictions") |
+| `channelsEnabled` | Allow [channels](./channels.md "/docs/en/channels") for the organization. See [enterprise controls](./channels.md#enterprise-controls "/docs/en/channels#enterprise-controls") for the default on each plan |
+| `forceRemoteSettingsRefresh` | When `true`, blocks CLI startup until remote managed settings are freshly fetched and exits if the fetch fails. See [fail-closed enforcement](./server-managed-settings.md#enforce-fail-closed-startup "/docs/en/server-managed-settings#enforce-fail-closed-startup") |
 | `pluginTrustMessage` | Custom message appended to the plugin trust warning shown before installation |
 | `sandbox.filesystem.allowManagedReadPathsOnly` | When `true`, only `filesystem.allowRead` paths from managed settings are respected. `denyRead` still merges from all sources |
 | `sandbox.network.allowManagedDomainsOnly` | When `true`, only `allowedDomains` and `WebFetch(domain:...)` allow rules from managed settings are respected. Non-allowed domains are blocked automatically without prompting the user. Denied domains still merge from all sources |
-| `strictKnownMarketplaces` | Controls which plugin marketplace sources users can add and install plugins from. See [managed marketplace restrictions](./plugin-marketplaces#managed-marketplace-restrictions "_plugin-marketplaces#managed-marketplace-restrictions".md) |
-| `strictPluginOnlyCustomization` | Block skills, agents, hooks, and MCP servers from user and project sources, so they can only come from plugins or managed settings. `true` locks all four surfaces; an array such as `["skills", "hooks"]` locks only the named ones. See [`strictPluginOnlyCustomization`](./settings#strictpluginonlycustomization "_settings#strictpluginonlycustomization".md) |
-| `wslInheritsWindowsSettings` | When `true` in the Windows HKLM registry key or `C:\Program Files\ClaudeCode\managed-settings.json`, WSL reads managed settings from the Windows policy chain in addition to `/etc/claude-code`. See [Settings files](./settings#settings-files "_settings#settings-files".md) |
+| `strictKnownMarketplaces` | Controls which plugin marketplace sources users can add and install plugins from. See [managed marketplace restrictions](./plugin-marketplaces.md#managed-marketplace-restrictions "/docs/en/plugin-marketplaces#managed-marketplace-restrictions") |
+| `strictPluginOnlyCustomization` | Block skills, agents, hooks, and MCP servers from user and project sources, so they can only come from plugins or managed settings. `true` locks all four surfaces; an array such as `["skills", "hooks"]` locks only the named ones. See [`strictPluginOnlyCustomization`](./settings.md#strictpluginonlycustomization "/docs/en/settings#strictpluginonlycustomization") |
+| `wslInheritsWindowsSettings` | When `true` in the Windows HKLM registry key or `C:\Program Files\ClaudeCode\managed-settings.json`, WSL reads managed settings from the Windows policy chain in addition to `/etc/claude-code`. See [Settings files](./settings.md#settings-files "/docs/en/settings#settings-files") |
 
 `disableBypassPermissionsMode` is typically placed in managed settings to enforce organizational policy, but it works from any scope. A user can set it in their own settings to lock themselves out of bypass mode.
 
-On Team and Enterprise plans, an admin enables or disables [Remote Control](./remote-control "_remote-control".md) and [web sessions](./claude-code-on-the-web "_claude-code-on-the-web".md) organization-wide in [Claude Code admin settings](https://claude.ai/admin-settings/claude-code "https://claude.ai/admin-settings/claude-code"). Remote Control can additionally be disabled per device with the [`disableRemoteControl`](./settings#available-settings "_settings#available-settings".md) managed setting. Web sessions have no per-device managed settings key.
+On Team and Enterprise plans, an admin enables or disables [Remote Control](./remote-control.md "/docs/en/remote-control") and [web sessions](./claude-code-on-the-web.md "/docs/en/claude-code-on-the-web") organization-wide in [Claude Code admin settings](https://claude.ai/admin-settings/claude-code "https://claude.ai/admin-settings/claude-code"). Remote Control can additionally be disabled per device with the [`disableRemoteControl`](./settings.md#available-settings "/docs/en/settings#available-settings") managed setting. Web sessions have no per-device managed settings key.
 
 ## [​](#settings-precedence "#settings-precedence") Settings precedence
 
-Permission rules follow the same [settings precedence](./settings#settings-precedence "_settings#settings-precedence".md) as all other Claude Code settings:
+Permission rules follow the same [settings precedence](./settings.md#settings-precedence "/docs/en/settings#settings-precedence") as all other Claude Code settings:
 
 1. **Managed settings**: cannot be overridden by any other level, including command line arguments
 2. **Command line arguments**: temporary session overrides
@@ -326,7 +328,7 @@ Permission rules follow the same [settings precedence](./settings#settings-prece
 5. **User settings** (`~/.claude/settings.json`)
 
 If a tool is denied at any level, no other level can allow it. For example, a managed settings deny cannot be overridden by `--allowedTools`, and `--disallowedTools` can add restrictions beyond what managed settings define.
-Embedding hosts can supply additional managed policy via the SDK `managedSettings` option when [`parentSettingsBehavior`](./settings#settings-precedence "_settings#settings-precedence".md) is set to `"merge"`; embedder values can tighten policy but not loosen it.
+Embedding hosts can supply additional managed policy via the SDK `managedSettings` option when [`parentSettingsBehavior`](./settings.md#settings-precedence "/docs/en/settings#settings-precedence") is set to `"merge"`; embedder values can tighten policy but not loosen it.
 For example, if user settings allow a permission and project settings deny it, the deny rule blocks it. The reverse is also true: a user-level deny blocks a project-level allow, because deny rules from any scope are evaluated before allow rules.
 
 ## [​](#example-configurations "#example-configurations") Example configurations
@@ -335,9 +337,9 @@ This [repository](https://github.com/anthropics/claude-code/tree/main/examples/s
 
 ## [​](#see-also "#see-also") See also
 
-* [Settings](./settings "_settings".md): complete configuration reference including the permission settings table
-* [Configure auto mode](./auto-mode-config "_auto-mode-config".md): tell the auto mode classifier which infrastructure your organization trusts
-* [Sandboxing](./sandboxing "_sandboxing".md): OS-level filesystem and network isolation for Bash commands
-* [Authentication](./authentication "_authentication".md): set up user access to Claude Code
-* [Security](./security "_security".md): security safeguards and best practices
-* [Hooks](./hooks-guide "_hooks-guide".md): automate workflows and extend permission evaluation
+* [Settings](./settings.md "/docs/en/settings"): complete configuration reference including the permission settings table
+* [Configure auto mode](./auto-mode-config.md "/docs/en/auto-mode-config"): tell the auto mode classifier which infrastructure your organization trusts
+* [Sandboxing](./sandboxing.md "/docs/en/sandboxing"): OS-level filesystem and network isolation for Bash commands
+* [Authentication](./authentication.md "/docs/en/authentication"): set up user access to Claude Code
+* [Security](./security.md "/docs/en/security"): security safeguards and best practices
+* [Hooks](./hooks-guide.md "/docs/en/hooks-guide"): automate workflows and extend permission evaluation

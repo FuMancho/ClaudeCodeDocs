@@ -1,3 +1,5 @@
+# Quickstart
+
 > ## Documentation Index
 >
 > Fetch the complete documentation index at: [https://code.claude.com/docs/llms.txt](https://code.claude.com/docs/llms.txt "https://code.claude.com/docs/llms.txt")
@@ -11,11 +13,11 @@ This quickstart guide will have you using AI-powered coding assistance in a few 
 Make sure you have:
 
 * A terminal or command prompt open
-  + If you’ve never used the terminal before, check out the [terminal guide](./terminal-guide "_terminal-guide".md)
+  + If you’ve never used the terminal before, check out the [terminal guide](./terminal-guide.md "/docs/en/terminal-guide")
 * A code project to work with
-* A [Claude subscription](https://claude.com/pricing?utm_source=claude_code&utm_medium=docs&utm_content=quickstart_prereq "https://claude.com/pricing?utm_source=claude_code&utm_medium=docs&utm_content=quickstart_prereq") (Pro, Max, Team, or Enterprise), [Claude Console](https://console.anthropic.com/ "https://console.anthropic.com/") account, or access through a [supported cloud provider](./third-party-integrations "_third-party-integrations".md)
+* A [Claude subscription](https://claude.com/pricing?utm_source=claude_code&utm_medium=docs&utm_content=quickstart_prereq "https://claude.com/pricing?utm_source=claude_code&utm_medium=docs&utm_content=quickstart_prereq") (Pro, Max, Team, or Enterprise), [Claude Console](https://console.anthropic.com/ "https://console.anthropic.com/") account, or access through a [supported cloud provider](./third-party-integrations.md "/docs/en/third-party-integrations")
 
-This guide covers the terminal CLI. Claude Code is also available on the [web](https://claude.ai/code "https://claude.ai/code"), as a [desktop app](./desktop "_desktop".md), in [VS Code](./vs-code "_vs-code".md) and [JetBrains IDEs](./jetbrains "_jetbrains".md), in [Slack](./slack "_slack".md), and in CI/CD with [GitHub Actions](./github-actions "_github-actions".md) and [GitLab](./gitlab-ci-cd "_gitlab-ci-cd".md). See [all interfaces](./overview#use-claude-code-everywhere "_overview#use-claude-code-everywhere".md).
+This guide covers the terminal CLI. Claude Code is also available on the [web](https://claude.ai/code "https://claude.ai/code"), as a [desktop app](./desktop.md "/docs/en/desktop"), in [VS Code](./vs-code.md "/docs/en/vs-code") and [JetBrains IDEs](./jetbrains.md "/docs/en/jetbrains"), in [Slack](./slack.md "/docs/en/slack"), and in CI/CD with [GitHub Actions](./github-actions.md "/docs/en/github-actions") and [GitLab](./gitlab-ci-cd.md "/docs/en/gitlab-ci-cd"). See [all interfaces](./overview.md#use-claude-code-everywhere "/docs/en/overview#use-claude-code-everywhere").
 
 ## [​](#step-1-install-claude-code "#step-1-install-claude-code") Step 1: Install Claude Code
 
@@ -61,29 +63,29 @@ winget install Anthropic.ClaudeCode
 
 WinGet installations do not auto-update. Run `winget upgrade Anthropic.ClaudeCode` periodically to get the latest features and security fixes.
 
-You can also install with [apt, dnf, or apk](./setup#install-with-linux-package-managers "_setup#install-with-linux-package-managers".md) on Debian, Fedora, RHEL, and Alpine.
+You can also install with [apt, dnf, or apk](./setup.md#install-with-linux-package-managers "/docs/en/setup#install-with-linux-package-managers") on Debian, Fedora, RHEL, and Alpine.
 
 ## [​](#step-2-log-in-to-your-account "#step-2-log-in-to-your-account") Step 2: Log in to your account
 
-Claude Code requires an account to use. When you start an interactive session with the `claude` command, you’ll need to log in:
+Claude Code requires an account to use. Start an interactive session with the `claude` command and you’ll be prompted to log in on first use:
 
 ```
 claude
-# You'll be prompted to log in on first use
 ```
+
+For Claude subscription or Console accounts, follow the prompts to complete authentication in your browser. To switch accounts later or re-authenticate, type `/login` inside the running session:
 
 ```
 /login
-# Follow the prompts to log in with your account
 ```
 
 You can log in using any of these account types:
 
 * [Claude Pro, Max, Team, or Enterprise](https://claude.com/pricing?utm_source=claude_code&utm_medium=docs&utm_content=quickstart_login "https://claude.com/pricing?utm_source=claude_code&utm_medium=docs&utm_content=quickstart_login") (recommended)
 * [Claude Console](https://console.anthropic.com/ "https://console.anthropic.com/") (API access with pre-paid credits). On first login, a “Claude Code” workspace is automatically created in the Console for centralized cost tracking.
-* [Amazon Bedrock, Google Vertex AI, or Microsoft Foundry](./third-party-integrations "_third-party-integrations".md) (enterprise cloud providers)
+* [Amazon Bedrock, Google Vertex AI, or Microsoft Foundry](./third-party-integrations.md "/docs/en/third-party-integrations") (enterprise cloud providers)
 
-Once logged in, your credentials are stored and you won’t need to log in again. To switch accounts later, use the `/login` command.
+Once logged in, your credentials are stored and you won’t need to log in again.
 
 ## [​](#step-3-start-your-first-session "#step-3-start-your-first-session") Step 3: Start your first session
 
@@ -96,7 +98,7 @@ claude
 
 You’ll see the Claude Code welcome screen with your session information, recent conversations, and latest updates. Type `/help` for available commands or `/resume` to continue a previous conversation.
 
-After logging in (Step 2), your credentials are stored on your system. Learn more in [Credential Management](./authentication#credential-management "_authentication#credential-management".md).
+After logging in (Step 2), your credentials are stored on your system. Learn more in [Credential Management](./authentication.md#credential-management "/docs/en/authentication#credential-management").
 
 ## [​](#step-4-ask-your-first-question "#step-4-ask-your-first-question") Step 4: Ask your first question
 
@@ -245,11 +247,11 @@ Here are the most important commands for daily use:
 | `/help` | Show available commands | `/help` |
 | `exit` or Ctrl+D | Exit Claude Code | `exit` |
 
-See the [CLI reference](./cli-reference "_cli-reference".md) for a complete list of commands.
+See the [CLI reference](./cli-reference.md "/docs/en/cli-reference") for a complete list of commands.
 
 ## [​](#pro-tips-for-beginners "#pro-tips-for-beginners") Pro tips for beginners
 
-For more, see [best practices](./best-practices "_best-practices".md) and [common workflows](./common-workflows "_common-workflows".md).
+For more, see [best practices](./best-practices.md "/docs/en/best-practices") and [common workflows](./common-workflows.md "/docs/en/common-workflows").
 
 Be specific with your requests
 

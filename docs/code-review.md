@@ -1,14 +1,16 @@
+# Code Review
+
 > ## Documentation Index
 >
 > Fetch the complete documentation index at: [https://code.claude.com/docs/llms.txt](https://code.claude.com/docs/llms.txt "https://code.claude.com/docs/llms.txt")
 >
 > Use this file to discover all available pages before exploring further.
 
-Code Review is in research preview, available for [Team and Enterprise](https://claude.ai/admin-settings/claude-code "https://claude.ai/admin-settings/claude-code") subscriptions. It is not available for organizations with [Zero Data Retention](./zero-data-retention "_zero-data-retention".md) enabled.
+Code Review is in research preview, available for [Team and Enterprise](https://claude.ai/admin-settings/claude-code "https://claude.ai/admin-settings/claude-code") subscriptions. It is not available for organizations with [Zero Data Retention](./zero-data-retention.md "/docs/en/zero-data-retention") enabled.
 
 Code Review analyzes your GitHub pull requests and posts findings as inline comments on the lines of code where it found issues. A fleet of specialized agents examine the code changes in the context of your full codebase, looking for logic errors, security vulnerabilities, broken edge cases, and subtle regressions.
 Findings are tagged by severity and don’t approve or block your PR, so existing review workflows stay intact. You can tune what Claude flags by adding a `CLAUDE.md` or `REVIEW.md` file to your repository.
-To run Claude in your own CI infrastructure instead of this managed service, see [GitHub Actions](./github-actions "_github-actions".md) or [GitLab CI/CD](./gitlab-ci-cd "_gitlab-ci-cd".md). For repositories on a self-hosted GitHub instance, see [GitHub Enterprise Server](./github-enterprise-server "_github-enterprise-server".md).
+To run Claude in your own CI infrastructure instead of this managed service, see [GitHub Actions](./github-actions.md "/docs/en/github-actions") or [GitLab CI/CD](./gitlab-ci-cd.md "/docs/en/gitlab-ci-cd"). For repositories on a self-hosted GitHub instance, see [GitHub Enterprise Server](./github-enterprise-server.md "/docs/en/github-enterprise-server").
 This page covers:
 
 * [How reviews work](#how-reviews-work "#how-reviews-work")
@@ -17,6 +19,9 @@ This page covers:
 * [Customizing reviews](#customize-reviews "#customize-reviews") with `CLAUDE.md` and `REVIEW.md`
 * [Pricing](#pricing "#pricing")
 * [Troubleshooting](#troubleshooting "#troubleshooting") failed runs and missing comments
+* [Reviewing a diff locally](#review-a-diff-locally "#review-a-diff-locally") with the `/code-review` command
+
+To review a diff locally in your terminal without installing the GitHub App, run the `/code-review` command in any Claude Code session. See [Review a diff locally](#review-a-diff-locally "#review-a-diff-locally").
 
 ## [​](#how-reviews-work "#how-reviews-work") How reviews work
 
@@ -90,7 +95,7 @@ Follow the prompts to install the Claude GitHub App to your GitHub organization.
 * **Issues**: read and write
 * **Pull requests**: read and write
 
-Code Review uses read access to contents and write access to pull requests. The broader permission set also supports [GitHub Actions](./github-actions "_github-actions".md) if you enable that later.
+Code Review uses read access to contents and write access to pull requests. The broader permission set also supports [GitHub Actions](./github-actions.md "/docs/en/github-actions") if you enable that later.
 
 4
 
@@ -143,13 +148,13 @@ Code Review reads two files from your repository to guide what it flags. They di
 ### [​](#claude-md "#claude-md") CLAUDE.md
 
 Code Review reads your repository’s `CLAUDE.md` files and treats newly introduced violations as [nit-level](#severity-levels "#severity-levels") findings. This works bidirectionally: if your PR changes code in a way that makes a `CLAUDE.md` statement outdated, Claude flags that the docs need updating too.
-Claude reads `CLAUDE.md` files at every level of your directory hierarchy, so rules in a subdirectory’s `CLAUDE.md` apply only to files under that path. See the [memory documentation](./memory "_memory".md) for more on how `CLAUDE.md` works.
+Claude reads `CLAUDE.md` files at every level of your directory hierarchy, so rules in a subdirectory’s `CLAUDE.md` apply only to files under that path. See the [memory documentation](./memory.md "/docs/en/memory") for more on how `CLAUDE.md` works.
 For review-specific guidance that you don’t want applied to general Claude Code sessions, use [`REVIEW.md`](#review-md "#review-md") instead.
 
 ### [​](#review-md "#review-md") REVIEW.md
 
 `REVIEW.md` is a file at your repository root that overrides how Code Review behaves on your repo. Its contents are injected into the system prompt of every agent in the review pipeline as the highest-priority instruction block, taking precedence over the default review guidance.
-Because it’s pasted verbatim, `REVIEW.md` is plain instructions: [`@` import syntax](./memory#import-additional-files "_memory#import-additional-files".md) is not expanded, and referenced files are not read into the prompt. Put the rules you want enforced directly in the file.
+Because it’s pasted verbatim, `REVIEW.md` is plain instructions: [`@` import syntax](./memory.md#import-additional-files "/docs/en/memory#import-additional-files") is not expanded, and referenced files are not read into the prompt. Put the rules you want enforced directly in the file.
 
 #### [​](#what-you-can-tune "#what-you-can-tune") What you can tune
 
@@ -249,12 +254,19 @@ If the check run title says issues were found but you don’t see inline review 
 * **Files changed annotations**: open the **Files changed** tab on the PR. Findings render as annotations attached directly to the diff lines, separate from review comments.
 * **Review body**: if you pushed to the PR while a review was running, some findings may reference lines that no longer exist in the current diff. Those appear under an **Additional findings** heading in the review body text rather than as inline comments.
 
+## [​](#review-a-diff-locally "#review-a-diff-locally") Review a diff locally
+
+The [`/code-review` command](./commands.md "/docs/en/commands") reviews a diff in your terminal without installing the GitHub App. Run it in any Claude Code session: it reports correctness bugs and reuse, simplification, and efficiency cleanups in the current diff. Pass `--comment` to post findings as inline PR comments, or `--fix` to apply the findings to your working tree after the review.
+Lower [effort levels](./model-config.md#adjust-effort-level "/docs/en/model-config#adjust-effort-level") return fewer, higher-confidence findings, while `high` through `max` give broader coverage and may include uncertain findings. Without an effort argument, the review uses the session’s current effort. Pass a path or PR reference to review a specific target instead of the current diff.
+`/code-review ultra --fix` runs the deeper [ultrareview](./ultrareview.md "/docs/en/ultrareview") in the cloud, then applies its findings to your working tree when they arrive back in your session.
+The command was named `/simplify` before v2.1.147, when it applied fixes by default. From v2.1.154, `/simplify` runs a separate cleanup-only review that applies fixes without hunting for bugs. If you scripted `/simplify` for bug-finding, switch to `/code-review --fix`, which is unchanged.
+
 ## [​](#related-resources "#related-resources") Related resources
 
 Code Review is designed to work alongside the rest of Claude Code. If you want to run reviews locally before opening a PR, need a self-hosted setup, or want to go deeper on how `CLAUDE.md` shapes Claude’s behavior across tools, these pages are good next stops:
 
-* [Plugins](./discover-plugins "_discover-plugins".md): browse the plugin marketplace, including a `code-review` plugin for running on-demand reviews locally before pushing
-* [GitHub Actions](./github-actions "_github-actions".md): run Claude in your own GitHub Actions workflows for custom automation beyond code review
-* [GitLab CI/CD](./gitlab-ci-cd "_gitlab-ci-cd".md): self-hosted Claude integration for GitLab pipelines
-* [Memory](./memory "_memory".md): how `CLAUDE.md` files work across Claude Code
-* [Analytics](./analytics "_analytics".md): track Claude Code usage beyond code review
+* [Commands](./commands.md "/docs/en/commands"): run `/code-review` in a local Claude Code session to check a diff before pushing
+* [GitHub Actions](./github-actions.md "/docs/en/github-actions"): run Claude in your own GitHub Actions workflows for custom automation beyond code review
+* [GitLab CI/CD](./gitlab-ci-cd.md "/docs/en/gitlab-ci-cd"): self-hosted Claude integration for GitLab pipelines
+* [Memory](./memory.md "/docs/en/memory"): how `CLAUDE.md` files work across Claude Code
+* [Analytics](./analytics.md "/docs/en/analytics"): track Claude Code usage beyond code review

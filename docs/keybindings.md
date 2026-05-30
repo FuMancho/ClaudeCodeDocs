@@ -100,9 +100,9 @@ Actions available in the `Chat` context:
 | Action | Default | Description |
 | --- | --- | --- |
 | `chat:cancel` | Escape | Cancel current input |
-| `chat:clearInput` | Ctrl+L | Force a full screen redraw, preserving input. In [fullscreen rendering](./fullscreen#clear-the-conversation "_fullscreen#clear-the-conversation".md), press twice within two seconds to run `/clear` |
-| `chat:clearScreen` | Cmd+K | In [fullscreen rendering](./fullscreen#clear-the-conversation "_fullscreen#clear-the-conversation".md), press twice within two seconds to run `/clear` |
-| `chat:killAgents` | Ctrl+X Ctrl+K | Kill all running [background subagents](./sub-agents#run-subagents-in-foreground-or-background "_sub-agents#run-subagents-in-foreground-or-background".md) in this session |
+| `chat:clearInput` | Ctrl+L | Force a full screen redraw, preserving input. In [fullscreen rendering](./fullscreen.md#clear-the-conversation "/docs/en/fullscreen#clear-the-conversation"), press twice within two seconds to run `/clear` |
+| `chat:clearScreen` | Cmd+K | In [fullscreen rendering](./fullscreen.md#clear-the-conversation "/docs/en/fullscreen#clear-the-conversation"), press twice within two seconds to run `/clear` |
+| `chat:killAgents` | Ctrl+X Ctrl+K | Kill all running [background subagents](./sub-agents.md#run-subagents-in-foreground-or-background "/docs/en/sub-agents#run-subagents-in-foreground-or-background") in this session |
 | `chat:cycleMode` | Shift+Tab\* | Cycle permission modes |
 | `chat:modelPicker` | Meta+P | Open model picker |
 | `chat:fastMode` | Meta+O | Toggle fast mode |
@@ -112,7 +112,7 @@ Actions available in the `Chat` context:
 | `chat:undo` | Ctrl+\_, Ctrl+Shift+- | Undo last action |
 | `chat:externalEditor` | Ctrl+G, Ctrl+X Ctrl+E | Open in external editor |
 | `chat:stash` | Ctrl+S | Stash current prompt |
-| `chat:imagePaste` | Ctrl+V (Alt+V on Windows) | Paste image |
+| `chat:imagePaste` | Ctrl+V (Alt+V on Windows and WSL) | Paste image from clipboard. On WSL, both shortcuts are bound by default |
 
 \*On Windows without VT mode (Node <24.2.0/<22.17.0, Bun <1.2.23), defaults to Meta+M.
 
@@ -250,10 +250,21 @@ Actions available in the `DiffDialog` context:
 | `diff:dismiss` | Escape | Close diff viewer |
 | `diff:previousSource` | Left | Previous diff source |
 | `diff:nextSource` | Right | Next diff source |
-| `diff:previousFile` | Up | Previous file in diff |
-| `diff:nextFile` | Down | Next file in diff |
+| `diff:previousFile` | Up, K | Previous file in the file list; scroll up one line in the detail view |
+| `diff:nextFile` | Down, J | Next file in the file list; scroll down one line in the detail view |
 | `diff:viewDetails` | Enter | View diff details |
 | `diff:back` | (context-specific) | Go back in diff viewer |
+
+The diff detail view also binds pager-style keys to the standard [scroll actions](#scroll-actions "#scroll-actions"). These bindings are part of the `DiffDialog` context and apply only in the detail view; the `Scroll` context defaults listed under [Scroll actions](#scroll-actions "#scroll-actions") are unchanged.
+
+| Action | Default | Description |
+| --- | --- | --- |
+| `scroll:pageUp` | PageUp | Scroll up half a viewport |
+| `scroll:pageDown` | PageDown | Scroll down half a viewport |
+| `scroll:fullPageUp` | Shift+Space, B | Scroll up a full viewport |
+| `scroll:fullPageDown` | Space | Scroll down a full viewport |
+| `scroll:top` | G, Home | Jump to the top |
+| `scroll:bottom` | Shift+G, End | Jump to the bottom |
 
 ### [​](#model-picker-actions "#model-picker-actions") Model picker actions
 
@@ -263,7 +274,7 @@ Actions available in the `ModelPicker` context:
 | --- | --- | --- |
 | `modelPicker:decreaseEffort` | Left | Decrease effort level |
 | `modelPicker:increaseEffort` | Right | Increase effort level |
-| `modelPicker:setAsDefault` | d | Set highlighted model as default for new sessions |
+| `modelPicker:thisSessionOnly` | s | Apply highlighted model to this session only |
 
 ### [​](#select-actions "#select-actions") Select actions
 
@@ -306,7 +317,7 @@ Actions available in the `Doctor` context:
 
 ### [​](#voice-actions "#voice-actions") Voice actions
 
-Actions available in the `Chat` context when [voice dictation](./voice-dictation "_voice-dictation".md) is enabled:
+Actions available in the `Chat` context when [voice dictation](./voice-dictation.md "/docs/en/voice-dictation") is enabled:
 
 | Action | Default | Description |
 | --- | --- | --- |
@@ -314,7 +325,7 @@ Actions available in the `Chat` context when [voice dictation](./voice-dictation
 
 ### [​](#scroll-actions "#scroll-actions") Scroll actions
 
-Actions available in the `Scroll` context when [fullscreen rendering](./fullscreen "_fullscreen".md) is enabled:
+Actions available in the `Scroll` context when [fullscreen rendering](./fullscreen.md "/docs/en/fullscreen") is enabled:
 
 | Action | Default | Description |
 | --- | --- | --- |
@@ -446,6 +457,7 @@ When vim mode is enabled via `/config` → Editor mode, keybindings and vim mode
 * The Escape key in vim mode switches INSERT to NORMAL mode; it does not trigger `chat:cancel`
 * Most Ctrl+key shortcuts pass through vim mode to the keybinding system
 * In vim NORMAL mode, `?` shows the help menu (vim behavior)
+* In vim NORMAL mode, `/` opens history search, the same as Ctrl+R in standard mode
 
 ## [​](#validation "#validation") Validation
 

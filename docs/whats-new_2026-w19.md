@@ -54,4 +54,4 @@ Several OAuth and credential reliability fixes: parallel sessions no longer dead
 
 New `parentSettingsBehavior` admin key lets admins opt SDK `managedSettings` into the policy merge
 
-[Full changelog for v2.1.128–v2.1.136 →](./changelog#2-1-128 "_changelog#2-1-128".md)
+[Full changelog for v2.1.128–v2.1.136 →](./changelog.md#2-1-128 "/docs/en/changelog#2-1-128")

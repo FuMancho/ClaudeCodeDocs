@@ -1,3 +1,5 @@
+# Monitoring Usage
+
 > ## Documentation Index
 >
 > Fetch the complete documentation index at: [https://code.claude.com/docs/llms.txt](https://code.claude.com/docs/llms.txt "https://code.claude.com/docs/llms.txt")
@@ -39,7 +41,7 @@ For full configuration options, see the [OpenTelemetry specification](https://gi
 
 ## [​](#administrator-configuration "#administrator-configuration") Administrator configuration
 
-Administrators can configure OpenTelemetry settings for all users through the [managed settings file](./settings#settings-files "_settings#settings-files".md). This allows for centralized control of telemetry settings across an organization. See the [settings precedence](./settings#settings-precedence "_settings#settings-precedence".md) for more information about how settings are applied.
+Administrators can configure OpenTelemetry settings for all users through the [managed settings file](./settings.md#settings-files "/docs/en/settings#settings-files"). This allows for centralized control of telemetry settings across an organization. See the [settings precedence](./settings.md#settings-precedence "/docs/en/settings#settings-precedence") for more information about how settings are applied.
 Example managed settings configuration:
 
 ```
@@ -90,7 +92,7 @@ How you configure client certificates for the OTLP exporter depends on the OTLP 
 
 | Protocol | Client certificate variables | Trust the collector’s CA with |
 | --- | --- | --- |
-| `http/protobuf`, `http/json` | `CLAUDE_CODE_CLIENT_CERT`, `CLAUDE_CODE_CLIENT_KEY`, and optionally `CLAUDE_CODE_CLIENT_KEY_PASSPHRASE`. See [Network configuration](./network-config#mtls-authentication "_network-config#mtls-authentication".md) | `NODE_EXTRA_CA_CERTS` |
+| `http/protobuf`, `http/json` | `CLAUDE_CODE_CLIENT_CERT`, `CLAUDE_CODE_CLIENT_KEY`, and optionally `CLAUDE_CODE_CLIENT_KEY_PASSPHRASE`. See [Network configuration](./network-config.md#mtls-authentication "/docs/en/network-config#mtls-authentication") | `NODE_EXTRA_CA_CERTS` |
 | `grpc` | `OTEL_EXPORTER_OTLP_CLIENT_KEY` and `OTEL_EXPORTER_OTLP_CLIENT_CERTIFICATE`, or the per-signal variants such as `OTEL_EXPORTER_OTLP_METRICS_CLIENT_KEY` to use a different certificate per signal | `OTEL_EXPORTER_OTLP_CERTIFICATE` |
 
 For `grpc`, the OpenTelemetry SDK reads the standard OTLP variables directly, so existing configurations that set the per-signal metrics variables continue to work.
@@ -104,6 +106,7 @@ The following environment variables control which attributes are included in met
 | `OTEL_METRICS_INCLUDE_SESSION_ID` | Include session.id attribute in metrics | `true` | `false` |
 | `OTEL_METRICS_INCLUDE_VERSION` | Include app.version attribute in metrics | `false` | `true` |
 | `OTEL_METRICS_INCLUDE_ACCOUNT_UUID` | Include user.account\_uuid and user.account\_id attributes in metrics | `true` | `false` |
+| `OTEL_METRICS_INCLUDE_ENTRYPOINT` | Include app.entrypoint attribute in metrics | `false` | `true` |
 
 These variables help control the cardinality of metrics, which affects storage requirements and query performance in your metrics backend. Lower cardinality generally means better performance and lower storage costs but less granular data for analysis.
 
@@ -122,12 +125,13 @@ Tracing is off by default. To enable it, set both `CLAUDE_CODE_ENABLE_TELEMETRY=
 
 Spans redact user prompt text, tool input details, and tool content by default. Set `OTEL_LOG_USER_PROMPTS=1`, `OTEL_LOG_TOOL_DETAILS=1`, and `OTEL_LOG_TOOL_CONTENT=1` to include them.
 When tracing is active, Bash and PowerShell subprocesses automatically inherit a `TRACEPARENT` environment variable containing the W3C trace context of the active tool execution span. This lets any subprocess that reads `TRACEPARENT` parent its own spans under the same trace, enabling end-to-end distributed tracing through scripts and commands that Claude runs.
-When tracing is active and Claude Code is connected directly to the Anthropic API, each model request carries a W3C `traceparent` header set to the `claude_code.llm_request` span’s context, and the API’s `traceresponse` header is recorded as a span link. Together these connect Claude Code’s client-side spans to the server-side trace through any compliant intermediary. The header is not sent to third-party providers.
+When tracing is active and Claude Code is connected directly to the Anthropic API, each model request carries a W3C `traceparent` header set to the `claude_code.llm_request` span’s context, and the API’s `traceresponse` header is recorded as a span link. Together these connect Claude Code’s client-side spans to the server-side trace through any compliant intermediary. Outbound HTTP MCP requests carry `traceparent` the same way. The header is not sent to third-party providers.
+By default, the `traceparent` header on model and HTTP MCP requests is sent only when `ANTHROPIC_BASE_URL` is unset or points at the Anthropic API, since some proxies reject unrecognized headers. The subprocess `TRACEPARENT` variable is controlled by the same switch for consistency. If you run Claude Code through a custom `ANTHROPIC_BASE_URL` proxy and want trace context propagated, set `CLAUDE_CODE_PROPAGATE_TRACEPARENT=1`.
 In Agent SDK and non-interactive sessions started with `-p`, Claude Code also reads `TRACEPARENT` and `TRACESTATE` from its own environment when starting each interaction span. This lets an embedding process pass its active W3C trace context into the subprocess so Claude Code’s spans appear as children of the caller’s distributed trace. Interactive sessions ignore inbound `TRACEPARENT` to avoid accidentally inheriting ambient values from CI or container environments.
 
 #### [​](#span-hierarchy "#span-hierarchy") Span hierarchy
 
-Each user prompt starts a `claude_code.interaction` root span. API calls, tool calls, and hook executions are recorded as its children. Tool spans have two child spans of their own: one for the time spent waiting on a permission decision and one for the execution itself. When the Task tool spawns a subagent, the subagent’s API and tool spans nest under the parent’s `claude_code.tool` span.
+Each user prompt starts a `claude_code.interaction` root span. API calls, tool calls, and hook executions are recorded as its children. Tool spans have two child spans of their own: one for the time spent waiting on a permission decision and one for the execution itself. When the Agent tool, or legacy Task tool, spawns a subagent, the subagent’s API and tool spans nest under the parent’s `claude_code.tool` span.
 
 ```
 claude_code.interaction
@@ -136,7 +140,7 @@ claude_code.interaction
 └── claude_code.tool
     ├── claude_code.tool.blocked_on_user
     ├── claude_code.tool.execution
-    └── (Task tool) subagent claude_code.llm_request / claude_code.tool spans
+    └── (Agent tool) subagent claude_code.llm_request / claude_code.tool spans
 ```
 
 In Agent SDK and `claude -p` sessions, `claude_code.interaction` itself becomes a child of the caller’s span when `TRACEPARENT` is set in the environment.
@@ -195,7 +199,7 @@ Each retry attempt is also recorded as a `gen_ai.request.attempt` span event wit
 | `file_path` | Target file path for Read, Edit, and Write tools | `OTEL_LOG_TOOL_DETAILS` |
 | `full_command` | Command string for the Bash tool | `OTEL_LOG_TOOL_DETAILS` |
 | `skill_name` | Skill name for the Skill tool | `OTEL_LOG_TOOL_DETAILS` |
-| `subagent_type` | Subagent type for the Task tool | `OTEL_LOG_TOOL_DETAILS` |
+| `subagent_type` | Subagent type for the Agent tool or legacy Task tool | `OTEL_LOG_TOOL_DETAILS` |
 
 When `OTEL_LOG_TOOL_CONTENT=1`, this span also records a `tool.output` span event whose attributes contain the tool’s input and output bodies, truncated at 60 KB per attribute.
 **`claude_code.tool.blocked_on_user`**
@@ -245,6 +249,8 @@ Add to your `.claude/settings.json`:
 }
 ```
 
+The value can be the path to an executable file, including a path that contains spaces, or a shell command line with arguments. On Windows, the value always runs through the shell, so quote a path that contains spaces inside the JSON value.
+
 #### [​](#script-requirements "#script-requirements") Script requirements
 
 The script must output valid JSON with string key-value pairs representing HTTP headers:
@@ -254,6 +260,12 @@ The script must output valid JSON with string key-value pairs representing HTTP 
 # Example: Multiple headers
 echo "{\"Authorization\": \"Bearer $(get-token.sh)\", \"X-API-Key\": \"$(get-api-key.sh)\"}"
 ```
+
+If the helper fails or prints output that doesn’t meet these requirements, Claude Code reports the error in:
+
+* `/doctor` output
+* The debug log, when running with [`--debug`](./cli-reference.md#cli-flags "/docs/en/cli-reference#cli-flags") or after running `/debug` in the session
+* stderr, in non-interactive sessions started with `-p`
 
 #### [​](#refresh-behavior "#refresh-behavior") Refresh behavior
 
@@ -355,6 +367,7 @@ All metrics and events share these standard attributes:
 | --- | --- | --- |
 | `session.id` | Unique session identifier | `OTEL_METRICS_INCLUDE_SESSION_ID` (default: true) |
 | `app.version` | Current Claude Code version | `OTEL_METRICS_INCLUDE_VERSION` (default: false) |
+| `app.entrypoint` | How the session was launched, such as `cli`, `sdk-cli`, `sdk-ts`, `sdk-py`, or `claude-vscode` | `OTEL_METRICS_INCLUDE_ENTRYPOINT` (default: false) |
 | `organization.id` | Organization UUID (when authenticated) | Always included when available |
 | `user.account_uuid` | Account UUID (when authenticated) | `OTEL_METRICS_INCLUDE_ACCOUNT_UUID` (default: true) |
 | `user.account_id` | Account ID in tagged format matching Anthropic admin APIs (when authenticated), such as `user_01BWBeN28...` | `OTEL_METRICS_INCLUDE_ACCOUNT_UUID` (default: true) |
@@ -425,11 +438,13 @@ Incremented after each API request.
 * `model`: Model identifier (for example, “claude-sonnet-4-6”)
 * `query_source`: Category of the subsystem that issued the request. One of `"main"`, `"subagent"`, or `"auxiliary"`
 * `speed`: `"fast"` when the request used fast mode. Absent otherwise
-* `effort`: [Effort level](./model-config#adjust-effort-level "_model-config#adjust-effort-level".md) applied to the request: `"low"`, `"medium"`, `"high"`, `"xhigh"`, or `"max"`. Absent when the model does not support effort.
+* `effort`: [Effort level](./model-config.md#adjust-effort-level "/docs/en/model-config#adjust-effort-level") applied to the request: `"low"`, `"medium"`, `"high"`, `"xhigh"`, or `"max"`. Absent when the model does not support effort.
 * `agent.name`: Subagent type that issued the request. Built-in agent names and agents from official-marketplace plugins appear verbatim. Other user-defined agent names are replaced with `"custom"`. Absent when the request was not issued by a named subagent type.
 * `skill.name`: Skill active for the request, set by the Skill tool, a `/` command, or inherited by a spawned subagent. Built-in, bundled, user-defined, and official-marketplace plugin skill names appear verbatim. Third-party plugin skill names are replaced with `"third-party"`. Absent when no skill is active.
 * `plugin.name`: Owning plugin when the active skill or subagent is provided by a plugin. Official-marketplace plugin names appear verbatim. Third-party plugin names are replaced with `"third-party"`. Absent when neither the skill nor the subagent has an owning plugin.
 * `marketplace.name`: Marketplace the owning plugin was installed from. Only emitted for official-marketplace plugins. Absent otherwise.
+* `mcp_server.name`: MCP server whose tool ran in the turn that produced this request. Built-in, claude.ai-proxied, and official-registry server names appear verbatim. User-configured server names are replaced with `"custom"`. Absent when no MCP tool ran.
+* `mcp_tool.name`: MCP tool that ran in the turn that produced this request, with the same redaction as `mcp_server.name`. Absent when no MCP tool ran.
 
 #### [​](#token-counter "#token-counter") Token counter
 
@@ -441,8 +456,8 @@ Incremented after each API request.
 * `model`: Model identifier (for example, “claude-sonnet-4-6”)
 * `query_source`: Category of the subsystem that issued the request. One of `"main"`, `"subagent"`, or `"auxiliary"`
 * `speed`: `"fast"` when the request used fast mode. Absent otherwise
-* `effort`: [Effort level](./model-config#adjust-effort-level "_model-config#adjust-effort-level".md) applied to the request. See [Cost counter](#cost-counter "#cost-counter") for details.
-* `agent.name`, `skill.name`, `plugin.name`, `marketplace.name`: Skill, plugin, and agent attribution for the request. See [Cost counter](#cost-counter "#cost-counter") for definitions and redaction behavior.
+* `effort`: [Effort level](./model-config.md#adjust-effort-level "/docs/en/model-config#adjust-effort-level") applied to the request. See [Cost counter](#cost-counter "#cost-counter") for details.
+* `agent.name`, `skill.name`, `plugin.name`, `marketplace.name`, `mcp_server.name`, `mcp_tool.name`: Skill, plugin, agent, and MCP attribution for the request. See [Cost counter](#cost-counter "#cost-counter") for definitions and redaction behavior.
 
 #### [​](#code-edit-tool-decision-counter "#code-edit-tool-decision-counter") Code edit tool decision counter
 
@@ -496,7 +511,7 @@ Logged when a user submits a prompt.
 
 #### [​](#tool-result-event "#tool-result-event") Tool result event
 
-Logged when a tool completes execution.
+Logged when a tool completes execution. Not emitted if the tool call was rejected; see the [Tool decision event](#tool-decision-event "#tool-decision-event") for rejections.
 **Event Name**: `claude_code.tool_result`
 **Attributes**:
 
@@ -510,16 +525,17 @@ Logged when a tool completes execution.
 * `duration_ms`: Execution time in milliseconds
 * `error_type`: Error category string when the tool failed, such as `"Error:ENOENT"` or `"ShellError"`
 * `error` (when `OTEL_LOG_TOOL_DETAILS=1`): Full error message when the tool failed
-* `decision_type`: Either `"accept"` or `"reject"`
-* `decision_source`: Where the decision came from. One of `"config"`, `"hook"`, `"user_permanent"`, `"user_temporary"`, `"user_abort"`, or `"user_reject"`. See the [Tool decision event](#tool-decision-event "#tool-decision-event") for what each value means.
+* `decision_type`: Always `"accept"`, since this event is only emitted after the tool runs (rejected calls don’t produce a tool result)
+* `decision_source`: Where the permission decision came from. One of `"config"`, `"hook"`, `"user_permanent"`, or `"user_temporary"`. See the [Tool decision event](#tool-decision-event "#tool-decision-event") for what each value means. The reject-only sources `"user_abort"` and `"user_reject"` never appear on this event.
 * `tool_input_size_bytes`: Size of the JSON-serialized tool input in bytes
 * `tool_result_size_bytes`: Size of the tool result in bytes
 * `mcp_server_scope`: MCP server scope identifier (for MCP tools)
 * `tool_parameters` (when `OTEL_LOG_TOOL_DETAILS=1`): JSON string containing tool-specific parameters:
   + For Bash tool: includes `bash_command`, `full_command`, `timeout`, `description`, `dangerouslyDisableSandbox`, and `git_commit_id` (the commit SHA, when a `git commit` command succeeds)
+  + For WorkspaceBash tool: includes `bash_command`, `full_command`, `timeout`
   + For MCP tools: includes `mcp_server_name`, `mcp_tool_name`
   + For Skill tool: includes `skill_name`
-  + For Task tool: includes `subagent_type`
+  + For Agent tool or legacy Task tool: includes `subagent_type`
 * `tool_input` (when `OTEL_LOG_TOOL_DETAILS=1`): JSON-serialized tool arguments. Individual values over 512 characters are truncated, and the full payload is bounded to ~4 K characters. Applies to all tools including MCP tools.
 
 #### [​](#api-request-event "#api-request-event") API request event
@@ -542,7 +558,8 @@ Logged for each API request to Claude.
 * `request_id`: Anthropic API request ID from the response’s `request-id` header, such as `"req_011..."`. Present only when the API returns one.
 * `speed`: `"fast"` or `"normal"`, indicating whether fast mode was active
 * `query_source`: Subsystem that issued the request, such as `"repl_main_thread"`, `"compact"`, or a subagent name
-* `effort`: [Effort level](./model-config#adjust-effort-level "_model-config#adjust-effort-level".md) applied to the request: `"low"`, `"medium"`, `"high"`, `"xhigh"`, or `"max"`. Absent when the model does not support effort.
+* `effort`: [Effort level](./model-config.md#adjust-effort-level "/docs/en/model-config#adjust-effort-level") applied to the request: `"low"`, `"medium"`, `"high"`, `"xhigh"`, or `"max"`. Absent when the model does not support effort.
+* `agent.name`, `skill.name`, `plugin.name`, `marketplace.name`, `mcp_server.name`, `mcp_tool.name`: Skill, plugin, agent, and MCP attribution for the request. See [Cost counter](#cost-counter "#cost-counter") for definitions and redaction behavior.
 
 #### [​](#api-error-event "#api-error-event") API error event
 
@@ -562,7 +579,8 @@ Logged when an API request to Claude fails.
 * `request_id`: Anthropic API request ID from the response’s `request-id` header, such as `"req_011..."`. Present only when the API returns one.
 * `speed`: `"fast"` or `"normal"`, indicating whether fast mode was active
 * `query_source`: Subsystem that issued the request, such as `"repl_main_thread"`, `"compact"`, or a subagent name
-* `effort`: [Effort level](./model-config#adjust-effort-level "_model-config#adjust-effort-level".md) applied to the request. Absent when the model does not support effort.
+* `effort`: [Effort level](./model-config.md#adjust-effort-level "/docs/en/model-config#adjust-effort-level") applied to the request. Absent when the model does not support effort.
+* `agent.name`, `skill.name`, `plugin.name`, `marketplace.name`, `mcp_server.name`, `mcp_tool.name`: Skill, plugin, agent, and MCP attribution for the request. See [Cost counter](#cost-counter "#cost-counter") for definitions and redaction behavior.
 
 #### [​](#api-request-body-event "#api-request-body-event") API request body event
 
@@ -613,12 +631,18 @@ Logged when a tool permission decision is made (accept/reject).
 * `tool_use_id`: Unique identifier for this tool invocation. Matches the `tool_use_id` passed to hooks, allowing correlation between OTel events and hook-captured data.
 * `decision`: Either `"accept"` or `"reject"`
 * `source`: Where the decision came from:
-  + `"config"`: Decided automatically without prompting, based on project settings, allow rules in the user’s personal settings, enterprise managed policy, `--allowedTools` or `--disallowedTools` flags, the active permission mode, a session-scoped grant from an earlier prompt in the same interactive CLI session, or because the tool is inherently safe. The event does not indicate which of these sources matched.
+  + `"config"`: Decided automatically without prompting, based on project settings, allow or deny rules in the user’s personal settings, enterprise managed policy, `--allowedTools` or `--disallowedTools` flags, the active permission mode, a session-scoped grant from an earlier prompt in the same interactive CLI session, or because the tool is inherently safe. The event does not indicate which of these sources matched.
   + `"hook"`: A `PreToolUse` or `PermissionRequest` hook returned the decision.
   + `"user_permanent"`: Emitted when the user chose “Yes, and don’t ask again for …” at a permission prompt, which saves an allow rule to their personal settings. In the interactive CLI this is emitted only for that choice itself; later calls that match the saved rule emit `"config"` instead. In Agent SDK or non-interactive `-p` sessions, both the initial choice and later rule matches emit `"user_permanent"`. Treated as an accept.
   + `"user_temporary"`: Emitted when the user chose “Yes” at a permission prompt for a one-time approval, or chose one of the ”… during this session” options on a file edit or read prompt. In the interactive CLI this is emitted only for the choice itself; later calls allowed by that session-scoped grant emit `"config"` instead. In Agent SDK or non-interactive `-p` sessions, both the choice and later matches emit `"user_temporary"`. Treated as an accept.
   + `"user_abort"`: Emitted when the user dismissed the permission prompt without answering. Treated as a reject.
-  + `"user_reject"`: Emitted when the user chose “No” when prompted, or a call matched a deny rule in their personal settings. Treated as a reject.
+  + `"user_reject"`: Emitted when the user chose “No” when prompted. In the interactive CLI this is emitted only for that choice itself; calls that match a deny rule in the user’s personal settings emit `"config"` instead. In Agent SDK or non-interactive `-p` sessions, calls that match a deny rule in personal settings emit `"user_reject"`. Treated as a reject.
+* `tool_parameters` (when `OTEL_LOG_TOOL_DETAILS=1`): JSON string containing tool-specific parameters. Same shape as the [Tool result event](#tool-result-event "#tool-result-event"), minus post-execution fields such as `git_commit_id`. Values may differ from `tool_result` for an accepted call if the permission decision rewrites the tool input via `updatedInput`. Use this attribute to see which command was rejected when `decision` is `"reject"`.
+  + For Bash tool: includes `bash_command`, `full_command`, `timeout`, `description`, `dangerouslyDisableSandbox`
+  + For WorkspaceBash tool: includes `bash_command`, `full_command`, `timeout`
+  + For MCP tools: includes `mcp_server_name`, `mcp_tool_name`
+  + For Skill tool: includes `skill_name`
+  + For Agent tool or legacy Task tool: includes `subagent_type`
 
 #### [​](#permission-mode-changed-event "#permission-mode-changed-event") Permission mode changed event
 
@@ -729,7 +753,7 @@ Logged when a skill is invoked, whether Claude calls it through the Skill tool o
 * `event.name`: `"skill_activated"`
 * `event.timestamp`: ISO 8601 timestamp
 * `event.sequence`: monotonically increasing counter for ordering events within a session
-* `skill.name`: Name of the skill. For user-defined and third-party plugin skills the value is the example content `"custom_skill"` unless `OTEL_LOG_TOOL_DETAILS=1`
+* `skill.name`: Name of the skill. For user-defined and third-party plugin skills the value is the task `"custom_skill"` unless `OTEL_LOG_TOOL_DETAILS=1`
 * `invocation_trigger`: How the skill was triggered (`"user-slash"`, `"claude-proactive"`, or `"nested-skill"`)
 * `skill.source`: Where the skill was loaded from (for example, `"bundled"`, `"userSettings"`, `"projectSettings"`, `"plugin"`)
 * `plugin.name` (when `OTEL_LOG_TOOL_DETAILS=1` or the plugin is from an official marketplace): Name of the owning plugin when the skill is provided by a plugin
@@ -851,10 +875,11 @@ Logged when conversation compaction completes.
 * `pre_tokens`: Approximate token count before compaction
 * `post_tokens`: Approximate token count after compaction
 * `error`: Error message when compaction failed
+* `precompute_reuse`: Only set when `trigger` is `"manual"`. Auto-compaction can prepare a summary in the background before the context window fills, and this attribute records whether `/compact` reused that prepared summary. `"hit"` means it was reused; `"miss_custom_instructions"`, `"miss_hook"`, and `"miss_not_ready"` give the reason a fresh summary was computed instead. Requires Claude Code v2.1.153 or later
 
 #### [​](#feedback-survey-event "#feedback-survey-event") Feedback survey event
 
-Logged when a session quality survey is shown or answered. See [Session quality surveys](./data-usage#session-quality-surveys "_data-usage#session-quality-surveys".md) for what the surveys collect and how to control them.
+Logged when a session quality survey is shown or answered. See [Session quality surveys](./data-usage.md#session-quality-surveys "/docs/en/data-usage#session-quality-surveys") for what the surveys collect and how to control them.
 **Event Name**: `claude_code.feedback_survey`
 **Attributes**:
 
@@ -866,7 +891,7 @@ Logged when a session quality survey is shown or answered. See [Session quality 
 * `appearance_id`: Unique ID linking the events emitted for one survey instance
 * `survey_type`: Which survey produced the event. `"session"` is the “How is Claude doing?” rating prompt
 * `response`: The user’s selection on `responded` events
-* `enabled_via_override`: `true` when [`CLAUDE_CODE_ENABLE_FEEDBACK_SURVEY_FOR_OTEL`](./env-vars "_env-vars".md) is set. Emitted as a boolean, not a string. Present on `session` survey events. Filter on this attribute to confirm the override is applied across a fleet
+* `enabled_via_override`: `true` when [`CLAUDE_CODE_ENABLE_FEEDBACK_SURVEY_FOR_OTEL`](./env-vars.md "/docs/en/env-vars") is set. Emitted as a boolean, not a string. Present on `session` survey events. Filter on this attribute to confirm the override is applied across a fleet
 
 ## [​](#interpret-metrics-and-events-data "#interpret-metrics-and-events-data") Interpret metrics and events data
 
@@ -941,9 +966,13 @@ To capture MCP server activity with full call detail, enable the logs exporter a
 | --- | --- |
 | `mcp_server_connection` | Server connect, disconnect, and connection failure with `server_name`, `transport_type`, `server_scope`, and error detail |
 | `tool_result` | Each MCP tool call with `tool_name` and `mcp_server_scope`, a `tool_parameters` payload containing `mcp_server_name` and `mcp_tool_name`, and a `tool_input` payload containing the call arguments |
-| `tool_decision` | Whether the call was allowed or denied, and whether the decision came from config, a hook, or the user |
+| `tool_decision` | Whether the call was allowed or denied, whether the decision came from config, a hook, or the user, and a `tool_parameters` payload containing `mcp_server_name` and `mcp_tool_name` |
 
-Without `OTEL_LOG_TOOL_DETAILS`, `tool_result` events still carry `tool_name` and `mcp_server_scope` but omit the `mcp_server_name`/`mcp_tool_name` breakdown and the arguments, and `mcp_server_connection` events omit `server_name` and the error message.
+Without `OTEL_LOG_TOOL_DETAILS`, these events drop the identifying detail:
+
+* `tool_result`: keeps `tool_name` and `mcp_server_scope`, omits `mcp_server_name`, `mcp_tool_name`, and arguments
+* `tool_decision`: keeps `tool_name`, omits `tool_parameters`
+* `mcp_server_connection`: omits `server_name` and the error message
 
 ### [​](#map-security-questions-to-events "#map-security-questions-to-events") Map security questions to events
 
@@ -951,13 +980,13 @@ When building detection rules, look up the signal you want to monitor and query 
 
 | Signal | Event | Key attributes |
 | --- | --- | --- |
-| Tool call allowed or denied, and by what | `tool_decision` | `decision`, `source`, `tool_name` |
+| Tool call allowed or denied, and by what | `tool_decision` | `decision`, `source`, `tool_name`, `tool_parameters` |
 | Permission mode escalation | `permission_mode_changed` | `from_mode`, `to_mode`, `trigger` |
 | Policy hook blocked an action | `hook_execution_complete` | `hook_event`, `num_blocking` |
 | Login, logout, and authentication failure | `auth` | `action`, `success`, `error_category` |
 | MCP server connect or failure | `mcp_server_connection` | `status`, `server_name`, `error_code` |
 | Plugin installed and its source | `plugin_installed` | `plugin.name`, `marketplace.name`, `marketplace.is_official` |
-| Commands run and files touched | `tool_result` with `OTEL_LOG_TOOL_DETAILS=1` | `tool_parameters`, `tool_input` |
+| Commands run and files touched | `tool_result` (executed) or `tool_decision` (rejected) with `OTEL_LOG_TOOL_DETAILS=1` | `tool_parameters`; `tool_input` (`tool_result` only) |
 
 Claude Code emits the raw event stream only. Anomaly detection, baselining, correlation across sessions, and alerting are the responsibility of your SIEM or observability backend.
 
@@ -1021,11 +1050,15 @@ For a comprehensive guide on measuring return on investment for Claude Code, inc
 
 ## [​](#security-and-privacy "#security-and-privacy") Security and privacy
 
-* OpenTelemetry export to your backend is opt-in and requires explicit configuration. For Anthropic’s separate operational telemetry and how to disable it, see [Data usage](./data-usage#telemetry-services "_data-usage#telemetry-services".md)
+* OpenTelemetry export to your backend is opt-in and requires explicit configuration. For Anthropic’s separate operational telemetry and how to disable it, see [Data usage](./data-usage.md#telemetry-services "/docs/en/data-usage#telemetry-services")
 * Raw file contents and code snippets are not included in metrics or events. Trace spans are a separate data path: see the `OTEL_LOG_TOOL_CONTENT` bullet below
 * When authenticated via OAuth, `user.email` is included in telemetry attributes. If this is a concern for your organization, work with your telemetry backend to filter or redact this field
 * User prompt content is not collected by default. Only prompt length is recorded. To include prompt content, set `OTEL_LOG_USER_PROMPTS=1`
-* Tool input arguments and parameters are not logged by default. To include them, set `OTEL_LOG_TOOL_DETAILS=1`. When enabled, `tool_result` events include a `tool_parameters` attribute with Bash commands, MCP server and tool names, and skill names, plus a `tool_input` attribute with file paths, URLs, search patterns, and other arguments. `user_prompt` events include the verbatim `command_name` for custom, plugin, and MCP commands. Trace spans include the same `tool_input` attribute and input-derived attributes such as `file_path`. Individual values over 512 characters are truncated and the total is bounded to ~4 K characters, but the arguments may still contain sensitive values. Configure your telemetry backend to filter or redact these attributes as needed
+* Tool input arguments and parameters are not logged by default. To include them, set `OTEL_LOG_TOOL_DETAILS=1`. This data is sent only to the OTEL endpoint you configure, never to Anthropic. Arguments may still contain sensitive values, so configure your telemetry backend to filter or redact these attributes as needed. When enabled:
+  + `tool_result` and `tool_decision` events include a `tool_parameters` attribute with Bash commands, MCP server and tool names, and skill names. Fields such as `full_command` are emitted untruncated
+  + `tool_result` events additionally include a `tool_input` attribute with file paths, URLs, search patterns, and other arguments. Individual values over 512 characters are truncated and the total is bounded to ~4 K characters
+  + `user_prompt` events include the verbatim `command_name` for custom, plugin, and MCP commands
+  + Trace spans include the same `tool_input` attribute and input-derived attributes such as `file_path`, with the same truncation as `tool_input`
 * Tool input and output content is not logged in trace spans by default. To include it, set `OTEL_LOG_TOOL_CONTENT=1`. When enabled, span events include full tool input and output content truncated at 60 KB per span. This can include raw file contents from Read tool results and Bash command output. Configure your telemetry backend to filter or redact these attributes as needed
 * Raw Anthropic Messages API request and response bodies are not logged by default. To include them, set `OTEL_LOG_RAW_API_BODIES`. With `=1`, each API call emits `api_request_body` and `api_response_body` log events whose `body` attribute is the JSON-serialized payload, truncated at 60 KB. With `=file:<dir>`, untruncated bodies are written to `.request.json` and `.response.json` files under that directory and the events carry a `body_ref` path instead of the inline body. Ship the directory with a log collector or sidecar rather than through the telemetry stream. In both modes, bodies contain the full conversation history (system prompt, every prior user and assistant turn, tool results), so enabling this implies consent to everything the other `OTEL_LOG_*` content flags would reveal. Claude’s extended-thinking content is always redacted from these bodies regardless of other settings
 

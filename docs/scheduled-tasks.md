@@ -8,21 +8,21 @@
 
 Scheduled tasks require Claude Code v2.1.72 or later. Check your version with `claude --version`.
 
-Scheduled tasks let Claude re-run a prompt automatically on an interval. Use them to poll a deployment, babysit a PR, check back on a long-running build, or remind yourself to do something later in the session. To react to events as they happen instead of polling, see [Channels](./channels "_channels".md): your CI can push the failure into the session directly. To keep the session working turn after turn until a condition is met rather than on an interval, see [`/goal`](./goal "_goal".md).
-Tasks are session-scoped: they live in the current conversation and stop when you start a new one. Resuming with `--resume` or `--continue` brings back any task that hasn’t [expired](#seven-day-expiry "#seven-day-expiry"): a recurring task created within the last 7 days, or a one-shot whose scheduled time hasn’t passed yet. For scheduling that survives independently of any session, use [Routines](./routines "_routines".md) to create a routine on Anthropic-managed infrastructure, set up a [Desktop scheduled task](./desktop-scheduled-tasks "_desktop-scheduled-tasks".md), or use [GitHub Actions](./github-actions "_github-actions".md).
+Scheduled tasks let Claude re-run a prompt automatically on an interval. Use them to poll a deployment, babysit a PR, check back on a long-running build, or remind yourself to do something later in the session. To react to events as they happen instead of polling, see [Channels](./channels.md "/docs/en/channels"): your CI can push the failure into the session directly. To keep the session working turn after turn until a condition is met rather than on an interval, see [`/goal`](./goal.md "/docs/en/goal").
+Tasks are session-scoped: they live in the current conversation and stop when you start a new one. Resuming with `--resume` or `--continue` brings back any task that hasn’t [expired](#seven-day-expiry "#seven-day-expiry"): a recurring task created within the last 7 days, or a one-shot whose scheduled time hasn’t passed yet. For scheduling that survives independently of any session, use [Routines](./routines.md "/docs/en/routines") to create a routine on Anthropic-managed infrastructure, set up a [Desktop scheduled task](./desktop-scheduled-tasks.md "/docs/en/desktop-scheduled-tasks"), or use [GitHub Actions](./github-actions.md "/docs/en/github-actions").
 
 ## [​](#compare-scheduling-options "#compare-scheduling-options") Compare scheduling options
 
 Claude Code offers three ways to schedule recurring or one-off work:
 
-|  | [Cloud](./routines "_routines".md) | [Desktop](./desktop-scheduled-tasks "_desktop-scheduled-tasks".md) | [`/loop`](./scheduled-tasks "_scheduled-tasks".md) |
+|  | [Cloud](./routines.md "/docs/en/routines") | [Desktop](./desktop-scheduled-tasks.md "/docs/en/desktop-scheduled-tasks") | [`/loop`](./scheduled-tasks.md "/docs/en/scheduled-tasks") |
 | --- | --- | --- | --- |
 | Runs on | Anthropic cloud | Your machine | Your machine |
 | Requires machine on | No | Yes | Yes |
 | Requires open session | No | No | Yes |
 | Persistent across restarts | Yes | Yes | Restored on `--resume` if unexpired |
 | Access to local files | No (fresh clone) | Yes | Yes |
-| MCP servers | Connectors configured per task | [Config files](./mcp "_mcp".md) and connectors | Inherits from session |
+| MCP servers | Connectors configured per task | [Config files](./mcp.md "/docs/en/mcp") and connectors | Inherits from session |
 | Permission prompts | No (runs autonomously) | Configurable per task | Inherits from session |
 | Customizable schedule | Via `/schedule` in the CLI | Yes | Yes |
 | Minimum interval | 1 hour | 1 minute | 1 minute |
@@ -31,7 +31,7 @@ Use **cloud tasks** for work that should run reliably without your machine. Use 
 
 ## [​](#run-a-prompt-repeatedly-with-/loop "#run-a-prompt-repeatedly-with-/loop") Run a prompt repeatedly with /loop
 
-The `/loop` [bundled skill](./commands "_commands".md) is the quickest way to run a prompt on repeat while the session stays open. Both the interval and the prompt are optional, and what you provide determines how the loop behaves.
+The `/loop` [bundled skill](./commands.md "/docs/en/commands") is the quickest way to run a prompt on repeat while the session stays open. Both the interval and the prompt are optional, and what you provide determines how the loop behaves.
 
 | What you provide | Example | What happens |
 | --- | --- | --- |
@@ -61,7 +61,7 @@ The example below checks CI and review comments, with Claude waiting longer betw
 /loop check whether CI passed and address any review comments
 ```
 
-When you ask for a dynamic `/loop` schedule, Claude may use the [Monitor tool](./tools-reference#monitor-tool "_tools-reference#monitor-tool".md) directly. Monitor runs a background script and streams each output line back, which avoids polling altogether and is often more token-efficient and responsive than re-running a prompt on an interval.
+When you ask for a dynamic `/loop` schedule, Claude may use the [Monitor tool](./tools-reference.md#monitor-tool "/docs/en/tools-reference#monitor-tool") directly. Monitor runs a background script and streams each output line back, which avoids polling altogether and is often more token-efficient and responsive than re-running a prompt on an interval.
 A dynamically scheduled loop appears in your [scheduled task list](#manage-scheduled-tasks "#manage-scheduled-tasks") like any other task, so you can list or cancel it the same way. The [jitter rules](#jitter "#jitter") don’t apply to it, but the [seven-day expiry](#seven-day-expiry "#seven-day-expiry") does: the loop ends automatically seven days after you start it.
 
 On Bedrock, Vertex AI, and Microsoft Foundry, a prompt with no interval runs on a fixed 10-minute schedule instead.
@@ -166,7 +166,7 @@ The offset is derived from the task ID, so the same task always gets the same of
 
 ### [​](#seven-day-expiry "#seven-day-expiry") Seven-day expiry
 
-Recurring tasks automatically expire 7 days after creation. The task fires one final time, then deletes itself. This bounds how long a forgotten loop can run. If you need a recurring task to last longer, cancel and recreate it before it expires, or use [Routines](./routines "_routines".md) or [Desktop scheduled tasks](./desktop-scheduled-tasks "_desktop-scheduled-tasks".md) for durable scheduling.
+Recurring tasks automatically expire 7 days after creation. The task fires one final time, then deletes itself. This bounds how long a forgotten loop can run. If you need a recurring task to last longer, cancel and recreate it before it expires, or use [Routines](./routines.md "/docs/en/routines") or [Desktop scheduled tasks](./desktop-scheduled-tasks.md "/docs/en/desktop-scheduled-tasks") for durable scheduling.
 
 ## [​](#cron-expression-reference "#cron-expression-reference") Cron expression reference
 
@@ -186,7 +186,7 @@ When both day-of-month and day-of-week are constrained, a date matches if either
 
 ## [​](#disable-scheduled-tasks "#disable-scheduled-tasks") Disable scheduled tasks
 
-Set `CLAUDE_CODE_DISABLE_CRON=1` in your environment to disable the scheduler entirely. The cron tools and `/loop` become unavailable, and any already-scheduled tasks stop firing. See [Environment variables](./env-vars "_env-vars".md) for the full list of disable flags.
+Set `CLAUDE_CODE_DISABLE_CRON=1` in your environment to disable the scheduler entirely. The cron tools and `/loop` become unavailable, and any already-scheduled tasks stop firing. See [Environment variables](./env-vars.md "/docs/en/env-vars") for the full list of disable flags.
 
 ## [​](#limitations "#limitations") Limitations
 
@@ -198,6 +198,6 @@ Session-scoped scheduling has inherent constraints:
 
 For cron-driven automation that needs to run unattended:
 
-* [Routines](./routines "_routines".md): run on Anthropic-managed infrastructure on a schedule, via API call, or on GitHub events
-* [GitHub Actions](./github-actions "_github-actions".md): use a `schedule` trigger in CI
-* [Desktop scheduled tasks](./desktop-scheduled-tasks "_desktop-scheduled-tasks".md): run locally on your machine
+* [Routines](./routines.md "/docs/en/routines"): run on Anthropic-managed infrastructure on a schedule, via API call, or on GitHub events
+* [GitHub Actions](./github-actions.md "/docs/en/github-actions"): use a `schedule` trigger in CI
+* [Desktop scheduled tasks](./desktop-scheduled-tasks.md "/docs/en/desktop-scheduled-tasks"): run locally on your machine

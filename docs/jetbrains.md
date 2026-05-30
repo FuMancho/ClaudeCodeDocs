@@ -23,7 +23,7 @@ The Claude Code plugin works with most JetBrains IDEs, including:
 
 * **Quick launch**: use `Cmd+Esc` (Mac) or `Ctrl+Esc` (Windows/Linux) to open Claude Code directly from your editor, or click the Claude Code button in the UI
 * **Diff viewing**: code changes can be displayed directly in the IDE diff viewer instead of the terminal
-* **Selection context**: the current selection or tab in the IDE is automatically shared with Claude Code. [`Read` deny rules](./permissions#read-and-edit "_permissions#read-and-edit".md) block this sharing for matching files
+* **Selection context**: the current selection or tab in the IDE is automatically shared with Claude Code. [`Read` deny rules](./permissions.md#read-and-edit "/docs/en/permissions#read-and-edit") block this sharing for matching files
 * **File reference shortcuts**: use `Cmd+Option+K` (Mac) or `Alt+Ctrl+K` (Linux/Windows) to insert file references such as `@src/auth.ts#L1-99`
 * **Diagnostic sharing**: diagnostic errors from the IDE, such as lint and syntax errors, are automatically shared with Claude as you work
 
@@ -32,7 +32,7 @@ The Claude Code plugin works with most JetBrains IDEs, including:
 ### [​](#marketplace-installation "#marketplace-installation") Marketplace installation
 
 Find and install the [Claude Code plugin](https://plugins.jetbrains.com/plugin/27310-claude-code-beta- "https://plugins.jetbrains.com/plugin/27310-claude-code-beta-") from the JetBrains marketplace and restart your IDE.
-If you haven’t installed Claude Code yet, see the [quickstart guide](./quickstart "_quickstart".md) for installation instructions.
+If you haven’t installed Claude Code yet, see the [quickstart guide](./quickstart.md "/docs/en/quickstart") for installation instructions.
 
 After installing the plugin, you may need to restart your IDE completely for it to take effect.
 
@@ -184,4 +184,4 @@ When running in JetBrains IDEs, consider:
 * Taking extra care to ensure Claude is only used with trusted prompts
 * Being aware of which files Claude Code has access to modify
 
-For Claude Code installation or login problems outside the IDE, see [Troubleshoot installation and login](./troubleshoot-install "_troubleshoot-install".md).
+For Claude Code installation or login problems outside the IDE, see [Troubleshoot installation and login](./troubleshoot-install.md "/docs/en/troubleshoot-install").

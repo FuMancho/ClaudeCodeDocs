@@ -9,7 +9,7 @@
 Computer use is a research preview on macOS that requires a Pro or Max plan. It is not available on Team or Enterprise plans. It requires Claude Code v2.1.85 or later and an interactive session, so it is not available in non-interactive mode with the `-p` flag.
 
 Computer use lets Claude open apps, control your screen, and work on your machine the way you would. From the CLI, Claude can compile a Swift app, launch it, click through every button, and screenshot the result, all in the same conversation where it wrote the code.
-This page covers how computer use works in the CLI. For the Desktop app on macOS or Windows, see [computer use in Desktop](./desktop#let-claude-use-your-computer "_desktop#let-claude-use-your-computer".md).
+This page covers how computer use works in the CLI. For the Desktop app on macOS or Windows, see [computer use in Desktop](./desktop.md#let-claude-use-your-computer "/docs/en/desktop#let-claude-use-your-computer").
 
 ## [​](#what-you-can-do-with-computer-use "#what-you-can-do-with-computer-use") What you can do with computer use
 
@@ -24,9 +24,9 @@ Computer use handles tasks that require a GUI: anything you’d normally have to
 
 Claude has several ways to interact with an app or service. Computer use is the broadest and slowest, so Claude tries the most precise tool first:
 
-* If you have an [MCP server](./mcp "_mcp".md) for the service, Claude uses that.
+* If you have an [MCP server](./mcp.md "/docs/en/mcp") for the service, Claude uses that.
 * If the task is a shell command, Claude uses Bash.
-* If the task is browser work and you have [Claude in Chrome](./chrome "_chrome".md) set up, Claude uses that.
+* If the task is browser work and you have [Claude in Chrome](./chrome.md "/docs/en/chrome") set up, Claude uses that.
 * If none of those apply, Claude uses computer use.
 
 Screen control is reserved for things nothing else can reach: native apps, simulators, and tools without an API.
@@ -89,7 +89,7 @@ Apps with broad reach show an extra warning in the prompt so you know what appro
 | Can change system settings | System Settings |
 
 These apps aren’t blocked. The warning lets you decide whether the task warrants that level of access.
-Claude’s level of control also varies by app category: browsers and trading platforms are view-only, terminals and IDEs are click-only, and everything else gets full control. See [app permissions in Desktop](./desktop#app-permissions "_desktop#app-permissions".md) for the complete tier breakdown.
+Claude’s level of control also varies by app category: browsers and trading platforms are view-only, terminals and IDEs are click-only, and everything else gets full control. See [app permissions in Desktop](./desktop.md#app-permissions "/docs/en/desktop#app-permissions") for the complete tier breakdown.
 
 ## [​](#how-claude-works-on-your-screen "#how-claude-works-on-your-screen") How Claude works on your screen
 
@@ -116,7 +116,7 @@ A second notification appears when Claude is done.
 
 ## [​](#safety-and-the-trust-boundary "#safety-and-the-trust-boundary") Safety and the trust boundary
 
-Unlike the [sandboxed Bash tool](./sandboxing "_sandboxing".md), computer use runs on your actual desktop with access to the apps you approve. Claude checks each action and flags potential prompt injection from on-screen content, but the trust boundary is different. See the [computer use safety guide](https://support.claude.com/en/articles/14128542 "https://support.claude.com/en/articles/14128542") for best practices.
+Unlike the [sandboxed Bash tool](./sandboxing.md "/docs/en/sandboxing"), computer use runs on your actual desktop with access to the apps you approve. Claude checks each action and flags potential prompt injection from on-screen content, but the trust boundary is different. See the [computer use safety guide](https://support.claude.com/en/articles/14128542 "https://support.claude.com/en/articles/14128542") for best practices.
 
 The built-in guardrails reduce risk without requiring configuration:
 
@@ -191,7 +191,7 @@ macOS sometimes requires a restart of the requesting process after you grant Scr
 
 The server only appears on eligible setups. Check that:
 
-* You’re on macOS. Computer use in the CLI is not available on Linux or Windows. On Windows, use [computer use in Desktop](./desktop#let-claude-use-your-computer "_desktop#let-claude-use-your-computer".md) instead.
+* You’re on macOS. Computer use in the CLI is not available on Linux or Windows. On Windows, use [computer use in Desktop](./desktop.md#let-claude-use-your-computer "/docs/en/desktop#let-claude-use-your-computer") instead.
 * You’re running Claude Code v2.1.85 or later. Run `claude --version` to check.
 * You’re on a Pro or Max plan. Run `/status` to confirm your subscription.
 * You’re authenticated through claude.ai. Computer use is not available with third-party providers like Amazon Bedrock, Google Cloud Vertex AI, or Microsoft Foundry. If you access Claude exclusively through a third-party provider, you need a separate claude.ai account to use this feature.
@@ -199,8 +199,8 @@ The server only appears on eligible setups. Check that:
 
 ## [​](#see-also "#see-also") See also
 
-* [Computer use in Desktop](./desktop#let-claude-use-your-computer "_desktop#let-claude-use-your-computer".md): the same capability with a graphical settings page
-* [Claude in Chrome](./chrome "_chrome".md): browser automation for web-based tasks
-* [MCP](./mcp "_mcp".md): connect Claude to structured tools and APIs
-* [Sandboxing](./sandboxing "_sandboxing".md): how Claude’s Bash tool isolates filesystem and network access
+* [Computer use in Desktop](./desktop.md#let-claude-use-your-computer "/docs/en/desktop#let-claude-use-your-computer"): the same capability with a graphical settings page
+* [Claude in Chrome](./chrome.md "/docs/en/chrome"): browser automation for web-based tasks
+* [MCP](./mcp.md "/docs/en/mcp"): connect Claude to structured tools and APIs
+* [Sandboxing](./sandboxing.md "/docs/en/sandboxing"): how Claude’s Bash tool isolates filesystem and network access
 * [Computer use safety guide](https://support.claude.com/en/articles/14128542 "https://support.claude.com/en/articles/14128542"): best practices for safe computer use

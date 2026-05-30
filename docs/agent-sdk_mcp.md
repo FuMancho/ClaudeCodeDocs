@@ -9,7 +9,7 @@
 The [Model Context Protocol (MCP)](https://modelcontextprotocol.io/docs/getting-started/intro "https://modelcontextprotocol.io/docs/getting-started/intro") is an open standard for connecting AI agents to external tools and data sources. With MCP, your agent can query databases, integrate with APIs like Slack and GitHub, and connect to other services without writing custom tool implementations.
 MCP servers can run as local processes, connect over HTTP, or execute directly within your SDK application.
 
-This page covers MCP configuration for the Agent SDK. To add MCP servers to the Claude Code CLI so they load in every project, see [MCP installation scopes](./mcp#mcp-installation-scopes "_mcp#mcp-installation-scopes".md).
+This page covers MCP configuration for the Agent SDK. To add MCP servers to the Claude Code CLI so they load in every project, see [MCP installation scopes](./mcp.md#mcp-installation-scopes "/docs/en/mcp#mcp-installation-scopes").
 
 ## [​](#quickstart "#quickstart") Quickstart
 
@@ -119,7 +119,7 @@ const _ = {
 
 Wildcards (`*`) let you allow all tools from a server without listing each one individually.
 
-**Prefer `allowedTools` over permission modes for MCP access.** `permissionMode: "acceptEdits"` does not auto-approve MCP tools (only file edits and filesystem Bash commands). `permissionMode: "bypassPermissions"` does auto-approve MCP tools but also disables all other safety prompts, which is broader than necessary. A wildcard in `allowedTools` grants exactly the MCP server you want and nothing more. See [Permission modes](./agent-sdk_permissions#permission-modes "_agent-sdk_permissions#permission-modes".md) for a full comparison.
+**Prefer `allowedTools` over permission modes for MCP access.** `permissionMode: "acceptEdits"` does not auto-approve MCP tools (only file edits and filesystem Bash commands). `permissionMode: "bypassPermissions"` does auto-approve MCP tools but also disables all other safety prompts, which is broader than necessary. A wildcard in `allowedTools` grants exactly the MCP server you want and nothing more. See [Permission modes](./agent-sdk/permissions.md#permission-modes "/docs/en/agent-sdk/permissions#permission-modes") for a full comparison.
 
 ### [​](#discover-available-tools "#discover-available-tools") Discover available tools
 
@@ -229,13 +229,13 @@ For the streamable HTTP transport, use `"type": "http"` instead. In `.mcp.json` 
 
 ### [​](#sdk-mcp-servers "#sdk-mcp-servers") SDK MCP servers
 
-Define custom tools directly in your application code instead of running a separate server process. See the [custom tools guide](./agent-sdk_custom-tools "_agent-sdk_custom-tools".md) for implementation details.
+Define custom tools directly in your application code instead of running a separate server process. See the [custom tools guide](./agent-sdk/custom-tools.md "/docs/en/agent-sdk/custom-tools") for implementation details.
 
 ## [​](#mcp-tool-search "#mcp-tool-search") MCP tool search
 
 When you have many MCP tools configured, tool definitions can consume a significant portion of your context window. Tool search solves this by withholding tool definitions from context and loading only the ones Claude needs for each turn.
-Tool search is enabled by default. See [Tool search](./agent-sdk_tool-search "_agent-sdk_tool-search".md) for configuration options and details.
-For more detail, including best practices and using tool search with custom SDK tools, see the [tool search guide](./agent-sdk_tool-search "_agent-sdk_tool-search".md).
+Tool search is enabled by default. See [Tool search](./agent-sdk/tool-search.md "/docs/en/agent-sdk/tool-search") for configuration options and details.
+For more detail, including best practices and using tool search with custom SDK tools, see the [tool search guide](./agent-sdk/tool-search.md "/docs/en/agent-sdk/tool-search").
 
 ## [​](#authentication "#authentication") Authentication
 
@@ -528,8 +528,8 @@ The MCP SDK has a default timeout of 60 seconds for server connections. If your 
 
 ## [​](#related-resources "#related-resources") Related resources
 
-* **[Custom tools guide](./agent-sdk_custom-tools "_agent-sdk_custom-tools".md)**: Build your own MCP server that runs in-process with your SDK application
-* **[Permissions](./agent-sdk_permissions "_agent-sdk_permissions".md)**: Control which MCP tools your agent can use with `allowedTools` and `disallowedTools`
-* **[TypeScript SDK reference](./agent-sdk_typescript "_agent-sdk_typescript".md)**: Full API reference including MCP configuration options
-* **[Python SDK reference](./agent-sdk_python "_agent-sdk_python".md)**: Full API reference including MCP configuration options
+* **[Custom tools guide](./agent-sdk/custom-tools.md "/docs/en/agent-sdk/custom-tools")**: Build your own MCP server that runs in-process with your SDK application
+* **[Permissions](./agent-sdk/permissions.md "/docs/en/agent-sdk/permissions")**: Control which MCP tools your agent can use with `allowedTools` and `disallowedTools`
+* **[TypeScript SDK reference](./agent-sdk/typescript.md "/docs/en/agent-sdk/typescript")**: Full API reference including MCP configuration options
+* **[Python SDK reference](./agent-sdk/python.md "/docs/en/agent-sdk/python")**: Full API reference including MCP configuration options
 * **[MCP server directory](https://github.com/modelcontextprotocol/servers "https://github.com/modelcontextprotocol/servers")**: Browse available MCP servers for databases, APIs, and more

@@ -47,7 +47,7 @@ The restore options revert state: they undo code changes, conversation history, 
 
 In both cases the original messages are preserved in the session transcript, so Claude can reference the details if needed. You can type optional instructions to guide what the summary focuses on. This is similar to `/compact`, but targeted: instead of summarizing the entire conversation, you choose which side of the selected message to compress.
 
-Summarize keeps you in the same session and compresses context. If you want to branch off and try a different approach while preserving the original session intact, use [fork](./sessions#branch-a-session "_sessions#branch-a-session".md) instead (`claude --continue --fork-session`).
+Summarize keeps you in the same session and compresses context. If you want to branch off and try a different approach while preserving the original session intact, use [fork](./sessions.md#branch-a-session "/docs/en/sessions#branch-a-session") instead (`claude --continue --fork-session`).
 
 ## [​](#common-use-cases "#common-use-cases") Common use cases
 
@@ -86,6 +86,6 @@ Checkpoints are designed for quick, session-level recovery. For permanent versio
 
 ## [​](#see-also "#see-also") See also
 
-* [Interactive mode](./interactive-mode "_interactive-mode".md) - Keyboard shortcuts and session controls
-* [Commands](./commands "_commands".md) - Accessing checkpoints using `/rewind`
-* [CLI reference](./cli-reference "_cli-reference".md) - Command-line options
+* [Interactive mode](./interactive-mode.md "/docs/en/interactive-mode") - Keyboard shortcuts and session controls
+* [Commands](./commands.md "/docs/en/commands") - Accessing checkpoints using `/rewind`
+* [CLI reference](./cli-reference.md "/docs/en/cli-reference") - Command-line options

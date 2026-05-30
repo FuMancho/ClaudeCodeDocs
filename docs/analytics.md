@@ -23,7 +23,7 @@ The Team and Enterprise dashboard includes:
 * **Leaderboard**: top contributors ranked by Claude Code usage
 * **Data export**: download contribution data as CSV for custom reporting
 
-For per-user token counts and cost estimates, configure [OpenTelemetry export](./monitoring-usage "_monitoring-usage".md).
+For per-user token counts and cost estimates, configure [OpenTelemetry export](./monitoring-usage.md "/docs/en/monitoring-usage").
 
 ### [​](#enable-contribution-metrics "#enable-contribution-metrics") Enable contribution metrics
 
@@ -32,7 +32,7 @@ Contribution metrics are in public beta and available on Claude for Teams and Cl
 Usage and adoption data is available for all Claude for Teams and Claude for Enterprise accounts. Contribution metrics require additional setup to connect your GitHub organization.
 You need the Owner role to configure analytics settings. A GitHub admin must install the GitHub app.
 
-Contribution metrics are not available for organizations with [Zero Data Retention](./zero-data-retention "_zero-data-retention".md) enabled. The analytics dashboard will show usage metrics only.
+Contribution metrics are not available for organizations with [Zero Data Retention](./zero-data-retention.md "/docs/en/zero-data-retention") enabled. The analytics dashboard will show usage metrics only.
 
 1
 
@@ -214,6 +214,6 @@ Spend figures in the Console dashboard are estimates for analytics purposes. For
 
 ## [​](#related-resources "#related-resources") Related resources
 
-* [Monitoring with OpenTelemetry](./monitoring-usage "_monitoring-usage".md): export real-time metrics and events to your observability stack
-* [Manage costs effectively](./costs "_costs".md): set spend limits and optimize token usage
-* [Permissions](./permissions "_permissions".md): configure roles and permissions
+* [Monitoring with OpenTelemetry](./monitoring-usage.md "/docs/en/monitoring-usage"): export real-time metrics and events to your observability stack
+* [Manage costs effectively](./costs.md "/docs/en/costs"): set spend limits and optimize token usage
+* [Permissions](./permissions.md "/docs/en/permissions"): configure roles and permissions

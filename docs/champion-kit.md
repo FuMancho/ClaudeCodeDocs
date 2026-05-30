@@ -30,7 +30,7 @@ Set expectations with yourself and with your lead. The activities below are inte
 | Posting wins and prompts | About 15 minutes | Capture these in the moment with a screenshot and one or two sentences; avoid turning them into formal write-ups. |
 | Answering questions in a shared channel | About 20 minutes | Answer publicly once, then link back to that answer when the question recurs. |
 | Hosting a weekly show-and-tell thread | About 5 minutes | You post the opening prompt; the team supplies the content. |
-| Optional pairing or walkthroughs | 0 to 30 minutes | Reserve this for colleagues who are genuinely blocked, and offer the [Quickstart](./quickstart "_quickstart".md) link before scheduling time. |
+| Optional pairing or walkthroughs | 0 to 30 minutes | Reserve this for colleagues who are genuinely blocked, and offer the [Quickstart](./quickstart.md "/docs/en/quickstart") link before scheduling time. |
 
 ## [​](#share-what-you-discover "#share-what-you-discover") Share what you discover
 
@@ -104,13 +104,13 @@ A response such as “Try plan mode, press `Shift+Tab` until you see it” is mo
 
 | Question | Suggested response | Follow-up resource |
 | --- | --- | --- |
-| ”What should I try it on first?” | Recommend a real but contained task, ideally a bug or chore the person has been postponing because it is tedious rather than difficult. | [Common workflows](./common-workflows "_common-workflows".md) |
-| ”How do I trust it with my code?” | Introduce plan mode: pressing `Shift+Tab` cycles into it, Claude proposes exactly what it intends to change, and nothing is modified until the user approves. | [Permissions](./permissions "_permissions".md) |
-| ”Is the setup worth the effort?” | Installation takes roughly two minutes, runs in the terminal, and requires no IDE extension. Running `/init` once is sufficient to begin working. | [Quickstart](./quickstart "_quickstart".md) |
-| ”It produced an incorrect result.” | Encourage them to provide the failure back to Claude. Pasting the error message or failing test is far more effective than rephrasing the original request. | [Common workflows](./common-workflows "_common-workflows".md) |
-| ”It does not understand our codebase conventions.” | Suggest running `/init` to generate a `CLAUDE.md` file, then adding the team’s conventions, test commands, and any directories that should be avoided. | [Memory](./memory "_memory".md) |
+| ”What should I try it on first?” | Recommend a real but contained task, ideally a bug or chore the person has been postponing because it is tedious rather than difficult. | [Common workflows](./common-workflows.md "/docs/en/common-workflows") |
+| ”How do I trust it with my code?” | Introduce plan mode: pressing `Shift+Tab` cycles into it, Claude proposes exactly what it intends to change, and nothing is modified until the user approves. | [Permissions](./permissions.md "/docs/en/permissions") |
+| ”Is the setup worth the effort?” | Installation takes roughly two minutes, runs in the terminal, and requires no IDE extension. Running `/init` once is sufficient to begin working. | [Quickstart](./quickstart.md "/docs/en/quickstart") |
+| ”It produced an incorrect result.” | Encourage them to provide the failure back to Claude. Pasting the error message or failing test is far more effective than rephrasing the original request. | [Common workflows](./common-workflows.md "/docs/en/common-workflows") |
+| ”It does not understand our codebase conventions.” | Suggest running `/init` to generate a `CLAUDE.md` file, then adding the team’s conventions, test commands, and any directories that should be avoided. | [Memory](./memory.md "/docs/en/memory") |
 | ”Is this just autocomplete?” | Offer a brief demonstration in which Claude explains an unfamiliar file, traces a bug across services, or drafts a migration plan. These tasks require reasoning across the repository rather than completing a single line. | A two-minute live demonstration |
-| ”What about security and data handling?” | Refer this question to your administrator. Your organization’s deployment and data-handling policy is already configured, and champions should not improvise this answer. | [Security](./security "_security".md) · [Data usage](./data-usage "_data-usage".md) |
+| ”What about security and data handling?” | Refer this question to your administrator. Your organization’s deployment and data-handling policy is already configured, and champions should not improvise this answer. | [Security](./security.md "/docs/en/security") · [Data usage](./data-usage.md "/docs/en/data-usage") |
 
 ## [​](#grow-the-circle "#grow-the-circle") Grow the circle
 
@@ -120,7 +120,7 @@ The objective is not to build a program or to own a rollout. It is to establish 
 
 | Pattern | How to run it | Effort required |
 | --- | --- | --- |
-| A dedicated channel | Create a `#claude-code` channel (or a recurring thread in an existing one), pin the [Quickstart](./quickstart "_quickstart".md) link and one strong example, and answer questions publicly so each answer benefits everyone watching. | About five minutes to set up, then ambient |
+| A dedicated channel | Create a `#claude-code` channel (or a recurring thread in an existing one), pin the [Quickstart](./quickstart.md "/docs/en/quickstart") link and one strong example, and answer questions publicly so each answer benefits everyone watching. | About five minutes to set up, then ambient |
 | A weekly show-and-tell thread | Each Friday, post “What did Claude help you with this week?” No preparation, slides, or meeting are required; screenshots and short descriptions are sufficient. | About two minutes per week |
 | Share a custom skill | Post your most useful `.claude/skills/<name>/SKILL.md` file, for example a `/ship` skill that runs tests and lint before committing, with a one-line description. Because skills are plain Markdown, colleagues can adopt them immediately. | About five minutes per skill |
 | Generate a setup guide from your own usage | Run `/team-onboarding` in a project you have spent real time in. Claude scans your recent sessions, commands, and MCP servers, then produces a guide a new teammate can paste as their first message to replay your setup. Pin it in the channel. | About two minutes |
@@ -135,7 +135,7 @@ If a loose plan is helpful, the sequence below reflects what tends to work acros
 
 Week 1: Seed the channel
 
-Create the channel, pin the [Quickstart](./quickstart "_quickstart".md), and post two or three of your own examples with the prompts included.**Signal that it is working:** a few colleagues react or reply, and at least one question is asked in the channel.
+Create the channel, pin the [Quickstart](./quickstart.md "/docs/en/quickstart"), and post two or three of your own examples with the prompts included.**Signal that it is working:** a few colleagues react or reply, and at least one question is asked in the channel.
 
 2
 
@@ -157,7 +157,7 @@ Identify a second champion and share a brief summary of what is working and what
 
 ### [​](#when-someone-wants-to-go-deeper "#when-someone-wants-to-go-deeper") When someone wants to go deeper
 
-You are the warm introduction rather than the onboarding program. When a colleague moves past “should I try this” into “how do I become effective with it,” point them to the [Quickstart](./quickstart "_quickstart".md) and [Common workflows](./common-workflows "_common-workflows".md) pages. They contain short sections covering the features that are genuinely useful but difficult to discover on your own.
+You are the warm introduction rather than the onboarding program. When a colleague moves past “should I try this” into “how do I become effective with it,” point them to the [Quickstart](./quickstart.md "/docs/en/quickstart") and [Common workflows](./common-workflows.md "/docs/en/common-workflows") pages. They contain short sections covering the features that are genuinely useful but difficult to discover on your own.
 
 ## [​](#respond-to-common-concerns "#respond-to-common-concerns") Respond to common concerns
 
@@ -179,10 +179,10 @@ The techniques below are the ones that most reliably move someone from a first t
 | --- | --- |
 | Provide the right context | Use `@file` or `@directory/` references, or paste the error or log output directly. Supplying relevant context is more effective than elaborate prompting. |
 | Review the plan before the edit | Press `Shift+Tab` to enter plan mode. Claude will describe the intended changes for your approval before executing them. |
-| Teach it your repository | Run `/init` to generate a `CLAUDE.md` file, then add your conventions, test commands, and any directories that should not be modified. See [Memory](./memory "_memory".md). |
-| Reuse a workflow | Save a `SKILL.md` file in `.claude/skills/<name>/` to create a `/name` skill that the entire team can use. See [Skills](./skills "_skills".md). |
-| Stay informed during long tasks | Configure a Stop hook to receive a desktop notification when a long-running task completes. See [Hooks](./hooks-guide "_hooks-guide".md). |
+| Teach it your repository | Run `/init` to generate a `CLAUDE.md` file, then add your conventions, test commands, and any directories that should not be modified. See [Memory](./memory.md "/docs/en/memory"). |
+| Reuse a workflow | Save a `SKILL.md` file in `.claude/skills/<name>/` to create a `/name` skill that the entire team can use. See [Skills](./skills.md "/docs/en/skills"). |
+| Stay informed during long tasks | Configure a Stop hook to receive a desktop notification when a long-running task completes. See [Hooks](./hooks-guide.md "/docs/en/hooks-guide"). |
 | Recover from an incorrect result | Rather than rephrasing the request, paste the failing test or stack trace back to Claude and ask it to address that specific failure. |
 | Keep edits surgical | Ask for a diff, or specify “only change X.” Claude respects scope when scope is stated. |
 
-Claude Code is updated frequently. Verify version-specific details against the [documentation home page](./overview "_overview".md) before distributing this material internally.
+Claude Code is updated frequently. Verify version-specific details against the [documentation home page](./overview.md "/docs/en/overview") before distributing this material internally.

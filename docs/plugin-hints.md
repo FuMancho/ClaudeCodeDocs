@@ -8,11 +8,11 @@
 
 If you maintain a CLI or SDK and have a plugin in the official Anthropic marketplace, your tool can prompt Claude Code users to install that plugin. Your CLI writes a one-line marker to stderr when it detects it is running inside Claude Code. Claude Code reads the marker, strips it from the output, and shows the user a one-time install prompt.
 Claude Code strips the hint line from the command output before sending it to the model, so the marker never appears in the conversation and is not counted toward token usage. The protocol requires no extra commands and does not change what your CLI prints for users outside Claude Code.
-This page is for CLI and SDK maintainers. If you are looking to install plugins, see [Discover and install plugins](./discover-plugins "_discover-plugins".md).
+This page is for CLI and SDK maintainers. If you are looking to install plugins, see [Discover and install plugins](./discover-plugins.md "/docs/en/discover-plugins").
 
 ## [​](#how-it-works "#how-it-works") How it works
 
-Claude Code sets the [`CLAUDECODE`](./env-vars "_env-vars".md) environment variable to `1` for every command it runs through the Bash and PowerShell tools, and for [hook](./hooks "_hooks".md) commands. When your CLI sees that variable, it writes a self-closing `<claude-code-hint />` tag to stderr. In hook commands the hint tag is stripped and ignored. Only Bash and PowerShell tool output triggers the install prompt.
+Claude Code sets the [`CLAUDECODE`](./env-vars.md "/docs/en/env-vars") environment variable to `1` for every command it runs through the Bash and PowerShell tools, and for [hook](./hooks.md "/docs/en/hooks") commands. When your CLI sees that variable, it writes a self-closing `<claude-code-hint />` tag to stderr. In hook commands the hint tag is stripped and ignored. Only Bash and PowerShell tool output triggers the install prompt.
 When Claude Code receives the command output, it:
 
 1. Scans for hint lines and removes them before the output reaches the model
@@ -117,10 +117,10 @@ The remaining guidance is recommended but not enforced. Claude Code cannot obser
 
 ## [​](#get-your-plugin-into-the-official-marketplace "#get-your-plugin-into-the-official-marketplace") Get your plugin into the official marketplace
 
-The hint protocol only takes effect for plugins listed in the official Anthropic marketplace, `claude-plugins-official`. Anthropic curates that marketplace at its discretion, and the in-app submission forms add plugins to the [community marketplace](./plugins#submit-your-plugin-to-the-community-marketplace "_plugins#submit-your-plugin-to-the-community-marketplace".md) instead, which the hint protocol does not check. If you are working with an Anthropic partner contact, reach out to them to coordinate an official-marketplace listing.
+The hint protocol only takes effect for plugins listed in the official Anthropic marketplace, `claude-plugins-official`. Anthropic curates that marketplace at its discretion, and the in-app submission forms add plugins to the [community marketplace](./plugins.md#submit-your-plugin-to-the-community-marketplace "/docs/en/plugins#submit-your-plugin-to-the-community-marketplace") instead, which the hint protocol does not check. If you are working with an Anthropic partner contact, reach out to them to coordinate an official-marketplace listing.
 
 ## [​](#see-also "#see-also") See also
 
-* [Create plugins](./plugins "_plugins".md): build the plugin your CLI recommends
-* [Create and distribute a plugin marketplace](./plugin-marketplaces "_plugin-marketplaces".md): host plugins outside the official marketplace
-* [Environment variables](./env-vars "_env-vars".md): full reference for `CLAUDECODE` and related variables
+* [Create plugins](./plugins.md "/docs/en/plugins"): build the plugin your CLI recommends
+* [Create and distribute a plugin marketplace](./plugin-marketplaces.md "/docs/en/plugin-marketplaces"): host plugins outside the official marketplace
+* [Environment variables](./env-vars.md "/docs/en/env-vars"): full reference for `CLAUDECODE` and related variables

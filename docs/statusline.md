@@ -1,3 +1,5 @@
+# Statusline
+
 > ## Documentation Index
 >
 > Fetch the complete documentation index at: [https://code.claude.com/docs/llms.txt](https://code.claude.com/docs/llms.txt "https://code.claude.com/docs/llms.txt")
@@ -32,7 +34,7 @@ The `/statusline` command accepts natural language instructions describing what 
 
 ### [​](#manually-configure-a-status-line "#manually-configure-a-status-line") Manually configure a status line
 
-Add a `statusLine` field to your user settings (`~/.claude/settings.json`, where `~` is your home directory) or [project settings](./settings#settings-files "_settings#settings-files".md). Set `type` to `"command"` and point `command` to a script path or an inline shell command. For a full walkthrough of creating a script, see [Build a status line step by step](#build-a-status-line-step-by-step "#build-a-status-line-step-by-step").
+Add a `statusLine` field to your user settings (`~/.claude/settings.json`, where `~` is your home directory) or [project settings](./settings.md#settings-files "/docs/en/settings#settings-files"). Set `type` to `"command"` and point `command` to a script path or an inline shell command. For a full walkthrough of creating a script, see [Build a status line step by step](#build-a-status-line-step-by-step "#build-a-status-line-step-by-step").
 
 ```
 {
@@ -133,6 +135,9 @@ These triggers can go quiet when the main session is idle, for example while a c
 * **Colors**: use [ANSI escape codes](https://en.wikipedia.org/wiki/ANSI_escape_code#Colors "https://en.wikipedia.org/wiki/ANSI_escape_code#Colors") like `\033[32m` for green (terminal must support them). See the [git status example](#git-status-with-colors "#git-status-with-colors").
 * **Links**: use [OSC 8 escape sequences](https://en.wikipedia.org/wiki/ANSI_escape_code#OSC "https://en.wikipedia.org/wiki/ANSI_escape_code#OSC") to make text clickable (Cmd+click on macOS, Ctrl+click on Windows/Linux). Requires a terminal that supports hyperlinks like iTerm2, Kitty, or WezTerm. See the [clickable links example](#clickable-links "#clickable-links").
 
+**Sizing output to the terminal**
+Claude Code captures your script’s output instead of connecting it directly to the terminal, so `tput cols` and language-level width detection cannot read the terminal size from inside the script. Read the `COLUMNS` and `LINES` environment variables instead. Claude Code sets these to the current terminal dimensions before running your script. Requires Claude Code v2.1.153 or later.
+
 The status line runs locally and does not consume API tokens. It temporarily hides during certain UI interactions, including autocomplete suggestions, the help menu, and permission prompts.
 
 ## [​](#available-data "#available-data") Available data
@@ -157,7 +162,7 @@ Claude Code sends the following JSON fields to your script via stdin:
 | `context_window.remaining_percentage` | Pre-calculated percentage of context window remaining |
 | `context_window.current_usage` | Token counts from the last API call, described in [context window fields](#context-window-fields "#context-window-fields") |
 | `exceeds_200k_tokens` | Whether the total token count (input, cache, and output tokens combined) from the most recent API response exceeds 200k. This is a fixed threshold regardless of actual context window size. |
-| `effort.level` | Current reasoning effort (`low`, `medium`, `high`, `xhigh`, or `max`). Reflects the live session value, including mid-session `/effort` changes. Absent when the current model does not support the effort parameter |
+| `effort.level` | Current reasoning effort (`low`, `medium`, `high`, `xhigh`, or `max`). Reflects the live session value, including mid-session `/effort` changes. Ultracode is not a distinct level and reports as `xhigh`. Absent when the current model does not support the effort parameter |
 | `thinking.enabled` | Whether extended thinking is enabled for the session |
 | `rate_limits.five_hour.used_percentage`, `rate_limits.seven_day.used_percentage` | Percentage of the 5-hour or 7-day rate limit consumed, from 0 to 100 |
 | `rate_limits.five_hour.resets_at`, `rate_limits.seven_day.resets_at` | Unix epoch seconds when the 5-hour or 7-day rate limit window resets |
@@ -166,7 +171,7 @@ Claude Code sends the following JSON fields to your script via stdin:
 | `transcript_path` | Path to conversation transcript file |
 | `version` | Claude Code version |
 | `output_style.name` | Name of the current output style |
-| `vim.mode` | Current vim mode (`NORMAL`, `INSERT`, `VISUAL`, or `VISUAL LINE`) when [vim mode](./interactive-mode#vim-editor-mode "_interactive-mode#vim-editor-mode".md) is enabled |
+| `vim.mode` | Current vim mode (`NORMAL`, `INSERT`, `VISUAL`, or `VISUAL LINE`) when [vim mode](./interactive-mode.md#vim-editor-mode "/docs/en/interactive-mode#vim-editor-mode") is enabled |
 | `agent.name` | Agent name when running with the `--agent` flag or agent settings configured |
 | `pr.number`, `pr.url` | Open pull request for the current branch. Mirrors the PR badge in the bottom status bar. Absent until a PR is found, when not in a git repository, or once the PR merges or closes |
 | `pr.review_state` | Review status of the open PR: `approved`, `pending`, `changes_requested`, or `draft`. May be independently absent even when `pr` is present |
@@ -187,7 +192,7 @@ Your status line command receives this JSON structure via stdin:
   "session_name": "my-session",
   "transcript_path": "/path/to/transcript.jsonl",
   "model": {
-    "id": "claude-opus-4-7",
+    "id": "claude-opus-4-8",
     "display_name": "Opus"
   },
   "workspace": {
@@ -296,7 +301,7 @@ The `current_usage` object contains:
 * `cache_creation_input_tokens`: tokens written to cache
 * `cache_read_input_tokens`: tokens read from cache
 
-For what the cache fields mean and how they’re billed, see [check cache performance](./prompt-caching#check-cache-performance "_prompt-caching#check-cache-performance".md).
+For what the cache fields mean and how they’re billed, see [check cache performance](./prompt-caching.md#check-cache-performance "/docs/en/prompt-caching#check-cache-performance").
 The `used_percentage` field is calculated from input tokens only: `input_tokens + cache_creation_input_tokens + cache_read_input_tokens`. It does not include `output_tokens`.
 If you calculate context percentage manually from `current_usage`, use the same input-only formula to match `used_percentage`.
 The `current_usage` object is `null` before the first API call in a session, and again immediately after `/compact` until the next API call repopulates it.
@@ -603,7 +608,7 @@ statusline.sh
 
 ## [​](#subagent-status-lines "#subagent-status-lines") Subagent status lines
 
-The `subagentStatusLine` setting renders a custom row body for each [subagent](./sub-agents "_sub-agents".md) shown in the agent panel below the prompt. Use it to replace the default `name · description · token count` row with your own formatting.
+The `subagentStatusLine` setting renders a custom row body for each [subagent](./sub-agents.md "/docs/en/sub-agents") shown in the agent panel below the prompt. Use it to replace the default `name · description · token count` row with your own formatting.
 
 ```
 {
@@ -614,9 +619,9 @@ The `subagentStatusLine` setting renders a custom row body for each [subagent](.
 }
 ```
 
-The command runs once per refresh tick with all visible subagent rows passed as a single JSON object on stdin. The input includes the [base hook fields](./hooks#common-input-fields "_hooks#common-input-fields".md) plus `columns` (the usable row width) and a `tasks` array, where each task has `id`, `name`, `type`, `status`, `description`, `label`, `startTime`, `tokenCount`, `tokenSamples`, and `cwd`.
+The command runs once per refresh tick with all visible subagent rows passed as a single JSON object on stdin. The input includes the [base hook fields](./hooks.md#common-input-fields "/docs/en/hooks#common-input-fields") plus `columns` (the usable row width) and a `tasks` array, where each task has `id`, `name`, `type`, `status`, `description`, `label`, `startTime`, `tokenCount`, `tokenSamples`, and `cwd`.
 Write one JSON line to stdout per row you want to override, in the form `{"id": "<task id>", "content": "<row body>"}`. The `content` string is rendered as-is, including ANSI colors and OSC 8 hyperlinks. Omit a task’s `id` to keep the default rendering for that row; emit an empty `content` string to hide it.
-The same trust and `disableAllHooks` gates that apply to `statusLine` apply here. Plugins can ship a default `subagentStatusLine` in their [`settings.json`](./plugins-reference#standard-plugin-layout "_plugins-reference#standard-plugin-layout".md).
+The same trust and `disableAllHooks` gates that apply to `statusLine` apply here. Plugins can ship a default `subagentStatusLine` in their [`settings.json`](./plugins-reference.md#standard-plugin-layout "/docs/en/plugins-reference#standard-plugin-layout").
 
 ## [​](#tips "#tips") Tips
 

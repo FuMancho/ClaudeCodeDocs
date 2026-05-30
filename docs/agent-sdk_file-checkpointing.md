@@ -1,3 +1,5 @@
+# Agent Sdk File Checkpointing
+
 > ## Documentation Index
 >
 > Fetch the complete documentation index at: [https://code.claude.com/docs/llms.txt](https://code.claude.com/docs/llms.txt "https://code.claude.com/docs/llms.txt")
@@ -286,7 +288,7 @@ asyncio.run(main())
 ## [​](#try-it-out "#try-it-out") Try it out
 
 This complete example creates a small utility file, has the agent add documentation comments, shows you the changes, then asks if you want to rewind.
-Before you begin, make sure you have the [Claude Agent SDK installed](./agent-sdk_quickstart "_agent-sdk_quickstart".md).
+Before you begin, make sure you have the [Claude Agent SDK installed](./agent-sdk/quickstart.md "/docs/en/agent-sdk/quickstart").
 
 1
 
@@ -478,7 +480,7 @@ async with ClaudeSDKClient(
 
 ## [​](#next-steps "#next-steps") Next steps
 
-* **[Sessions](./agent-sdk_sessions "_agent-sdk_sessions".md)**: learn how to resume sessions, which is required for rewinding after the stream completes. Covers session IDs, resuming conversations, and session forking.
-* **[Permissions](./agent-sdk_permissions "_agent-sdk_permissions".md)**: configure which tools Claude can use and how file modifications are approved. Useful if you want more control over when edits happen.
-* **[TypeScript SDK reference](./agent-sdk_typescript "_agent-sdk_typescript".md)**: complete API reference including all options for `query()` and the `rewindFiles()` method.
-* **[Python SDK reference](./agent-sdk_python "_agent-sdk_python".md)**: complete API reference including all options for `ClaudeAgentOptions` and the `rewind_files()` method.
+* **[Sessions](./agent-sdk/sessions.md "/docs/en/agent-sdk/sessions")**: learn how to resume sessions, which is required for rewinding after the stream completes. Covers session IDs, resuming conversations, and session forking.
+* **[Permissions](./agent-sdk/permissions.md "/docs/en/agent-sdk/permissions")**: configure which tools Claude can use and how file modifications are approved. Useful if you want more control over when edits happen.
+* **[TypeScript SDK reference](./agent-sdk/typescript.md "/docs/en/agent-sdk/typescript")**: complete API reference including all options for `query()` and the `rewindFiles()` method.
+* **[Python SDK reference](./agent-sdk/python.md "/docs/en/agent-sdk/python")**: complete API reference including all options for `ClaudeAgentOptions` and the `rewind_files()` method.
