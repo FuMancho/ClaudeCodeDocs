@@ -1,15 +1,9 @@
-# Champion Kit
-
-> ## Documentation Index
->
-> Fetch the complete documentation index at: [https://code.claude.com/docs/llms.txt](https://code.claude.com/docs/llms.txt "https://code.claude.com/docs/llms.txt")
->
-> Use this file to discover all available pages before exploring further.
+# Champion-Kit
 
 This page is for individual engineers who are already using Claude Code and want to help their team adopt it. It covers what to share, how to answer the questions you will get, a thirty-day playbook, and responses to common concerns.
 Adoption of a developer tool rarely happens because of a rollout announcement. It happens because someone on the team begins using the tool well, talks about it openly, and makes it easy for others to follow. The work you do as a champion has a disproportionate effect: every example you share shortens the learning curve for the engineers who come after you, and every question you answer in public turns one person’s experience into something the whole team can build on. You are acting as a multiplier for your team, not a help desk, and this guide is structured to keep the role sustainable on those terms.
 
-## [​](#the-champion-role "#the-champion-role") The champion role
+## [​](#the-champion-role) The champion role
 
 The role consists of three behaviors that reinforce one another.
 
@@ -21,7 +15,7 @@ The role consists of three behaviors that reinforce one another.
 
 Most of this fits naturally inside the work you are already doing. The difference is a small amount of additional intention about where your discoveries are posted and how your answers travel.
 
-### [​](#what-this-should-cost-you "#what-this-should-cost-you") What this should cost you
+### [​](#what-this-should-cost-you) What this should cost you
 
 Set expectations with yourself and with your lead. The activities below are intended to fit inside a normal working week, and the role should remain a multiplier on your existing work rather than an additional support responsibility.
 
@@ -30,13 +24,13 @@ Set expectations with yourself and with your lead. The activities below are inte
 | Posting wins and prompts | About 15 minutes | Capture these in the moment with a screenshot and one or two sentences; avoid turning them into formal write-ups. |
 | Answering questions in a shared channel | About 20 minutes | Answer publicly once, then link back to that answer when the question recurs. |
 | Hosting a weekly show-and-tell thread | About 5 minutes | You post the opening prompt; the team supplies the content. |
-| Optional pairing or walkthroughs | 0 to 30 minutes | Reserve this for colleagues who are genuinely blocked, and offer the [Quickstart](./quickstart "_quickstart".md) link before scheduling time. |
+| Optional pairing or walkthroughs | 0 to 30 minutes | Reserve this for colleagues who are genuinely blocked, and offer the [Quickstart](./quickstart.md) link before scheduling time. |
 
-## [​](#share-what-you-discover "#share-what-you-discover") Share what you discover
+## [​](#share-what-you-discover) Share what you discover
 
 Your own experience is the most persuasive material your colleagues will encounter, because it is specific to the codebase, workflows, and problems you all share. Documentation tells people what is possible; your posts show them what is actually working in your environment.
 
-### [​](#what-is-worth-sharing "#what-is-worth-sharing") What is worth sharing
+### [​](#what-is-worth-sharing) What is worth sharing
 
 The most useful posts describe a technique a colleague can reuse tomorrow rather than an outcome that is already complete. Techniques compound as they spread through a team; status updates do not.
 Examples of reusable techniques:
@@ -46,7 +40,7 @@ Examples of reusable techniques:
 * “I configured a Stop hook so I receive a desktop notification when a long task completes. Configuration is in the thread.”
 * “Running `/init` generates a `CLAUDE.md` from the repository so the assistant stops re-asking about our conventions.”
 
-### [​](#where-to-share-it "#where-to-share-it") Where to share it
+### [​](#where-to-share-it) Where to share it
 
 Post wherever your team already reads. The goal is to place examples in the path of normal work rather than to create a destination.
 
@@ -57,7 +51,7 @@ Post wherever your team already reads. The goal is to place examples in the path
 | Standups or weekly written updates | Normalizing usage with leads and skip-level managers | One sentence describing one concrete outcome |
 | Team wiki or internal documentation | Durable patterns, custom skills, and `CLAUDE.md` examples | A short page, linked from the channel topic so it remains discoverable |
 
-### [​](#the-format-that-works "#the-format-that-works") The format that works
+### [​](#the-format-that-works) The format that works
 
 A screenshot accompanied by a single line of context, or a brief before-and-after description, is generally the right level of detail. Keep each post short enough that someone scrolling past still absorbs the point. A long write-up tends to be saved for later and forgotten, whereas a short post with a screenshot tends to be copied and tried.
 The example posts below illustrate tone and length; adapt them rather than copying verbatim.
@@ -80,11 +74,11 @@ Press Shift+Tab until you see "plan"; it lays out exactly which files it
 intends to touch before changing anything.
 ```
 
-## [​](#be-the-person-people-ask "#be-the-person-people-ask") Be the person people ask
+## [​](#be-the-person-people-ask) Be the person people ask
 
 Once you have shared a few examples, questions will follow. This is where the champion role has the greatest leverage, because a good answer to one person frequently unblocks several others who are watching the same channel.
 
-### [​](#answer-with-a-prompt-rather-than-an-explanation "#answer-with-a-prompt-rather-than-an-explanation") Answer with a prompt rather than an explanation
+### [​](#answer-with-a-prompt-rather-than-an-explanation) Answer with a prompt rather than an explanation
 
 When a colleague asks how you accomplished something, the most useful response is the prompt you actually used. They will learn more from running that prompt against their own problem than from any description you could write, and it gives them something they can act on immediately.
 
@@ -96,38 +90,38 @@ out why," and it traced two unjoined promises in the scheduler. Try the
 same phrasing on your test.
 ```
 
-### [​](#point-at-the-feature-rather-than-the-documentation "#point-at-the-feature-rather-than-the-documentation") Point at the feature rather than the documentation
+### [​](#point-at-the-feature-rather-than-the-documentation) Point at the feature rather than the documentation
 
 A response such as “Try plan mode, press `Shift+Tab` until you see it” is more useful in the moment than a link to the documentation. If the person needs more depth later they will find it on their own; right now they need the single thing that unblocks them.
 
-### [​](#questions-you-are-likely-to-hear "#questions-you-are-likely-to-hear") Questions you are likely to hear
+### [​](#questions-you-are-likely-to-hear) Questions you are likely to hear
 
 | Question | Suggested response | Follow-up resource |
 | --- | --- | --- |
-| ”What should I try it on first?” | Recommend a real but contained task, ideally a bug or chore the person has been postponing because it is tedious rather than difficult. | [Common workflows](./common-workflows "_common-workflows".md) |
-| ”How do I trust it with my code?” | Introduce plan mode: pressing `Shift+Tab` cycles into it, Claude proposes exactly what it intends to change, and nothing is modified until the user approves. | [Permissions](./permissions "_permissions".md) |
-| ”Is the setup worth the effort?” | Installation takes roughly two minutes, runs in the terminal, and requires no IDE extension. Running `/init` once is sufficient to begin working. | [Quickstart](./quickstart "_quickstart".md) |
-| ”It produced an incorrect result.” | Encourage them to provide the failure back to Claude. Pasting the error message or failing test is far more effective than rephrasing the original request. | [Common workflows](./common-workflows "_common-workflows".md) |
-| ”It does not understand our codebase conventions.” | Suggest running `/init` to generate a `CLAUDE.md` file, then adding the team’s conventions, test commands, and any directories that should be avoided. | [Memory](./memory "_memory".md) |
+| ”What should I try it on first?” | Recommend a real but contained task, ideally a bug or chore the person has been postponing because it is tedious rather than difficult. | [Common workflows](./common-workflows.md) |
+| ”How do I trust it with my code?” | Introduce plan mode: pressing `Shift+Tab` cycles into it, Claude proposes exactly what it intends to change, and nothing is modified until the user approves. | [Permissions](./permissions.md) |
+| ”Is the setup worth the effort?” | Installation takes roughly two minutes, runs in the terminal, and requires no IDE extension. Running `/init` once is sufficient to begin working. | [Quickstart](./quickstart.md) |
+| ”It produced an incorrect result.” | Encourage them to provide the failure back to Claude. Pasting the error message or failing test is far more effective than rephrasing the original request. | [Common workflows](./common-workflows.md) |
+| ”It does not understand our codebase conventions.” | Suggest running `/init` to generate a `CLAUDE.md` file, then adding the team’s conventions, test commands, and any directories that should be avoided. | [Memory](./memory.md) |
 | ”Is this just autocomplete?” | Offer a brief demonstration in which Claude explains an unfamiliar file, traces a bug across services, or drafts a migration plan. These tasks require reasoning across the repository rather than completing a single line. | A two-minute live demonstration |
-| ”What about security and data handling?” | Refer this question to your administrator. Your organization’s deployment and data-handling policy is already configured, and champions should not improvise this answer. | [Security](./security "_security".md) · [Data usage](./data-usage "_data-usage".md) |
+| ”What about security and data handling?” | Refer this question to your administrator. Your organization’s deployment and data-handling policy is already configured, and champions should not improvise this answer. | [Security](./security.md) · [Data usage](./data-usage.md) |
 
-## [​](#grow-the-circle "#grow-the-circle") Grow the circle
+## [​](#grow-the-circle) Grow the circle
 
 The objective is not to build a program or to own a rollout. It is to establish a small number of lightweight habits that allow momentum to continue after you have stopped actively driving it. When questions in the channel are being answered by people other than you, the role has done its job.
 
-### [​](#patterns-that-tend-to-work "#patterns-that-tend-to-work") Patterns that tend to work
+### [​](#patterns-that-tend-to-work) Patterns that tend to work
 
 | Pattern | How to run it | Effort required |
 | --- | --- | --- |
-| A dedicated channel | Create a `#claude-code` channel (or a recurring thread in an existing one), pin the [Quickstart](./quickstart "_quickstart".md) link and one strong example, and answer questions publicly so each answer benefits everyone watching. | About five minutes to set up, then ambient |
+| A dedicated channel | Create a `#claude-code` channel (or a recurring thread in an existing one), pin the [Quickstart](./quickstart.md) link and one strong example, and answer questions publicly so each answer benefits everyone watching. | About five minutes to set up, then ambient |
 | A weekly show-and-tell thread | Each Friday, post “What did Claude help you with this week?” No preparation, slides, or meeting are required; screenshots and short descriptions are sufficient. | About two minutes per week |
 | Share a custom skill | Post your most useful `.claude/skills/<name>/SKILL.md` file, for example a `/ship` skill that runs tests and lint before committing, with a one-line description. Because skills are plain Markdown, colleagues can adopt them immediately. | About five minutes per skill |
 | Generate a setup guide from your own usage | Run `/team-onboarding` in a project you have spent real time in. Claude scans your recent sessions, commands, and MCP servers, then produces a guide a new teammate can paste as their first message to replay your setup. Pin it in the channel. | About two minutes |
 | Pair on a first task | Offer a single fifteen-minute pairing session to anyone getting started. One successful outcome on their own code is more persuasive than any presentation. | About fifteen minutes per person |
 | Identify the next champion | The colleague who asks you the most questions is usually ready to take on this role. Forward them this page and divide the channel responsibilities between you. | Negligible |
 
-### [​](#thirty-day-playbook "#thirty-day-playbook") Thirty-day playbook
+### [​](#thirty-day-playbook) Thirty-day playbook
 
 If a loose plan is helpful, the sequence below reflects what tends to work across most teams. Adjust freely to fit your context.
 
@@ -135,7 +129,7 @@ If a loose plan is helpful, the sequence below reflects what tends to work acros
 
 Week 1: Seed the channel
 
-Create the channel, pin the [Quickstart](./quickstart "_quickstart".md), and post two or three of your own examples with the prompts included.**Signal that it is working:** a few colleagues react or reply, and at least one question is asked in the channel.
+Create the channel, pin the [Quickstart](./quickstart.md), and post two or three of your own examples with the prompts included.**Signal that it is working:** a few colleagues react or reply, and at least one question is asked in the channel.
 
 2
 
@@ -155,11 +149,11 @@ Week 4: Hand off
 
 Identify a second champion and share a brief summary of what is working and what is not with your lead or administrator.**Signal that it is working:** questions in the channel are being answered by people other than you.
 
-### [​](#when-someone-wants-to-go-deeper "#when-someone-wants-to-go-deeper") When someone wants to go deeper
+### [​](#when-someone-wants-to-go-deeper) When someone wants to go deeper
 
-You are the warm introduction rather than the onboarding program. When a colleague moves past “should I try this” into “how do I become effective with it,” point them to the [Quickstart](./quickstart "_quickstart".md) and [Common workflows](./common-workflows "_common-workflows".md) pages. They contain short sections covering the features that are genuinely useful but difficult to discover on your own.
+You are the warm introduction rather than the onboarding program. When a colleague moves past “should I try this” into “how do I become effective with it,” point them to the [Quickstart](./quickstart.md) and [Common workflows](./common-workflows.md) pages. They contain short sections covering the features that are genuinely useful but difficult to discover on your own.
 
-## [​](#respond-to-common-concerns "#respond-to-common-concerns") Respond to common concerns
+## [​](#respond-to-common-concerns) Respond to common concerns
 
 Healthy skepticism is expected; engineers should be cautious about tools that touch their code. The most effective response is rarely to argue the general case. Instead, acknowledge the concern, offer a brief reframe, and propose one concrete demonstration on the person’s own code. Most concerns are resolved by a single successful experience.
 
@@ -171,7 +165,7 @@ Healthy skepticism is expected; engineers should be cautious about tools that to
 | ”I tried it once and it hallucinated.” | This is usually a context problem rather than a model problem. @-mentioning the relevant files, running `/init`, and providing the actual error output typically resolves it. | Re-run their original prompt with proper `@`-context. |
 | ”We do not have time to learn another tool.” | Claude Code is a terminal command rather than a platform. If it does not return value within the first session, it is reasonable to set it aside. | A two-minute install followed by one real bug. |
 
-## [​](#quick-reference-sheet "#quick-reference-sheet") Quick-reference sheet
+## [​](#quick-reference-sheet) Quick-reference sheet
 
 The techniques below are the ones that most reliably move someone from a first trial to daily use. Pin this table in a channel or share it on its own.
 
@@ -179,10 +173,10 @@ The techniques below are the ones that most reliably move someone from a first t
 | --- | --- |
 | Provide the right context | Use `@file` or `@directory/` references, or paste the error or log output directly. Supplying relevant context is more effective than elaborate prompting. |
 | Review the plan before the edit | Press `Shift+Tab` to enter plan mode. Claude will describe the intended changes for your approval before executing them. |
-| Teach it your repository | Run `/init` to generate a `CLAUDE.md` file, then add your conventions, test commands, and any directories that should not be modified. See [Memory](./memory "_memory".md). |
-| Reuse a workflow | Save a `SKILL.md` file in `.claude/skills/<name>/` to create a `/name` skill that the entire team can use. See [Skills](./skills "_skills".md). |
-| Stay informed during long tasks | Configure a Stop hook to receive a desktop notification when a long-running task completes. See [Hooks](./hooks-guide "_hooks-guide".md). |
+| Teach it your repository | Run `/init` to generate a `CLAUDE.md` file, then add your conventions, test commands, and any directories that should not be modified. See [Memory](./memory.md). |
+| Reuse a workflow | Save a `SKILL.md` file in `.claude/skills/<name>/` to create a `/name` skill that the entire team can use. See [Skills](./skills.md). |
+| Stay informed during long tasks | Configure a Stop hook to receive a desktop notification when a long-running task completes. See [Hooks](./hooks-guide.md). |
 | Recover from an incorrect result | Rather than rephrasing the request, paste the failing test or stack trace back to Claude and ask it to address that specific failure. |
 | Keep edits surgical | Ask for a diff, or specify “only change X.” Claude respects scope when scope is stated. |
 
-Claude Code is updated frequently. Verify version-specific details against the [documentation home page](./overview "_overview".md) before distributing this material internally.
+Claude Code is updated frequently. Verify version-specific details against the [documentation home page](./overview.md) before distributing this material internally.

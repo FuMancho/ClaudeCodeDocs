@@ -1,43 +1,37 @@
-> ## Documentation Index
->
-> Fetch the complete documentation index at: [https://code.claude.com/docs/llms.txt](https://code.claude.com/docs/llms.txt "https://code.claude.com/docs/llms.txt")
->
-> Use this file to discover all available pages before exploring further.
-
 Custom tools extend the Agent SDK by letting you define your own functions that Claude can call during a conversation. Using the SDK’s in-process MCP server, you can give Claude access to databases, external APIs, domain-specific logic, or any other capability your application needs.
 This guide covers how to define tools with input schemas and handlers, bundle them into an MCP server, pass them to `query`, and control which tools Claude can access. It also covers error handling, tool annotations, and returning non-text content like images.
 
-## [​](#quick-reference "#quick-reference") Quick reference
+## [​](#quick-reference) Quick reference
 
 | If you want to… | Do this |
 | --- | --- |
-| Define a tool | Use [`@tool`](./agent-sdk_python#tool "_agent-sdk_python#tool".md) (Python) or [`tool()`](./agent-sdk_typescript#tool "_agent-sdk_typescript#tool".md) (TypeScript) with a name, description, schema, and handler. See [Create a custom tool](#create-a-custom-tool "#create-a-custom-tool"). |
-| Register a tool with Claude | Wrap in `create_sdk_mcp_server` / `createSdkMcpServer` and pass to `mcpServers` in `query()`. See [Call a custom tool](#call-a-custom-tool "#call-a-custom-tool"). |
-| Pre-approve a tool | Add to your allowed tools. See [Configure allowed tools](#configure-allowed-tools "#configure-allowed-tools"). |
-| Remove a built-in tool from Claude’s context | Pass a `tools` array listing only the built-ins you want. See [Configure allowed tools](#configure-allowed-tools "#configure-allowed-tools"). |
-| Let Claude call tools in parallel | Set `readOnlyHint: true` on tools with no side effects. See [Add tool annotations](#add-tool-annotations "#add-tool-annotations"). |
-| Handle errors without stopping the loop | Return `isError: true` instead of throwing. See [Handle errors](#handle-errors "#handle-errors"). |
-| Return images or files | Use `image` or `resource` blocks in the content array. See [Return images and resources](#return-images-and-resources "#return-images-and-resources"). |
-| Return a machine-readable JSON result | Set `structuredContent` on the result. See [Return structured data](#return-structured-data "#return-structured-data"). |
-| Scale to many tools | Use [tool search](./agent-sdk_tool-search "_agent-sdk_tool-search".md) to load tools on demand. |
+| Define a tool | Use [`@tool`](./agent-sdk_python.md#tool) (Python) or [`tool()`](./agent-sdk_typescript.md#tool) (TypeScript) with a name, description, schema, and handler. See [Create a custom tool](#create-a-custom-tool). |
+| Register a tool with Claude | Wrap in `create_sdk_mcp_server` / `createSdkMcpServer` and pass to `mcpServers` in `query()`. See [Call a custom tool](#call-a-custom-tool). |
+| Pre-approve a tool | Add to your allowed tools. See [Configure allowed tools](#configure-allowed-tools). |
+| Remove a built-in tool from Claude’s context | Pass a `tools` array listing only the built-ins you want. See [Configure allowed tools](#configure-allowed-tools). |
+| Let Claude call tools in parallel | Set `readOnlyHint: true` on tools with no side effects. See [Add tool annotations](#add-tool-annotations). |
+| Handle errors without stopping the loop | Return `isError: true` instead of throwing. See [Handle errors](#handle-errors). |
+| Return images or files | Use `image` or `resource` blocks in the content array. See [Return images and resources](#return-images-and-resources). |
+| Return a machine-readable JSON result | Set `structuredContent` on the result. See [Return structured data](#return-structured-data). |
+| Scale to many tools | Use [tool search](./agent-sdk_tool-search.md) to load tools on demand. |
 
-## [​](#create-a-custom-tool "#create-a-custom-tool") Create a custom tool
+## [​](#create-a-custom-tool) Create a custom tool
 
-A tool is defined by four parts, passed as arguments to the [`tool()`](./agent-sdk_typescript#tool "_agent-sdk_typescript#tool".md) helper in TypeScript or the [`@tool`](./agent-sdk_python#tool "_agent-sdk_python#tool".md) decorator in Python:
+A tool is defined by four parts, passed as arguments to the [`tool()`](./agent-sdk_typescript.md#tool) helper in TypeScript or the [`@tool`](./agent-sdk_python.md#tool) decorator in Python:
 
 * **Name:** a unique identifier Claude uses to call the tool.
 * **Description:** what the tool does. Claude reads this to decide when to call it.
-* **Input schema:** the arguments Claude must provide. In TypeScript this is always a [Zod schema](https://zod.dev/ "https://zod.dev/"), and the handler’s `args` are typed from it automatically. In Python this is a dict mapping names to types, like `{"latitude": float}`, which the SDK converts to JSON Schema for you. The Python decorator also accepts a full [JSON Schema](https://json-schema.org/understanding-json-schema/about "https://json-schema.org/understanding-json-schema/about") dict directly when you need enums, ranges, optional fields, or nested objects.
+* **Input schema:** the arguments Claude must provide. In TypeScript this is always a [Zod schema](https://zod.dev/), and the handler’s `args` are typed from it automatically. In Python this is a dict mapping names to types, like `{"latitude": float}`, which the SDK converts to JSON Schema for you. The Python decorator also accepts a full [JSON Schema](https://json-schema.org/understanding-json-schema/about) dict directly when you need enums, ranges, optional fields, or nested objects.
 * **Handler:** the async function that runs when Claude calls the tool. It receives the validated arguments and must return an object with:
-  + `content` (required): an array of result blocks, each with a `type` of `"text"`, `"image"`, or `"resource"`. See [Return images and resources](#return-images-and-resources "#return-images-and-resources") for non-text blocks.
-  + `structuredContent` (optional): a JSON object holding the result as machine-readable data, returned alongside `content`. See [Return structured data](#return-structured-data "#return-structured-data").
-  + `isError` (optional): set to `true` to signal a tool failure so Claude can react to it. See [Handle errors](#handle-errors "#handle-errors").
+  + `content` (required): an array of result blocks, each with a `type` of `"text"`, `"image"`, `"audio"`, `"resource"`, or `"resource_link"`. See [Return images and resources](#return-images-and-resources) for non-text blocks.
+  + `structuredContent` (optional): a JSON object holding the result as machine-readable data, returned alongside `content`. See [Return structured data](#return-structured-data).
+  + `isError` (optional): set to `true` to signal a tool failure so Claude can react to it. See [Handle errors](#handle-errors).
 
-After defining a tool, wrap it in a server with [`createSdkMcpServer`](./agent-sdk_typescript#createsdkmcpserver "_agent-sdk_typescript#createsdkmcpserver".md) (TypeScript) or [`create_sdk_mcp_server`](./agent-sdk_python#create_sdk_mcp_server "_agent-sdk_python#create_sdk_mcp_server".md) (Python). The server runs in-process inside your application, not as a separate process.
+After defining a tool, wrap it in a server with [`createSdkMcpServer`](./agent-sdk_typescript.md#createsdkmcpserver) (TypeScript) or [`create_sdk_mcp_server`](./agent-sdk_python.md#create_sdk_mcp_server) (Python). The server runs in-process inside your application, not as a separate process.
 
-### [​](#weather-tool-example "#weather-tool-example") Weather tool example
+### [​](#weather-tool-example) Weather tool example
 
-This example defines a `get_temperature` tool and wraps it in an MCP server. It only sets up the tool; to pass it to `query` and run it, see [Call a custom tool](#call-a-custom-tool "#call-a-custom-tool") below.
+This example defines a `get_temperature` tool and wraps it in an MCP server. It only sets up the tool; to pass it to `query` and run it, see [Call a custom tool](#call-a-custom-tool) below.
 
 Python
 
@@ -87,14 +81,14 @@ weather_server = create_sdk_mcp_server(
 )
 ```
 
-See the [`tool()`](./agent-sdk_typescript#tool "_agent-sdk_typescript#tool".md) TypeScript reference or the [`@tool`](./agent-sdk_python#tool "_agent-sdk_python#tool".md) Python reference for full parameter details, including JSON Schema input formats and return value structure.
+See the [`tool()`](./agent-sdk_typescript.md#tool) TypeScript reference or the [`@tool`](./agent-sdk_python.md#tool) Python reference for full parameter details, including JSON Schema input formats and return value structure.
 
-To make a parameter optional: in TypeScript, add `.default()` to the Zod field. In Python, the dict schema treats every key as required, so leave the parameter out of the schema, mention it in the description string, and read it with `args.get()` in the handler. The [`get_precipitation_chance` tool below](#add-more-tools "#add-more-tools") shows both patterns.
+To make a parameter optional: in TypeScript, add `.default()` to the Zod field. In Python, the dict schema treats every key as required, so leave the parameter out of the schema, mention it in the description string, and read it with `args.get()` in the handler. The [`get_precipitation_chance` tool below](#add-more-tools) shows both patterns.
 
-### [​](#call-a-custom-tool "#call-a-custom-tool") Call a custom tool
+### [​](#call-a-custom-tool) Call a custom tool
 
 Pass the MCP server you created to `query` via the `mcpServers` option. The key in `mcpServers` becomes the `{server_name}` segment in each tool’s fully qualified name: `mcp__{server_name}__{tool_name}`. List that name in `allowedTools` so the tool runs without a permission prompt.
-These snippets reuse the `weatherServer` from the [example above](#weather-tool-example "#weather-tool-example") to ask Claude what the weather is in a specific location.
+These snippets reuse the `weatherServer` from the [example above](#weather-tool-example) to ask Claude what the weather is in a specific location.
 
 Python
 
@@ -123,10 +117,10 @@ async def main():
 asyncio.run(main())
 ```
 
-### [​](#add-more-tools "#add-more-tools") Add more tools
+### [​](#add-more-tools) Add more tools
 
 A server holds as many tools as you list in its `tools` array. With more than one tool on a server, you can list each one in `allowedTools` individually or use the wildcard `mcp__weather__*` to cover every tool the server exposes.
-The example below adds a second tool, `get_precipitation_chance`, to the `weatherServer` from the [weather tool example](#weather-tool-example "#weather-tool-example") and rebuilds it with both tools in the array.
+The example below adds a second tool, `get_precipitation_chance`, to the `weatherServer` from the [weather tool example](#weather-tool-example) and rebuilds it with both tools in the array.
 
 Python
 
@@ -174,11 +168,11 @@ weather_server = create_sdk_mcp_server(
 )
 ```
 
-Every tool in this array consumes context window space on every turn. If you’re defining dozens of tools, see [tool search](./agent-sdk_tool-search "_agent-sdk_tool-search".md) to load them on demand instead.
+Every tool in this array consumes context window space on every turn. If you’re defining dozens of tools, see [tool search](./agent-sdk_tool-search.md) to load them on demand instead.
 
-### [​](#add-tool-annotations "#add-tool-annotations") Add tool annotations
+### [​](#add-tool-annotations) Add tool annotations
 
-[Tool annotations](https://modelcontextprotocol.io/docs/concepts/tools#tool-annotations "https://modelcontextprotocol.io/docs/concepts/tools#tool-annotations") are optional metadata describing how a tool behaves. Pass them as the fifth argument to `tool()` helper in TypeScript or via the `annotations` keyword argument for the `@tool` decorator in Python. All hint fields are Booleans.
+[Tool annotations](https://modelcontextprotocol.io/docs/concepts/tools#tool-annotations) are optional metadata describing how a tool behaves. Pass them as the fifth argument to `tool()` helper in TypeScript or via the `annotations` keyword argument for the `@tool` decorator in Python. All hint fields are Booleans.
 
 | Field | Default | Meaning |
 | --- | --- | --- |
@@ -188,7 +182,7 @@ Every tool in this array consumes context window space on every turn. If you’r
 | `openWorldHint` | `true` | Tool reaches systems outside your process. Informational only. |
 
 Annotations are metadata, not enforcement. A tool marked `readOnlyHint: true` can still write to disk if that’s what the handler does. Keep the annotation accurate to the handler.
-This example adds `readOnlyHint` to the `get_temperature` tool from the [weather tool example](#weather-tool-example "#weather-tool-example").
+This example adds `readOnlyHint` to the `get_temperature` tool from the [weather tool example](#weather-tool-example).
 
 Python
 
@@ -210,20 +204,20 @@ async def get_temperature(args):
     return {"content": [{"type": "text", "text": "..."}]}
 ```
 
-See `ToolAnnotations` in the [TypeScript](./agent-sdk_typescript#toolannotations "_agent-sdk_typescript#toolannotations".md) or [Python](./agent-sdk_python#toolannotations "_agent-sdk_python#toolannotations".md) reference.
+See `ToolAnnotations` in the [TypeScript](./agent-sdk_typescript.md#toolannotations) or [Python](./agent-sdk_python.md#toolannotations) reference.
 
-## [​](#control-tool-access "#control-tool-access") Control tool access
+## [​](#control-tool-access) Control tool access
 
-The [weather tool example](#weather-tool-example "#weather-tool-example") registered a server and listed tools in `allowedTools`. This section covers how tool names are constructed and how to scope access when you have multiple tools or want to restrict built-ins.
+The [weather tool example](#weather-tool-example) registered a server and listed tools in `allowedTools`. This section covers how tool names are constructed and how to scope access when you have multiple tools or want to restrict built-ins.
 
-### [​](#tool-name-format "#tool-name-format") Tool name format
+### [​](#tool-name-format) Tool name format
 
 When MCP tools are exposed to Claude, their names follow a specific format:
 
 * Pattern: `mcp__{server_name}__{tool_name}`
 * Example: A tool named `get_temperature` in server `weather` becomes `mcp__weather__get_temperature`
 
-### [​](#configure-allowed-tools "#configure-allowed-tools") Configure allowed tools
+### [​](#configure-allowed-tools) Configure allowed tools
 
 The `tools` option and the allowed/disallowed lists affect two layers: availability, which controls whether a tool appears in Claude’s context, and permission, which controls whether a call is approved once Claude attempts it. `tools` and bare-name `disallowedTools` entries change availability. `allowedTools` and scoped `disallowedTools` rules change permission only.
 
@@ -231,12 +225,12 @@ The `tools` option and the allowed/disallowed lists affect two layers: availabil
 | --- | --- | --- |
 | `tools: ["Read", "Grep"]` | Availability | Only the listed built-ins are in Claude’s context. Unlisted built-ins are removed. MCP tools are unaffected. |
 | `tools: []` | Availability | All built-ins are removed. Claude can only use your MCP tools. |
-| allowed tools | Permission | Listed tools run without a permission prompt. Unlisted tools remain available; calls go through the [permission flow](./agent-sdk_permissions "_agent-sdk_permissions".md). |
+| allowed tools | Permission | Listed tools run without a permission prompt. Unlisted tools remain available; calls go through the [permission flow](./agent-sdk_permissions.md). |
 | disallowed tools | Both | A bare tool name such as `"Bash"` removes the tool from Claude’s context, the same as omitting it from `tools`. A scoped rule such as `"Bash(rm *)"` leaves the tool in context and denies only matching calls. |
 
-To remove a built-in entirely, omit it from `tools` or list its bare name in `disallowedTools` (Python: `disallowed_tools`); both keep the tool out of context so Claude never attempts it. A scoped `disallowedTools` rule blocks matching calls but leaves the tool visible, so Claude may waste a turn trying it. See [Configure permissions](./agent-sdk_permissions "_agent-sdk_permissions".md) for the full evaluation order.
+To remove a built-in entirely, omit it from `tools` or list its bare name in `disallowedTools` (Python: `disallowed_tools`); both keep the tool out of context so Claude never attempts it. A scoped `disallowedTools` rule blocks matching calls but leaves the tool visible, so Claude may waste a turn trying it. See [Configure permissions](./agent-sdk_permissions.md) for the full evaluation order.
 
-## [​](#handle-errors "#handle-errors") Handle errors
+## [​](#handle-errors) Handle errors
 
 How your handler reports errors determines whether the agent loop continues or stops:
 
@@ -290,11 +284,11 @@ async def fetch_data(args: dict[str, Any]) -> dict[str, Any]:
         }
 ```
 
-## [​](#return-images-and-resources "#return-images-and-resources") Return images and resources
+## [​](#return-images-and-resources) Return images and resources
 
-The `content` array in a tool result accepts `text`, `image`, and `resource` blocks. You can mix them in the same response.
+The `content` array in a tool result accepts `text`, `image`, `audio`, `resource`, and `resource_link` blocks. You can mix them in the same response. Audio blocks are saved to disk and Claude receives a text block with the saved file path. Resource link blocks are converted to a text block containing the link’s name, URI, and description.
 
-### [​](#images "#images") Images
+### [​](#images) Images
 
 An image block carries the image bytes inline, encoded as base64. There is no URL field. To return an image that lives at a URL, fetch it in the handler, read the response bytes, and base64-encode them before returning. The result is processed as visual input.
 
@@ -334,7 +328,7 @@ async def fetch_image(args):
     }
 ```
 
-### [​](#resources "#resources") Resources
+### [​](#resources) Resources
 
 A resource block embeds a piece of content identified by a URI. The URI is a label for Claude to reference; the actual content rides in the block’s `text` or `blob` field. Use this when your tool produces something that makes sense to address by name later, such as a generated file or a record from an external system.
 
@@ -367,9 +361,9 @@ return {
 };
 ```
 
-These block shapes come from the MCP `CallToolResult` type. See the [MCP specification](https://modelcontextprotocol.io/specification/2025-06-18/server/tools#tool-result "https://modelcontextprotocol.io/specification/2025-06-18/server/tools#tool-result") for the full definition.
+These block shapes come from the MCP `CallToolResult` type. See the [MCP specification](https://modelcontextprotocol.io/specification/2025-06-18/server/tools#tool-result) for the full definition.
 
-## [​](#return-structured-data "#return-structured-data") Return structured data
+## [​](#return-structured-data) Return structured data
 
 `structuredContent` is an optional JSON object on the result, separate from the `content` array. Use it to return raw values that Claude can read as exact fields instead of parsing them out of a text string or image.
 When `structuredContent` is set, Claude receives the JSON plus any image or resource blocks from `content`. Text blocks in `content` are not forwarded, since they are assumed to duplicate the structured data. The example below renders a chart as an image block and returns the data points behind it in `structuredContent` from the same handler.
@@ -393,9 +387,9 @@ return {
 };
 ```
 
-The Python `@tool` decorator forwards only `content` and `is_error` from the handler’s return dict. To return `structuredContent` from Python, run a [standalone MCP server](./agent-sdk_mcp "_agent-sdk_mcp".md) instead of an in-process SDK server.
+The Python `@tool` decorator forwards only `content` and `is_error` from the handler’s return dict. To return `structuredContent` from Python, run a [standalone MCP server](./agent-sdk_mcp.md) instead of an in-process SDK server.
 
-## [​](#example-unit-converter "#example-unit-converter") Example: unit converter
+## [​](#example-unit-converter) Example: unit converter
 
 This tool converts values between units of length, temperature, and weight. A user can ask “convert 100 kilometers to miles” or “what is 72°F in Celsius,” and Claude picks the right unit type and units from the request.
 It demonstrates two patterns:
@@ -531,18 +525,18 @@ async def main():
 asyncio.run(main())
 ```
 
-## [​](#next-steps "#next-steps") Next steps
+## [​](#next-steps) Next steps
 
 Custom tools wrap async functions in a standard interface. You can mix the patterns on this page in the same server: a single server can hold a database tool, an API gateway tool, and an image renderer alongside each other.
 From here:
 
-* If your server grows to dozens of tools, see [tool search](./agent-sdk_tool-search "_agent-sdk_tool-search".md) to defer loading them until Claude needs them.
-* To connect to external MCP servers (filesystem, GitHub, Slack) instead of building your own, see [Connect MCP servers](./agent-sdk_mcp "_agent-sdk_mcp".md).
-* To control which tools run automatically versus requiring approval, see [Configure permissions](./agent-sdk_permissions "_agent-sdk_permissions".md).
+* If your server grows to dozens of tools, see [tool search](./agent-sdk_tool-search.md) to defer loading them until Claude needs them.
+* To connect to external MCP servers (filesystem, GitHub, Slack) instead of building your own, see [Connect MCP servers](./agent-sdk_mcp.md).
+* To control which tools run automatically versus requiring approval, see [Configure permissions](./agent-sdk_permissions.md).
 
-## [​](#related-documentation "#related-documentation") Related documentation
+## [​](#related-documentation) Related documentation
 
-* [TypeScript SDK Reference](./agent-sdk_typescript "_agent-sdk_typescript".md)
-* [Python SDK Reference](./agent-sdk_python "_agent-sdk_python".md)
-* [MCP Documentation](https://modelcontextprotocol.io "https://modelcontextprotocol.io")
-* [SDK Overview](./agent-sdk_overview "_agent-sdk_overview".md)
+* [TypeScript SDK Reference](./agent-sdk_typescript.md)
+* [Python SDK Reference](./agent-sdk_python.md)
+* [MCP Documentation](https://modelcontextprotocol.io)
+* [SDK Overview](./agent-sdk_overview.md)

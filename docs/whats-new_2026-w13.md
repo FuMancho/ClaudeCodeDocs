@@ -1,12 +1,6 @@
-# Whats New 2026 W13
+# Whats-New 2026-W13
 
-> ## Documentation Index
->
-> Fetch the complete documentation index at: [https://code.claude.com/docs/llms.txt](https://code.claude.com/docs/llms.txt "https://code.claude.com/docs/llms.txt")
->
-> Use this file to discover all available pages before exploring further.
-
-Releases [v2.1.83 → v2.1.85](./changelog#2-1-83 "_changelog#2-1-83".md)6 features · March 23–27
+Releases [v2.1.83 → v2.1.85](./changelog.md#2-1-83)6 features · March 23–27
 
 Auto moderesearch preview
 
@@ -26,7 +20,7 @@ Cycle to auto with Shift+Tab, or set it as your default:
 }
 ```
 
-[Permission modes guide](./permission-modes "_permission-modes".md)
+[Permission modes guide](./permission-modes.md)
 
 Computer useDesktop
 
@@ -42,7 +36,7 @@ Claude Code
 > Open the iOS simulator, tap through the onboarding flow, and screenshot each step
 ```
 
-[Computer use guide](./desktop#let-claude-use-your-computer "_desktop#let-claude-use-your-computer".md)
+[Computer use guide](./desktop.md#let-claude-use-your-computer)
 
 PR auto-fixWeb
 
@@ -52,7 +46,7 @@ Flip a switch when you open a PR and walk away. Claude watches CI, fixes the fai
 
 After creating a PR on Claude Code web, toggle Auto fix in the CI panel.
 
-[Auto-fix pull requests](./claude-code-on-the-web#auto-fix-pull-requests "_claude-code-on-the-web#auto-fix-pull-requests".md)
+[Auto-fix pull requests](./claude-code-on-the-web.md#auto-fix-pull-requests)
 
 Transcript searchv2.1.83
 
@@ -69,7 +63,7 @@ n         # next match
 N         # previous match
 ```
 
-[Fullscreen guide](./fullscreen#search-and-review-the-conversation "_fullscreen#search-and-review-the-conversation".md)
+[Fullscreen guide](./fullscreen.md#search-and-review-the-conversation)
 
 PowerShell toolpreviewv2.1.84
 
@@ -87,7 +81,7 @@ Opt in from settings:
 }
 ```
 
-[PowerShell tool docs](./tools-reference#powershell-tool "_tools-reference#powershell-tool".md)
+[PowerShell tool docs](./tools-reference.md#powershell-tool)
 
 Conditional hooksv2.1.85
 
@@ -111,7 +105,7 @@ Scope a hook to git commits only:
 }
 ```
 
-[Hooks reference](./hooks "_hooks".md)
+[Hooks reference](./hooks.md)
 
 Other wins
 
@@ -137,4 +131,4 @@ Idle-return nudge to `/clear` after 75+ minutes away
 
 VS Code: rate limit banner, Esc-twice rewind picker
 
-[Full changelog for v2.1.83–v2.1.85 →](./changelog#2-1-83 "_changelog#2-1-83".md)
+[Full changelog for v2.1.83–v2.1.85 →](./changelog.md#2-1-83)

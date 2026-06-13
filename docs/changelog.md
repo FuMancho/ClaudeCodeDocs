@@ -352,7 +352,7 @@ May 11, 2026
 * Added `/scroll-speed` command to tune mouse wheel scroll speed with a live preview
 * Added `claude plugin details <name>` to show a plugin’s component inventory and projected per-session token cost
 * Added transcript view navigation: `?` for keyboard shortcuts, `{`/`}` to jump between user prompts, `v` to toggle shortcut panel
-* Added hook `args: string[]` field (exec form) that spawns the command directly without a shell, so path placeholders never need quoting
+* Added hook `args: string[]` field (exec form) that spawns the command directly without a shell, so path s never need quoting
 * Added hook `continueOnBlock` config option for `PostToolUse` — set to `true` to feed the hook’s rejection reason back to Claude and continue the turn
 * MCP stdio servers now receive `CLAUDE_PROJECT_DIR` in their environment, matching hooks. Plugin configs can reference `${CLAUDE_PROJECT_DIR}` in commands
 * Compaction prompt now asks the model to preserve sensitive user instructions
@@ -801,7 +801,7 @@ April 23, 2026
 * Tool search is now disabled by default on Vertex AI to avoid an unsupported beta header error (opt in with `ENABLE_TOOL_SEARCH`)
 * Fixed `@`-file Tab completion replacing the entire prompt when used inside a slash command with an absolute path
 * Fixed a stray `p` character appearing at the prompt on startup in macOS Terminal.app via Docker or SSH
-* Fixed `${ENV_VAR}` placeholders in `headers` for HTTP/SSE/WebSocket MCP servers not being substituted before requests
+* Fixed `${ENV_VAR}` s in `headers` for HTTP/SSE/WebSocket MCP servers not being substituted before requests
 * Fixed MCP OAuth client secret stored via `--client-secret` not being sent during token exchange for servers requiring `client_secret_post`
 * Fixed `/skills` Enter key closing the dialog instead of pre-filling `/<skill-name>` in the prompt
 * Fixed `/agents` detail view mislabeling built-in tools unavailable to subagents as “Unrecognized”
@@ -1277,7 +1277,7 @@ April 9, 2026
 * Improved Vim mode: `j`/`k` in NORMAL mode now navigate history and select the footer pill at the input boundary
 * Improved hook errors in the transcript to include the first line of stderr for self-diagnosis without `--debug`
 * Improved OTEL tracing: interaction spans now correctly wrap full turns under concurrent SDK calls, and headless turns end spans per-turn
-* Improved transcript entries to carry final token usage instead of streaming placeholders
+* Improved transcript entries to carry final token usage instead of streaming s
 * Updated the `/claude-api` skill to cover Managed Agents alongside Claude API
 * [VSCode] Fixed false-positive “requires git-bash” error on Windows when `CLAUDE_CODE_GIT_BASH_PATH` is set or Git is installed at a default location
 * Fixed `CLAUDE_CODE_MAX_CONTEXT_TOKENS` to honor `DISABLE_COMPACT` when it is set.
@@ -1762,7 +1762,7 @@ March 19, 2026
 * Added CLI tool usage detection to plugin tips, in addition to file pattern matching
 * Added `effort` frontmatter support for skills and slash commands to override the model effort level when invoked
 * Added `--channels` (research preview) — allow MCP servers to push messages into your session
-* Fixed `--resume` dropping parallel tool results — sessions with parallel tool calls now restore all tool\_use/tool\_result pairs instead of showing `[Tool result missing]` placeholders
+* Fixed `--resume` dropping parallel tool results — sessions with parallel tool calls now restore all tool\_use/tool\_result pairs instead of showing `[Tool result missing]` s
 * Fixed voice mode WebSocket failures caused by Cloudflare bot detection on non-browser TLS fingerprints
 * Fixed 400 errors when using fine-grained tool streaming through API proxies, Bedrock, or Vertex
 * Fixed `/remote-control` appearing for gateway and third-party provider deployments where it cannot function
@@ -3226,7 +3226,7 @@ January 7, 2026
 * Improved spinner feedback when waiting for the first response token
 * Improved token count display in spinner to include tokens from background agents
 * Improved incremental output for async agents to give the main thread more control and visibility
-* Improved permission prompt UX with Tab hint moved to footer, cleaner Yes/No input labels with contextual placeholders
+* Improved permission prompt UX with Tab hint moved to footer, cleaner Yes/No input labels with contextual s
 * Improved the Claude in Chrome notification with shortened help text and persistent display until dismissed
 * Improved macOS screenshot paste reliability with TIFF format support
 * Improved `/stats` output
