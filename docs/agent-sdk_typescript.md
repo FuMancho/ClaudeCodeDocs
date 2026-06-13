@@ -1,23 +1,17 @@
-# Agent Sdk Typescript
+# Agent-Sdk Typescript
 
-> ## Documentation Index
->
-> Fetch the complete documentation index at: [https://code.claude.com/docs/llms.txt](https://code.claude.com/docs/llms.txt "https://code.claude.com/docs/llms.txt")
->
-> Use this file to discover all available pages before exploring further.
-
-## [​](#installation "#installation") Installation
+## [​](#installation) Installation
 
 ```
 npm install @anthropic-ai/claude-agent-sdk
 ```
 
-The SDK bundles a native Claude Code binary for your platform as an optional dependency such as `@anthropic-ai/claude-agent-sdk-darwin-arm64`. You don’t need to install Claude Code separately. If your package manager skips optional dependencies, the SDK throws `Native CLI binary for <platform> not found`; set [`pathToClaudeCodeExecutable`](#options "#options") to a separately installed `claude` binary instead.
+The SDK bundles a native Claude Code binary for your platform as an optional dependency such as `@anthropic-ai/claude-agent-sdk-darwin-arm64`. You don’t need to install Claude Code separately. If your package manager skips optional dependencies, the SDK throws `Native CLI binary for <platform> not found`; set [`pathToClaudeCodeExecutable`](#options) to a separately installed `claude` binary instead.
 
-### [​](#compile-to-a-single-executable "#compile-to-a-single-executable") Compile to a single executable
+### [​](#compile-to-a-single-executable) Compile to a single executable
 
 When you compile your application into a single-file executable with `bun build --compile`, the SDK cannot resolve the bundled CLI binary at runtime. `require.resolve` does not work inside the compiled executable’s `$bunfs` virtual filesystem, so the SDK throws `Native CLI binary for <platform> not found`.
-To work around this, embed the platform binary as a file asset, extract it to a real path at startup with `extractFromBunfs()`, and pass that path to [`pathToClaudeCodeExecutable`](#options "#options").
+To work around this, embed the platform binary as a file asset, extract it to a real path at startup with `extractFromBunfs()`, and pass that path to [`pathToClaudeCodeExecutable`](#options).
 The `extractFromBunfs()` helper requires `@anthropic-ai/claude-agent-sdk` v0.3.144 or later. The example below builds for macOS on Apple Silicon:
 
 ```
@@ -41,9 +35,9 @@ Each compiled executable embeds a single platform’s binary. Match the platform
 * To cross-compile, install the non-matching platform package, for example `npm install @anthropic-ai/claude-agent-sdk-linux-x64 --force`.
 * On Windows, the binary subpath is `claude.exe`, for example `@anthropic-ai/claude-agent-sdk-win32-x64/claude.exe`.
 
-## [​](#functions "#functions") Functions
+## [​](#functions) Functions
 
-### [​](#query "#query") `query()`
+### [​](#query) `query()`
 
 The primary function for interacting with Claude Code. Creates an async generator that streams messages as they arrive.
 
@@ -57,20 +51,20 @@ function query({
 }): Query;
 ```
 
-#### [​](#parameters "#parameters") Parameters
+#### [​](#parameters) Parameters
 
 | Parameter | Type | Description |
 | --- | --- | --- |
-| `prompt` | `string | AsyncIterable<`[`SDKUserMessage`](#sdkusermessage "#sdkusermessage")`>` | The input prompt as a string or async iterable for streaming mode |
-| `options` | [`Options`](#options "#options") | Optional configuration object (see Options type below) |
+| `prompt` | `string | AsyncIterable<`[`SDKUserMessage`](#sdkusermessage)`>` | The input prompt as a string or async iterable for streaming mode |
+| `options` | [`Options`](#options) | Optional configuration object (see Options type below) |
 
-#### [​](#returns "#returns") Returns
+#### [​](#returns) Returns
 
-Returns a [`Query`](#query-object "#query-object") object that extends `AsyncGenerator<`[`SDKMessage`](#sdkmessage "#sdkmessage")`, void>` with additional methods.
+Returns a [`Query`](#query-object) object that extends `AsyncGenerator<`[`SDKMessage`](#sdkmessage)`, void>` with additional methods.
 
-### [​](#startup "#startup") `startup()`
+### [​](#startup) `startup()`
 
-Pre-warms the CLI subprocess by spawning it and completing the initialize handshake before a prompt is available. The returned [`WarmQuery`](#warmquery "#warmquery") handle accepts a prompt later and writes it to an already-ready process, so the first `query()` call resolves without paying subprocess spawn and initialization cost inline.
+Pre-warms the CLI subprocess by spawning it and completing the initialize handshake before a prompt is available. The returned [`WarmQuery`](#warmquery) handle accepts a prompt later and writes it to an already-ready process, so the first `query()` call resolves without paying subprocess spawn and initialization cost inline.
 
 ```
 function startup(params?: {
@@ -79,18 +73,18 @@ function startup(params?: {
 }): Promise<WarmQuery>;
 ```
 
-#### [​](#parameters-2 "#parameters-2") Parameters
+#### [​](#parameters-2) Parameters
 
 | Parameter | Type | Description |
 | --- | --- | --- |
-| `options` | [`Options`](#options "#options") | Optional configuration object. Same as the `options` parameter to `query()` |
+| `options` | [`Options`](#options) | Optional configuration object. Same as the `options` parameter to `query()` |
 | `initializeTimeoutMs` | `number` | Maximum time in milliseconds to wait for subprocess initialization. Defaults to `60000`. If initialization does not complete in time, the promise rejects with a timeout error |
 
-#### [​](#returns-2 "#returns-2") Returns
+#### [​](#returns-2) Returns
 
-Returns a `Promise<`[`WarmQuery`](#warmquery "#warmquery")`>` that resolves once the subprocess has spawned and completed its initialize handshake.
+Returns a `Promise<`[`WarmQuery`](#warmquery)`>` that resolves once the subprocess has spawned and completed its initialize handshake.
 
-#### [​](#example "#example") Example
+#### [​](#example) Example
 
 Call `startup()` early, for example on application boot, then call `.query()` on the returned handle once a prompt is ready. This moves subprocess spawn and initialization out of the critical path.
 
@@ -106,7 +100,7 @@ for await (const message of warm.query("What files are here?")) {
 }
 ```
 
-### [​](#tool "#tool") `tool()`
+### [​](#tool) `tool()`
 
 Creates a type-safe MCP tool definition for use with SDK MCP servers.
 
@@ -120,17 +114,17 @@ function tool<Schema extends AnyZodRawShape>(
 ): SdkMcpToolDefinition<Schema>;
 ```
 
-#### [​](#parameters-3 "#parameters-3") Parameters
+#### [​](#parameters-3) Parameters
 
 | Parameter | Type | Description |
 | --- | --- | --- |
 | `name` | `string` | The name of the tool |
 | `description` | `string` | A description of what the tool does |
 | `inputSchema` | `Schema extends AnyZodRawShape` | Zod schema defining the tool’s input parameters (supports both Zod 3 and Zod 4) |
-| `handler` | `(args, extra) => Promise<`[`CallToolResult`](#calltoolresult "#calltoolresult")`>` | Async function that executes the tool logic |
-| `extras` | `{ annotations?:` [`ToolAnnotations`](#toolannotations "#toolannotations") `}` | Optional MCP tool annotations providing behavioral hints to clients |
+| `handler` | `(args, extra) => Promise<`[`CallToolResult`](#calltoolresult)`>` | Async function that executes the tool logic |
+| `extras` | `{ annotations?:` [`ToolAnnotations`](#toolannotations) `}` | Optional MCP tool annotations providing behavioral hints to clients |
 
-#### [​](#toolannotations "#toolannotations") `ToolAnnotations`
+#### [​](#toolannotations) `ToolAnnotations`
 
 Re-exported from `@modelcontextprotocol/sdk/types.js`. All fields are optional hints; clients should not rely on them for security decisions.
 
@@ -157,7 +151,7 @@ const searchTool = tool(
 );
 ```
 
-### [​](#createsdkmcpserver "#createsdkmcpserver") `createSdkMcpServer()`
+### [​](#createsdkmcpserver) `createSdkMcpServer()`
 
 Creates an MCP server instance that runs in the same process as your application.
 
@@ -169,15 +163,15 @@ function createSdkMcpServer(options: {
 }): McpSdkServerConfigWithInstance;
 ```
 
-#### [​](#parameters-4 "#parameters-4") Parameters
+#### [​](#parameters-4) Parameters
 
 | Parameter | Type | Description |
 | --- | --- | --- |
 | `options.name` | `string` | The name of the MCP server |
 | `options.version` | `string` | Optional version string |
-| `options.tools` | `Array<SdkMcpToolDefinition>` | Array of tool definitions created with [`tool()`](#tool "#tool") |
+| `options.tools` | `Array<SdkMcpToolDefinition>` | Array of tool definitions created with [`tool()`](#tool) |
 
-### [​](#listsessions "#listsessions") `listSessions()`
+### [​](#listsessions) `listSessions()`
 
 Discovers and lists past sessions with light metadata. Filter by project directory or list sessions across all projects.
 
@@ -185,7 +179,7 @@ Discovers and lists past sessions with light metadata. Filter by project directo
 function listSessions(options?: ListSessionsOptions): Promise<SDKSessionInfo[]>;
 ```
 
-#### [​](#parameters-5 "#parameters-5") Parameters
+#### [​](#parameters-5) Parameters
 
 | Parameter | Type | Default | Description |
 | --- | --- | --- | --- |
@@ -193,7 +187,7 @@ function listSessions(options?: ListSessionsOptions): Promise<SDKSessionInfo[]>;
 | `options.limit` | `number` | `undefined` | Maximum number of sessions to return |
 | `options.includeWorktrees` | `boolean` | `true` | When `dir` is inside a git repository, include sessions from all worktree paths |
 
-#### [​](#return-type-sdksessioninfo "#return-type-sdksessioninfo") Return type: `SDKSessionInfo`
+#### [​](#return-type-sdksessioninfo) Return type: `SDKSessionInfo`
 
 | Property | Type | Description |
 | --- | --- | --- |
@@ -205,10 +199,10 @@ function listSessions(options?: ListSessionsOptions): Promise<SDKSessionInfo[]>;
 | `firstPrompt` | `string | undefined` | First meaningful user prompt in the session |
 | `gitBranch` | `string | undefined` | Git branch at the end of the session |
 | `cwd` | `string | undefined` | Working directory for the session |
-| `tag` | `string | undefined` | User-set session tag (see [`tagSession()`](#tagsession "#tagsession")) |
+| `tag` | `string | undefined` | User-set session tag (see [`tagSession()`](#tagsession)) |
 | `createdAt` | `number | undefined` | Creation time in milliseconds since epoch, from the first entry’s timestamp |
 
-#### [​](#example-2 "#example-2") Example
+#### [​](#example-2) Example
 
 Print the 10 most recent sessions for a project. Results are sorted by `lastModified` descending, so the first item is the newest. Omit `dir` to search across all projects.
 
@@ -222,7 +216,7 @@ for (const session of sessions) {
 }
 ```
 
-### [​](#getsessionmessages "#getsessionmessages") `getSessionMessages()`
+### [​](#getsessionmessages) `getSessionMessages()`
 
 Reads user and assistant messages from a past session transcript.
 
@@ -233,7 +227,7 @@ function getSessionMessages(
 ): Promise<SessionMessage[]>;
 ```
 
-#### [​](#parameters-6 "#parameters-6") Parameters
+#### [​](#parameters-6) Parameters
 
 | Parameter | Type | Default | Description |
 | --- | --- | --- | --- |
@@ -242,7 +236,7 @@ function getSessionMessages(
 | `options.limit` | `number` | `undefined` | Maximum number of messages to return |
 | `options.offset` | `number` | `undefined` | Number of messages to skip from the start |
 
-#### [​](#return-type-sessionmessage "#return-type-sessionmessage") Return type: `SessionMessage`
+#### [​](#return-type-sessionmessage) Return type: `SessionMessage`
 
 | Property | Type | Description |
 | --- | --- | --- |
@@ -252,7 +246,7 @@ function getSessionMessages(
 | `message` | `unknown` | Raw message payload from the transcript |
 | `parent_tool_use_id` | `string | null` | For subagent messages, the `tool_use_id` of the spawning `Agent` tool call. `null` for main-session messages and older sessions |
 
-#### [​](#example-3 "#example-3") Example
+#### [​](#example-3) Example
 
 ```
 import { listSessions, getSessionMessages } from "@anthropic-ai/claude-agent-sdk";
@@ -271,7 +265,7 @@ if (latest) {
 }
 ```
 
-### [​](#getsessioninfo "#getsessioninfo") `getSessionInfo()`
+### [​](#getsessioninfo) `getSessionInfo()`
 
 Reads metadata for a single session by ID without scanning the full project directory.
 
@@ -282,16 +276,16 @@ function getSessionInfo(
 ): Promise<SDKSessionInfo | undefined>;
 ```
 
-#### [​](#parameters-7 "#parameters-7") Parameters
+#### [​](#parameters-7) Parameters
 
 | Parameter | Type | Default | Description |
 | --- | --- | --- | --- |
 | `sessionId` | `string` | required | UUID of the session to look up |
 | `options.dir` | `string` | `undefined` | Project directory path. When omitted, searches all project directories |
 
-Returns [`SDKSessionInfo`](#return-type-sdksessioninfo "#return-type-sdksessioninfo"), or `undefined` if the session is not found.
+Returns [`SDKSessionInfo`](#return-type-sdksessioninfo), or `undefined` if the session is not found.
 
-### [​](#renamesession "#renamesession") `renameSession()`
+### [​](#renamesession) `renameSession()`
 
 Renames a session by appending a custom-title entry. Repeated calls are safe; the most recent title wins.
 
@@ -303,7 +297,7 @@ function renameSession(
 ): Promise<void>;
 ```
 
-#### [​](#parameters-8 "#parameters-8") Parameters
+#### [​](#parameters-8) Parameters
 
 | Parameter | Type | Default | Description |
 | --- | --- | --- | --- |
@@ -311,7 +305,7 @@ function renameSession(
 | `title` | `string` | required | New title. Must be non-empty after trimming whitespace |
 | `options.dir` | `string` | `undefined` | Project directory path. When omitted, searches all project directories |
 
-### [​](#tagsession "#tagsession") `tagSession()`
+### [​](#tagsession) `tagSession()`
 
 Tags a session. Pass `null` to clear the tag. Repeated calls are safe; the most recent tag wins.
 
@@ -323,7 +317,7 @@ function tagSession(
 ): Promise<void>;
 ```
 
-#### [​](#parameters-9 "#parameters-9") Parameters
+#### [​](#parameters-9) Parameters
 
 | Parameter | Type | Default | Description |
 | --- | --- | --- | --- |
@@ -331,7 +325,7 @@ function tagSession(
 | `tag` | `string | null` | required | Tag string, or `null` to clear |
 | `options.dir` | `string` | `undefined` | Project directory path. When omitted, searches all project directories |
 
-### [​](#resolvesettings "#resolvesettings") `resolveSettings()`
+### [​](#resolvesettings) `resolveSettings()`
 
 Resolves the effective Claude Code settings for a given directory using the same merge engine as the CLI, without spawning the Claude CLI. Use it to inspect what configuration a `query()` call would see before invoking one.
 
@@ -343,18 +337,18 @@ function resolveSettings(
 ): Promise<ResolvedSettings>;
 ```
 
-#### [​](#parameters-10 "#parameters-10") Parameters
+#### [​](#parameters-10) Parameters
 
 `resolveSettings()` accepts a single options object. All fields are optional.
 
 | Parameter | Type | Default | Description |
 | --- | --- | --- | --- |
 | `options.cwd` | `string` | `process.cwd()` | Directory to resolve project and local settings relative to |
-| `options.settingSources` | [`SettingSource`](#settingsource "#settingsource")`[]` | All sources | Which filesystem sources to load. Pass `[]` to skip user, project, and local settings. Managed policy settings load in all cases |
-| `options.managedSettings` | `Settings` | `undefined` | Restrictive policy-tier settings supplied by the embedding host. Dropped by default when an admin-deployed managed tier is present; merged under that tier when [`parentSettingsBehavior`](./settings#available-settings "_settings#available-settings".md) is `"merge"`. Non-restrictive keys such as `model` are silently dropped so this option can tighten managed policy but not loosen it |
+| `options.settingSources` | [`SettingSource`](#settingsource)`[]` | All sources | Which filesystem sources to load. Pass `[]` to skip user, project, and local settings. Managed policy settings load in all cases |
+| `options.managedSettings` | `Settings` | `undefined` | Restrictive policy-tier settings supplied by the embedding host. Dropped by default when an admin-deployed managed tier is present; merged under that tier when [`parentSettingsBehavior`](./settings.md#available-settings) is `"merge"`. Non-restrictive keys such as `model` are silently dropped so this option can tighten managed policy but not loosen it |
 | `options.serverManagedSettings` | `Settings` | `undefined` | Server-managed settings payload from `/api/claude_code/settings`. Non-restrictive keys pass through unfiltered |
 
-#### [​](#return-type-resolvedsettings "#return-type-resolvedsettings") Return type: `ResolvedSettings`
+#### [​](#return-type-resolvedsettings) Return type: `ResolvedSettings`
 
 `resolveSettings()` returns an object describing the merged settings and the source that contributed each key.
 
@@ -364,7 +358,7 @@ function resolveSettings(
 | `provenance` | `Partial<Record<keyof Settings, ProvenanceEntry>>` | For each top-level key in `effective`, which source supplied the value |
 | `sources` | `Array<{ source, settings, path?, policyOrigin? }>` | Per-source raw settings, ordered from lowest to highest precedence |
 
-#### [​](#example-4 "#example-4") Example
+#### [​](#example-4) Example
 
 The example below resolves settings for a project directory and prints the source that controls the cleanup period.
 
@@ -380,9 +374,9 @@ console.log(`Cleanup period: ${effective.cleanupPeriodDays} days`);
 console.log(`Set by: ${provenance.cleanupPeriodDays?.source}`);
 ```
 
-## [​](#types "#types") Types
+## [​](#types) Types
 
-### [​](#options "#options") `Options`
+### [​](#options) `Options`
 
 Configuration object for the `query()` function.
 
@@ -392,66 +386,66 @@ Configuration object for the `query()` function.
 | `additionalDirectories` | `string[]` | `[]` | Additional directories Claude can access |
 | `agent` | `string` | `undefined` | Agent name for the main thread. The agent must be defined in the `agents` option or in settings |
 | `agents` | `Record<string, [`AgentDefinition`](#agentdefinition)>` | `undefined` | Programmatically define subagents |
-| `agentProgressSummaries` | `boolean` | `false` | When `true`, generate one-line progress summaries for subagents and forward them on [`task_progress`](#sdktaskprogressmessage "#sdktaskprogressmessage") events via the `summary` field. Applies to foreground and background subagents |
+| `agentProgressSummaries` | `boolean` | `false` | When `true`, generate one-line progress summaries for subagents and forward them on [`task_progress`](#sdktaskprogressmessage) events via the `summary` field. Applies to foreground and background subagents |
 | `allowDangerouslySkipPermissions` | `boolean` | `false` | Enable bypassing permissions. Required when using `permissionMode: 'bypassPermissions'` |
-| `allowedTools` | `string[]` | `[]` | Tools to auto-approve without prompting. This does not restrict Claude to only these tools; unlisted tools fall through to `permissionMode` and `canUseTool`. Use `disallowedTools` to block tools. See [Permissions](./agent-sdk_permissions#allow-and-deny-rules "_agent-sdk_permissions#allow-and-deny-rules".md) |
-| `betas` | [`SdkBeta`](#sdkbeta "#sdkbeta")`[]` | `[]` | Enable beta features |
-| `canUseTool` | [`CanUseTool`](#canusetool "#canusetool") | `undefined` | Custom permission function for tool usage |
+| `allowedTools` | `string[]` | `[]` | Tools to auto-approve without prompting. This does not restrict Claude to only these tools; unlisted tools fall through to `permissionMode` and `canUseTool`. Use `disallowedTools` to block tools. See [Permissions](./agent-sdk_permissions.md#allow-and-deny-rules) |
+| `betas` | [`SdkBeta`](#sdkbeta)`[]` | `[]` | Enable beta features |
+| `canUseTool` | [`CanUseTool`](#canusetool) | `undefined` | Custom permission function for tool usage |
 | `continue` | `boolean` | `false` | Continue the most recent conversation |
 | `cwd` | `string` | `process.cwd()` | Current working directory |
 | `debug` | `boolean` | `false` | Enable debug mode for the Claude Code process |
 | `debugFile` | `string` | `undefined` | Write debug logs to a specific file path. Implicitly enables debug mode |
-| `disallowedTools` | `string[]` | `[]` | Tools to deny. A bare name such as `"Bash"` removes the tool from Claude’s context. A scoped rule such as `"Bash(rm *)"` leaves the tool available and denies matching calls in every permission mode, including `bypassPermissions`. See [Permissions](./agent-sdk_permissions#allow-and-deny-rules "_agent-sdk_permissions#allow-and-deny-rules".md) |
-| `effort` | `'low' | 'medium' | 'high' | 'xhigh' | 'max'` | `'high'` | Controls how much effort Claude puts into its response. Works with adaptive thinking to guide thinking depth |
-| `enableFileCheckpointing` | `boolean` | `false` | Enable file change tracking for rewinding. See [File checkpointing](./agent-sdk_file-checkpointing "_agent-sdk_file-checkpointing".md) |
-| `env` | `Record<string, string | undefined>` | `process.env` | Environment variables. See [Environment variables](./env-vars "_env-vars".md) for variables the underlying CLI reads, and [Handle slow or stalled API responses](#handle-slow-or-stalled-api-responses "#handle-slow-or-stalled-api-responses") for timeout-related variables. Set `CLAUDE_AGENT_SDK_CLIENT_APP` to identify your app in the User-Agent header |
+| `disallowedTools` | `string[]` | `[]` | Tools to deny. A bare name such as `"Bash"` removes the tool from Claude’s context. A scoped rule such as `"Bash(rm *)"` leaves the tool available and denies matching calls in every permission mode, including `bypassPermissions`. See [Permissions](./agent-sdk_permissions.md#allow-and-deny-rules) |
+| `effort` | `'low' | 'medium' | 'high' | 'xhigh' | 'max'` | Model default | Controls how much effort Claude puts into its response. Works with adaptive thinking to guide thinking depth. See [adjust the effort level](./model-config.md#adjust-effort-level) |
+| `enableFileCheckpointing` | `boolean` | `false` | Enable file change tracking for rewinding. See [File checkpointing](./agent-sdk_file-checkpointing.md) |
+| `env` | `Record<string, string | undefined>` | `process.env` | Environment variables. When set, this replaces the subprocess environment instead of merging with `process.env`, so pass `{ ...process.env, YOUR_VAR: 'value' }` to keep inherited variables like `PATH`. See [Handle slow or stalled API responses](#handle-slow-or-stalled-api-responses) for an example of this pattern, and [Environment variables](./env-vars.md) for variables the underlying CLI reads. Set `CLAUDE_AGENT_SDK_CLIENT_APP` to identify your app in the User-Agent header |
 | `executable` | `'bun' | 'deno' | 'node'` | Auto-detected | JavaScript runtime to use |
 | `executableArgs` | `string[]` | `[]` | Arguments to pass to the executable |
 | `extraArgs` | `Record<string, string | null>` | `{}` | Additional arguments |
 | `fallbackModel` | `string` | `undefined` | Model to use if primary fails |
 | `forkSession` | `boolean` | `false` | When resuming with `resume`, fork to a new session ID instead of continuing the original session |
 | `forwardSubagentText` | `boolean` | `false` | Forward subagent text and thinking blocks as assistant and user messages with `parent_tool_use_id` set, so consumers can render a nested transcript. By default only `tool_use` and `tool_result` blocks from subagents are emitted |
-| `hooks` | `Partial<Record<`[`HookEvent`](#hookevent "#hookevent")`,` [`HookCallbackMatcher`](#hookcallbackmatcher "#hookcallbackmatcher")`[]>>` | `{}` | Hook callbacks for events |
-| `includeHookEvents` | `boolean` | `false` | Include hook lifecycle events in the message stream as [`SDKHookStartedMessage`](#sdkhookstartedmessage "#sdkhookstartedmessage"), [`SDKHookProgressMessage`](#sdkhookprogressmessage "#sdkhookprogressmessage"), and [`SDKHookResponseMessage`](#sdkhookresponsemessage "#sdkhookresponsemessage") |
+| `hooks` | `Partial<Record<`[`HookEvent`](#hookevent)`,` [`HookCallbackMatcher`](#hookcallbackmatcher)`[]>>` | `{}` | Hook callbacks for events |
+| `includeHookEvents` | `boolean` | `false` | Include hook lifecycle events in the message stream as [`SDKHookStartedMessage`](#sdkhookstartedmessage), [`SDKHookProgressMessage`](#sdkhookprogressmessage), and [`SDKHookResponseMessage`](#sdkhookresponsemessage) |
 | `includePartialMessages` | `boolean` | `false` | Include partial message events |
 | `loadTimeoutMs` | `number` | `60000` | *Alpha.* Timeout in milliseconds for each `sessionStore.load()` and `sessionStore.listSubkeys()` call during resume materialization. If the adapter doesn’t settle within this window, the query fails instead of hanging. Ignored when `sessionStore` is not set |
 | `managedSettings` | `Settings` | `undefined` | Policy-tier settings supplied by the spawning parent process. Dropped when an IT-controlled managed-settings tier already exists on the machine, unless that admin opts in with `parentSettingsBehavior: 'merge'`. Filtered to restrictive-only keys regardless |
-| `maxBudgetUsd` | `number` | `undefined` | Stop the query when the client-side cost estimate reaches this USD value. Compared against the same estimate as `total_cost_usd`; see [Track cost and usage](./agent-sdk_cost-tracking "_agent-sdk_cost-tracking".md) for accuracy caveats |
+| `maxBudgetUsd` | `number` | `undefined` | Stop the query when the client-side cost estimate reaches this USD value. Compared against the same estimate as `total_cost_usd`; see [Track cost and usage](./agent-sdk_cost-tracking.md) for accuracy caveats |
 | `maxThinkingTokens` | `number` | `undefined` | *Deprecated:* Use `thinking` instead. Maximum tokens for thinking process |
 | `maxTurns` | `number` | `undefined` | Maximum agentic turns (tool-use round trips) |
 | `mcpServers` | `Record<string, [`McpServerConfig`](#mcpserverconfig)>` | `{}` | MCP server configurations |
-| `model` | `string` | Default from CLI | Claude model to use |
+| `model` | `string` | Default from CLI | Claude model alias or full model name. See [accepted values and provider-specific IDs](./model-config.md#available-models) |
 | `onElicitation` | `(request: ElicitationRequest, options: { signal: AbortSignal }) => Promise<ElicitationResult>` | `undefined` | Callback for handling MCP elicitation requests. Called when an MCP server requests user input and no hook handles it first. When not provided, unhandled elicitation requests are declined automatically |
-| `outputFormat` | `{ type: 'json_schema', schema: JSONSchema }` | `undefined` | Define output format for agent results. See [Structured outputs](./agent-sdk_structured-outputs "_agent-sdk_structured-outputs".md) for details |
-| `outputStyle` | `string` | `undefined` | Not an `Options` field. Set `outputStyle` in the inline [`settings`](./settings "_settings".md) object or a settings file instead. See [Activate an output style](./agent-sdk_modifying-system-prompts#activate-an-output-style "_agent-sdk_modifying-system-prompts#activate-an-output-style".md) |
+| `outputFormat` | `{ type: 'json_schema', schema: JSONSchema }` | `undefined` | Define output format for agent results. See [Structured outputs](./agent-sdk_structured-outputs.md) for details |
+| `outputStyle` | `string` | `undefined` | Not an `Options` field. Set `outputStyle` in the inline [`settings`](./settings.md) object or a settings file instead. See [Activate an output style](./agent-sdk_modifying-system-prompts.md#activate-an-output-style) |
 | `pathToClaudeCodeExecutable` | `string` | Auto-resolved from bundled native binary | Path to Claude Code executable. Only needed if optional dependencies were skipped during install or your platform isn’t in the supported set |
-| `permissionMode` | [`PermissionMode`](#permissionmode "#permissionmode") | `'default'` | Permission mode for the session |
+| `permissionMode` | [`PermissionMode`](#permissionmode) | `'default'` | Permission mode for the session |
 | `permissionPromptToolName` | `string` | `undefined` | MCP tool name for permission prompts |
 | `persistSession` | `boolean` | `true` | When `false`, disables session persistence to disk. Sessions cannot be resumed later |
 | `planModeInstructions` | `string` | `undefined` | Custom workflow instructions for plan mode. When `permissionMode` is `'plan'`, this string replaces the default plan-mode workflow body. The CLI still wraps it with the read-only enforcement preamble and the ExitPlanMode protocol footer |
-| `plugins` | [`SdkPluginConfig`](#sdkpluginconfig "#sdkpluginconfig")`[]` | `[]` | Load custom plugins from local paths. See [Plugins](./agent-sdk_plugins "_agent-sdk_plugins".md) for details |
+| `plugins` | [`SdkPluginConfig`](#sdkpluginconfig)`[]` | `[]` | Load custom plugins from local paths. See [Plugins](./agent-sdk_plugins.md) for details |
 | `promptSuggestions` | `boolean` | `false` | Enable prompt suggestions. Emits a `prompt_suggestion` message after each turn with a predicted next user prompt |
 | `resume` | `string` | `undefined` | Session ID to resume |
 | `resumeSessionAt` | `string` | `undefined` | Resume session at a specific message UUID |
-| `sandbox` | [`SandboxSettings`](#sandboxsettings "#sandboxsettings") | `undefined` | Configure sandbox behavior programmatically. See [Sandbox settings](#sandboxsettings "#sandboxsettings") for details |
+| `sandbox` | [`SandboxSettings`](#sandboxsettings) | `undefined` | Configure sandbox behavior programmatically. See [Sandbox settings](#sandboxsettings) for details |
 | `sessionId` | `string` | Auto-generated | Use a specific UUID for the session instead of auto-generating one |
-| `sessionStore` | [`SessionStore`](./agent-sdk_session-storage#the-sessionstore-interface "_agent-sdk_session-storage#the-sessionstore-interface".md) | `undefined` | Mirror session transcripts to an external backend so any host can resume them. See [Persist sessions to external storage](./agent-sdk_session-storage "_agent-sdk_session-storage".md) |
+| `sessionStore` | [`SessionStore`](./agent-sdk_session-storage.md#the-sessionstore-interface) | `undefined` | Mirror session transcripts to an external backend so any host can resume them. See [Persist sessions to external storage](./agent-sdk_session-storage.md) |
 | `sessionStoreFlush` | `'batched' | 'eager'` | `'batched'` | *Alpha.* Flush mode for `sessionStore`. Ignored when `sessionStore` is not set |
-| `settings` | `string | Settings` | `undefined` | Inline [settings](./settings "_settings".md) object or path to a settings file. Populates the flag-settings layer in the [precedence order](./settings#settings-precedence "_settings#settings-precedence".md). Change at runtime with [`applyFlagSettings()`](#applyflagsettings "#applyflagsettings") |
-| `settingSources` | [`SettingSource`](#settingsource "#settingsource")`[]` | CLI defaults (all sources) | Control which filesystem settings to load. Pass `[]` to disable user, project, and local settings. Managed policy settings load regardless. See [Use Claude Code features](./agent-sdk_claude-code-features#what-settingsources-does-not-control "_agent-sdk_claude-code-features#what-settingsources-does-not-control".md) |
-| `skills` | `string[] | 'all'` | `undefined` | Skills available to the session. Pass `'all'` to enable every discovered skill, or a list of skill names. When set, the SDK enables the Skill tool automatically without listing it in `allowedTools`. See [Skills](./agent-sdk_skills "_agent-sdk_skills".md) |
+| `settings` | `string | Settings` | `undefined` | Inline [settings](./settings.md) object or path to a settings file. Populates the flag-settings layer in the [precedence order](./settings.md#settings-precedence). Change at runtime with [`applyFlagSettings()`](#applyflagsettings) |
+| `settingSources` | [`SettingSource`](#settingsource)`[]` | CLI defaults (all sources) | Control which filesystem settings to load. Pass `[]` to disable user, project, and local settings. Managed policy settings load regardless. See [Use Claude Code features](./agent-sdk_claude-code-features.md#what-settingsources-does-not-control) |
+| `skills` | `string[] | 'all'` | `undefined` | Skills available to the session. Pass `'all'` to enable every discovered skill, or a list of skill names. When set, the SDK adds the Skill tool to `allowedTools` automatically. If you also pass `tools`, include `'Skill'` in that list. See [Skills](./agent-sdk_skills.md) |
 | `spawnClaudeCodeProcess` | `(options: SpawnOptions) => SpawnedProcess` | `undefined` | Custom function to spawn the Claude Code process. Use to run Claude Code in VMs, containers, or remote environments |
 | `stderr` | `(data: string) => void` | `undefined` | Callback for stderr output |
-| `strictMcpConfig` | `boolean` | `false` | Use only the servers passed in `mcpServers` and ignore project `.mcp.json`, user settings, and plugin-provided MCP servers |
-| `systemPrompt` | `string | { type: 'preset'; preset: 'claude_code'; append?: string; excludeDynamicSections?: boolean }` | `undefined` (minimal prompt) | System prompt configuration. Pass a string for custom prompt, or `{ type: 'preset', preset: 'claude_code' }` to use Claude Code’s system prompt. When using the preset object form, add `append` to extend it with additional instructions, and set `excludeDynamicSections: true` to move per-session context into the first user message for [better prompt-cache reuse across machines](./agent-sdk_modifying-system-prompts#improve-prompt-caching-across-users-and-machines "_agent-sdk_modifying-system-prompts#improve-prompt-caching-across-users-and-machines".md) |
+| `strictMcpConfig` | `boolean` | `false` | Use only the servers passed in `mcpServers` and ignore project `.mcp.json`, user settings, plugin-provided MCP servers, and [claude.ai connectors](./mcp.md#use-mcp-servers-from-claude-ai) |
+| `systemPrompt` | `string | { type: 'preset'; preset: 'claude_code'; append?: string; excludeDynamicSections?: boolean }` | `undefined` (minimal prompt) | System prompt configuration. Pass a string for custom prompt, or `{ type: 'preset', preset: 'claude_code' }` to use Claude Code’s system prompt. When using the preset object form, add `append` to extend it with additional instructions, and set `excludeDynamicSections: true` to move per-session context into the first user message for [better prompt-cache reuse across machines](./agent-sdk_modifying-system-prompts.md#improve-prompt-caching-across-users-and-machines) |
 | `taskBudget` | `{ total: number }` | `undefined` | *Alpha.* API-side task budget in tokens. When set, the model is told its remaining token budget so it can pace tool use and wrap up before the limit |
-| `thinking` | [`ThinkingConfig`](#thinkingconfig "#thinkingconfig") | `{ type: 'adaptive' }` for supported models | Controls Claude’s thinking/reasoning behavior. See [`ThinkingConfig`](#thinkingconfig "#thinkingconfig") for options |
-| `title` | `string` | `undefined` | Display title for the session. When resuming via `resume` or `continue`, the resumed session’s persisted title takes precedence; use [`renameSession()`](#renamesession "#renamesession") to retitle an existing session |
+| `thinking` | [`ThinkingConfig`](#thinkingconfig) | `{ type: 'adaptive' }` for supported models | Controls Claude’s thinking/reasoning behavior. See [`ThinkingConfig`](#thinkingconfig) for options |
+| `title` | `string` | `undefined` | Display title for the session. When resuming via `resume` or `continue`, the resumed session’s persisted title takes precedence; use [`renameSession()`](#renamesession) to retitle an existing session |
 | `toolAliases` | `Record<string, string>` | `undefined` | Map built-in tool names to MCP tool names so Claude calls your MCP implementation in place of the built-in. For example, `{ Bash: 'mcp__workspace__bash' }` |
-| `toolConfig` | [`ToolConfig`](#toolconfig "#toolconfig") | `undefined` | Configuration for built-in tool behavior. See [`ToolConfig`](#toolconfig "#toolconfig") for details |
+| `toolConfig` | [`ToolConfig`](#toolconfig) | `undefined` | Configuration for built-in tool behavior. See [`ToolConfig`](#toolconfig) for details |
 | `tools` | `string[] | { type: 'preset'; preset: 'claude_code' }` | `undefined` | Tool configuration. Pass an array of tool names or use the preset to get Claude Code’s default tools |
 
-#### [​](#handle-slow-or-stalled-api-responses "#handle-slow-or-stalled-api-responses") Handle slow or stalled API responses
+#### [​](#handle-slow-or-stalled-api-responses) Handle slow or stalled API responses
 
 The CLI subprocess reads several environment variables that control API timeouts and stall detection. Pass them through the `env` option:
 
@@ -472,9 +466,9 @@ const result = query({
 * `API_TIMEOUT_MS`: per-request timeout on the Anthropic client, in milliseconds. Default `600000`. Applies to the main loop and all subagents.
 * `CLAUDE_CODE_MAX_RETRIES`: maximum API retries. Default `10`. Each retry gets its own `API_TIMEOUT_MS` window, so worst-case wall time is roughly `API_TIMEOUT_MS × (CLAUDE_CODE_MAX_RETRIES + 1)` plus backoff.
 * `CLAUDE_ASYNC_AGENT_STALL_TIMEOUT_MS`: stall watchdog for subagents launched with `run_in_background`. Default `600000`. Resets on each stream event; on stall it aborts the subagent, marks the task failed, and surfaces the error to the parent with any partial result. Does not apply to synchronous subagents.
-* `CLAUDE_ENABLE_STREAM_WATCHDOG=1` with `CLAUDE_STREAM_IDLE_TIMEOUT_MS`: aborts the request when headers have arrived but the response body stops streaming. Off by default. `CLAUDE_STREAM_IDLE_TIMEOUT_MS` defaults to `300000` and is clamped to that minimum. The aborted request goes through the normal retry path.
+* `CLAUDE_ENABLE_STREAM_WATCHDOG=1` with `CLAUDE_STREAM_IDLE_TIMEOUT_MS`: aborts the request when headers have arrived but the response body stops streaming. When `CLAUDE_ENABLE_STREAM_WATCHDOG` is unset, the default is server-controlled on the direct Anthropic API and off on other providers. `CLAUDE_STREAM_IDLE_TIMEOUT_MS` defaults to `300000` and is clamped to that minimum. The aborted request goes through the normal retry path.
 
-### [​](#query-object "#query-object") `Query` object
+### [​](#query-object) `Query` object
 
 Interface returned by the `query()` function.
 
@@ -504,20 +498,20 @@ interface Query extends AsyncGenerator<SDKMessage, void> {
 }
 ```
 
-#### [​](#methods "#methods") Methods
+#### [​](#methods) Methods
 
 | Method | Description |
 | --- | --- |
 | `interrupt()` | Interrupts the query (only available in streaming input mode) |
-| `rewindFiles(userMessageId, options?)` | Restores files to their state at the specified user message. Pass `{ dryRun: true }` to preview changes. Requires `enableFileCheckpointing: true`. See [File checkpointing](./agent-sdk_file-checkpointing "_agent-sdk_file-checkpointing".md) |
+| `rewindFiles(userMessageId, options?)` | Restores files to their state at the specified user message. Pass `{ dryRun: true }` to preview changes. Requires `enableFileCheckpointing: true`. See [File checkpointing](./agent-sdk_file-checkpointing.md) |
 | `setPermissionMode()` | Changes the permission mode (only available in streaming input mode) |
 | `setModel()` | Changes the model (only available in streaming input mode) |
 | `setMaxThinkingTokens()` | *Deprecated:* Use the `thinking` option instead. Changes the maximum thinking tokens |
-| `applyFlagSettings(settings)` | Merges settings into the session’s flag settings layer at runtime (only available in streaming input mode). See [`applyFlagSettings()`](#applyflagsettings "#applyflagsettings") |
+| `applyFlagSettings(settings)` | Merges settings into the session’s flag settings layer at runtime (only available in streaming input mode). See [`applyFlagSettings()`](#applyflagsettings) |
 | `initializationResult()` | Returns the full initialization result including supported commands, models, account info, and output style configuration |
 | `supportedCommands()` | Returns available slash commands |
 | `supportedModels()` | Returns available models with display info |
-| `supportedAgents()` | Returns available subagents as [`AgentInfo`](#agentinfo "#agentinfo")`[]` |
+| `supportedAgents()` | Returns available subagents as [`AgentInfo`](#agentinfo)`[]` |
 | `mcpServerStatus()` | Returns status of connected MCP servers |
 | `accountInfo()` | Returns account information |
 | `reconnectMcpServer(serverName)` | Reconnect an MCP server by name |
@@ -527,10 +521,15 @@ interface Query extends AsyncGenerator<SDKMessage, void> {
 | `stopTask(taskId)` | Stop a running background task by ID |
 | `close()` | Close the query and terminate the underlying process. Forcefully ends the query and cleans up all resources |
 
-#### [​](#applyflagsettings "#applyflagsettings") `applyFlagSettings()`
+#### [​](#applyflagsettings) `applyFlagSettings()`
 
-Changes any [setting](./settings "_settings".md) on a running session without restarting the query. Use it when a setting that has no dedicated setter needs to change mid-session, such as tightening `permissions` after the agent reads untrusted input. `setModel()` and `setPermissionMode()` are dedicated setters for those two keys; `applyFlagSettings()` is the general form that accepts any subset of the settings keys, and passing `model` here behaves the same as `setModel()`.
-The values are written to the flag-settings layer, the same layer the inline `settings` option of `query()` populates at startup. Flag settings sit near the top of the [settings precedence order](./settings#settings-precedence "_settings#settings-precedence".md): they override user, project, and local settings, and only managed policy settings can override them. This is the same tier the [on-page precedence section](#settings-precedence "#settings-precedence") calls programmatic options.
+Changes [settings](./settings.md) on a running session without restarting the query. Use it when a setting that has no dedicated setter needs to change mid-session, such as tightening `permissions` after the agent reads untrusted input. `setModel()` and `setPermissionMode()` are dedicated setters for those two keys; `applyFlagSettings()` is the general form that accepts any subset of the settings keys, and passing `model` here behaves the same as `setModel()`.
+Only some keys take effect mid-session:
+
+* **Applied on the next turn**: `model`, `effortLevel`, `ultracode`, `permissions`, `hooks`, `skillOverrides`, `fastMode`, `awaySummaryEnabled`, `agent`. Switching `agent` also applies that agent’s model override, hooks, and system prompt on the next turn.
+* **No effect mid-session**: the system prompt options. These are resolved once at startup, so the running session keeps the original value even though the call succeeds. To change them, start a new session.
+
+The values are written to the flag-settings layer, the same layer the inline `settings` option of `query()` populates at startup. Flag settings sit near the top of the [settings precedence order](./settings.md#settings-precedence): they override user, project, and local settings, and only managed policy settings can override them. This is the same tier the [on-page precedence section](#settings-precedence) calls programmatic options.
 Successive calls shallow-merge top-level keys. A second call with `{ permissions: {...} }` replaces the entire `permissions` object from the prior call rather than deep-merging into it. To clear a key from the flag layer and fall back to lower-precedence sources, pass `null` for that key. Passing `undefined` has no effect because JSON serialization drops it.
 Only available in streaming input mode, the same constraint as `setModel()` and `setPermissionMode()`.
 The example below switches the active model mid-session, then clears the override so the model falls back to whatever the user or project settings specify.
@@ -547,9 +546,9 @@ await q.applyFlagSettings({ model: null });
 
 `applyFlagSettings()` is TypeScript-only. The Python SDK does not expose an equivalent method.
 
-### [​](#warmquery "#warmquery") `WarmQuery`
+### [​](#warmquery) `WarmQuery`
 
-Handle returned by [`startup()`](#startup "#startup"). The subprocess is already spawned and initialized, so calling `query()` on this handle writes the prompt directly to a ready process with no startup latency.
+Handle returned by [`startup()`](#startup). The subprocess is already spawned and initialized, so calling `query()` on this handle writes the prompt directly to a ready process with no startup latency.
 
 ```
 interface WarmQuery extends AsyncDisposable {
@@ -558,16 +557,16 @@ interface WarmQuery extends AsyncDisposable {
 }
 ```
 
-#### [​](#methods-2 "#methods-2") Methods
+#### [​](#methods-2) Methods
 
 | Method | Description |
 | --- | --- |
-| `query(prompt)` | Send a prompt to the pre-warmed subprocess and return a [`Query`](#query-object "#query-object"). Can only be called once per `WarmQuery` |
+| `query(prompt)` | Send a prompt to the pre-warmed subprocess and return a [`Query`](#query-object). Can only be called once per `WarmQuery` |
 | `close()` | Close the subprocess without sending a prompt. Use this to discard a warm query that is no longer needed |
 
 `WarmQuery` implements `AsyncDisposable`, so it can be used with `await using` for automatic cleanup.
 
-### [​](#sdkcontrolinitializeresponse "#sdkcontrolinitializeresponse") `SDKControlInitializeResponse`
+### [​](#sdkcontrolinitializeresponse) `SDKControlInitializeResponse`
 
 Return type of `initializationResult()`. Contains session initialization data.
 
@@ -583,7 +582,10 @@ type SDKControlInitializeResponse = {
 };
 ```
 
-### [​](#agentdefinition "#agentdefinition") `AgentDefinition`
+When a client sends `initialize` to a session that is already running, the control-response wrapper also carries an optional `pending_permission_requests` array. The field is on the response wrapper itself, not in the `SDKControlInitializeResponse` payload above. Each entry is a complete `control_request` message with the same `{ type: "control_request", request_id, request }` shape the session streams for permission requests while running.
+These are requests that were issued before the client connected and are still awaiting a reply, so read this array to surface in-flight permission prompts immediately; they will not be re-sent.
+
+### [​](#agentdefinition) `AgentDefinition`
 
 Configuration for a subagent defined programmatically.
 
@@ -612,7 +614,7 @@ type AgentDefinition = {
 | `tools` | No | Array of allowed tool names. If omitted, inherits all tools from parent. To preload Skills into the agent’s context, use the `skills` field rather than listing `'Skill'` here |
 | `disallowedTools` | No | Array of tool names to explicitly disallow for this agent |
 | `prompt` | Yes | The agent’s system prompt |
-| `model` | No | Model override for this agent. Accepts an alias such as `'sonnet'`, `'opus'`, `'haiku'`, `'inherit'`, or a full model ID. If omitted or `'inherit'`, uses the main model |
+| `model` | No | Model override for this agent. Accepts an alias such as `'fable'`, `'opus'`, `'sonnet'`, `'haiku'`, `'inherit'`, or a full model ID. If omitted or `'inherit'`, uses the main model |
 | `mcpServers` | No | MCP server specifications for this agent |
 | `skills` | No | Array of skill names to preload into the agent context |
 | `initialPrompt` | No | Auto-submitted as the first user turn when this agent runs as the main thread agent |
@@ -620,10 +622,10 @@ type AgentDefinition = {
 | `background` | No | Run this agent as a non-blocking background task when invoked |
 | `memory` | No | Memory source for this agent: `'user'`, `'project'`, or `'local'` |
 | `effort` | No | Reasoning effort level for this agent. Accepts a named level or an integer |
-| `permissionMode` | No | Permission mode for tool execution within this agent. See [`PermissionMode`](#permissionmode "#permissionmode") |
+| `permissionMode` | No | Permission mode for tool execution within this agent. See [`PermissionMode`](#permissionmode) |
 | `criticalSystemReminder_EXPERIMENTAL` | No | Experimental: Critical reminder added to the system prompt |
 
-### [​](#agentmcpserverspec "#agentmcpserverspec") `AgentMcpServerSpec`
+### [​](#agentmcpserverspec) `AgentMcpServerSpec`
 
 Specifies MCP servers available to a subagent. Can be a server name (string referencing a server from the parent’s `mcpServers` config) or an inline server configuration record mapping server names to configs.
 
@@ -633,7 +635,7 @@ type AgentMcpServerSpec = string | Record<string, McpServerConfigForProcessTrans
 
 Where `McpServerConfigForProcessTransport` is `McpStdioServerConfig | McpSSEServerConfig | McpHttpServerConfig | McpSdkServerConfig`.
 
-### [​](#settingsource "#settingsource") `SettingSource`
+### [​](#settingsource) `SettingSource`
 
 Controls which filesystem-based configuration sources the SDK loads settings from.
 
@@ -645,13 +647,13 @@ type SettingSource = "user" | "project" | "local";
 | --- | --- | --- |
 | `'user'` | Global user settings | `~/.claude/settings.json` |
 | `'project'` | Shared project settings (version controlled) | `.claude/settings.json` |
-| `'local'` | Local project settings (gitignored) | `.claude/settings.local.json` |
+| `'local'` | Local project settings (not version controlled) | `.claude/settings.local.json` |
 
-#### [​](#default-behavior "#default-behavior") Default behavior
+#### [​](#default-behavior) Default behavior
 
-When `settingSources` is omitted or `undefined`, `query()` loads the same filesystem settings as the Claude Code CLI: user, project, and local. Managed policy settings are loaded in all cases. See [What settingSources does not control](./agent-sdk_claude-code-features#what-settingsources-does-not-control "_agent-sdk_claude-code-features#what-settingsources-does-not-control".md) for inputs that are read regardless of this option, and how to disable them.
+When `settingSources` is omitted or `undefined`, `query()` loads the same filesystem settings as the Claude Code CLI: user, project, and local. Managed policy settings are loaded in all cases. See [What settingSources does not control](./agent-sdk_claude-code-features.md#what-settingsources-does-not-control) for inputs that are read regardless of this option, and how to disable them.
 
-#### [​](#why-use-settingsources "#why-use-settingsources") Why use settingSources
+#### [​](#why-use-settingsources) Why use settingSources
 
 **Disable filesystem settings:**
 
@@ -736,7 +738,7 @@ const result = query({
 });
 ```
 
-#### [​](#settings-precedence "#settings-precedence") Settings precedence
+#### [​](#settings-precedence) Settings precedence
 
 When multiple sources are loaded, settings are merged with this precedence (highest to lowest):
 
@@ -746,19 +748,19 @@ When multiple sources are loaded, settings are merged with this precedence (high
 
 Programmatic options such as `agents`, `allowedTools`, and `settings` override user, project, and local filesystem settings. Managed policy settings take precedence over programmatic options.
 
-### [​](#permissionmode "#permissionmode") `PermissionMode`
+### [​](#permissionmode) `PermissionMode`
 
 ```
 type PermissionMode =
   | "default" // Standard permission behavior
   | "acceptEdits" // Auto-accept file edits
-  | "bypassPermissions" // Bypass all permission checks
-  | "plan" // Planning mode - read-only tools only
+  | "bypassPermissions" // Bypass permission checks; explicit ask rules still prompt
+  | "plan" // Planning mode - explore without editing
   | "dontAsk" // Don't prompt for permissions, deny if not pre-approved
   | "auto"; // Use a model classifier to approve or deny each tool call
 ```
 
-### [​](#canusetool "#canusetool") `CanUseTool`
+### [​](#canusetool) `CanUseTool`
 
 Custom permission function type for controlling tool usage.
 
@@ -780,13 +782,13 @@ type CanUseTool = (
 | Option | Type | Description |
 | --- | --- | --- |
 | `signal` | `AbortSignal` | Signaled if the operation should be aborted |
-| `suggestions` | [`PermissionUpdate`](#permissionupdate "#permissionupdate")`[]` | Suggested permission updates so the user is not prompted again for this tool. Bash prompts include a suggestion with the `localSettings` [destination](#permissionupdatedestination "#permissionupdatedestination"), so returning it in `updatedPermissions` writes the rule to `.claude/settings.local.json` and persists across sessions. |
+| `suggestions` | [`PermissionUpdate`](#permissionupdate)`[]` | Suggested permission updates so the user is not prompted again for this tool. Bash prompts include a suggestion with the `localSettings` [destination](#permissionupdatedestination), so returning it in `updatedPermissions` writes the rule to `.claude/settings.local.json` and persists across sessions. |
 | `blockedPath` | `string` | The file path that triggered the permission request, if applicable |
 | `decisionReason` | `string` | Explains why this permission request was triggered |
 | `toolUseID` | `string` | Unique identifier for this specific tool call within the assistant message |
 | `agentID` | `string` | If running within a sub-agent, the sub-agent’s ID |
 
-### [​](#permissionresult "#permissionresult") `PermissionResult`
+### [​](#permissionresult) `PermissionResult`
 
 Result of a permission check.
 
@@ -806,7 +808,7 @@ type PermissionResult =
     };
 ```
 
-### [​](#toolconfig "#toolconfig") `ToolConfig`
+### [​](#toolconfig) `ToolConfig`
 
 Configuration for built-in tool behavior.
 
@@ -820,9 +822,9 @@ type ToolConfig = {
 
 | Field | Type | Description |
 | --- | --- | --- |
-| `askUserQuestion.previewFormat` | `'markdown' | 'html'` | Opts into the `preview` field on [`AskUserQuestion`](./agent-sdk_user-input#question-format "_agent-sdk_user-input#question-format".md) options and sets its content format. When unset, Claude does not emit previews |
+| `askUserQuestion.previewFormat` | `'markdown' | 'html'` | Opts into the `preview` field on [`AskUserQuestion`](./agent-sdk_user-input.md#question-format) options and sets its content format. When unset, Claude does not emit previews |
 
-### [​](#mcpserverconfig "#mcpserverconfig") `McpServerConfig`
+### [​](#mcpserverconfig) `McpServerConfig`
 
 Configuration for MCP servers.
 
@@ -834,7 +836,7 @@ type McpServerConfig =
   | McpSdkServerConfigWithInstance;
 ```
 
-#### [​](#mcpstdioserverconfig "#mcpstdioserverconfig") `McpStdioServerConfig`
+#### [​](#mcpstdioserverconfig) `McpStdioServerConfig`
 
 ```
 type McpStdioServerConfig = {
@@ -845,7 +847,7 @@ type McpStdioServerConfig = {
 };
 ```
 
-#### [​](#mcpsseserverconfig "#mcpsseserverconfig") `McpSSEServerConfig`
+#### [​](#mcpsseserverconfig) `McpSSEServerConfig`
 
 ```
 type McpSSEServerConfig = {
@@ -855,7 +857,7 @@ type McpSSEServerConfig = {
 };
 ```
 
-#### [​](#mcphttpserverconfig "#mcphttpserverconfig") `McpHttpServerConfig`
+#### [​](#mcphttpserverconfig) `McpHttpServerConfig`
 
 ```
 type McpHttpServerConfig = {
@@ -865,7 +867,7 @@ type McpHttpServerConfig = {
 };
 ```
 
-#### [​](#mcpsdkserverconfigwithinstance "#mcpsdkserverconfigwithinstance") `McpSdkServerConfigWithInstance`
+#### [​](#mcpsdkserverconfigwithinstance) `McpSdkServerConfigWithInstance`
 
 ```
 type McpSdkServerConfigWithInstance = {
@@ -875,7 +877,7 @@ type McpSdkServerConfigWithInstance = {
 };
 ```
 
-#### [​](#mcpclaudeaiproxyserverconfig "#mcpclaudeaiproxyserverconfig") `McpClaudeAIProxyServerConfig`
+#### [​](#mcpclaudeaiproxyserverconfig) `McpClaudeAIProxyServerConfig`
 
 ```
 type McpClaudeAIProxyServerConfig = {
@@ -885,7 +887,7 @@ type McpClaudeAIProxyServerConfig = {
 };
 ```
 
-### [​](#sdkpluginconfig "#sdkpluginconfig") `SdkPluginConfig`
+### [​](#sdkpluginconfig) `SdkPluginConfig`
 
 Configuration for loading plugins in the SDK.
 
@@ -893,6 +895,7 @@ Configuration for loading plugins in the SDK.
 type SdkPluginConfig = {
   type: "local";
   path: string;
+  skipMcpDiscovery?: boolean;
 };
 ```
 
@@ -900,6 +903,7 @@ type SdkPluginConfig = {
 | --- | --- | --- |
 | `type` | `'local'` | Must be `'local'` (only local plugins currently supported) |
 | `path` | `string` | Absolute or relative path to the plugin directory |
+| `skipMcpDiscovery` | `boolean` | When `true`, the SDK loads skills, hooks, agents, and commands from this plugin but does not read its `.mcp.json` or manifest `mcpServers`. Set this when your application owns the plugin’s MCP connections. |
 
 **Example:**
 
@@ -910,11 +914,11 @@ plugins: [
 ];
 ```
 
-For complete information on creating and using plugins, see [Plugins](./agent-sdk_plugins "_agent-sdk_plugins".md).
+For complete information on creating and using plugins, see [Plugins](./agent-sdk_plugins.md).
 
-## [​](#message-types "#message-types") Message Types
+## [​](#message-types) Message Types
 
-### [​](#sdkmessage "#sdkmessage") `SDKMessage`
+### [​](#sdkmessage) `SDKMessage`
 
 Union type of all possible messages returned by the query.
 
@@ -940,6 +944,7 @@ type SDKMessage =
   | SDKTaskProgressMessage
   | SDKTaskUpdatedMessage
   | SDKSessionStateChangedMessage
+  | SDKCommandsChangedMessage
   | SDKNotificationMessage
   | SDKFilesPersistedEvent
   | SDKToolUseSummaryMessage
@@ -952,7 +957,7 @@ type SDKMessage =
   | SDKMirrorErrorMessage;
 ```
 
-### [​](#sdkassistantmessage "#sdkassistantmessage") `SDKAssistantMessage`
+### [​](#sdkassistantmessage) `SDKAssistantMessage`
 
 Assistant response message.
 
@@ -967,10 +972,10 @@ type SDKAssistantMessage = {
 };
 ```
 
-The `message` field is a [`BetaMessage`](https://platform.claude.com/docs/en/api/messages/create "https://platform.claude.com/docs/en/api/messages/create") from the Anthropic SDK. It includes fields like `id`, `content`, `model`, `stop_reason`, and `usage`.
-`SDKAssistantMessageError` is one of: `'authentication_failed'`, `'oauth_org_not_allowed'`, `'billing_error'`, `'rate_limit'`, `'invalid_request'`, `'model_not_found'`, `'server_error'`, `'max_output_tokens'`, or `'unknown'`. `'model_not_found'` means the selected model doesn’t exist or isn’t available to your account or deployment.
+The `message` field is a [`BetaMessage`](https://platform.claude.com/docs/en/api/messages/create) from the Anthropic SDK. It includes fields like `id`, `content`, `model`, `stop_reason`, and `usage`.
+`SDKAssistantMessageError` is one of: `'authentication_failed'`, `'oauth_org_not_allowed'`, `'billing_error'`, `'rate_limit'`, `'overloaded'`, `'invalid_request'`, `'model_not_found'`, `'server_error'`, `'max_output_tokens'`, or `'unknown'`. `'model_not_found'` means the selected model doesn’t exist or isn’t available to your account or deployment. `'overloaded'` means the API returned a 529 because the server is at capacity, as opposed to `'rate_limit'`, which is a 429 against your quota.
 
-### [​](#sdkusermessage "#sdkusermessage") `SDKUserMessage`
+### [​](#sdkusermessage) `SDKUserMessage`
 
 User input message.
 
@@ -990,7 +995,7 @@ type SDKUserMessage = {
 
 Set `shouldQuery` to `false` to append the message to the transcript without triggering an assistant turn. The message is held and merged into the next user message that does trigger a turn. Use this to inject context, such as the output of a command you ran out of band, without spending a model call on it.
 
-### [​](#sdkusermessagereplay "#sdkusermessagereplay") `SDKUserMessageReplay`
+### [​](#sdkusermessagereplay) `SDKUserMessageReplay`
 
 Replayed user message with required UUID.
 
@@ -1008,7 +1013,7 @@ type SDKUserMessageReplay = {
 };
 ```
 
-### [​](#sdkresultmessage "#sdkresultmessage") `SDKResultMessage`
+### [​](#sdkresultmessage) `SDKResultMessage`
 
 Final result message.
 
@@ -1027,6 +1032,7 @@ type SDKResultMessage =
       result: string;
       stop_reason: string | null;
       ttft_ms?: number;
+      ttft_stream_ms?: number;
       total_cost_usd: number;
       usage: NonNullableUsage;
       modelUsage: { [modelName: string]: ModelUsage };
@@ -1065,14 +1071,15 @@ type SDKResultMessage =
 Several fields on the result carry diagnostic detail beyond `subtype`:
 
 * `api_error_status`: the HTTP status code of the API error that terminated the conversation. Absent or `null` when the turn ended without an API error.
-* `ttft_ms`: time to first token in milliseconds. Present on the success arm only.
+* `ttft_ms`: time to first token in milliseconds, measured when the first complete assistant message arrives. Present on the success arm only.
+* `ttft_stream_ms`: time in milliseconds until the first `message_start` stream event, when the response stream opens. Lower than `ttft_ms`; the gap between the two is time spent streaming the first message. Present on the success arm only.
 * `terminal_reason`: why the loop ended. One of `"completed"`, `"max_turns"`, `"tool_deferred"`, `"aborted_streaming"`, `"aborted_tools"`, `"hook_stopped"`, `"stop_hook_prevented"`, `"blocking_limit"`, `"rapid_refill_breaker"`, `"prompt_too_long"`, `"image_error"`, or `"model_error"`.
 * `fast_mode_state`: one of `"on"`, `"off"`, or `"cooldown"`.
 
-The `origin` field forwards the [`SDKMessageOrigin`](#sdkmessageorigin "#sdkmessageorigin") of the user message that triggered this result. When a background task finishes and the SDK injects a synthetic follow-up turn, the resulting `SDKResultMessage` carries `origin: { kind: "task-notification" }`. Check this field to distinguish results that answer your prompt from results emitted for background-task follow-ups, so you can route or suppress the latter. The field is absent for results emitted before any user turn, such as startup errors.
-When a `PreToolUse` hook returns `permissionDecision: "defer"`, the result has `stop_reason: "tool_deferred"` and `deferred_tool_use` carries the pending tool’s `id`, `name`, and `input`. Read this field to surface the request in your own UI, then resume with the same `session_id` to continue. See [Defer a tool call for later](./hooks#defer-a-tool-call-for-later "_hooks#defer-a-tool-call-for-later".md) for the full round trip.
+The `origin` field forwards the [`SDKMessageOrigin`](#sdkmessageorigin) of the user message that triggered this result. When a background task finishes and the SDK injects a synthetic follow-up turn, the resulting `SDKResultMessage` carries `origin: { kind: "task-notification" }`. Check this field to distinguish results that answer your prompt from results emitted for background-task follow-ups, so you can route or suppress the latter. The field is absent for results emitted before any user turn, such as startup errors.
+When a `PreToolUse` hook returns `permissionDecision: "defer"`, the result has `stop_reason: "tool_deferred"` and `deferred_tool_use` carries the pending tool’s `id`, `name`, and `input`. Read this field to surface the request in your own UI, then resume with the same `session_id` to continue. See [Defer a tool call for later](./hooks.md#defer-a-tool-call-for-later) for the full round trip.
 
-### [​](#sdksystemmessage "#sdksystemmessage") `SDKSystemMessage`
+### [​](#sdksystemmessage) `SDKSystemMessage`
 
 System initialization message.
 
@@ -1101,7 +1108,7 @@ type SDKSystemMessage = {
 };
 ```
 
-### [​](#sdkpartialassistantmessage "#sdkpartialassistantmessage") `SDKPartialAssistantMessage`
+### [​](#sdkpartialassistantmessage) `SDKPartialAssistantMessage`
 
 Streaming partial message (only when `includePartialMessages` is true).
 
@@ -1112,10 +1119,11 @@ type SDKPartialAssistantMessage = {
   parent_tool_use_id: string | null;
   uuid: UUID;
   session_id: string;
+  ttft_ms?: number; // Time to first token in ms, present only on message_start events
 };
 ```
 
-### [​](#sdkcompactboundarymessage "#sdkcompactboundarymessage") `SDKCompactBoundaryMessage`
+### [​](#sdkcompactboundarymessage) `SDKCompactBoundaryMessage`
 
 Message indicating a conversation compaction boundary.
 
@@ -1132,9 +1140,9 @@ type SDKCompactBoundaryMessage = {
 };
 ```
 
-### [​](#sdkplugininstallmessage "#sdkplugininstallmessage") `SDKPluginInstallMessage`
+### [​](#sdkplugininstallmessage) `SDKPluginInstallMessage`
 
-Plugin installation progress event. Emitted when [`CLAUDE_CODE_SYNC_PLUGIN_INSTALL`](./env-vars "_env-vars".md) is set, so your Agent SDK application can track marketplace plugin installation before the first turn. The `started` and `completed` statuses bracket the overall install. The `installed` and `failed` statuses report individual marketplaces and include `name`.
+Plugin installation progress event. Emitted when [`CLAUDE_CODE_SYNC_PLUGIN_INSTALL`](./env-vars.md) is set, so your Agent SDK application can track marketplace plugin installation before the first turn. The `started` and `completed` statuses bracket the overall install. The `installed` and `failed` statuses report individual marketplaces and include `name`.
 
 ```
 type SDKPluginInstallMessage = {
@@ -1148,9 +1156,9 @@ type SDKPluginInstallMessage = {
 };
 ```
 
-### [​](#sdkpermissiondeniedmessage "#sdkpermissiondeniedmessage") `SDKPermissionDeniedMessage`
+### [​](#sdkpermissiondeniedmessage) `SDKPermissionDeniedMessage`
 
-Stream event emitted when the permission system auto-denies a tool call without an interactive prompt. Use it to render the denial in your UI as it happens, rather than only observing the `is_error` tool result that follows. The interactive ask path reaches your application separately through the [`canUseTool`](#canusetool "#canusetool") callback. Denials issued by a `PreToolUse` hook are not reported through this event.
+Stream event emitted when the permission system auto-denies a tool call without an interactive prompt. Use it to render the denial in your UI as it happens, rather than only observing the `is_error` tool result that follows. The interactive ask path reaches your application separately through the [`canUseTool`](#canusetool) callback. Denials issued by a `PreToolUse` hook are not reported through this event.
 This event requires Claude Code v2.1.136 or later.
 
 ```
@@ -1177,7 +1185,7 @@ type SDKPermissionDeniedMessage = {
 | `decision_reason` | `string` | Human-readable reason from the deciding component, when available |
 | `message` | `string` | Rejection message returned to the model in the `tool_result` |
 
-### [​](#sdkpermissiondenial "#sdkpermissiondenial") `SDKPermissionDenial`
+### [​](#sdkpermissiondenial) `SDKPermissionDenial`
 
 Information about a denied tool use.
 
@@ -1189,9 +1197,9 @@ type SDKPermissionDenial = {
 };
 ```
 
-### [​](#sdkmessageorigin "#sdkmessageorigin") `SDKMessageOrigin`
+### [​](#sdkmessageorigin) `SDKMessageOrigin`
 
-Provenance of a user-role message. This appears as `origin` on [`SDKUserMessage`](#sdkusermessage "#sdkusermessage") and is forwarded onto the corresponding [`SDKResultMessage`](#sdkresultmessage "#sdkresultmessage") so you can tell what triggered a given turn.
+Provenance of a user-role message. This appears as `origin` on [`SDKUserMessage`](#sdkusermessage) and is forwarded onto the corresponding [`SDKResultMessage`](#sdkresultmessage) so you can tell what triggered a given turn.
 
 ```
 type SDKMessageOrigin =
@@ -1199,22 +1207,24 @@ type SDKMessageOrigin =
   | { kind: "channel"; server: string }
   | { kind: "peer"; from: string; name?: string }
   | { kind: "task-notification" }
-  | { kind: "coordinator" };
+  | { kind: "coordinator" }
+  | { kind: "auto-continuation" };
 ```
 
 | `kind` | Meaning |
 | --- | --- |
 | `human` | Direct input from the end user. On user messages, an absent `origin` also means human input. |
-| `channel` | Message arriving on a [channel](./channels "_channels".md). `server` is the source MCP server name. |
-| `peer` | Message from another agent session via `SendMessage`. `from` is the sender address; `name` is the sender’s display name when available. |
-| `task-notification` | Synthetic turn injected after a background task finished. See [`SDKTaskNotificationMessage`](#sdktasknotificationmessage "#sdktasknotificationmessage"). |
-| `coordinator` | Message from a team coordinator in an [agent team](./agent-teams "_agent-teams".md). |
+| `channel` | Message arriving on a [channel](./channels.md). `server` is the source MCP server name. |
+| `peer` | Reserved for messages from another agent session. `from` is the sender address and `name` is the sender’s display name when available. The Agent SDK does not emit this origin; treat as an unknown origin. |
+| `task-notification` | Synthetic turn injected after a background task finished. See [`SDKTaskNotificationMessage`](#sdktasknotificationmessage). |
+| `coordinator` | Message from a team coordinator in an [agent team](./agent-teams.md). |
+| `auto-continuation` | Synthetic turn injected when the session continues without fresh user input, such as a command result that triggers a follow-up prompt. |
 
-## [​](#hook-types "#hook-types") Hook Types
+## [​](#hook-types) Hook Types
 
-For a comprehensive guide on using hooks with examples and common patterns, see the [Hooks guide](./agent-sdk_hooks "_agent-sdk_hooks".md).
+For a comprehensive guide on using hooks with examples and common patterns, see the [Hooks guide](./agent-sdk_hooks.md).
 
-### [​](#hookevent "#hookevent") `HookEvent`
+### [​](#hookevent) `HookEvent`
 
 Available hook events.
 
@@ -1238,10 +1248,11 @@ type HookEvent =
   | "TaskCompleted"
   | "ConfigChange"
   | "WorktreeCreate"
-  | "WorktreeRemove";
+  | "WorktreeRemove"
+  | "MessageDisplay";
 ```
 
-### [​](#hookcallback "#hookcallback") `HookCallback`
+### [​](#hookcallback) `HookCallback`
 
 Hook callback function type.
 
@@ -1253,7 +1264,7 @@ type HookCallback = (
 ) => Promise<HookJSONOutput>;
 ```
 
-### [​](#hookcallbackmatcher "#hookcallbackmatcher") `HookCallbackMatcher`
+### [​](#hookcallbackmatcher) `HookCallbackMatcher`
 
 Hook configuration with optional matcher.
 
@@ -1265,7 +1276,7 @@ interface HookCallbackMatcher {
 }
 ```
 
-### [​](#hookinput "#hookinput") `HookInput`
+### [​](#hookinput) `HookInput`
 
 Union type of all hook input types.
 
@@ -1289,10 +1300,11 @@ type HookInput =
   | TaskCompletedHookInput
   | ConfigChangeHookInput
   | WorktreeCreateHookInput
-  | WorktreeRemoveHookInput;
+  | WorktreeRemoveHookInput
+  | MessageDisplayHookInput;
 ```
 
-### [​](#basehookinput "#basehookinput") `BaseHookInput`
+### [​](#basehookinput) `BaseHookInput`
 
 Base interface that all hook input types extend.
 
@@ -1308,7 +1320,7 @@ type BaseHookInput = {
 };
 ```
 
-#### [​](#pretoolusehookinput "#pretoolusehookinput") `PreToolUseHookInput`
+#### [​](#pretoolusehookinput) `PreToolUseHookInput`
 
 ```
 type PreToolUseHookInput = BaseHookInput & {
@@ -1319,7 +1331,7 @@ type PreToolUseHookInput = BaseHookInput & {
 };
 ```
 
-#### [​](#posttoolusehookinput "#posttoolusehookinput") `PostToolUseHookInput`
+#### [​](#posttoolusehookinput) `PostToolUseHookInput`
 
 ```
 type PostToolUseHookInput = BaseHookInput & {
@@ -1332,7 +1344,7 @@ type PostToolUseHookInput = BaseHookInput & {
 };
 ```
 
-#### [​](#posttoolusefailurehookinput "#posttoolusefailurehookinput") `PostToolUseFailureHookInput`
+#### [​](#posttoolusefailurehookinput) `PostToolUseFailureHookInput`
 
 ```
 type PostToolUseFailureHookInput = BaseHookInput & {
@@ -1346,7 +1358,7 @@ type PostToolUseFailureHookInput = BaseHookInput & {
 };
 ```
 
-#### [​](#posttoolbatchhookinput "#posttoolbatchhookinput") `PostToolBatchHookInput`
+#### [​](#posttoolbatchhookinput) `PostToolBatchHookInput`
 
 Fires once after every tool call in a batch has resolved, before the next model request. `tool_response` carries the serialized `tool_result` content the model sees; the shape differs from `PostToolUseHookInput`’s structured `Output` object.
 
@@ -1364,7 +1376,7 @@ type PostToolBatchToolCall = {
 };
 ```
 
-#### [​](#notificationhookinput "#notificationhookinput") `NotificationHookInput`
+#### [​](#notificationhookinput) `NotificationHookInput`
 
 ```
 type NotificationHookInput = BaseHookInput & {
@@ -1375,7 +1387,7 @@ type NotificationHookInput = BaseHookInput & {
 };
 ```
 
-#### [​](#userpromptsubmithookinput "#userpromptsubmithookinput") `UserPromptSubmitHookInput`
+#### [​](#userpromptsubmithookinput) `UserPromptSubmitHookInput`
 
 ```
 type UserPromptSubmitHookInput = BaseHookInput & {
@@ -1384,7 +1396,7 @@ type UserPromptSubmitHookInput = BaseHookInput & {
 };
 ```
 
-#### [​](#sessionstarthookinput "#sessionstarthookinput") `SessionStartHookInput`
+#### [​](#sessionstarthookinput) `SessionStartHookInput`
 
 ```
 type SessionStartHookInput = BaseHookInput & {
@@ -1395,7 +1407,7 @@ type SessionStartHookInput = BaseHookInput & {
 };
 ```
 
-#### [​](#sessionendhookinput "#sessionendhookinput") `SessionEndHookInput`
+#### [​](#sessionendhookinput) `SessionEndHookInput`
 
 ```
 type SessionEndHookInput = BaseHookInput & {
@@ -1404,7 +1416,7 @@ type SessionEndHookInput = BaseHookInput & {
 };
 ```
 
-#### [​](#stophookinput "#stophookinput") `StopHookInput`
+#### [​](#stophookinput) `StopHookInput`
 
 ```
 type StopHookInput = BaseHookInput & {
@@ -1416,7 +1428,7 @@ type StopHookInput = BaseHookInput & {
 };
 ```
 
-#### [​](#subagentstarthookinput "#subagentstarthookinput") `SubagentStartHookInput`
+#### [​](#subagentstarthookinput) `SubagentStartHookInput`
 
 ```
 type SubagentStartHookInput = BaseHookInput & {
@@ -1426,7 +1438,7 @@ type SubagentStartHookInput = BaseHookInput & {
 };
 ```
 
-#### [​](#subagentstophookinput "#subagentstophookinput") `SubagentStopHookInput`
+#### [​](#subagentstophookinput) `SubagentStopHookInput`
 
 ```
 type SubagentStopHookInput = BaseHookInput & {
@@ -1460,7 +1472,7 @@ type SessionCronSummary = {
 };
 ```
 
-#### [​](#precompacthookinput "#precompacthookinput") `PreCompactHookInput`
+#### [​](#precompacthookinput) `PreCompactHookInput`
 
 ```
 type PreCompactHookInput = BaseHookInput & {
@@ -1470,7 +1482,7 @@ type PreCompactHookInput = BaseHookInput & {
 };
 ```
 
-#### [​](#permissionrequesthookinput "#permissionrequesthookinput") `PermissionRequestHookInput`
+#### [​](#permissionrequesthookinput) `PermissionRequestHookInput`
 
 ```
 type PermissionRequestHookInput = BaseHookInput & {
@@ -1481,7 +1493,7 @@ type PermissionRequestHookInput = BaseHookInput & {
 };
 ```
 
-#### [​](#setuphookinput "#setuphookinput") `SetupHookInput`
+#### [​](#setuphookinput) `SetupHookInput`
 
 ```
 type SetupHookInput = BaseHookInput & {
@@ -1490,7 +1502,7 @@ type SetupHookInput = BaseHookInput & {
 };
 ```
 
-#### [​](#teammateidlehookinput "#teammateidlehookinput") `TeammateIdleHookInput`
+#### [​](#teammateidlehookinput) `TeammateIdleHookInput`
 
 ```
 type TeammateIdleHookInput = BaseHookInput & {
@@ -1500,7 +1512,7 @@ type TeammateIdleHookInput = BaseHookInput & {
 };
 ```
 
-#### [​](#taskcompletedhookinput "#taskcompletedhookinput") `TaskCompletedHookInput`
+#### [​](#taskcompletedhookinput) `TaskCompletedHookInput`
 
 ```
 type TaskCompletedHookInput = BaseHookInput & {
@@ -1513,7 +1525,7 @@ type TaskCompletedHookInput = BaseHookInput & {
 };
 ```
 
-#### [​](#configchangehookinput "#configchangehookinput") `ConfigChangeHookInput`
+#### [​](#configchangehookinput) `ConfigChangeHookInput`
 
 ```
 type ConfigChangeHookInput = BaseHookInput & {
@@ -1528,7 +1540,7 @@ type ConfigChangeHookInput = BaseHookInput & {
 };
 ```
 
-#### [​](#worktreecreatehookinput "#worktreecreatehookinput") `WorktreeCreateHookInput`
+#### [​](#worktreecreatehookinput) `WorktreeCreateHookInput`
 
 ```
 type WorktreeCreateHookInput = BaseHookInput & {
@@ -1537,7 +1549,7 @@ type WorktreeCreateHookInput = BaseHookInput & {
 };
 ```
 
-#### [​](#worktreeremovehookinput "#worktreeremovehookinput") `WorktreeRemoveHookInput`
+#### [​](#worktreeremovehookinput) `WorktreeRemoveHookInput`
 
 ```
 type WorktreeRemoveHookInput = BaseHookInput & {
@@ -1546,7 +1558,20 @@ type WorktreeRemoveHookInput = BaseHookInput & {
 };
 ```
 
-### [​](#hookjsonoutput "#hookjsonoutput") `HookJSONOutput`
+#### [​](#messagedisplayhookinput) `MessageDisplayHookInput`
+
+```
+type MessageDisplayHookInput = BaseHookInput & {
+  hook_event_name: "MessageDisplay";
+  turn_id: string;
+  message_id: string;
+  index: number;
+  final: boolean;
+  delta: string;
+};
+```
+
+### [​](#hookjsonoutput) `HookJSONOutput`
 
 Hook return value.
 
@@ -1554,7 +1579,7 @@ Hook return value.
 type HookJSONOutput = AsyncHookJSONOutput | SyncHookJSONOutput;
 ```
 
-#### [​](#asynchookjsonoutput "#asynchookjsonoutput") `AsyncHookJSONOutput`
+#### [​](#asynchookjsonoutput) `AsyncHookJSONOutput`
 
 ```
 type AsyncHookJSONOutput = {
@@ -1563,7 +1588,7 @@ type AsyncHookJSONOutput = {
 };
 ```
 
-#### [​](#synchookjsonoutput "#synchookjsonoutput") `SyncHookJSONOutput`
+#### [​](#synchookjsonoutput) `SyncHookJSONOutput`
 
 ```
 type SyncHookJSONOutput = {
@@ -1633,11 +1658,11 @@ type SyncHookJSONOutput = {
 };
 ```
 
-## [​](#tool-input-types "#tool-input-types") Tool Input Types
+## [​](#tool-input-types) Tool Input Types
 
 Documentation of input schemas for all built-in Claude Code tools. These types are exported from `@anthropic-ai/claude-agent-sdk` and can be used for type-safe tool interactions.
 
-### [​](#toolinputschemas "#toolinputschemas") `ToolInputSchemas`
+### [​](#toolinputschemas) `ToolInputSchemas`
 
 Union of all tool input types, exported from `@anthropic-ai/claude-agent-sdk`.
 
@@ -1670,10 +1695,11 @@ type ToolInputSchemas =
   | UnsubscribeMcpResourceInput
   | UnsubscribePollingInput
   | WebFetchInput
-  | WebSearchInput;
+  | WebSearchInput
+  | WorkflowInput;
 ```
 
-### [​](#agent "#agent") Agent
+### [​](#agent) Agent
 
 **Tool name:** `Agent` (previously `Task`, which is still accepted as an alias)
 
@@ -1682,7 +1708,7 @@ type AgentInput = {
   description: string;
   prompt: string;
   subagent_type: string;
-  model?: "sonnet" | "opus" | "haiku";
+  model?: "sonnet" | "opus" | "haiku" | "fable";
   resume?: string;
   run_in_background?: boolean;
   max_turns?: number;
@@ -1695,7 +1721,7 @@ type AgentInput = {
 
 Launches a new agent to handle complex, multi-step tasks autonomously.
 
-### [​](#askuserquestion "#askuserquestion") AskUserQuestion
+### [​](#askuserquestion) AskUserQuestion
 
 **Tool name:** `AskUserQuestion`
 
@@ -1710,9 +1736,9 @@ type AskUserQuestionInput = {
 };
 ```
 
-Asks the user clarifying questions during execution. See [Handle approvals and user input](./agent-sdk_user-input#handle-clarifying-questions "_agent-sdk_user-input#handle-clarifying-questions".md) for usage details.
+Asks the user clarifying questions during execution. See [Handle approvals and user input](./agent-sdk_user-input.md#handle-clarifying-questions) for usage details.
 
-### [​](#bash "#bash") Bash
+### [​](#bash) Bash
 
 **Tool name:** `Bash`
 
@@ -1728,7 +1754,7 @@ type BashInput = {
 
 Executes bash commands in a persistent shell session with optional timeout and background execution.
 
-### [​](#monitor "#monitor") Monitor
+### [​](#monitor) Monitor
 
 **Tool name:** `Monitor`
 
@@ -1741,9 +1767,9 @@ type MonitorInput = {
 };
 ```
 
-Runs a background script and delivers each stdout line to Claude as an event so it can react without polling. Set `persistent: true` for session-length watches such as log tails. Monitor follows the same permission rules as Bash. See the [Monitor tool reference](./tools-reference#monitor-tool "_tools-reference#monitor-tool".md) for behavior and provider availability.
+Runs a background script and delivers each stdout line to Claude as an event so it can react without polling. Set `persistent: true` for session-length watches such as log tails. Monitor follows the same permission rules as Bash. See the [Monitor tool reference](./tools-reference.md#monitor-tool) for behavior and provider availability.
 
-### [​](#taskoutput "#taskoutput") TaskOutput
+### [​](#taskoutput) TaskOutput
 
 **Tool name:** `TaskOutput`
 
@@ -1757,7 +1783,7 @@ type TaskOutputInput = {
 
 Retrieves output from a running or completed background task.
 
-### [​](#edit "#edit") Edit
+### [​](#edit) Edit
 
 **Tool name:** `Edit`
 
@@ -1772,7 +1798,7 @@ type FileEditInput = {
 
 Performs exact string replacements in files.
 
-### [​](#read "#read") Read
+### [​](#read) Read
 
 **Tool name:** `Read`
 
@@ -1787,7 +1813,7 @@ type FileReadInput = {
 
 Reads files from the local filesystem, including text, images, PDFs, and Jupyter notebooks. Use `pages` for PDF page ranges (for example, `"1-5"`).
 
-### [​](#write "#write") Write
+### [​](#write) Write
 
 **Tool name:** `Write`
 
@@ -1800,7 +1826,7 @@ type FileWriteInput = {
 
 Writes a file to the local filesystem, overwriting if it exists.
 
-### [​](#glob "#glob") Glob
+### [​](#glob) Glob
 
 **Tool name:** `Glob`
 
@@ -1813,7 +1839,7 @@ type GlobInput = {
 
 Fast file pattern matching that works with any codebase size.
 
-### [​](#grep "#grep") Grep
+### [​](#grep) Grep
 
 **Tool name:** `Grep`
 
@@ -1838,7 +1864,7 @@ type GrepInput = {
 
 Powerful search tool built on ripgrep with regex support.
 
-### [​](#taskstop "#taskstop") TaskStop
+### [​](#taskstop) TaskStop
 
 **Tool name:** `TaskStop`
 
@@ -1851,7 +1877,7 @@ type TaskStopInput = {
 
 Stops a running background task or shell by ID.
 
-### [​](#notebookedit "#notebookedit") NotebookEdit
+### [​](#notebookedit) NotebookEdit
 
 **Tool name:** `NotebookEdit`
 
@@ -1867,7 +1893,7 @@ type NotebookEditInput = {
 
 Edits cells in Jupyter notebook files.
 
-### [​](#webfetch "#webfetch") WebFetch
+### [​](#webfetch) WebFetch
 
 **Tool name:** `WebFetch`
 
@@ -1880,7 +1906,7 @@ type WebFetchInput = {
 
 Fetches content from a URL and processes it with an AI model.
 
-### [​](#websearch "#websearch") WebSearch
+### [​](#websearch) WebSearch
 
 **Tool name:** `WebSearch`
 
@@ -1894,7 +1920,31 @@ type WebSearchInput = {
 
 Searches the web and returns formatted results.
 
-### [​](#todowrite "#todowrite") TodoWrite
+### [​](#workflow) Workflow
+
+**Tool name:** `Workflow`
+
+```
+type WorkflowInput = {
+  script?: string;
+  name?: string;
+  scriptPath?: string;
+  args?: unknown;
+  resumeFromRunId?: string;
+};
+```
+
+Runs a [dynamic workflow](./workflows.md): a script that orchestrates many subagents in the background and returns one consolidated result. The `Workflow` tool is available in Agent SDK v0.3.149 and later. At least one of `script`, `name`, or `scriptPath` is required.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `script` | `string` | Inline workflow script. Must begin with `export const meta = { name, description, phases }` as a literal, followed by the script body using `agent()`, `parallel()`, `pipeline()`, and `phase()` |
+| `name` | `string` | Name of a built-in workflow or one saved in `.claude/workflows/`. Resolved to a script |
+| `scriptPath` | `string` | Path to a workflow script file on disk. Takes precedence over `script` and `name`. Every invocation persists its script and returns the path in the result, so you can edit that file and re-invoke with the same `scriptPath` to iterate |
+| `args` | `unknown` | Input value exposed to the script as the global `args`, for parameterized named workflows such as a research question or a list of file paths. Pass arrays and objects as actual JSON values, not as a JSON-encoded string |
+| `resumeFromRunId` | `string` | Run ID of a prior `Workflow` invocation to resume. Completed `agent()` calls with unchanged inputs return cached results; only changed or new calls run live. Same session only |
+
+### [​](#todowrite) TodoWrite
 
 **Tool name:** `TodoWrite`
 
@@ -1910,9 +1960,9 @@ type TodoWriteInput = {
 
 Creates and manages a structured task list for tracking progress.
 
-As of TypeScript Agent SDK 0.3.142, `TodoWrite` is disabled by default. Use `TaskCreate`, `TaskGet`, `TaskUpdate`, and `TaskList` instead. See [Migrate to Task tools](./agent-sdk_todo-tracking#migrate-to-task-tools "_agent-sdk_todo-tracking#migrate-to-task-tools".md) to update your monitoring code, or set `CLAUDE_CODE_ENABLE_TASKS=0` to revert to `TodoWrite`.
+As of TypeScript Agent SDK 0.3.142, `TodoWrite` is disabled by default. Use `TaskCreate`, `TaskGet`, `TaskUpdate`, and `TaskList` instead. See [Migrate to Task tools](./agent-sdk_todo-tracking.md#migrate-to-task-tools) to update your monitoring code, or set `CLAUDE_CODE_ENABLE_TASKS=0` to revert to `TodoWrite`.
 
-### [​](#taskcreate "#taskcreate") TaskCreate
+### [​](#taskcreate) TaskCreate
 
 **Tool name:** `TaskCreate`
 
@@ -1927,7 +1977,7 @@ type TaskCreateInput = {
 
 Creates a single task and returns its assigned ID.
 
-### [​](#taskupdate "#taskupdate") TaskUpdate
+### [​](#taskupdate) TaskUpdate
 
 **Tool name:** `TaskUpdate`
 
@@ -1947,7 +1997,7 @@ type TaskUpdateInput = {
 
 Patches one task by ID. Set `status` to `"deleted"` to remove it.
 
-### [​](#taskget "#taskget") TaskGet
+### [​](#taskget) TaskGet
 
 **Tool name:** `TaskGet`
 
@@ -1959,7 +2009,7 @@ type TaskGetInput = {
 
 Returns full details for one task, or `null` when the ID is not found.
 
-### [​](#tasklist "#tasklist") TaskList
+### [​](#tasklist) TaskList
 
 **Tool name:** `TaskList`
 
@@ -1969,7 +2019,7 @@ type TaskListInput = {};
 
 Returns a snapshot of all tasks in the current list.
 
-### [​](#exitplanmode "#exitplanmode") ExitPlanMode
+### [​](#exitplanmode) ExitPlanMode
 
 **Tool name:** `ExitPlanMode`
 
@@ -1984,9 +2034,9 @@ type ExitPlanModeInput = {
 
 Exits planning mode. Optionally specifies prompt-based permissions needed to implement the plan.
 
-### [​](#listmcpresources "#listmcpresources") ListMcpResources
+### [​](#listmcpresources) ListMcpResources
 
-**Tool name:** `ListMcpResources`
+**Tool name:** `ListMcpResourcesTool`
 
 ```
 type ListMcpResourcesInput = {
@@ -1996,9 +2046,9 @@ type ListMcpResourcesInput = {
 
 Lists available MCP resources from connected servers.
 
-### [​](#readmcpresource "#readmcpresource") ReadMcpResource
+### [​](#readmcpresource) ReadMcpResource
 
-**Tool name:** `ReadMcpResource`
+**Tool name:** `ReadMcpResourceTool`
 
 ```
 type ReadMcpResourceInput = {
@@ -2009,7 +2059,7 @@ type ReadMcpResourceInput = {
 
 Reads a specific MCP resource from a server.
 
-### [​](#enterworktree "#enterworktree") EnterWorktree
+### [​](#enterworktree) EnterWorktree
 
 **Tool name:** `EnterWorktree`
 
@@ -2022,11 +2072,11 @@ type EnterWorktreeInput = {
 
 Creates and enters a temporary git worktree for isolated work. Pass `path` to switch into an existing worktree of the current repository instead of creating a new one. `name` and `path` are mutually exclusive.
 
-## [​](#tool-output-types "#tool-output-types") Tool Output Types
+## [​](#tool-output-types) Tool Output Types
 
 Documentation of output schemas for all built-in Claude Code tools. These types are exported from `@anthropic-ai/claude-agent-sdk` and represent the actual response data returned by each tool.
 
-### [​](#tooloutputschemas "#tooloutputschemas") `ToolOutputSchemas`
+### [​](#tooloutputschemas) `ToolOutputSchemas`
 
 Union of all tool output types.
 
@@ -2053,10 +2103,11 @@ type ToolOutputSchemas =
   | TaskUpdateOutput
   | TodoWriteOutput
   | WebFetchOutput
-  | WebSearchOutput;
+  | WebSearchOutput
+  | WorkflowOutput;
 ```
 
-### [​](#agent-2 "#agent-2") Agent
+### [​](#agent-2) Agent
 
 **Tool name:** `Agent` (previously `Task`, which is still accepted as an alias)
 
@@ -2066,6 +2117,7 @@ type AgentOutput =
       status: "completed";
       agentId: string;
       content: Array<{ type: "text"; text: string }>;
+      resolvedModel?: string;
       totalToolUseCount: number;
       totalDurationMs: number;
       totalTokens: number;
@@ -2090,6 +2142,7 @@ type AgentOutput =
       status: "async_launched";
       agentId: string;
       description: string;
+      resolvedModel?: string;
       prompt: string;
       outputFile: string;
       canReadOutputFile?: boolean;
@@ -2102,8 +2155,9 @@ type AgentOutput =
 ```
 
 Returns the result from the subagent. Discriminated on the `status` field: `"completed"` for finished tasks, `"async_launched"` for background tasks, and `"sub_agent_entered"` for interactive subagents.
+The `resolvedModel` field on the `completed` and `async_launched` variants names the model the subagent actually ran on, which can differ from the requested `model` input when [`availableModels`](./model-config.md#restrict-model-selection) or another override applies. This field requires Claude Code v2.1.174 or later.
 
-### [​](#askuserquestion-2 "#askuserquestion-2") AskUserQuestion
+### [​](#askuserquestion-2) AskUserQuestion
 
 **Tool name:** `AskUserQuestion`
 
@@ -2116,12 +2170,13 @@ type AskUserQuestionOutput = {
     multiSelect: boolean;
   }>;
   answers: Record<string, string>;
+  response?: string;
 };
 ```
 
-Returns the questions asked and the user’s answers.
+Returns the questions asked and the user’s answers. `response` is set when the user typed a freeform reply instead of answering the structured questions; when present, Claude receives “The user responded: …” instead of the per-question answer list.
 
-### [​](#bash-2 "#bash-2") Bash
+### [​](#bash-2) Bash
 
 **Tool name:** `Bash`
 
@@ -2144,7 +2199,7 @@ type BashOutput = {
 
 Returns command output with stdout/stderr split. Background commands include a `backgroundTaskId`.
 
-### [​](#monitor-2 "#monitor-2") Monitor
+### [​](#monitor-2) Monitor
 
 **Tool name:** `Monitor`
 
@@ -2158,7 +2213,7 @@ type MonitorOutput = {
 
 Returns the background task ID for the running monitor. Use this ID with `TaskStop` to cancel the watch early.
 
-### [​](#edit-2 "#edit-2") Edit
+### [​](#edit-2) Edit
 
 **Tool name:** `Edit`
 
@@ -2190,7 +2245,7 @@ type FileEditOutput = {
 
 Returns the structured diff of the edit operation.
 
-### [​](#read-2 "#read-2") Read
+### [​](#read-2) Read
 
 **Tool name:** `Read`
 
@@ -2248,7 +2303,7 @@ type FileReadOutput =
 
 Returns file contents in a format appropriate to the file type. Discriminated on the `type` field.
 
-### [​](#write-2 "#write-2") Write
+### [​](#write-2) Write
 
 **Tool name:** `Write`
 
@@ -2278,7 +2333,7 @@ type FileWriteOutput = {
 
 Returns the write result with structured diff information.
 
-### [​](#glob-2 "#glob-2") Glob
+### [​](#glob-2) Glob
 
 **Tool name:** `Glob`
 
@@ -2293,7 +2348,7 @@ type GlobOutput = {
 
 Returns file paths matching the glob pattern, sorted by modification time.
 
-### [​](#grep-2 "#grep-2") Grep
+### [​](#grep-2) Grep
 
 **Tool name:** `Grep`
 
@@ -2312,7 +2367,7 @@ type GrepOutput = {
 
 Returns search results. The shape varies by `mode`: file list, content with matches, or match counts.
 
-### [​](#taskstop-2 "#taskstop-2") TaskStop
+### [​](#taskstop-2) TaskStop
 
 **Tool name:** `TaskStop`
 
@@ -2327,7 +2382,7 @@ type TaskStopOutput = {
 
 Returns confirmation after stopping the background task.
 
-### [​](#notebookedit-2 "#notebookedit-2") NotebookEdit
+### [​](#notebookedit-2) NotebookEdit
 
 **Tool name:** `NotebookEdit`
 
@@ -2347,7 +2402,7 @@ type NotebookEditOutput = {
 
 Returns the result of the notebook edit with original and updated file contents.
 
-### [​](#webfetch-2 "#webfetch-2") WebFetch
+### [​](#webfetch-2) WebFetch
 
 **Tool name:** `WebFetch`
 
@@ -2364,7 +2419,7 @@ type WebFetchOutput = {
 
 Returns the fetched content with HTTP status and metadata.
 
-### [​](#websearch-2 "#websearch-2") WebSearch
+### [​](#websearch-2) WebSearch
 
 **Tool name:** `WebSearch`
 
@@ -2384,7 +2439,35 @@ type WebSearchOutput = {
 
 Returns search results from the web.
 
-### [​](#todowrite-2 "#todowrite-2") TodoWrite
+### [​](#workflow-2) Workflow
+
+**Tool name:** `Workflow`
+
+```
+type WorkflowOutput = {
+  status: "async_launched";
+  taskId: string;
+  runId?: string;
+  summary?: string;
+  transcriptDir?: string;
+  scriptPath?: string;
+  error?: string;
+};
+```
+
+Returns immediately after the tool accepts the invocation. The final result arrives later as a task completion. Check `error` before treating the run as started: a script that fails its syntax check returns `status: "async_launched"` with `error` set, and never runs.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `status` | `"async_launched"` | The tool accepted the invocation. This is the only value the field takes |
+| `taskId` | `string` | Background task identifier for the run |
+| `runId` | `string` | Workflow run identifier to pass as `resumeFromRunId` on a later invocation |
+| `summary` | `string` | One-line description of what the workflow does |
+| `transcriptDir` | `string` | Directory where subagent transcripts are written during execution |
+| `scriptPath` | `string` | Path to the persisted workflow script for this run. Edit it and pass back as `scriptPath` to rerun without resending the script |
+| `error` | `string` | Set when the script fails its syntax check. When present, the run did not start despite the `async_launched` status |
+
+### [​](#todowrite-2) TodoWrite
 
 **Tool name:** `TodoWrite`
 
@@ -2405,9 +2488,9 @@ type TodoWriteOutput = {
 
 Returns the previous and updated task lists.
 
-As of TypeScript Agent SDK 0.3.142, `TodoWrite` is disabled by default. Use `TaskCreate`, `TaskGet`, `TaskUpdate`, and `TaskList` instead. See [Migrate to Task tools](./agent-sdk_todo-tracking#migrate-to-task-tools "_agent-sdk_todo-tracking#migrate-to-task-tools".md) to update your monitoring code, or set `CLAUDE_CODE_ENABLE_TASKS=0` to revert to `TodoWrite`.
+As of TypeScript Agent SDK 0.3.142, `TodoWrite` is disabled by default. Use `TaskCreate`, `TaskGet`, `TaskUpdate`, and `TaskList` instead. See [Migrate to Task tools](./agent-sdk_todo-tracking.md#migrate-to-task-tools) to update your monitoring code, or set `CLAUDE_CODE_ENABLE_TASKS=0` to revert to `TodoWrite`.
 
-### [​](#taskcreate-2 "#taskcreate-2") TaskCreate
+### [​](#taskcreate-2) TaskCreate
 
 **Tool name:** `TaskCreate`
 
@@ -2422,7 +2505,7 @@ type TaskCreateOutput = {
 
 Returns the created task with its assigned ID.
 
-### [​](#taskupdate-2 "#taskupdate-2") TaskUpdate
+### [​](#taskupdate-2) TaskUpdate
 
 **Tool name:** `TaskUpdate`
 
@@ -2441,7 +2524,7 @@ type TaskUpdateOutput = {
 
 Returns the update result, including which fields changed.
 
-### [​](#taskget-2 "#taskget-2") TaskGet
+### [​](#taskget-2) TaskGet
 
 **Tool name:** `TaskGet`
 
@@ -2460,7 +2543,7 @@ type TaskGetOutput = {
 
 Returns the full task record, or `null` when the ID is not found.
 
-### [​](#tasklist-2 "#tasklist-2") TaskList
+### [​](#tasklist-2) TaskList
 
 **Tool name:** `TaskList`
 
@@ -2478,7 +2561,7 @@ type TaskListOutput = {
 
 Returns a snapshot of all tasks in the current list.
 
-### [​](#exitplanmode-2 "#exitplanmode-2") ExitPlanMode
+### [​](#exitplanmode-2) ExitPlanMode
 
 **Tool name:** `ExitPlanMode`
 
@@ -2495,9 +2578,9 @@ type ExitPlanModeOutput = {
 
 Returns the plan state after exiting plan mode.
 
-### [​](#listmcpresources-2 "#listmcpresources-2") ListMcpResources
+### [​](#listmcpresources-2) ListMcpResources
 
-**Tool name:** `ListMcpResources`
+**Tool name:** `ListMcpResourcesTool`
 
 ```
 type ListMcpResourcesOutput = Array<{
@@ -2511,9 +2594,9 @@ type ListMcpResourcesOutput = Array<{
 
 Returns an array of available MCP resources.
 
-### [​](#readmcpresource-2 "#readmcpresource-2") ReadMcpResource
+### [​](#readmcpresource-2) ReadMcpResource
 
-**Tool name:** `ReadMcpResource`
+**Tool name:** `ReadMcpResourceTool`
 
 ```
 type ReadMcpResourceOutput = {
@@ -2527,7 +2610,7 @@ type ReadMcpResourceOutput = {
 
 Returns the contents of the requested MCP resource.
 
-### [​](#enterworktree-2 "#enterworktree-2") EnterWorktree
+### [​](#enterworktree-2) EnterWorktree
 
 **Tool name:** `EnterWorktree`
 
@@ -2541,9 +2624,9 @@ type EnterWorktreeOutput = {
 
 Returns information about the git worktree.
 
-## [​](#permission-types "#permission-types") Permission Types
+## [​](#permission-types) Permission Types
 
-### [​](#permissionupdate "#permissionupdate") `PermissionUpdate`
+### [​](#permissionupdate) `PermissionUpdate`
 
 Operations for updating permissions.
 
@@ -2584,24 +2667,24 @@ type PermissionUpdate =
     };
 ```
 
-### [​](#permissionbehavior "#permissionbehavior") `PermissionBehavior`
+### [​](#permissionbehavior) `PermissionBehavior`
 
 ```
 type PermissionBehavior = "allow" | "deny" | "ask";
 ```
 
-### [​](#permissionupdatedestination "#permissionupdatedestination") `PermissionUpdateDestination`
+### [​](#permissionupdatedestination) `PermissionUpdateDestination`
 
 ```
 type PermissionUpdateDestination =
   | "userSettings" // Global user settings
   | "projectSettings" // Per-directory project settings
-  | "localSettings" // Gitignored local settings
+  | "localSettings" // Local project settings
   | "session" // Current session only
   | "cliArg"; // CLI argument
 ```
 
-### [​](#permissionrulevalue "#permissionrulevalue") `PermissionRuleValue`
+### [​](#permissionrulevalue) `PermissionRuleValue`
 
 ```
 type PermissionRuleValue = {
@@ -2610,25 +2693,25 @@ type PermissionRuleValue = {
 };
 ```
 
-## [​](#other-types "#other-types") Other Types
+## [​](#other-types) Other Types
 
-### [​](#apikeysource "#apikeysource") `ApiKeySource`
+### [​](#apikeysource) `ApiKeySource`
 
 ```
 type ApiKeySource = "user" | "project" | "org" | "temporary" | "oauth";
 ```
 
-### [​](#sdkbeta "#sdkbeta") `SdkBeta`
+### [​](#sdkbeta) `SdkBeta`
 
-Available beta features that can be enabled via the `betas` option. See [Beta headers](https://platform.claude.com/docs/en/api/beta-headers "https://platform.claude.com/docs/en/api/beta-headers") for more information.
+Available beta features that can be enabled via the `betas` option. See [Beta headers](https://platform.claude.com/docs/en/api/beta-headers) for more information.
 
 ```
 type SdkBeta = "context-1m-2025-08-07";
 ```
 
-The `context-1m-2025-08-07` beta is retired as of April 30, 2026. Passing this value with Claude Sonnet 4.5 or Sonnet 4 has no effect, and requests that exceed the standard 200k-token context window return an error. To use a 1M-token context window, migrate to [Claude Sonnet 4.6, Claude Opus 4.6, or Claude Opus 4.7](https://platform.claude.com/docs/en/about-claude/models/overview "https://platform.claude.com/docs/en/about-claude/models/overview"), which include 1M context at standard pricing with no beta header required.
+The `context-1m-2025-08-07` beta is retired as of April 30, 2026. Passing this value with Claude Sonnet 4.5 or Sonnet 4 has no effect, and requests that exceed the standard 200k-token context window return an error. To use a 1M-token context window, migrate to [Claude Sonnet 4.6, Claude Opus 4.6, Claude Opus 4.7, or Claude Opus 4.8](https://platform.claude.com/docs/en/about-claude/models/overview), which include 1M context at standard pricing with no beta header required.
 
-### [​](#slashcommand "#slashcommand") `SlashCommand`
+### [​](#slashcommand) `SlashCommand`
 
 Information about an available slash command.
 
@@ -2641,7 +2724,7 @@ type SlashCommand = {
 };
 ```
 
-### [​](#modelinfo "#modelinfo") `ModelInfo`
+### [​](#modelinfo) `ModelInfo`
 
 Information about an available model.
 
@@ -2657,7 +2740,7 @@ type ModelInfo = {
 };
 ```
 
-### [​](#agentinfo "#agentinfo") `AgentInfo`
+### [​](#agentinfo) `AgentInfo`
 
 Information about an available subagent that can be invoked via the Agent tool.
 
@@ -2675,7 +2758,7 @@ type AgentInfo = {
 | `description` | `string` | Description of when to use this agent |
 | `model` | `string | undefined` | Model alias this agent uses. If omitted, inherits the parent’s model |
 
-### [​](#mcpserverstatus "#mcpserverstatus") `McpServerStatus`
+### [​](#mcpserverstatus) `McpServerStatus`
 
 Status of a connected MCP server.
 
@@ -2702,7 +2785,7 @@ type McpServerStatus = {
 };
 ```
 
-### [​](#mcpserverstatusconfig "#mcpserverstatusconfig") `McpServerStatusConfig`
+### [​](#mcpserverstatusconfig) `McpServerStatusConfig`
 
 The configuration of an MCP server as reported by `mcpServerStatus()`. This is the union of all MCP server transport types.
 
@@ -2715,9 +2798,9 @@ type McpServerStatusConfig =
   | McpClaudeAIProxyServerConfig;
 ```
 
-See [`McpServerConfig`](#mcpserverconfig "#mcpserverconfig") for details on each transport type.
+See [`McpServerConfig`](#mcpserverconfig) for details on each transport type.
 
-### [​](#accountinfo "#accountinfo") `AccountInfo`
+### [​](#accountinfo) `AccountInfo`
 
 Account information for the authenticated user.
 
@@ -2731,9 +2814,9 @@ type AccountInfo = {
 };
 ```
 
-### [​](#modelusage "#modelusage") `ModelUsage`
+### [​](#modelusage) `ModelUsage`
 
-Per-model usage statistics returned in result messages. The `costUSD` value is a client-side estimate. See [Track cost and usage](./agent-sdk_cost-tracking "_agent-sdk_cost-tracking".md) for billing caveats.
+Per-model usage statistics returned in result messages. The `costUSD` value is a client-side estimate. See [Track cost and usage](./agent-sdk_cost-tracking.md) for billing caveats.
 
 ```
 type ModelUsage = {
@@ -2748,15 +2831,15 @@ type ModelUsage = {
 };
 ```
 
-### [​](#configscope "#configscope") `ConfigScope`
+### [​](#configscope) `ConfigScope`
 
 ```
 type ConfigScope = "local" | "user" | "project";
 ```
 
-### [​](#nonnullableusage "#nonnullableusage") `NonNullableUsage`
+### [​](#nonnullableusage) `NonNullableUsage`
 
-A version of [`Usage`](#usage "#usage") with all nullable fields made non-nullable.
+A version of [`Usage`](#usage) with all nullable fields made non-nullable.
 
 ```
 type NonNullableUsage = {
@@ -2764,7 +2847,7 @@ type NonNullableUsage = {
 };
 ```
 
-### [​](#usage "#usage") `Usage`
+### [​](#usage) `Usage`
 
 Token usage statistics. This is the `BetaUsage` type from `@anthropic-ai/sdk`.
 
@@ -2788,14 +2871,14 @@ type Usage = {
 
 `BetaServerToolUsage` and `BetaIterationsUsage` are defined in `@anthropic-ai/sdk`.
 
-### [​](#calltoolresult "#calltoolresult") `CallToolResult`
+### [​](#calltoolresult) `CallToolResult`
 
-MCP tool result type (from `@modelcontextprotocol/sdk/types.js`). `structuredContent` is a JSON object that can be returned alongside `content`, including image blocks. See [Return structured data](./agent-sdk_custom-tools#return-structured-data "_agent-sdk_custom-tools#return-structured-data".md).
+MCP tool result type (from `@modelcontextprotocol/sdk/types.js`). `structuredContent` is a JSON object that can be returned alongside `content`, including image blocks. See [Return structured data](./agent-sdk_custom-tools.md#return-structured-data).
 
 ```
 type CallToolResult = {
   content: Array<{
-    type: "text" | "image" | "resource";
+    type: "text" | "image" | "audio" | "resource" | "resource_link";
     // Additional fields vary by type
   }>;
   structuredContent?: Record<string, unknown>;
@@ -2803,7 +2886,7 @@ type CallToolResult = {
 };
 ```
 
-### [​](#thinkingconfig "#thinkingconfig") `ThinkingConfig`
+### [​](#thinkingconfig) `ThinkingConfig`
 
 Controls Claude’s thinking/reasoning behavior. Takes precedence over the deprecated `maxThinkingTokens`.
 
@@ -2818,7 +2901,7 @@ type ThinkingConfig =
 
 The optional `display` field controls whether thinking text is returned `"summarized"` or `"omitted"`. On Claude Opus 4.7 and later, the API default is `"omitted"`, so set `"summarized"` to receive thinking content in `thinking` blocks.
 
-### [​](#spawnedprocess "#spawnedprocess") `SpawnedProcess`
+### [​](#spawnedprocess) `SpawnedProcess`
 
 Interface for custom process spawning (used with `spawnClaudeCodeProcess` option). `ChildProcess` already satisfies this interface.
 
@@ -2847,7 +2930,7 @@ interface SpawnedProcess {
 }
 ```
 
-### [​](#spawnoptions "#spawnoptions") `SpawnOptions`
+### [​](#spawnoptions) `SpawnOptions`
 
 Options passed to the custom spawn function.
 
@@ -2861,9 +2944,9 @@ interface SpawnOptions {
 }
 ```
 
-The `signal` field tells your spawn function when to tear down the process. Pass it as the `signal` option to Node’s `spawn()`, or pass it to your VM or container teardown handler.This signal does not fire the instant [`Options.abortController`](#options "#options") aborts. The SDK first closes the process’s stdin and waits about two seconds so the CLI can shut down cleanly, then aborts this signal. To react the moment the caller aborts instead, listen on your own `Options.abortController.signal`, which your spawn function can reference from its enclosing scope.
+The `signal` field tells your spawn function when to tear down the process. Pass it as the `signal` option to Node’s `spawn()`, or pass it to your VM or container teardown handler.This signal does not fire the instant [`Options.abortController`](#options) aborts. The SDK first closes the process’s stdin and waits about two seconds so the CLI can shut down cleanly, then aborts this signal. To react the moment the caller aborts instead, listen on your own `Options.abortController.signal`, which your spawn function can reference from its enclosing scope.
 
-### [​](#mcpsetserversresult "#mcpsetserversresult") `McpSetServersResult`
+### [​](#mcpsetserversresult) `McpSetServersResult`
 
 Result of a `setMcpServers()` operation.
 
@@ -2875,7 +2958,7 @@ type McpSetServersResult = {
 };
 ```
 
-### [​](#rewindfilesresult "#rewindfilesresult") `RewindFilesResult`
+### [​](#rewindfilesresult) `RewindFilesResult`
 
 Result of a `rewindFiles()` operation.
 
@@ -2889,7 +2972,7 @@ type RewindFilesResult = {
 };
 ```
 
-### [​](#sdkstatusmessage "#sdkstatusmessage") `SDKStatusMessage`
+### [​](#sdkstatusmessage) `SDKStatusMessage`
 
 Status update message (e.g., compacting).
 
@@ -2904,9 +2987,9 @@ type SDKStatusMessage = {
 };
 ```
 
-### [​](#sdktasknotificationmessage "#sdktasknotificationmessage") `SDKTaskNotificationMessage`
+### [​](#sdktasknotificationmessage) `SDKTaskNotificationMessage`
 
-Notification when a background task completes, fails, or is stopped. Background tasks include `run_in_background` Bash commands, [Monitor](#monitor "#monitor") watches, and background subagents.
+Notification when a background task completes, fails, or is stopped. Background tasks include `run_in_background` Bash commands, [Monitor](#monitor) watches, and background subagents.
 
 ```
 type SDKTaskNotificationMessage = {
@@ -2927,7 +3010,7 @@ type SDKTaskNotificationMessage = {
 };
 ```
 
-### [​](#sdktoolusesummarymessage "#sdktoolusesummarymessage") `SDKToolUseSummaryMessage`
+### [​](#sdktoolusesummarymessage) `SDKToolUseSummaryMessage`
 
 Summary of tool usage in a conversation.
 
@@ -2941,7 +3024,7 @@ type SDKToolUseSummaryMessage = {
 };
 ```
 
-### [​](#sdkhookstartedmessage "#sdkhookstartedmessage") `SDKHookStartedMessage`
+### [​](#sdkhookstartedmessage) `SDKHookStartedMessage`
 
 Emitted when a hook begins executing.
 
@@ -2957,7 +3040,7 @@ type SDKHookStartedMessage = {
 };
 ```
 
-### [​](#sdkhookprogressmessage "#sdkhookprogressmessage") `SDKHookProgressMessage`
+### [​](#sdkhookprogressmessage) `SDKHookProgressMessage`
 
 Emitted while a hook is running, with stdout/stderr output.
 
@@ -2976,7 +3059,7 @@ type SDKHookProgressMessage = {
 };
 ```
 
-### [​](#sdkhookresponsemessage "#sdkhookresponsemessage") `SDKHookResponseMessage`
+### [​](#sdkhookresponsemessage) `SDKHookResponseMessage`
 
 Emitted when a hook finishes executing.
 
@@ -2997,7 +3080,7 @@ type SDKHookResponseMessage = {
 };
 ```
 
-### [​](#sdktoolprogressmessage "#sdktoolprogressmessage") `SDKToolProgressMessage`
+### [​](#sdktoolprogressmessage) `SDKToolProgressMessage`
 
 Emitted periodically while a tool is executing to indicate progress.
 
@@ -3014,7 +3097,7 @@ type SDKToolProgressMessage = {
 };
 ```
 
-### [​](#sdkauthstatusmessage "#sdkauthstatusmessage") `SDKAuthStatusMessage`
+### [​](#sdkauthstatusmessage) `SDKAuthStatusMessage`
 
 Emitted during authentication flows.
 
@@ -3029,9 +3112,9 @@ type SDKAuthStatusMessage = {
 };
 ```
 
-### [​](#sdktaskstartedmessage "#sdktaskstartedmessage") `SDKTaskStartedMessage`
+### [​](#sdktaskstartedmessage) `SDKTaskStartedMessage`
 
-Emitted when a background task begins. The `task_type` field is `"local_bash"` for background Bash commands and [Monitor](#monitor "#monitor") watches, `"local_agent"` for subagents, or `"remote_agent"`.
+Emitted when a background task begins. The `task_type` field is `"local_bash"` for background Bash commands and [Monitor](#monitor) watches, `"local_agent"` for subagents, or `"remote_agent"`.
 
 ```
 type SDKTaskStartedMessage = {
@@ -3046,9 +3129,9 @@ type SDKTaskStartedMessage = {
 };
 ```
 
-### [​](#sdktaskprogressmessage "#sdktaskprogressmessage") `SDKTaskProgressMessage`
+### [​](#sdktaskprogressmessage) `SDKTaskProgressMessage`
 
-Emitted periodically while a subagent or background task is running. The `summary` field is populated only when [`agentProgressSummaries`](#options "#options") is enabled.
+Emitted periodically while a subagent or background task is running. The `summary` field is populated only when [`agentProgressSummaries`](#options) is enabled.
 
 ```
 type SDKTaskProgressMessage = {
@@ -3070,7 +3153,7 @@ type SDKTaskProgressMessage = {
 };
 ```
 
-### [​](#sdktaskupdatedmessage "#sdktaskupdatedmessage") `SDKTaskUpdatedMessage`
+### [​](#sdktaskupdatedmessage) `SDKTaskUpdatedMessage`
 
 Emitted when a background task’s state changes, such as when it transitions from `running` to `completed`. Merge `patch` into your local task map keyed by `task_id`. The `end_time` field is a Unix epoch timestamp in milliseconds, comparable with `Date.now()`.
 
@@ -3092,7 +3175,7 @@ type SDKTaskUpdatedMessage = {
 };
 ```
 
-### [​](#sdkfilespersistedevent "#sdkfilespersistedevent") `SDKFilesPersistedEvent`
+### [​](#sdkfilespersistedevent) `SDKFilesPersistedEvent`
 
 Emitted when file checkpoints are persisted to disk.
 
@@ -3108,7 +3191,7 @@ type SDKFilesPersistedEvent = {
 };
 ```
 
-### [​](#sdkratelimitevent "#sdkratelimitevent") `SDKRateLimitEvent`
+### [​](#sdkratelimitevent) `SDKRateLimitEvent`
 
 Emitted when the session encounters a rate limit.
 
@@ -3125,7 +3208,7 @@ type SDKRateLimitEvent = {
 };
 ```
 
-### [​](#sdklocalcommandoutputmessage "#sdklocalcommandoutputmessage") `SDKLocalCommandOutputMessage`
+### [​](#sdklocalcommandoutputmessage) `SDKLocalCommandOutputMessage`
 
 Output from a local slash command (for example, `/voice` or `/usage`). Displayed as assistant-style text in the transcript.
 
@@ -3139,7 +3222,21 @@ type SDKLocalCommandOutputMessage = {
 };
 ```
 
-### [​](#sdkpromptsuggestionmessage "#sdkpromptsuggestionmessage") `SDKPromptSuggestionMessage`
+### [​](#sdkcommandschangedmessage) `SDKCommandsChangedMessage`
+
+Emitted when the set of available commands changes mid-session, such as when skills are discovered as the agent enters a subdirectory. The `commands` array is the full updated list, so replace any cached command list with this payload. Calling `supportedCommands()` again is not equivalent: that method returns the snapshot captured at initialization and does not reflect mid-session changes.
+
+```
+type SDKCommandsChangedMessage = {
+  type: "system";
+  subtype: "commands_changed";
+  commands: SlashCommand[];
+  uuid: UUID;
+  session_id: string;
+};
+```
+
+### [​](#sdkpromptsuggestionmessage) `SDKPromptSuggestionMessage`
 
 Emitted after each turn when `promptSuggestions` is enabled. Contains a predicted next user prompt.
 
@@ -3152,7 +3249,7 @@ type SDKPromptSuggestionMessage = {
 };
 ```
 
-### [​](#aborterror "#aborterror") `AbortError`
+### [​](#aborterror) `AbortError`
 
 Custom error class for abort operations.
 
@@ -3160,15 +3257,16 @@ Custom error class for abort operations.
 class AbortError extends Error {}
 ```
 
-## [​](#sandbox-configuration "#sandbox-configuration") Sandbox Configuration
+## [​](#sandbox-configuration) Sandbox Configuration
 
-### [​](#sandboxsettings "#sandboxsettings") `SandboxSettings`
+### [​](#sandboxsettings) `SandboxSettings`
 
 Configuration for sandbox behavior. Use this to enable command sandboxing and configure network restrictions programmatically.
 
 ```
 type SandboxSettings = {
   enabled?: boolean;
+  failIfUnavailable?: boolean;
   autoAllowBashIfSandboxed?: boolean;
   excludedCommands?: string[];
   allowUnsandboxedCommands?: boolean;
@@ -3183,16 +3281,19 @@ type SandboxSettings = {
 | Property | Type | Default | Description |
 | --- | --- | --- | --- |
 | `enabled` | `boolean` | `false` | Enable sandbox mode for command execution |
+| `failIfUnavailable` | `boolean` | `true` | Stop at startup if `enabled` is `true` but the sandbox can’t start. Set `false` to fall back to unsandboxed execution with a warning on stderr |
 | `autoAllowBashIfSandboxed` | `boolean` | `true` | Auto-approve bash commands when sandbox is enabled |
 | `excludedCommands` | `string[]` | `[]` | Commands that always bypass sandbox restrictions (e.g., `['docker']`). These run unsandboxed automatically without model involvement |
-| `allowUnsandboxedCommands` | `boolean` | `true` | Allow the model to request running commands outside the sandbox. When `true`, the model can set `dangerouslyDisableSandbox` in tool input, which falls back to the [permissions system](#permissions-fallback-for-unsandboxed-commands "#permissions-fallback-for-unsandboxed-commands") |
-| `network` | [`SandboxNetworkConfig`](#sandboxnetworkconfig "#sandboxnetworkconfig") | `undefined` | Network-specific sandbox configuration |
-| `filesystem` | [`SandboxFilesystemConfig`](#sandboxfilesystemconfig "#sandboxfilesystemconfig") | `undefined` | Filesystem-specific sandbox configuration for read/write restrictions |
+| `allowUnsandboxedCommands` | `boolean` | `true` | Allow the model to request running commands outside the sandbox. When `true`, the model can set `dangerouslyDisableSandbox` in tool input, which falls back to the [permissions system](#permissions-fallback-for-unsandboxed-commands) |
+| `network` | [`SandboxNetworkConfig`](#sandboxnetworkconfig) | `undefined` | Network-specific sandbox configuration |
+| `filesystem` | [`SandboxFilesystemConfig`](#sandboxfilesystemconfig) | `undefined` | Filesystem-specific sandbox configuration for read/write restrictions |
 | `ignoreViolations` | `Record<string, string[]>` | `undefined` | Map of violation categories to patterns to ignore (e.g., `{ file: ['/tmp/*'], network: ['localhost'] }`) |
 | `enableWeakerNestedSandbox` | `boolean` | `false` | Enable a weaker nested sandbox for compatibility |
 | `ripgrep` | `{ command: string; args?: string[] }` | `undefined` | Custom ripgrep binary configuration for sandbox environments |
 
-#### [​](#example-usage "#example-usage") Example usage
+The sandbox depends on platform support and, on Linux, tools like `bubblewrap` and `socat`. When `enabled` is `true` and the sandbox can’t start, `query()` reports a `result` message with `subtype: "error_during_execution"` and the reason in `errors`, then stops. Watch for that subtype rather than expecting `query()` to throw before yielding messages.To run unsandboxed instead, set `failIfUnavailable: false`.
+
+#### [​](#example-usage) Example usage
 
 ```
 import { query } from "@anthropic-ai/claude-agent-sdk";
@@ -3215,9 +3316,9 @@ for await (const message of query({
 
 **Unix socket security:** The `allowUnixSockets` option can grant access to powerful system services. For example, allowing `/var/run/docker.sock` effectively grants full host system access through the Docker API, bypassing sandbox isolation. Only allow Unix sockets that are strictly necessary and understand the security implications of each.
 
-### [​](#sandboxnetworkconfig "#sandboxnetworkconfig") `SandboxNetworkConfig`
+### [​](#sandboxnetworkconfig) `SandboxNetworkConfig`
 
-Network-specific configuration for sandbox mode.
+Network-specific configuration for sandbox mode. These settings apply to sandboxed Bash commands when `enabled` is `true` in the parent [`SandboxSettings`](#sandboxsettings). They do not restrict the WebFetch tool, which uses [permission rules](./permissions.md#webfetch) instead.
 
 ```
 type SandboxNetworkConfig = {
@@ -3236,16 +3337,16 @@ type SandboxNetworkConfig = {
 | --- | --- | --- | --- |
 | `allowedDomains` | `string[]` | `[]` | Domain names that sandboxed processes can access |
 | `deniedDomains` | `string[]` | `[]` | Domain names that sandboxed processes cannot access. Takes precedence over `allowedDomains` |
-| `allowManagedDomainsOnly` | `boolean` | `false` | Managed-settings only. When set in [managed settings](./permissions#managed-settings "_permissions#managed-settings".md), only `allowedDomains` entries from managed settings are honored and entries from user, project, or local settings are ignored. Has no effect when set via SDK options |
+| `allowManagedDomainsOnly` | `boolean` | `false` | Managed-settings only. When set in [managed settings](./permissions.md#managed-settings), only `allowedDomains` entries from managed settings are honored and entries from user, project, or local settings are ignored. Has no effect when set via SDK options |
 | `allowLocalBinding` | `boolean` | `false` | Allow processes to bind to local ports (e.g., for dev servers) |
 | `allowUnixSockets` | `string[]` | `[]` | Unix socket paths that processes can access (e.g., Docker socket) |
 | `allowAllUnixSockets` | `boolean` | `false` | Allow access to all Unix sockets |
 | `httpProxyPort` | `number` | `undefined` | HTTP proxy port for network requests |
 | `socksProxyPort` | `number` | `undefined` | SOCKS proxy port for network requests |
 
-The built-in sandbox proxy enforces `allowedDomains` based on the requested hostname and does not terminate or inspect TLS traffic, so techniques such as [domain fronting](https://en.wikipedia.org/wiki/Domain_fronting "https://en.wikipedia.org/wiki/Domain_fronting") can potentially bypass it. See [Sandboxing security limitations](./sandboxing#security-limitations "_sandboxing#security-limitations".md) for details and [Secure deployment](./agent-sdk_secure-deployment#traffic-forwarding "_agent-sdk_secure-deployment#traffic-forwarding".md) for configuring a TLS-terminating proxy.
+The built-in sandbox proxy enforces `allowedDomains` based on the requested hostname and does not terminate or inspect TLS traffic, so techniques such as [domain fronting](https://en.wikipedia.org/wiki/Domain_fronting) can potentially bypass it. See [Sandboxing security limitations](./sandboxing.md#security-limitations) for details and [Secure deployment](./agent-sdk_secure-deployment.md#traffic-forwarding) for configuring a TLS-terminating proxy.
 
-### [​](#sandboxfilesystemconfig "#sandboxfilesystemconfig") `SandboxFilesystemConfig`
+### [​](#sandboxfilesystemconfig) `SandboxFilesystemConfig`
 
 Filesystem-specific configuration for sandbox mode.
 
@@ -3263,7 +3364,7 @@ type SandboxFilesystemConfig = {
 | `denyWrite` | `string[]` | `[]` | File path patterns to deny write access to |
 | `denyRead` | `string[]` | `[]` | File path patterns to deny read access to |
 
-### [​](#permissions-fallback-for-unsandboxed-commands "#permissions-fallback-for-unsandboxed-commands") Permissions Fallback for Unsandboxed Commands
+### [​](#permissions-fallback-for-unsandboxed-commands) Permissions Fallback for Unsandboxed Commands
 
 When `allowUnsandboxedCommands` is enabled, the model can request to run commands outside the sandbox by setting `dangerouslyDisableSandbox: true` in the tool input. These requests fall back to the existing permissions system, meaning your `canUseTool` handler is invoked, allowing you to implement custom authorization logic.
 
@@ -3311,11 +3412,11 @@ This pattern enables you to:
 * **Implement allowlists:** Only permit specific commands to run unsandboxed
 * **Add approval workflows:** Require explicit authorization for privileged operations
 
-Commands running with `dangerouslyDisableSandbox: true` have full system access. Ensure your `canUseTool` handler validates these requests carefully.If `permissionMode` is set to `bypassPermissions` and `allowUnsandboxedCommands` is enabled, the model can autonomously execute commands outside the sandbox without any approval prompts. This combination effectively allows the model to escape sandbox isolation silently.
+Commands running with `dangerouslyDisableSandbox: true` have full system access. Ensure your `canUseTool` handler validates these requests carefully.If `permissionMode` is set to `bypassPermissions` and `allowUnsandboxedCommands` is enabled, the model can autonomously execute commands outside the sandbox without approval prompts (an explicit [`ask` rule](./agent-sdk_permissions.md#how-permissions-are-evaluated) still forces one). This combination effectively allows the model to escape sandbox isolation silently.
 
-## [​](#see-also "#see-also") See also
+## [​](#see-also) See also
 
-* [SDK overview](./agent-sdk_overview "_agent-sdk_overview".md) - General SDK concepts
-* [Python SDK reference](./agent-sdk_python "_agent-sdk_python".md) - Python SDK documentation
-* [CLI reference](./cli-reference "_cli-reference".md) - Command-line interface
-* [Common workflows](./common-workflows "_common-workflows".md) - Step-by-step guides
+* [SDK overview](./agent-sdk_overview.md) - General SDK concepts
+* [Python SDK reference](./agent-sdk_python.md) - Python SDK documentation
+* [CLI reference](./cli-reference.md) - Command-line interface
+* [Common workflows](./common-workflows.md) - Step-by-step guides

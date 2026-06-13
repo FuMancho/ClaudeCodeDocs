@@ -1,14 +1,8 @@
-> ## Documentation Index
->
-> Fetch the complete documentation index at: [https://code.claude.com/docs/llms.txt](https://code.claude.com/docs/llms.txt "https://code.claude.com/docs/llms.txt")
->
-> Use this file to discover all available pages before exploring further.
-
 Claude Code is an AI-powered coding assistant that helps you build features, fix bugs, and automate development tasks. It understands your entire codebase and can work across multiple files and tools to get things done.
 
-## [​](#get-started "#get-started") Get started
+## [​](#get-started) Get started
 
-Choose your environment to get started. Most surfaces require a [Claude subscription](https://claude.com/pricing?utm_source=claude_code&utm_medium=docs&utm_content=overview_pricing "https://claude.com/pricing?utm_source=claude_code&utm_medium=docs&utm_content=overview_pricing") or [Anthropic Console](https://console.anthropic.com/ "https://console.anthropic.com/") account. The Terminal CLI and VS Code also support [third-party providers](./third-party-integrations "_third-party-integrations".md).
+Choose your environment to get started. Most surfaces require a [Claude subscription](https://claude.com/pricing?utm_source=claude_code&utm_medium=docs&utm_content=overview_pricing) or [Anthropic Console](https://console.anthropic.com/) account. The Terminal CLI and VS Code also support [third-party providers](./third-party-integrations.md).
 
 * Terminal
 * VS Code
@@ -40,7 +34,7 @@ irm https://claude.ai/install.ps1 | iex
 curl -fsSL https://claude.ai/install.cmd -o install.cmd && install.cmd && del install.cmd
 ```
 
-If you see `The token '&&' is not a valid statement separator`, you’re in PowerShell, not CMD. If you see `'irm' is not recognized as an internal or external command`, you’re in CMD, not PowerShell. Your prompt shows `PS C:\` when you’re in PowerShell and `C:\` without the `PS` when you’re in CMD.[Git for Windows](https://git-scm.com/downloads/win "https://git-scm.com/downloads/win") is recommended on native Windows so Claude Code can use the Bash tool. If Git for Windows is not installed, Claude Code uses PowerShell as the shell tool instead. WSL setups do not need Git for Windows.
+If you see `The token '&&' is not a valid statement separator`, you’re in PowerShell, not CMD. If you see `'irm' is not recognized as an internal or external command`, you’re in CMD, not PowerShell. Your prompt shows `PS C:\` when you’re in PowerShell and `C:\` without the `PS` when you’re in CMD.[Git for Windows](https://git-scm.com/downloads/win) is recommended on native Windows so Claude Code can use the Bash tool. If Git for Windows is not installed, Claude Code uses PowerShell as the shell tool instead. WSL setups do not need Git for Windows.
 
 Native installations automatically update in the background to keep you on the latest version.
 
@@ -58,37 +52,37 @@ winget install Anthropic.ClaudeCode
 
 WinGet installations do not auto-update. Run `winget upgrade Anthropic.ClaudeCode` periodically to get the latest features and security fixes.
 
-You can also install with [apt, dnf, or apk](./setup#install-with-linux-package-managers "_setup#install-with-linux-package-managers".md) on Debian, Fedora, RHEL, and Alpine.Then start Claude Code in any project:
+You can also install with [apt, dnf, or apk](./setup.md#install-with-linux-package-managers) on Debian, Fedora, RHEL, and Alpine.Then start Claude Code in any project:
 
 ```
 cd your-project
 claude
 ```
 
-You’ll be prompted to log in on first use. That’s it! [Continue with the Quickstart →](./quickstart "_quickstart".md)
+You’ll be prompted to log in on first use. That’s it! [Continue with the Quickstart →](./quickstart.md)
 
-See [advanced setup](./setup "_setup".md) for installation options, manual updates, or uninstallation instructions. Visit [installation troubleshooting](./troubleshoot-install "_troubleshoot-install".md) if you hit issues.
+See [advanced setup](./setup.md) for installation options, manual updates, or uninstallation instructions. Visit [installation troubleshooting](./troubleshoot-install.md) if you hit issues.
 
 The VS Code extension provides inline diffs, @-mentions, plan review, and conversation history directly in your editor.
 
-* [Install for VS Code](vscode:extension/anthropic.claude-code "vscode:extension/anthropic.claude-code")
-* [Install for Cursor](cursor:extension/anthropic.claude-code "cursor:extension/anthropic.claude-code")
+* [Install for VS Code](vscode:extension/anthropic.claude-code)
+* [Install for Cursor](cursor:extension/anthropic.claude-code)
 
-Or search for “Claude Code” in the Extensions view (`Cmd+Shift+X` on Mac, `Ctrl+Shift+X` on Windows/Linux). After installing, open the Command Palette (`Cmd+Shift+P` / `Ctrl+Shift+P`), type “Claude Code”, and select **Open in New Tab**.[Get started with VS Code →](./vs-code#get-started "_vs-code#get-started".md)
+Or search for “Claude Code” in the Extensions view (`Cmd+Shift+X` on Mac, `Ctrl+Shift+X` on Windows/Linux). After installing, open the Command Palette (`Cmd+Shift+P` / `Ctrl+Shift+P`), type “Claude Code”, and select **Open in New Tab**.[Get started with VS Code →](./vs-code.md#get-started)
 
 A standalone app for running Claude Code outside your IDE or terminal. Review diffs visually, run multiple sessions side by side, schedule recurring tasks, and kick off cloud sessions.Download and install:
 
-* [macOS](https://claude.ai/api/desktop/darwin/universal/dmg/latest/redirect?utm_source=claude_code&utm_medium=docs "https://claude.ai/api/desktop/darwin/universal/dmg/latest/redirect?utm_source=claude_code&utm_medium=docs") (Intel and Apple Silicon)
-* [Windows](https://claude.ai/api/desktop/win32/x64/setup/latest/redirect?utm_source=claude_code&utm_medium=docs "https://claude.ai/api/desktop/win32/x64/setup/latest/redirect?utm_source=claude_code&utm_medium=docs") (x64)
-* [Windows ARM64](https://claude.ai/api/desktop/win32/arm64/setup/latest/redirect?utm_source=claude_code&utm_medium=docs "https://claude.ai/api/desktop/win32/arm64/setup/latest/redirect?utm_source=claude_code&utm_medium=docs")
+* [macOS](https://claude.ai/api/desktop/darwin/universal/dmg/latest/redirect?utm_source=claude_code&utm_medium=docs) (Intel and Apple Silicon)
+* [Windows](https://claude.ai/api/desktop/win32/x64/setup/latest/redirect?utm_source=claude_code&utm_medium=docs) (x64)
+* [Windows ARM64](https://claude.ai/api/desktop/win32/arm64/setup/latest/redirect?utm_source=claude_code&utm_medium=docs)
 
-After installing, launch Claude, sign in, and click the **Code** tab to start coding. A [paid subscription](https://claude.com/pricing?utm_source=claude_code&utm_medium=docs&utm_content=overview_desktop_pricing "https://claude.com/pricing?utm_source=claude_code&utm_medium=docs&utm_content=overview_desktop_pricing") is required.[Learn more about the desktop app →](./desktop-quickstart "_desktop-quickstart".md)
+After installing, launch Claude, sign in, and click the **Code** tab to start coding. A [paid subscription](https://claude.com/pricing?utm_source=claude_code&utm_medium=docs&utm_content=overview_desktop_pricing) is required.[Learn more about the desktop app →](./desktop-quickstart.md)
 
-Run Claude Code in your browser with no local setup. Kick off long-running tasks and check back when they’re done, work on repos you don’t have locally, or run multiple tasks in parallel. Available on desktop browsers and the Claude iOS app.Start coding at [claude.ai/code](https://claude.ai/code "https://claude.ai/code").[Get started on the web →](./web-quickstart "_web-quickstart".md)
+Run Claude Code in your browser with no local setup. Kick off long-running tasks and check back when they’re done, work on repos you don’t have locally, or run multiple tasks in parallel. Available on desktop browsers and the Claude iOS app.Start coding at [claude.ai/code](https://claude.ai/code).[Get started on the web →](./web-quickstart.md)
 
-A plugin for IntelliJ IDEA, PyCharm, WebStorm, and other JetBrains IDEs with interactive diff viewing and selection context sharing.Install the [Claude Code plugin](https://plugins.jetbrains.com/plugin/27310-claude-code-beta- "https://plugins.jetbrains.com/plugin/27310-claude-code-beta-") from the JetBrains Marketplace and restart your IDE.[Get started with JetBrains →](./jetbrains "_jetbrains".md)
+A plugin for IntelliJ IDEA, PyCharm, WebStorm, and other JetBrains IDEs with interactive diff viewing and selection context sharing.Install the [Claude Code plugin](https://plugins.jetbrains.com/plugin/27310-claude-code-beta-) from the JetBrains Marketplace and restart your IDE. The plugin requires the Claude Code CLI, installed separately; see the [JetBrains setup steps](./jetbrains.md#installation).[Get started with JetBrains →](./jetbrains.md)
 
-## [​](#what-you-can-do "#what-you-can-do") What you can do
+## [​](#what-you-can-do) What you can do
 
 Here are some of the ways you can use Claude Code:
 
@@ -102,7 +96,7 @@ claude "write tests for the auth module, run them, and fix any failures"
 
 Build features and fix bugs
 
-Describe what you want in plain language. Claude Code plans the approach, writes the code across multiple files, and verifies it works.For bugs, paste an error message or describe the symptom. Claude Code traces the issue through your codebase, identifies the root cause, and implements a fix. See [common workflows](./common-workflows "_common-workflows".md) for more examples.
+Describe what you want in plain language. Claude Code plans the approach, writes the code across multiple files, and verifies it works.For bugs, paste an error message or describe the symptom. Claude Code traces the issue through your codebase, identifies the root cause, and implements a fix. See [common workflows](./common-workflows.md) for more examples.
 
 Create commits and pull requests
 
@@ -112,19 +106,19 @@ Claude Code works directly with git. It stages changes, writes commit messages, 
 claude "commit my changes with a descriptive message"
 ```
 
-In CI, you can automate code review and issue triage with [GitHub Actions](./github-actions "_github-actions".md) or [GitLab CI/CD](./gitlab-ci-cd "_gitlab-ci-cd".md).
+In CI, you can automate code review and issue triage with [GitHub Actions](./github-actions.md) or [GitLab CI/CD](./gitlab-ci-cd.md).
 
 Connect your tools with MCP
 
-The [Model Context Protocol (MCP)](./mcp "_mcp".md) is an open standard for connecting AI tools to external data sources. With MCP, Claude Code can read your design docs in Google Drive, update tickets in Jira, pull data from Slack, or use your own custom tooling.
+The [Model Context Protocol (MCP)](./mcp.md) is an open standard for connecting AI tools to external data sources. With MCP, Claude Code can read your design docs in Google Drive, update tickets in Jira, pull data from Slack, or use your own custom tooling. The [MCP quickstart](./mcp-quickstart.md) connects your first server end to end.
 
 Customize with instructions, skills, and hooks
 
-[`CLAUDE.md`](./memory "_memory".md) is a markdown file you add to your project root that Claude Code reads at the start of every session. Use it to set coding standards, architecture decisions, preferred libraries, and review checklists. Claude also builds [auto memory](./memory#auto-memory "_memory#auto-memory".md) as it works, saving learnings like build commands and debugging insights across sessions without you writing anything.Create [skills](./skills "_skills".md) to package repeatable workflows your team can share, like `/review-pr` or `/deploy-staging`.[Hooks](./hooks "_hooks".md) let you run shell commands before or after Claude Code actions, like auto-formatting after every file edit or running lint before a commit.
+[`CLAUDE.md`](./memory.md) is a markdown file you add to your project root that Claude Code reads at the start of every session. Use it to set coding standards, architecture decisions, preferred libraries, and review checklists. Claude also builds [auto memory](./memory.md#auto-memory) as it works, saving learnings like build commands and debugging insights across sessions without you writing anything.Create [skills](./skills.md) to package repeatable workflows your team can share, like `/review-pr` or `/deploy-staging`.[Hooks](./hooks.md) let you run shell commands before or after Claude Code actions, like auto-formatting after every file edit or running lint before a commit.
 
 Run agent teams and build custom agents
 
-Spawn [multiple Claude Code agents](./sub-agents "_sub-agents".md) that work on different parts of a task simultaneously. A lead agent coordinates the work, assigns subtasks, and merges results.To run several full sessions in parallel and watch them from one screen, use [background agents](./agent-view "_agent-view".md). For fully custom workflows, the [Agent SDK](./agent-sdk_overview "_agent-sdk_overview".md) lets you build your own agents powered by Claude Code’s tools and capabilities, with full control over orchestration, tool access, and permissions.
+Spawn [multiple Claude Code agents](./sub-agents.md) that work on different parts of a task simultaneously. A lead agent coordinates the work, assigns subtasks, and merges results.To run several full sessions in parallel and watch them from one screen, use [background agents](./agent-view.md). For fully custom workflows, the [Agent SDK](./agent-sdk_overview.md) lets you build your own agents powered by Claude Code’s tools and capabilities, with full control over orchestration, tool access, and permissions.
 
 Pipe, script, and automate with the CLI
 
@@ -141,50 +135,50 @@ claude -p "translate new strings into French and raise a PR for review"
 git diff main --name-only | claude -p "review these changed files for security issues"
 ```
 
-See the [CLI reference](./cli-reference "_cli-reference".md) for the full set of commands and flags.
+See the [CLI reference](./cli-reference.md) for the full set of commands and flags.
 
 Schedule recurring tasks
 
 Run Claude on a schedule to automate work that repeats: morning PR reviews, overnight CI failure analysis, weekly dependency audits, or syncing docs after PRs merge.
 
-* [Routines](./routines "_routines".md) run on Anthropic-managed infrastructure, so they keep running even when your computer is off. They can also trigger on API calls or GitHub events. Create them from the web, the Desktop app, or by running `/schedule` in the CLI.
-* [Desktop scheduled tasks](./desktop-scheduled-tasks "_desktop-scheduled-tasks".md) run on your machine, with direct access to your local files and tools
-* [`/loop`](./scheduled-tasks "_scheduled-tasks".md) repeats a prompt within a CLI session for quick polling
+* [Routines](./routines.md) run on Anthropic-managed infrastructure, so they keep running even when your computer is off. They can also trigger on API calls or GitHub events. Create them from the web, the Desktop app, or by running `/schedule` in the CLI.
+* [Desktop scheduled tasks](./desktop-scheduled-tasks.md) run on your machine, with direct access to your local files and tools
+* [`/loop`](./scheduled-tasks.md) repeats a prompt within a CLI session for quick polling
 
 Work from anywhere
 
 Sessions aren’t tied to a single surface. Move work between environments as your context changes:
 
-* Step away from your desk and keep working from your phone or any browser with [Remote Control](./remote-control "_remote-control".md)
-* Message [Dispatch](./desktop#sessions-from-dispatch "_desktop#sessions-from-dispatch".md) a task from your phone and open the Desktop session it creates
-* Kick off a long-running task on the [web](./claude-code-on-the-web "_claude-code-on-the-web".md) or [iOS app](https://apps.apple.com/app/claude-by-anthropic/id6473753684 "https://apps.apple.com/app/claude-by-anthropic/id6473753684"), then pull it into your terminal with `claude --teleport`
-* Hand off a terminal session to the [Desktop app](./desktop "_desktop".md) with `/desktop` for visual diff review
-* Route tasks from team chat: mention `@Claude` in [Slack](./slack "_slack".md) with a bug report and get a pull request back
+* Step away from your desk and keep working from your phone or any browser with [Remote Control](./remote-control.md)
+* Message [Dispatch](./desktop.md#sessions-from-dispatch) a task from your phone and open the Desktop session it creates
+* Kick off a long-running task on the [web](./claude-code-on-the-web.md) or [iOS app](https://apps.apple.com/app/claude-by-anthropic/id6473753684), then pull it into your terminal with `claude --teleport`. Teleport requires a claude.ai subscription.
+* Hand off a terminal session to the [Desktop app](./desktop.md) with `/desktop` for visual diff review
+* Route tasks from team chat: mention `@Claude` in [Slack](./slack.md) with a bug report and get a pull request back
 
-## [​](#use-claude-code-everywhere "#use-claude-code-everywhere") Use Claude Code everywhere
+## [​](#use-claude-code-everywhere) Use Claude Code everywhere
 
 Each surface connects to the same underlying Claude Code engine, so your CLAUDE.md files, settings, and MCP servers work across all of them.
-Beyond the [Terminal](./quickstart "_quickstart".md), [VS Code](./vs-code "_vs-code".md), [JetBrains](./jetbrains "_jetbrains".md), [Desktop](./desktop "_desktop".md), and [Web](./claude-code-on-the-web "_claude-code-on-the-web".md) environments above, Claude Code integrates with CI/CD, chat, and browser workflows:
+Beyond the [Terminal](./quickstart.md), [VS Code](./vs-code.md), [JetBrains](./jetbrains.md), [Desktop](./desktop.md), and [Web](./claude-code-on-the-web.md) environments above, Claude Code integrates with CI/CD, chat, and browser workflows:
 
 | I want to… | Best option |
 | --- | --- |
-| Continue a local session from my phone or another device | [Remote Control](./remote-control "_remote-control".md) |
-| Push events from Telegram, Discord, iMessage, or my own webhooks into a session | [Channels](./channels "_channels".md) |
-| Start a task locally, continue on mobile | [Web](./claude-code-on-the-web "_claude-code-on-the-web".md) or [Claude iOS app](https://apps.apple.com/app/claude-by-anthropic/id6473753684 "https://apps.apple.com/app/claude-by-anthropic/id6473753684") |
-| Run Claude on a recurring schedule | [Routines](./routines "_routines".md) or [Desktop scheduled tasks](./desktop-scheduled-tasks "_desktop-scheduled-tasks".md) |
-| Automate PR reviews and issue triage | [GitHub Actions](./github-actions "_github-actions".md) or [GitLab CI/CD](./gitlab-ci-cd "_gitlab-ci-cd".md) |
-| Get automatic code review on every PR | [GitHub Code Review](./code-review "_code-review".md) |
-| Route bug reports from Slack to pull requests | [Slack](./slack "_slack".md) |
-| Debug live web applications | [Chrome](./chrome "_chrome".md) |
-| Build custom agents for your own workflows | [Agent SDK](./agent-sdk_overview "_agent-sdk_overview".md) |
+| Continue a local session from my phone or another device | [Remote Control](./remote-control.md) |
+| Push events from Telegram, Discord, iMessage, or my own webhooks into a session | [Channels](./channels.md) |
+| Start a task locally, continue on mobile | [Web](./claude-code-on-the-web.md) or [Claude iOS app](https://apps.apple.com/app/claude-by-anthropic/id6473753684) |
+| Run Claude on a recurring schedule | [Routines](./routines.md) or [Desktop scheduled tasks](./desktop-scheduled-tasks.md) |
+| Automate PR reviews and issue triage | [GitHub Actions](./github-actions.md) or [GitLab CI/CD](./gitlab-ci-cd.md) |
+| Get automatic code review on every PR | [GitHub Code Review](./code-review.md) |
+| Route bug reports from Slack to pull requests | [Slack](./slack.md) |
+| Debug live web applications | [Chrome](./chrome.md) |
+| Build custom agents for your own workflows | [Agent SDK](./agent-sdk_overview.md) |
 
-## [​](#next-steps "#next-steps") Next steps
+## [​](#next-steps) Next steps
 
 Once you’ve installed Claude Code, these guides help you go deeper.
 
-* [Quickstart](./quickstart "_quickstart".md): walk through your first real task, from exploring a codebase to committing a fix
-* [Store instructions and memories](./memory "_memory".md): give Claude persistent instructions with CLAUDE.md files and auto memory
-* [Common workflows](./common-workflows "_common-workflows".md) and [best practices](./best-practices "_best-practices".md): patterns for getting the most out of Claude Code
-* [Settings](./settings "_settings".md): customize Claude Code for your workflow
-* [Troubleshooting](./troubleshooting "_troubleshooting".md): solutions for common issues
-* [code.claude.com](https://code.claude.com/ "https://code.claude.com/"): demos, pricing, and product details
+* [Quickstart](./quickstart.md): walk through your first real task, from exploring a codebase to committing a fix
+* [Store instructions and memories](./memory.md): give Claude persistent instructions with CLAUDE.md files and auto memory
+* [Common workflows](./common-workflows.md) and [best practices](./best-practices.md): patterns for getting the most out of Claude Code
+* [Settings](./settings.md): customize Claude Code for your workflow
+* [Troubleshooting](./troubleshooting.md): solutions for common issues
+* [code.claude.com](https://code.claude.com/): demos, pricing, and product details

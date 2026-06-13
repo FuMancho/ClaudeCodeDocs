@@ -1,50 +1,44 @@
 # Analytics
 
-> ## Documentation Index
->
-> Fetch the complete documentation index at: [https://code.claude.com/docs/llms.txt](https://code.claude.com/docs/llms.txt "https://code.claude.com/docs/llms.txt")
->
-> Use this file to discover all available pages before exploring further.
-
 Claude Code provides analytics dashboards to help organizations understand developer usage patterns, track contribution metrics, and measure how Claude Code impacts engineering velocity. Access the dashboard for your plan:
 
 | Plan | Dashboard URL | Includes | Read more |
 | --- | --- | --- | --- |
-| Claude for Teams / Enterprise | [claude.ai/analytics/claude-code](https://claude.ai/analytics/claude-code "https://claude.ai/analytics/claude-code") | Usage metrics, contribution metrics with GitHub integration, leaderboard, data export | [Details](#access-analytics-for-team-and-enterprise "#access-analytics-for-team-and-enterprise") |
-| API (Claude Console) | [platform.claude.com/claude-code](https://platform.claude.com/claude-code "https://platform.claude.com/claude-code") | Usage metrics, spend tracking, team insights | [Details](#access-analytics-for-api-customers "#access-analytics-for-api-customers") |
+| Claude for Teams / Enterprise | [claude.ai/analytics/claude-code](https://claude.ai/analytics/claude-code) | Usage metrics, contribution metrics with GitHub integration, leaderboard, data export | [Details](#access-analytics-for-team-and-enterprise) |
+| API (Claude Console) | [platform.claude.com/claude-code](https://platform.claude.com/claude-code) | Usage metrics, spend tracking, team insights | [Details](#access-analytics-for-api-customers) |
 
-## [​](#access-analytics-for-team-and-enterprise "#access-analytics-for-team-and-enterprise") Access analytics for Team and Enterprise
+## [​](#access-analytics-for-team-and-enterprise) Access analytics for Team and Enterprise
 
-Navigate to [claude.ai/analytics/claude-code](https://claude.ai/analytics/claude-code "https://claude.ai/analytics/claude-code"). Admins and Owners can view the dashboard.
+Navigate to [claude.ai/analytics/claude-code](https://claude.ai/analytics/claude-code). Admins and Owners can view the dashboard.
 The Team and Enterprise dashboard includes:
 
 * **Usage metrics**: lines of code accepted, suggestion accept rate, daily active users and sessions
-* **Contribution metrics**: PRs and lines of code shipped with Claude Code assistance, with [GitHub integration](#enable-contribution-metrics "#enable-contribution-metrics")
+* **Contribution metrics**: PRs and lines of code shipped with Claude Code assistance, with [GitHub integration](#enable-contribution-metrics)
 * **Leaderboard**: top contributors ranked by Claude Code usage
 * **Data export**: download contribution data as CSV for custom reporting
 
-For per-user token counts and cost estimates, configure [OpenTelemetry export](./monitoring-usage "_monitoring-usage".md).
+For per-user token counts and cost estimates, configure [OpenTelemetry export](./monitoring-usage.md).
 
-### [​](#enable-contribution-metrics "#enable-contribution-metrics") Enable contribution metrics
+### [​](#enable-contribution-metrics) Enable contribution metrics
 
 Contribution metrics are in public beta and available on Claude for Teams and Claude for Enterprise plans. These metrics only cover users within your claude.ai organization. Usage through the Claude Console API or third-party integrations is not included.
 
 Usage and adoption data is available for all Claude for Teams and Claude for Enterprise accounts. Contribution metrics require additional setup to connect your GitHub organization.
 You need the Owner role to configure analytics settings. A GitHub admin must install the GitHub app.
 
-Contribution metrics are not available for organizations with [Zero Data Retention](./zero-data-retention "_zero-data-retention".md) enabled. The analytics dashboard will show usage metrics only.
+Contribution metrics are not available for organizations with [Zero Data Retention](./zero-data-retention.md) enabled. The analytics dashboard will show usage metrics only.
 
 1
 
 Install the GitHub app
 
-A GitHub admin installs the Claude GitHub app on your organization’s GitHub account at [github.com/apps/claude](https://github.com/apps/claude "https://github.com/apps/claude").
+A GitHub admin installs the Claude GitHub app on your organization’s GitHub account at [github.com/apps/claude](https://github.com/apps/claude).
 
 2
 
 Enable Claude Code analytics
 
-A Claude Owner navigates to [claude.ai/admin-settings/claude-code](https://claude.ai/admin-settings/claude-code "https://claude.ai/admin-settings/claude-code") and enables the Claude Code analytics feature.
+A Claude Owner navigates to [claude.ai/admin-settings/claude-code](https://claude.ai/admin-settings/claude-code) and enables the Claude Code analytics feature.
 
 3
 
@@ -65,7 +59,7 @@ Data typically appears within 24 hours after enabling, with daily updates. If no
 
 Contribution metrics support GitHub Cloud and GitHub Enterprise Server.
 
-### [​](#review-summary-metrics "#review-summary-metrics") Review summary metrics
+### [​](#review-summary-metrics) Review summary metrics
 
 These metrics are deliberately conservative and represent an underestimate of Claude Code’s actual impact. Only lines and PRs where there is high confidence in Claude Code’s involvement are counted.
 
@@ -77,18 +71,18 @@ The dashboard displays these summary metrics at the top:
 * **Suggestion accept rate**: percentage of times users accept Claude Code’s code editing suggestions, including Edit, Write, and NotebookEdit tool usage
 * **Lines of code accepted**: total lines of code written by Claude Code that users have accepted in their sessions. This excludes rejected suggestions and does not track subsequent deletions.
 
-### [​](#explore-the-charts "#explore-the-charts") Explore the charts
+### [​](#explore-the-charts) Explore the charts
 
 The dashboard includes several charts to visualize trends over time.
 
-#### [​](#track-adoption "#track-adoption") Track adoption
+#### [​](#track-adoption) Track adoption
 
 The Adoption chart shows daily usage trends:
 
 * **users**: daily active users
 * **sessions**: number of active Claude Code sessions per day
 
-#### [​](#measure-prs-per-user "#measure-prs-per-user") Measure PRs per user
+#### [​](#measure-prs-per-user) Measure PRs per user
 
 This chart displays individual developer activity over time:
 
@@ -97,7 +91,7 @@ This chart displays individual developer activity over time:
 
 Use this to understand how individual productivity changes as Claude Code adoption increases.
 
-#### [​](#view-pull-requests-breakdown "#view-pull-requests-breakdown") View pull requests breakdown
+#### [​](#view-pull-requests-breakdown) View pull requests breakdown
 
 The Pull requests chart shows a daily breakdown of merged PRs:
 
@@ -106,7 +100,7 @@ The Pull requests chart shows a daily breakdown of merged PRs:
 
 Toggle to **Lines of code** view to see the same breakdown by lines of code rather than PR count.
 
-#### [​](#find-top-contributors "#find-top-contributors") Find top contributors
+#### [​](#find-top-contributors) Find top contributors
 
 The Leaderboard shows the top 10 users ranked by contribution volume. Toggle between:
 
@@ -115,15 +109,15 @@ The Leaderboard shows the top 10 users ranked by contribution volume. Toggle bet
 
 Click **Export all users** to download complete contribution data for all users as a CSV file. The export includes all users, not just the top 10 displayed.
 
-### [​](#pr-attribution "#pr-attribution") PR attribution
+### [​](#pr-attribution) PR attribution
 
 When contribution metrics are enabled, Claude Code analyzes merged pull requests to determine which code was written with Claude Code assistance. This is done by matching Claude Code session activity against the code in each PR.
 
-#### [​](#tagging-criteria "#tagging-criteria") Tagging criteria
+#### [​](#tagging-criteria) Tagging criteria
 
 PRs are tagged as “with Claude Code” if they contain at least one line of code written during a Claude Code session. The system uses conservative matching: only code where there is high confidence in Claude Code’s involvement is counted as assisted.
 
-#### [​](#attribution-process "#attribution-process") Attribution process
+#### [​](#attribution-process) Attribution process
 
 When a pull request is merged:
 
@@ -135,21 +129,21 @@ When a pull request is merged:
 Before comparison, lines are normalized: whitespace is trimmed, multiple spaces are collapsed, quotes are standardized, and text is converted to lowercase.
 Merged pull requests containing Claude Code-assisted lines are labeled as `claude-code-assisted` in GitHub.
 
-#### [​](#time-window "#time-window") Time window
+#### [​](#time-window) Time window
 
 Sessions from 21 days before to 2 days after the PR merge date are considered for attribution matching.
 
-#### [​](#excluded-files "#excluded-files") Excluded files
+#### [​](#excluded-files) Excluded files
 
 Certain files are automatically excluded from analysis because they are auto-generated:
 
 * Lock files: package-lock.json, yarn.lock, Cargo.lock, and similar
 * Generated code: Protobuf outputs, build artifacts, minified files
-* Build directories: dist/, build/, node\_modules/, target/
+* Build directories: dist/, build/, node_modules/, target/
 * Test fixtures: snapshots, cassettes, mock data
 * Lines over 1,000 characters, which are likely minified or generated
 
-#### [​](#attribution-notes "#attribution-notes") Attribution notes
+#### [​](#attribution-notes) Attribution notes
 
 Keep these additional details in mind when interpreting attribution data:
 
@@ -157,11 +151,11 @@ Keep these additional details in mind when interpreting attribution data:
 * Sessions outside the 21-day window are not considered
 * The algorithm does not consider the PR source or destination branch when performing attribution
 
-### [​](#get-the-most-from-analytics "#get-the-most-from-analytics") Get the most from analytics
+### [​](#get-the-most-from-analytics) Get the most from analytics
 
 Use contribution metrics to demonstrate ROI, identify adoption patterns, and find team members who can help others get started.
 
-#### [​](#monitor-adoption "#monitor-adoption") Monitor adoption
+#### [​](#monitor-adoption) Monitor adoption
 
 Track the Adoption chart and user counts to identify:
 
@@ -169,15 +163,15 @@ Track the Adoption chart and user counts to identify:
 * Overall adoption trends across your organization
 * Dips in usage that may indicate friction or issues
 
-#### [​](#measure-roi "#measure-roi") Measure ROI
+#### [​](#measure-roi) Measure ROI
 
 Contribution metrics help answer “Is this tool worth the investment?” with data from your own codebase:
 
 * Track changes in PRs per user over time as adoption increases
 * Compare PRs and lines of code shipped with vs. without Claude Code
-* Use alongside [DORA metrics](https://dora.dev/ "https://dora.dev/"), sprint velocity, or other engineering KPIs to understand changes from adopting Claude Code
+* Use alongside [DORA metrics](https://dora.dev/), sprint velocity, or other engineering KPIs to understand changes from adopting Claude Code
 
-#### [​](#identify-power-users "#identify-power-users") Identify power users
+#### [​](#identify-power-users) Identify power users
 
 The Leaderboard helps you find team members with high Claude Code adoption who can:
 
@@ -185,13 +179,13 @@ The Leaderboard helps you find team members with high Claude Code adoption who c
 * Provide feedback on what’s working well
 * Help onboard new users
 
-#### [​](#access-data-programmatically "#access-data-programmatically") Access data programmatically
+#### [​](#access-data-programmatically) Access data programmatically
 
 To query this data through GitHub, search for PRs labeled with `claude-code-assisted`.
 
-## [​](#access-analytics-for-api-customers "#access-analytics-for-api-customers") Access analytics for API customers
+## [​](#access-analytics-for-api-customers) Access analytics for API customers
 
-API customers using the Claude Console can access analytics at [platform.claude.com/claude-code](https://platform.claude.com/claude-code "https://platform.claude.com/claude-code"). You need the UsageView permission to access the dashboard, which is granted to Developer, Billing, Admin, Owner, and Primary Owner roles.
+API customers using the Claude Console can access analytics at [platform.claude.com/claude-code](https://platform.claude.com/claude-code). You need the UsageView permission to access the dashboard, which is granted to Developer, Billing, Admin, Owner, and Primary Owner roles.
 
 Contribution metrics with GitHub integration are not currently available for API customers. The Console dashboard shows usage and spend metrics only.
 
@@ -202,7 +196,7 @@ The Console dashboard displays:
 * **Activity**: daily active users and sessions shown on a chart.
 * **Spend**: daily API costs in dollars alongside user count.
 
-### [​](#view-team-insights "#view-team-insights") View team insights
+### [​](#view-team-insights) View team insights
 
 The team insights table shows per-user metrics:
 
@@ -212,8 +206,8 @@ The team insights table shows per-user metrics:
 
 Spend figures in the Console dashboard are estimates for analytics purposes. For actual costs, refer to your billing page.
 
-## [​](#related-resources "#related-resources") Related resources
+## [​](#related-resources) Related resources
 
-* [Monitoring with OpenTelemetry](./monitoring-usage "_monitoring-usage".md): export real-time metrics and events to your observability stack
-* [Manage costs effectively](./costs "_costs".md): set spend limits and optimize token usage
-* [Permissions](./permissions "_permissions".md): configure roles and permissions
+* [Monitoring with OpenTelemetry](./monitoring-usage.md): export real-time metrics and events to your observability stack
+* [Manage costs effectively](./costs.md): set spend limits and optimize token usage
+* [Permissions](./permissions.md): configure roles and permissions

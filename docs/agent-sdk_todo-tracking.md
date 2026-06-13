@@ -1,16 +1,10 @@
-# Agent Sdk task Tracking
-
-> ## Documentation Index
->
-> Fetch the complete documentation index at: [https://code.claude.com/docs/llms.txt](https://code.claude.com/docs/llms.txt "https://code.claude.com/docs/llms.txt")
->
-> Use this file to discover all available pages before exploring further.
+# Agent-Sdk task-Tracking
 
 task tracking provides a structured way to manage tasks and display progress to users. The Claude Agent SDK includes built-in task functionality that helps organize complex workflows and keep users informed about task progression.
 
-As of TypeScript Agent SDK 0.3.142 and Claude Code v2.1.142, sessions use the structured Task tools `TaskCreate`, `TaskUpdate`, `TaskGet`, and `TaskList` instead of `TodoWrite`. See [Migrate to Task tools](#migrate-to-task-tools "#migrate-to-task-tools") for how monitoring code changes. The examples on this page set `CLAUDE_CODE_ENABLE_TASKS=0` to keep showing `TodoWrite` for sessions that have not migrated yet.
+As of TypeScript Agent SDK 0.3.142 and Claude Code v2.1.142, sessions use the structured Task tools `TaskCreate`, `TaskUpdate`, `TaskGet`, and `TaskList` instead of `TodoWrite`. See [Migrate to Task tools](#migrate-to-task-tools) for how monitoring code changes. The examples on this page set `CLAUDE_CODE_ENABLE_TASKS=0` to keep showing `TodoWrite` for sessions that have not migrated yet.
 
-### [​](#task-lifecycle "#task-lifecycle") task Lifecycle
+### [​](#task-lifecycle) task Lifecycle
 
 tasks follow a predictable lifecycle:
 
@@ -19,7 +13,7 @@ tasks follow a predictable lifecycle:
 3. **Completed** when the task finishes successfully
 4. **Removed** when all tasks in a group are completed
 
-### [​](#when-tasks-are-used "#when-tasks-are-used") When tasks Are Used
+### [​](#when-tasks-are-used) When tasks Are Used
 
 The SDK automatically creates tasks for:
 
@@ -28,9 +22,9 @@ The SDK automatically creates tasks for:
 * **Non-trivial operations** that benefit from progress tracking
 * **Explicit requests** when users ask for task organization
 
-## [​](#examples "#examples") Examples
+## [​](#examples) Examples
 
-### [​](#monitoring-task-changes "#monitoring-task-changes") Monitoring task Changes
+### [​](#monitoring-task-changes) Monitoring task Changes
 
 TypeScript
 
@@ -63,7 +57,7 @@ for await (const message of query({
 }
 ```
 
-### [​](#real-time-progress-display "#real-time-progress-display") Real-time Progress Display
+### [​](#real-time-progress-display) Real-time Progress Display
 
 TypeScript
 
@@ -116,7 +110,7 @@ const tracker = new TodoTracker();
 await tracker.trackQuery("Build a complete authentication system with tasks");
 ```
 
-## [​](#migrate-to-task-tools "#migrate-to-task-tools") Migrate to Task tools
+## [​](#migrate-to-task-tools) Migrate to Task tools
 
 The Task tools split the single `TodoWrite` call into `TaskCreate` for each new item and `TaskUpdate` for each status change, with `TaskList` and `TaskGet` available for the model to read back the current list. Your monitoring code still inspects `tool_use` blocks in the assistant stream, but maintains a map keyed by task ID instead of replacing the whole list on every call. The Task tools are the default as of TypeScript Agent SDK 0.3.142 and Claude Code v2.1.142, so no `options.env` change is needed.
 
@@ -127,7 +121,7 @@ The Task tools split the single `TodoWrite` call into `TaskCreate` for each new 
 | Item shape: `{ content, status, activeForm }` | `TaskCreate` input: `{ subject, description, activeForm?, metadata? }`. `TaskUpdate` input: `{ taskId, status?, subject?, description?, activeForm?, addBlocks?, addBlockedBy?, owner?, metadata? }`. `status` is `"pending"`, `"in_progress"`, or `"completed"`; set `status: "deleted"` to delete |
 | Render `block.input.tasks` directly | Accumulate items across calls, or read a snapshot from a `TaskList` tool result |
 
-The assigned task ID is not in the `TaskCreate` input. It comes back in the matching `tool_result` as `{ task: { id, subject } }`, so capture it from the result block to key your map. The following example shows the minimal change to the [Monitoring task Changes](#monitoring-task-changes "#monitoring-task-changes") loop. To render a complete list, watch for a `TaskList` tool result in the stream or accumulate `TaskCreate` results and `TaskUpdate` inputs into a map:
+The assigned task ID is not in the `TaskCreate` input. It comes back in the matching `tool_result` as `{ task: { id, subject } }`, so capture it from the result block to key your map. The following example shows the minimal change to the [Monitoring task Changes](#monitoring-task-changes) loop. To render a complete list, watch for a `TaskList` tool result in the stream or accumulate `TaskCreate` results and `TaskUpdate` inputs into a map:
 
 TypeScript
 
@@ -153,9 +147,9 @@ for await (const message of query({
 }
 ```
 
-## [​](#related-documentation "#related-documentation") Related Documentation
+## [​](#related-documentation) Related Documentation
 
-* [TypeScript SDK Reference](./agent-sdk_typescript "_agent-sdk_typescript".md)
-* [Python SDK Reference](./agent-sdk_python "_agent-sdk_python".md)
-* [Streaming vs Single Mode](./agent-sdk_streaming-vs-single-mode "_agent-sdk_streaming-vs-single-mode".md)
-* [Custom Tools](./agent-sdk_custom-tools "_agent-sdk_custom-tools".md)
+* [TypeScript SDK Reference](./agent-sdk_typescript.md)
+* [Python SDK Reference](./agent-sdk_python.md)
+* [Streaming vs Single Mode](./agent-sdk_streaming-vs-single-mode.md)
+* [Custom Tools](./agent-sdk_custom-tools.md)

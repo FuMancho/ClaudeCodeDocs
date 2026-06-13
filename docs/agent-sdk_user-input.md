@@ -1,16 +1,10 @@
-> ## Documentation Index
->
-> Fetch the complete documentation index at: [https://code.claude.com/docs/llms.txt](https://code.claude.com/docs/llms.txt "https://code.claude.com/docs/llms.txt")
->
-> Use this file to discover all available pages before exploring further.
-
 While working on a task, Claude sometimes needs to check in with users. It might need permission before deleting files, or need to ask which database to use for a new project. Your application needs to surface these requests to users so Claude can continue with their input.
 Claude requests user input in two situations: when it needs **permission to use a tool** (like deleting files or running commands), and when it has **clarifying questions** (via the `AskUserQuestion` tool). Both trigger your `canUseTool` callback, which pauses execution until you return a response. This is different from normal conversation turns where Claude finishes and waits for your next message.
 For clarifying questions, Claude generates the questions and options. Your role is to present them to users and return their selections. You can’t add your own questions to this flow; if you need to ask users something yourself, do that separately in your application logic.
-The callback can stay pending indefinitely. Execution remains paused until your callback returns, and the SDK only cancels the wait when the query itself is cancelled. If a user might take longer to respond than your process can reasonably stay running, return the [`defer` hook decision](./hooks#defer-a-tool-call-for-later "_hooks#defer-a-tool-call-for-later".md), which lets the process exit and resume later from the persisted session.
+The callback can stay pending indefinitely. Execution remains paused until your callback returns, and the SDK only cancels the wait when the query itself is cancelled. If a user might take longer to respond than your process can reasonably stay running, return the [`defer` hook decision](./hooks.md#defer-a-tool-call-for-later), which lets the process exit and resume later from the persisted session.
 This guide shows you how to detect each type of request and respond appropriately.
 
-## [​](#detect-when-claude-needs-input "#detect-when-claude-needs-input") Detect when Claude needs input
+## [​](#detect-when-claude-needs-input) Detect when Claude needs input
 
 Pass a `canUseTool` callback in your query options. The callback fires whenever Claude needs user input, receiving the tool name and input as arguments:
 
@@ -29,12 +23,12 @@ options = ClaudeAgentOptions(can_use_tool=handle_tool_request)
 
 The callback fires in two cases:
 
-1. **Tool needs approval**: Claude wants to use a tool that isn’t auto-approved by [permission rules](./agent-sdk_permissions "_agent-sdk_permissions".md) or modes. Check `tool_name` for the tool (e.g., `"Bash"`, `"Write"`).
-2. **Claude asks a question**: Claude calls the `AskUserQuestion` tool. Check if `tool_name == "AskUserQuestion"` to handle it differently. If you specify a `tools` array, include `AskUserQuestion` for this to work. See [Handle clarifying questions](#handle-clarifying-questions "#handle-clarifying-questions") for details.
+1. **Tool needs approval**: Claude wants to use a tool that isn’t auto-approved by [permission rules](./agent-sdk_permissions.md) or modes. Check `tool_name` for the tool (e.g., `"Bash"`, `"Write"`).
+2. **Claude asks a question**: Claude calls the `AskUserQuestion` tool. Check if `tool_name == "AskUserQuestion"` to handle it differently. If you specify a `tools` array, include `AskUserQuestion` for this to work. See [Handle clarifying questions](#handle-clarifying-questions) for details.
 
-To automatically allow or deny tools without prompting users, use [hooks](./agent-sdk_hooks "_agent-sdk_hooks".md) instead. Hooks execute before `canUseTool` and can allow, deny, or modify requests based on your own logic. You can also use the [`PermissionRequest` hook](./agent-sdk_hooks#available-hooks "_agent-sdk_hooks#available-hooks".md) to send external notifications (Slack, email, push) when Claude is waiting for approval.
+To automatically allow or deny tools without prompting users, use [hooks](./agent-sdk_hooks.md) instead. Hooks execute before `canUseTool` and can allow, deny, or modify requests based on your own logic. You can also use the [`PermissionRequest` hook](./agent-sdk_hooks.md#available-hooks) to send external notifications (Slack, email, push) when Claude is waiting for approval.
 
-## [​](#handle-tool-approval-requests "#handle-tool-approval-requests") Handle tool approval requests
+## [​](#handle-tool-approval-requests) Handle tool approval requests
 
 Once you’ve passed a `canUseTool` callback in your query options, it fires when Claude wants to use a tool that isn’t auto-approved. Your callback receives three arguments:
 
@@ -42,7 +36,7 @@ Once you’ve passed a `canUseTool` callback in your query options, it fires whe
 | --- | --- |
 | `toolName` | The name of the tool Claude wants to use (e.g., `"Bash"`, `"Write"`, `"Edit"`) |
 | `input` | The parameters Claude is passing to the tool. Contents vary by tool. |
-| `options` (TS) / `context` (Python) | Additional context including optional `suggestions` (proposed `PermissionUpdate` entries to avoid re-prompting) and a cancellation signal. In TypeScript, `signal` is an `AbortSignal`; in Python, the signal field is reserved for future use. See [`ToolPermissionContext`](./agent-sdk_python#toolpermissioncontext "_agent-sdk_python#toolpermissioncontext".md) for Python. |
+| `options` (TS) / `context` (Python) | Additional context including optional `suggestions` (proposed `PermissionUpdate` entries to avoid re-prompting) and a cancellation signal. In TypeScript, `signal` is an `AbortSignal`; in Python, the signal field is reserved for future use. See [`ToolPermissionContext`](./agent-sdk_python.md#toolpermissioncontext) for Python. |
 
 The `input` object contains tool-specific parameters. Common examples:
 
@@ -53,7 +47,7 @@ The `input` object contains tool-specific parameters. Common examples:
 | `Edit` | `file_path`, `old_string`, `new_string` |
 | `Read` | `file_path`, `offset`, `limit` |
 
-See the SDK reference for complete input schemas: [Python](./agent-sdk_python#tool-input%2Foutput-types "_agent-sdk_python#tool-input%2Foutput-types".md) | [TypeScript](./agent-sdk_typescript#tool-input-types "_agent-sdk_typescript#tool-input-types".md).
+See the SDK reference for complete input schemas: [Python](./agent-sdk_python.md#tool-input%2Foutput-types) | [TypeScript](./agent-sdk_typescript.md#tool-input-types).
 You can display this information to the user so they can decide whether to allow or reject the action, then return the appropriate response.
 The following example asks Claude to create and delete a test file. When Claude attempts each operation, the callback prints the tool request to the terminal and prompts for y/n approval.
 
@@ -127,11 +121,11 @@ async def main():
 asyncio.run(main())
 ```
 
-In Python, `can_use_tool` requires [streaming mode](./agent-sdk_streaming-vs-single-mode "_agent-sdk_streaming-vs-single-mode".md) and a `PreToolUse` hook that returns `{"continue_": True}` to keep the stream open. Without this hook, the stream closes before the permission callback can be invoked.
+In Python, `can_use_tool` requires [streaming mode](./agent-sdk_streaming-vs-single-mode.md) and a `PreToolUse` hook that returns `{"continue_": True}` to keep the stream open. Without this hook, the stream closes before the permission callback can be invoked.
 
-This example uses a `y/n` flow where any input other than `y` is treated as a denial. In practice, you might build a richer UI that lets users modify the request, provide feedback, or redirect Claude entirely. See [Respond to tool requests](#respond-to-tool-requests "#respond-to-tool-requests") for all the ways you can respond.
+This example uses a `y/n` flow where any input other than `y` is treated as a denial. In practice, you might build a richer UI that lets users modify the request, provide feedback, or redirect Claude entirely. See [Respond to tool requests](#respond-to-tool-requests) for all the ways you can respond.
 
-### [​](#respond-to-tool-requests "#respond-to-tool-requests") Respond to tool requests
+### [​](#respond-to-tool-requests) Respond to tool requests
 
 Your callback returns one of two response types:
 
@@ -163,7 +157,7 @@ Beyond allowing or denying, you can modify the tool’s input or provide context
 * **Approve and remember**: echo a suggested permission rule back so matching calls skip the prompt next time
 * **Reject**: block the tool and tell Claude why
 * **Suggest alternative**: block but guide Claude toward what the user wants instead
-* **Redirect entirely**: use [streaming input](./agent-sdk_streaming-vs-single-mode "_agent-sdk_streaming-vs-single-mode".md) to send Claude a completely new instruction
+* **Redirect entirely**: use [streaming input](./agent-sdk_streaming-vs-single-mode.md) to send Claude a completely new instruction
 
 * Approve
 * Approve with changes
@@ -206,7 +200,7 @@ async def can_use_tool(tool_name, input_data, context):
     return PermissionResultAllow(updated_input=input_data)
 ```
 
-The user approves and doesn’t want to be asked again for this kind of call. The third callback argument carries `suggestions`, an array of ready-made [`PermissionUpdate`](./agent-sdk_typescript#permissionupdate "_agent-sdk_typescript#permissionupdate".md) entries. Echo one back in `updatedPermissions` to apply it. A suggestion with the `localSettings` destination writes the rule to `.claude/settings.local.json` so future sessions skip the prompt for matching calls.The Python example requires `claude-agent-sdk` 0.1.80 or later.
+The user approves and doesn’t want to be asked again for this kind of call. The third callback argument carries `suggestions`, an array of ready-made [`PermissionUpdate`](./agent-sdk_typescript.md#permissionupdate) entries. Echo one back in `updatedPermissions` to apply it. A suggestion with the `localSettings` destination writes the rule to `.claude/settings.local.json` so future sessions skip the prompt for matching calls.The Python example requires `claude-agent-sdk` 0.1.80 or later.
 
 Python
 
@@ -259,13 +253,13 @@ async def can_use_tool(tool_name, input_data, context):
     return PermissionResultAllow(updated_input=input_data)
 ```
 
-For a complete change of direction (not just a nudge), use [streaming input](./agent-sdk_streaming-vs-single-mode "_agent-sdk_streaming-vs-single-mode".md) to send Claude a new instruction directly. This bypasses the current tool request and gives Claude entirely new instructions to follow.
+For a complete change of direction (not just a nudge), use [streaming input](./agent-sdk_streaming-vs-single-mode.md) to send Claude a new instruction directly. This bypasses the current tool request and gives Claude entirely new instructions to follow.
 
-## [​](#handle-clarifying-questions "#handle-clarifying-questions") Handle clarifying questions
+## [​](#handle-clarifying-questions) Handle clarifying questions
 
 When Claude needs more direction on a task with multiple valid approaches, it calls the `AskUserQuestion` tool. This triggers your `canUseTool` callback with `toolName` set to `AskUserQuestion`. The input contains Claude’s questions as multiple-choice options, which you display to the user and return their selections.
 
-Clarifying questions are especially common in [`plan` mode](./agent-sdk_permissions#plan-mode-plan "_agent-sdk_permissions#plan-mode-plan".md), where Claude explores the codebase and asks questions before proposing a plan. This makes plan mode ideal for interactive workflows where you want Claude to gather requirements before making changes.
+Clarifying questions are especially common in [`plan` mode](./agent-sdk_permissions.md#plan-mode-plan), where Claude explores the codebase and asks questions before proposing a plan. This makes plan mode ideal for interactive workflows where you want Claude to gather requirements before making changes.
 
 The following steps show how to handle clarifying questions:
 
@@ -341,7 +335,7 @@ The input contains Claude’s questions in a `questions` array. Each question ha
 }
 ```
 
-See [Question format](#question-format "#question-format") for full field descriptions.
+See [Question format](#question-format) for full field descriptions.
 
 4
 
@@ -360,7 +354,7 @@ Build the `answers` object as a record where each key is the `question` text and
 | `question` field (e.g., `"How should I format the output?"`) | Key |
 | Selected option’s `label` field (e.g., `"Summary"`) | Value |
 
-For multi-select questions, pass an array of labels or join them with `", "`. If you [support free-text input](#support-free-text-input "#support-free-text-input"), use the user’s custom text as the value.
+For multi-select questions, pass an array of labels or join them with `", "`. If you [support free-text input](#support-free-text-input), use the user’s custom text as the value.
 
 Python
 
@@ -378,7 +372,7 @@ return PermissionResultAllow(
 )
 ```
 
-### [​](#question-format "#question-format") Question format
+### [​](#question-format) Question format
 
 The input contains Claude’s generated questions in a `questions` array. Each question has these fields:
 
@@ -386,7 +380,7 @@ The input contains Claude’s generated questions in a `questions` array. Each q
 | --- | --- |
 | `question` | The full question text to display |
 | `header` | Short label for the question (max 12 characters) |
-| `options` | Array of 2-4 choices, each with `label` and `description`. TypeScript: optionally `preview` (see [below](#option-previews-type-script "#option-previews-type-script")) |
+| `options` | Array of 2-4 choices, each with `label` and `description`. TypeScript: optionally `preview` (see [below](#option-previews-typescript)) |
 | `multiSelect` | If `true`, users can select multiple options |
 
 The structure your callback receives:
@@ -407,7 +401,7 @@ The structure your callback receives:
 }
 ```
 
-#### [​](#option-previews-typescript "#option-previews-typescript") Option previews (TypeScript)
+#### [​](#option-previews-typescript) Option previews (TypeScript)
 
 `toolConfig.askUserQuestion.previewFormat` adds a `preview` field to each option so your app can show a visual mockup alongside the label. Without this setting, Claude does not generate previews and the field is absent.
 
@@ -448,7 +442,7 @@ An option with an HTML preview:
 }
 ```
 
-### [​](#response-format "#response-format") Response format
+### [​](#response-format) Response format
 
 Return an `answers` object mapping each question’s `question` field to the selected option’s `label`:
 
@@ -456,8 +450,9 @@ Return an `answers` object mapping each question’s `question` field to the sel
 | --- | --- |
 | `questions` | Pass through the original questions array (required for tool processing) |
 | `answers` | Object where keys are question text and values are selected labels |
+| `response` | Optional freeform reply the user typed instead of answering the structured questions |
 
-For multi-select questions, pass an array of labels or join them with `", "`. For free-text input, use the user’s custom text directly.
+For multi-select questions, pass an array of labels or join them with `", "`. For per-question free text such as an “Other” option, put the user’s text in `answers[question]` as shown in [Support free-text input](#support-free-text-input). Set `response` only when your UI lets the user dismiss the question card and type a general reply that isn’t an answer to any specific question. When `response` is set, Claude receives “The user responded: …” instead of the per-question answer list.
 
 ```
 {
@@ -471,16 +466,16 @@ For multi-select questions, pass an array of labels or join them with `", "`. Fo
 }
 ```
 
-#### [​](#support-free-text-input "#support-free-text-input") Support free-text input
+#### [​](#support-free-text-input) Support free-text input
 
 Claude’s predefined options won’t always cover what users want. To let users type their own answer:
 
 * Display an additional “Other” choice after Claude’s options that accepts text input
 * Use the user’s custom text as the answer value (not the word “Other”)
 
-See the [complete example](#complete-example "#complete-example") below for a full implementation.
+See the [complete example](#complete-example) below for a full implementation.
 
-### [​](#complete-example "#complete-example") Complete example
+### [​](#complete-example) Complete example
 
 Claude asks clarifying questions when it needs user input to proceed. For example, when asked to help decide on a tech stack for a mobile app, Claude might ask about cross-platform vs native, backend preferences, or target platforms. These questions help Claude make decisions that match the user’s preferences rather than guessing.
 This example handles those questions in a terminal application. Here’s what happens at each step:
@@ -578,18 +573,18 @@ async def main():
 asyncio.run(main())
 ```
 
-## [​](#limitations "#limitations") Limitations
+## [​](#limitations) Limitations
 
 * **Subagents**: `AskUserQuestion` is not currently available in subagents spawned via the Agent tool
 * **Question limits**: each `AskUserQuestion` call supports 1-4 questions with 2-4 options each
 
-## [​](#other-ways-to-get-user-input "#other-ways-to-get-user-input") Other ways to get user input
+## [​](#other-ways-to-get-user-input) Other ways to get user input
 
 The `canUseTool` callback and `AskUserQuestion` tool cover most approval and clarification scenarios, but the SDK offers other ways to get input from users:
 
-### [​](#streaming-input "#streaming-input") Streaming input
+### [​](#streaming-input) Streaming input
 
-Use [streaming input](./agent-sdk_streaming-vs-single-mode "_agent-sdk_streaming-vs-single-mode".md) when you need to:
+Use [streaming input](./agent-sdk_streaming-vs-single-mode.md) when you need to:
 
 * **Interrupt the agent mid-task**: send a cancel signal or change direction while Claude is working
 * **Provide additional context**: add information Claude needs without waiting for it to ask
@@ -597,9 +592,9 @@ Use [streaming input](./agent-sdk_streaming-vs-single-mode "_agent-sdk_streaming
 
 Streaming input is ideal for conversational UIs where users interact with the agent throughout execution, not just at approval checkpoints.
 
-### [​](#custom-tools "#custom-tools") Custom tools
+### [​](#custom-tools) Custom tools
 
-Use [custom tools](./agent-sdk_custom-tools "_agent-sdk_custom-tools".md) when you need to:
+Use [custom tools](./agent-sdk_custom-tools.md) when you need to:
 
 * **Collect structured input**: build forms, wizards, or multi-step workflows that go beyond `AskUserQuestion`’s multiple-choice format
 * **Integrate external approval systems**: connect to existing ticketing, workflow, or approval platforms
@@ -607,8 +602,8 @@ Use [custom tools](./agent-sdk_custom-tools "_agent-sdk_custom-tools".md) when y
 
 Custom tools give you full control over the interaction, but require more implementation work than using the built-in `canUseTool` callback.
 
-## [​](#related-resources "#related-resources") Related resources
+## [​](#related-resources) Related resources
 
-* [Configure permissions](./agent-sdk_permissions "_agent-sdk_permissions".md): set up permission modes and rules
-* [Control execution with hooks](./agent-sdk_hooks "_agent-sdk_hooks".md): run custom code at key points in the agent lifecycle
-* [TypeScript SDK reference](./agent-sdk_typescript#canusetool "_agent-sdk_typescript#canusetool".md): full canUseTool API documentation
+* [Configure permissions](./agent-sdk_permissions.md): set up permission modes and rules
+* [Control execution with hooks](./agent-sdk_hooks.md): run custom code at key points in the agent lifecycle
+* [TypeScript SDK reference](./agent-sdk_typescript.md#canusetool): full canUseTool API documentation

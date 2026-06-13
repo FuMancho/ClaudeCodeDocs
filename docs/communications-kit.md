@@ -1,20 +1,14 @@
-# Communications Kit
-
-> ## Documentation Index
->
-> Fetch the complete documentation index at: [https://code.claude.com/docs/llms.txt](https://code.claude.com/docs/llms.txt "https://code.claude.com/docs/llms.txt")
->
-> Use this file to discover all available pages before exploring further.
+# Communications-Kit
 
 This page is for administrators and engineering leads rolling Claude Code out to a team. It provides copy-ready launch announcements, a tips-and-tricks drip campaign, and one-line FAQ responses for the questions you will be asked most.
 
-Treat everything here as draft copy, not finished copy. Rewrite each message in your organization’s voice, swap the example tasks for real bugs and modules from your own codebase, and replace the `[bracketed placeholders]` before sending. The announcements that drive adoption are the ones that read like someone at your company wrote them.
+Treat everything here as draft copy, not finished copy. Rewrite each message in your organization’s voice, swap the example tasks for real bugs and modules from your own codebase, and replace the `[bracketed s]` before sending. The announcements that drive adoption are the ones that read like someone at your company wrote them.
 
-## [​](#launch-communications "#launch-communications") Launch communications
+## [​](#launch-communications) Launch communications
 
 One announcement in two formats, plus two optional variants. Pick whichever fits your rollout and rewrite it from there.
 
-### [​](#before-you-send "#before-you-send") Before you send
+### [​](#before-you-send) Before you send
 
 Work through this checklist before the announcement goes out. Each item closes a gap that otherwise turns into a launch-day support thread.
 
@@ -22,12 +16,12 @@ Work through this checklist before the announcement goes out. Each item closes a
 | --- | --- |
 | `#claude-code` channel created and linked in the message | Gives questions one place to land |
 | Install command tested on at least one machine in your environment | Catches proxy or firewall issues before everyone hits them at once |
-| Security and data-handling link ready ([Data usage](./data-usage "_data-usage".md) or your internal equivalent) | “Where does my code go?” will be the first reply |
+| Security and data-handling link ready ([Data usage](./data-usage.md) or your internal equivalent) | “Where does my code go?” will be the first reply |
 | One concrete first task chosen, a real bug or file in your codebase | Generic examples don’t convert; “fix the flaky test in `auth_test.go`” does |
 | A named owner for the channel for the first 48 hours | Unanswered launch-day questions kill momentum |
 | A C-suite sponsor lined up to send or co-sign the announcement | Exec-sent launches consistently see higher first-week adoption than admin-sent ones |
 
-### [​](#the-announcement "#the-announcement") The announcement
+### [​](#the-announcement) The announcement
 
 Use this as your standard org-wide rollout message. It covers what Claude Code is, gives a two-minute install path, hands readers one concrete task to try, and answers “where does my code go?” before anyone has to ask.
 
@@ -99,7 +93,7 @@ Data usage → https://code.claude.com/docs/en/data-usage
 Questions → this thread. [Owner] is on point.
 ```
 
-### [​](#executive-sponsor-variant "#executive-sponsor-variant") Executive sponsor variant
+### [​](#executive-sponsor-variant) Executive sponsor variant
 
 Send this from your sponsoring executive, such as the CTO, CIO, or SVP Engineering, under their name and from their account. Launches that go out under an exec’s name consistently see higher open rates and faster first-week activation than the same message from an admin or tooling team. It signals a company priority rather than an optional experiment.
 This version is deliberately stripped to one ask: install it and run it on one real task. The exec’s job is to make the ask land; the standard announcement and `#claude-code` handle the how.
@@ -146,7 +140,7 @@ work this week.
 That's it. Questions → #claude-code.
 ```
 
-### [​](#pilot-group-variant "#pilot-group-variant") Pilot group variant
+### [​](#pilot-group-variant) Pilot group variant
 
 Use for a phased rollout. Send to the pilot cohort only.
 
@@ -170,7 +164,7 @@ before it touches a file. It is the fastest way to calibrate how much to
 trust it.
 ```
 
-### [​](#champion-recruitment-dm "#champion-recruitment-dm") Champion recruitment DM
+### [​](#champion-recruitment-dm) Champion recruitment DM
 
 After launch, DM the two or three people who are most active in `#claude-code`.
 
@@ -184,12 +178,12 @@ are posting, plus first crack at new features and a direct line to the
 Anthropic team. I can share a short playbook if you're in.
 ```
 
-## [​](#tips-and-tricks-campaign "#tips-and-tricks-campaign") Tips and tricks campaign
+## [​](#tips-and-tricks-campaign) Tips and tricks campaign
 
 Ready-to-paste Slack or Teams messages designed to drive feature activation after launch. Each follows the same pattern: a hook, the payoff, a “try it now” prompt, and a docs link. Drip them one or two a week in `#claude-code`, or pick the handful that match your team’s gaps. They stand alone with no required order.
-Copy the message body from each block directly into Slack or Teams. Replace `[bracketed placeholders]` before sending.
+Copy the message body from each block directly into Slack or Teams. Replace `[bracketed s]` before sending.
 
-### [​](#get-started "#get-started") Get started
+### [​](#get-started) Get started
 
 **Choosing the right model**
 
@@ -203,7 +197,10 @@ Claude Code runs on the same models as the Claude app, and you can switch
 mid-session. *Sonnet* is the workhorse default for everyday feature work,
 bugs, tests, and reviews. Reach for *Opus* on large refactors, gnarly
 debugging, or anything high-stakes. Drop to *Haiku* for quick questions,
-formatting, and mechanical edits where speed wins.
+formatting, and mechanical edits where speed wins. *Fable 5* is the most
+capable model for your hardest, longest-running tasks; it is not the
+default, so select it with `/model fable`, and note that cybersecurity and
+biology content falls back to Opus automatically.
 
 *Try it now:* type `/model` and pick Sonnet if you haven't already. It is
 the right default for most tasks.
@@ -213,6 +210,7 @@ the right default for most tasks.
 
 | Model | Best for |
 | --- | --- |
+| Fable 5 | The hardest, longest-running tasks. Opt-in only: select it with `/model fable`. Cybersecurity or biology content [falls back to Opus](./model-config.md#automatic-model-fallback) |
 | Opus | Large-scale refactors, complex debugging, architecture decisions, high-stakes changes |
 | Sonnet | Everyday feature work, bug fixes, tests, documentation, code review. Recommended default. |
 | Haiku | Quick questions, formatting, mechanical edits, rapid iteration |
@@ -238,7 +236,7 @@ message in.
 📖 Quickstart → https://code.claude.com/docs/en/quickstart
 ```
 
-### [​](#project-memory "#project-memory") Project memory
+### [​](#project-memory) Project memory
 
 **`/init` and CLAUDE.md**
 
@@ -278,7 +276,7 @@ Works for whole directories too.
 📖 Referencing files → https://code.claude.com/docs/en/common-workflows
 ```
 
-### [​](#control-and-safety "#control-and-safety") Control and safety
+### [​](#control-and-safety) Control and safety
 
 **Permission modes**
 
@@ -319,7 +317,7 @@ Pick the point before things went sideways.
 📖 Checkpointing → https://code.claude.com/docs/en/checkpointing
 ```
 
-### [​](#connect-your-tools "#connect-your-tools") Connect your tools
+### [​](#connect-your-tools) Connect your tools
 
 **MCP connectors**
 
@@ -340,7 +338,7 @@ in this repo". It will write the config for you.
 📖 MCP connectors → https://code.claude.com/docs/en/mcp
 ```
 
-### [​](#automate-your-workflows "#automate-your-workflows") Automate your workflows
+### [​](#automate-your-workflows) Automate your workflows
 
 **Skills**
 
@@ -378,7 +376,7 @@ when you finish". It will write the script and wire it up.
 📖 Hooks guide → https://code.claude.com/docs/en/hooks-guide
 ```
 
-### [​](#day-to-day-development "#day-to-day-development") Day-to-day development
+### [​](#day-to-day-development) Day-to-day development
 
 **Screenshots and images**
 
@@ -417,7 +415,7 @@ just type "commit this with a good message and open a PR".
 📖 Creating pull requests → https://code.claude.com/docs/en/common-workflows
 ```
 
-### [​](#share-and-scale "#share-and-scale") Share and scale
+### [​](#share-and-scale) Share and scale
 
 **Plugins**
 
@@ -437,7 +435,7 @@ thing you didn't know you wanted.
 📖 Plugins → https://code.claude.com/docs/en/plugins
 ```
 
-### [​](#security-and-admin "#security-and-admin") Security and admin
+### [​](#security-and-admin) Security and admin
 
 **Security architecture**
 
@@ -480,22 +478,22 @@ missing and do it on your next task. Post what changed in #claude-code.
 📖 Best practices → https://code.claude.com/docs/en/best-practices
 ```
 
-## [​](#quick-reference "#quick-reference") Quick reference
+## [​](#quick-reference) Quick reference
 
-### [​](#faq-responses "#faq-responses") FAQ responses
+### [​](#faq-responses) FAQ responses
 
 One-line replies for the questions you will be asked most.
 
 | Question | Response |
 | --- | --- |
-| ”Does it work in VS Code?” | Yes. There is a VS Code extension and a JetBrains plugin with the same features, embedded in your editor. [VS Code →](./vs-code "_vs-code".md) |
-| “Do I have to configure anything first?” | No. Install, then run `claude` in any repo. Run `/init` once and you’re set. [Quickstart →](./quickstart "_quickstart".md) |
-| “Where does my code go?” | The CLI runs in your terminal and sends context to Anthropic’s API for inference, with no third-party servers. Under your Enterprise plan, your code and prompts are not used to train models. [Data usage →](./data-usage "_data-usage".md) |
-| “Can it see my whole repo?” | It reads what you give it access to. File reads inside your working directory don’t prompt; permission prompts gate edits, shell commands, and anything outside that directory. [Permissions →](./permissions "_permissions".md) |
-| “How is this different from Copilot?” | Copilot autocompletes lines. Claude Code is an agent that reads files, runs commands, and makes multi-file edits. [Overview →](./overview "_overview".md) |
-| “What should I try first?” | A bug you’ve been putting off because it’s tedious. “The test in [file] is flaky, figure out why.” [Quickstart →](./quickstart "_quickstart".md) |
+| ”Does it work in VS Code?” | Yes. There is a VS Code extension and a JetBrains plugin with the same features, embedded in your editor. [VS Code →](./vs-code.md) |
+| “Do I have to configure anything first?” | No. Install, then run `claude` in any repo. Run `/init` once and you’re set. [Quickstart →](./quickstart.md) |
+| “Where does my code go?” | The CLI runs in your terminal and sends context to Anthropic’s API for inference, with no third-party servers. Under your Enterprise plan, your code and prompts are not used to train models. [Data usage →](./data-usage.md) |
+| “Can it see my whole repo?” | It reads what you give it access to. File reads inside your working directory don’t prompt; permission prompts gate edits, shell commands, and anything outside that directory. [Permissions →](./permissions.md) |
+| “How is this different from Copilot?” | Copilot autocompletes lines. Claude Code is an agent that reads files, runs commands, and makes multi-file edits. [Overview →](./overview.md) |
+| “What should I try first?” | A bug you’ve been putting off because it’s tedious. “The test in [file] is flaky, figure out why.” [Quickstart →](./quickstart.md) |
 
-### [​](#prompt-templates "#prompt-templates") Prompt templates
+### [​](#prompt-templates) Prompt templates
 
 Share these starter prompts with engineers who have installed but aren’t sure what to ask. Each one is phrased the way it would be typed into a real session; replace the bracketed pieces with files from your own repo.
 
@@ -510,4 +508,4 @@ Share these starter prompts with engineers who have installed but aren’t sure 
 | Make a skill | ”make me a /ship skill that runs tests and lint before commit” |
 | Debug a stack trace | ”here’s the stack trace, find the root cause, don’t just paper over it” |
 
-Claude Code ships frequently. Verify version-specific details against the [documentation home page](./overview "_overview".md) before distributing internally.
+Claude Code ships frequently. Verify version-specific details against the [documentation home page](./overview.md) before distributing internally.

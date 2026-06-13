@@ -1,28 +1,24 @@
-# Common Workflows
+# Common-Workflows
 
-> ## Documentation Index
->
-> Fetch the complete documentation index at: [https://code.claude.com/docs/llms.txt](https://code.claude.com/docs/llms.txt "https://code.claude.com/docs/llms.txt")
->
-> Use this file to discover all available pages before exploring further.
-
-This page collects short recipes for everyday development. For higher-level guidance on prompting and context management, see [Best practices](./best-practices "_best-practices".md).
+This page collects short recipes for everyday development. For higher-level guidance on prompting and context management, see [Best practices](./best-practices.md).
 This page covers:
 
-* [Prompt recipes](#prompt-recipes "#prompt-recipes") for exploring code, fixing bugs, refactoring, testing, PRs, and documentation
-* [Resume previous conversations](#resume-previous-conversations "#resume-previous-conversations") so a task can span multiple sittings
-* [Run parallel sessions with worktrees](#run-parallel-sessions-with-worktrees "#run-parallel-sessions-with-worktrees") so concurrent edits don’t collide
-* [Plan before editing](#plan-before-editing "#plan-before-editing") to review changes before they touch disk
-* [Delegate research to subagents](#delegate-research-to-subagents "#delegate-research-to-subagents") to keep your main context clean
-* [Pipe Claude into scripts](#pipe-claude-into-scripts "#pipe-claude-into-scripts") for CI and batch processing
+* [Prompt recipes](#prompt-recipes) for exploring code, fixing bugs, refactoring, testing, PRs, and documentation
+* [Resume previous conversations](#resume-previous-conversations) so a task can span multiple sittings
+* [Run parallel sessions with worktrees](#run-parallel-sessions-with-worktrees) so concurrent edits don’t collide
+* [Plan before editing](#plan-before-editing) to review changes before they touch disk
+* [Delegate research to subagents](#delegate-research-to-subagents) to keep your main context clean
+* [Pipe Claude into scripts](#pipe-claude-into-scripts) for CI and batch processing
 
-## [​](#prompt-recipes "#prompt-recipes") Prompt recipes
+## [​](#prompt-recipes) Prompt recipes
 
 These are prompt patterns for everyday tasks like exploring unfamiliar code, debugging, refactoring, writing tests, and creating PRs. Each works in any Claude Code surface; adapt the wording to your project.
 
-### [​](#understand-new-codebases "#understand-new-codebases") Understand new codebases
+### [​](#understand-new-codebases) Understand new codebases
 
-#### [​](#get-a-quick-codebase-overview "#get-a-quick-codebase-overview") Get a quick codebase overview
+For configuring Claude Code in a monorepo or large codebase, see [Monorepos and large repos](./large-codebases.md).
+
+#### [​](#get-a-quick-codebase-overview) Get a quick codebase overview
 
 Suppose you’ve just joined a new project and need to understand its structure quickly.
 
@@ -72,7 +68,7 @@ Tips:
 * Ask about coding conventions and patterns used in the project
 * Request a glossary of project-specific terms
 
-#### [​](#find-relevant-code "#find-relevant-code") Find relevant code
+#### [​](#find-relevant-code) Find relevant code
 
 Suppose you need to locate code related to a specific feature or functionality.
 
@@ -104,11 +100,11 @@ Tips:
 
 * Be specific about what you’re looking for
 * Use domain language from the project
-* Install a [code intelligence plugin](./discover-plugins#code-intelligence "_discover-plugins#code-intelligence".md) for your language to give Claude precise “go to definition” and “find references” navigation
+* Install a [code intelligence plugin](./discover-plugins.md#code-intelligence) for your language to give Claude precise “go to definition” and “find references” navigation
 
 ---
 
-### [​](#fix-bugs-efficiently "#fix-bugs-efficiently") Fix bugs efficiently
+### [​](#fix-bugs-efficiently) Fix bugs efficiently
 
 Suppose you’ve encountered an error message and need to find and fix its source.
 
@@ -144,7 +140,7 @@ Tips:
 
 ---
 
-### [​](#refactor-code "#refactor-code") Refactor code
+### [​](#refactor-code) Refactor code
 
 Suppose you need to update old code to use modern patterns and practices.
 
@@ -188,7 +184,7 @@ Tips:
 
 ---
 
-### [​](#work-with-tests "#work-with-tests") Work with tests
+### [​](#work-with-tests) Work with tests
 
 Suppose you need to add tests for uncovered code.
 
@@ -230,7 +226,7 @@ For comprehensive coverage, ask Claude to identify edge cases you might have mis
 
 ---
 
-### [​](#create-pull-requests "#create-pull-requests") Create pull requests
+### [​](#create-pull-requests) Create pull requests
 
 You can create pull requests by asking Claude directly (“create a pr for my changes”), or guide Claude through it step-by-step:
 
@@ -258,11 +254,11 @@ Review and refine
 enhance the PR description with more context about the security improvements
 ```
 
-When you create a PR using `gh pr create`, the session is automatically linked to that PR. To return to it later, run `claude --from-pr <number>` or paste the PR URL into the [`/resume` picker](./sessions#use-the-session-picker "_sessions#use-the-session-picker".md) search.
+When you create a PR using `gh pr create`, the session is automatically linked to that PR. To return to it later, run `claude --from-pr <number>` or paste the PR URL into the [`/resume` picker](./sessions.md#use-the-session-picker) search.
 
 Review Claude’s generated PR before submitting and ask Claude to highlight potential risks or considerations.
 
-### [​](#handle-documentation "#handle-documentation") Handle documentation
+### [​](#handle-documentation) Handle documentation
 
 Suppose you need to add or update documentation for your code.
 
@@ -306,7 +302,7 @@ Tips:
 
 ---
 
-### [​](#work-in-notes-and-non-code-folders "#work-in-notes-and-non-code-folders") Work in notes and non-code folders
+### [​](#work-in-notes-and-non-code-folders) Work in notes and non-code folders
 
 Claude Code works in any directory. Run it inside a notes vault, a documentation folder, or any collection of markdown files to search, edit, and reorganize content the same way you would code.
 The `.claude/` directory and `CLAUDE.md` sit alongside other tools’ config directories without conflict. Claude reads files fresh on each tool call, so it sees edits you make in another application the next time it reads that file.
@@ -314,7 +310,7 @@ The `.claude/` directory and `CLAUDE.md` sit alongside other tools’ config dir
 
 ---
 
-### [​](#work-with-images "#work-with-images") Work with images
+### [​](#work-with-images) Work with images
 
 Suppose you need to work with images in your codebase, and you want Claude’s help analyzing image content.
 
@@ -378,7 +374,7 @@ Tips:
 
 ---
 
-### [​](#reference-files-and-directories "#reference-files-and-directories") Reference files and directories
+### [​](#reference-files-and-directories) Reference files and directories
 
 Use @ to quickly include files or directories without waiting for Claude to read them.
 
@@ -410,7 +406,7 @@ Reference MCP resources
 Show me the data from @github:repos/owner/repo/issues
 ```
 
-This fetches data from connected MCP servers using the format @server:resource. See [MCP resources](./mcp#use-mcp-resources "_mcp#use-mcp-resources".md) for details.
+This fetches data from connected MCP servers using the format @server:resource. See [MCP resources](./mcp.md#use-mcp-resources) for details.
 
 Tips:
 
@@ -421,27 +417,27 @@ Tips:
 
 ---
 
-### [​](#run-claude-on-a-schedule "#run-claude-on-a-schedule") Run Claude on a schedule
+### [​](#run-claude-on-a-schedule) Run Claude on a schedule
 
 Suppose you want Claude to handle a task automatically on a recurring basis, like reviewing open PRs every morning, auditing dependencies weekly, or checking for CI failures overnight.
 Pick a scheduling option based on where you want the task to run:
 
 | Option | Where it runs | Best for |
 | --- | --- | --- |
-| [Routines](./routines "_routines".md) | Anthropic-managed infrastructure | Tasks that should run even when your computer is off. Can also trigger on API calls or GitHub events in addition to a schedule. Configure at [claude.ai/code/routines](https://claude.ai/code/routines "https://claude.ai/code/routines"). |
-| [Desktop scheduled tasks](./desktop-scheduled-tasks "_desktop-scheduled-tasks".md) | Your machine, via the desktop app | Tasks that need direct access to local files, tools, or uncommitted changes. |
-| [GitHub Actions](./github-actions "_github-actions".md) | Your CI pipeline | Tasks tied to repo events like opened PRs, or cron schedules that should live alongside your workflow config. |
-| [`/loop`](./scheduled-tasks "_scheduled-tasks".md) | The current CLI session | Quick polling while a session is open. Tasks stop when you start a new conversation; `--resume` and `--continue` restore unexpired ones. |
+| [Routines](./routines.md) | Anthropic-managed infrastructure | Tasks that should run even when your computer is off. Can also trigger on API calls or GitHub events in addition to a schedule. Configure at [claude.ai/code/routines](https://claude.ai/code/routines). |
+| [Desktop scheduled tasks](./desktop-scheduled-tasks.md) | Your machine, via the desktop app | Tasks that need direct access to local files, tools, or uncommitted changes. |
+| [GitHub Actions](./github-actions.md) | Your CI pipeline | Tasks tied to repo events like opened PRs, or cron schedules that should live alongside your workflow config. |
+| [`/loop`](./scheduled-tasks.md) | The current CLI session | Quick polling while a session is open. Tasks stop when you start a new conversation; `--resume` and `--continue` restore unexpired ones. |
 
 When writing prompts for scheduled tasks, be explicit about what success looks like and what to do with results. The task runs autonomously, so it can’t ask clarifying questions. For example: “Review open PRs labeled `needs-review`, leave inline comments on any issues, and post a summary in the `#eng-reviews` Slack channel.”
 
 ---
 
-### [​](#ask-claude-about-its-capabilities "#ask-claude-about-its-capabilities") Ask Claude about its capabilities
+### [​](#ask-claude-about-its-capabilities) Ask Claude about its capabilities
 
 Claude has built-in access to its documentation and can answer questions about its own features and limitations.
 
-#### [​](#example-questions "#example-questions") Example questions
+#### [​](#example-questions) Example questions
 
 ```
 can Claude Code create pull requests?
@@ -477,7 +473,7 @@ Tips:
 
 ---
 
-## [​](#resume-previous-conversations "#resume-previous-conversations") Resume previous conversations
+## [​](#resume-previous-conversations) Resume previous conversations
 
 When a task spans multiple sittings, pick up where you left off instead of re-explaining context. Claude Code saves every conversation locally.
 
@@ -485,9 +481,9 @@ When a task spans multiple sittings, pick up where you left off instead of re-ex
 claude --continue
 ```
 
-This resumes the most recent session in the current directory; if there isn’t one yet, it prints `No conversation found to continue` and exits. Use `claude --resume` to choose from a list, or `/resume` from inside a running session. See [Manage sessions](./sessions "_sessions".md) for naming, branching, and the full picker reference.
+This resumes the most recent session in the current directory; if there isn’t one yet, it prints `No conversation found to continue` and exits. Use `claude --resume` to choose from a list, or `/resume` from inside a running session. See [Manage sessions](./sessions.md) for naming, branching, and the full picker reference.
 
-## [​](#run-parallel-sessions-with-worktrees "#run-parallel-sessions-with-worktrees") Run parallel sessions with worktrees
+## [​](#run-parallel-sessions-with-worktrees) Run parallel sessions with worktrees
 
 Work on a feature in one terminal while Claude fixes a bug in another, without the edits colliding. Each worktree is a separate checkout on its own branch.
 
@@ -495,9 +491,9 @@ Work on a feature in one terminal while Claude fixes a bug in another, without t
 claude --worktree feature-auth
 ```
 
-Run the same command with a different name in a second terminal to start an isolated parallel session. See [Worktrees](./worktrees "_worktrees".md) for cleanup, `.worktreeinclude`, and non-git VCS support. To monitor parallel sessions from one screen instead of separate terminals, see [background agents](./agent-view "_agent-view".md).
+Run the same command with a different name in a second terminal to start an isolated parallel session. See [Worktrees](./worktrees.md) for cleanup, `.worktreeinclude`, and non-git VCS support. To monitor parallel sessions from one screen instead of separate terminals, see [background agents](./agent-view.md).
 
-## [​](#plan-before-editing "#plan-before-editing") Plan before editing
+## [​](#plan-before-editing) Plan before editing
 
 For changes you want to review before they touch disk, switch to plan mode. Claude reads files and proposes a plan but makes no edits until you approve.
 
@@ -505,9 +501,9 @@ For changes you want to review before they touch disk, switch to plan mode. Clau
 claude --permission-mode plan
 ```
 
-You can also press `Shift+Tab` mid-session to toggle into plan mode. See [Plan mode](./permission-modes#analyze-before-you-edit-with-plan-mode "_permission-modes#analyze-before-you-edit-with-plan-mode".md) for the approval flow and editing the plan in your text editor.
+You can also press `Shift+Tab` mid-session to toggle into plan mode. See [Plan mode](./permission-modes.md#analyze-before-you-edit-with-plan-mode) for the approval flow and editing the plan in your text editor.
 
-## [​](#delegate-research-to-subagents "#delegate-research-to-subagents") Delegate research to subagents
+## [​](#delegate-research-to-subagents) Delegate research to subagents
 
 Exploring a large codebase fills your context with file reads. Delegate the exploration so only the findings come back.
 
@@ -515,9 +511,9 @@ Exploring a large codebase fills your context with file reads. Delegate the expl
 use a subagent to investigate how our auth system handles token refresh
 ```
 
-The subagent reads files in its own context window and reports a summary. See [Subagents](./sub-agents "_sub-agents".md) for defining custom agents with their own tools and prompts.
+The subagent reads files in its own context window and reports a summary. See [Subagents](./sub-agents.md) for defining custom agents with their own tools and prompts.
 
-## [​](#pipe-claude-into-scripts "#pipe-claude-into-scripts") Pipe Claude into scripts
+## [​](#pipe-claude-into-scripts) Pipe Claude into scripts
 
 Run Claude non-interactively for CI, pre-commit hooks, or batch processing. Stdin and stdout work like any Unix tool.
 
@@ -525,9 +521,9 @@ Run Claude non-interactively for CI, pre-commit hooks, or batch processing. Stdi
 git log --oneline -20 | claude -p "summarize these recent commits"
 ```
 
-See [Non-interactive mode](./headless "_headless".md) for output formats, permission flags, and fan-out patterns.
+See [Non-interactive mode](./headless.md) for output formats, permission flags, and fan-out patterns.
 
-## [​](#next-steps "#next-steps") Next steps
+## [​](#next-steps) Next steps
 
 ## Best practices
 
