@@ -1,12 +1,6 @@
 # Whats New 2026 W20
 
-> ## Documentation Index
->
-> Fetch the complete documentation index at: [https://code.claude.com/docs/llms.txt](https://code.claude.com/docs/llms.txt "https://code.claude.com/docs/llms.txt")
->
-> Use this file to discover all available pages before exploring further.
-
-Releases [v2.1.139 → v2.1.142](/en/changelog#2-1-139 "/en/changelog#2-1-139")3 features · May 11–15
+Releases [v2.1.139 → v2.1.142](./changelog.md#2-1-139)3 features · May 11–15
 
 Agent viewresearch preview
 
@@ -18,11 +12,11 @@ Open the dashboard from your shell:
 
 terminal
 
-```
+```text
 claude agents
 ```
 
-[Agent view](/en/agent-view "/en/agent-view")
+[Agent view](./agent-view.md)
 
 /goalv2.1.139
 
@@ -34,15 +28,15 @@ Set a goal and let Claude run until it holds:
 
 Claude Code
 
-```
+```text
 > /goal all tests in test/auth pass and the lint step is clean
 ```
 
-[Goals](/en/goal "/en/goal")
+[Goals](./goal.md)
 
 Fast mode on Opus 4.7research preview
 
-`/fast` now runs on Opus 4.7 by default instead of Opus 4.6. Fast mode is a high-speed Opus configuration: the same model quality at about 2.5x the speed for a higher per-token cost, useful for rapid iteration and live debugging. Pricing is unchanged at 30/30/30/150 per MTok, the same as Opus 4.6 fast mode. To pin fast mode to Opus 4.6, set `CLAUDE_CODE_OPUS_4_6_FAST_MODE_OVERRIDE=1`.
+`/fast` now runs on Opus 4.7 by default instead of Opus 4.6. Fast mode is a high-speed Opus configuration: the same model quality at about 2.5x the speed for a higher per-token cost, useful for rapid iteration and live debugging. Pricing is unchanged at $30/$150 per MTok, the same as Opus 4.6 fast mode. To pin fast mode to Opus 4.6, set `CLAUDE_CODE_OPUS_4_6_FAST_MODE_OVERRIDE=1`.
 
 ![The Claude Code model picker showing Opus 4.7 Fast 1M as the default with the Fast toggle on](https://mintcdn.com/claude-code/ITvjicPxe1SM3GX7/images/whats-new/fast-mode-opus-47.png?fit=max&auto=format&n=ITvjicPxe1SM3GX7&q=85&s=6b6d92f7748ce5328a1ee9a269fb1a87)
 
@@ -50,11 +44,11 @@ Toggle fast mode, now running on Opus 4.7:
 
 Claude Code
 
-```
+```text
 > /fast
 ```
 
-[Fast mode on Opus 4.7](/en/fast-mode#use-fast-mode-on-opus-4-7 "/en/fast-mode#use-fast-mode-on-opus-4-7")
+[Fast mode on Opus 4.7](./fast-mode.md#understand-the-cost-tradeoff)
 
 Other wins
 
@@ -80,4 +74,4 @@ Plugins with a root-level `SKILL.md` and no `skills/` subdirectory are now surfa
 
 Agent tool `subagent_type` now matches case- and separator-insensitively, so `“Code Reviewer”` resolves to `code-reviewer`
 
-[Full changelog for v2.1.139–v2.1.142 →](./changelog#2-1-139 "_changelog#2-1-139".md)
+[Full changelog for v2.1.139–v2.1.142 →](./changelog.md#2-1-139)

@@ -1,31 +1,25 @@
 # Plugin Dependencies
 
-> ## Documentation Index
->
-> Fetch the complete documentation index at: [https://code.claude.com/docs/llms.txt](https://code.claude.com/docs/llms.txt "https://code.claude.com/docs/llms.txt")
->
-> Use this file to discover all available pages before exploring further.
-
 A plugin can depend on other plugins by listing them in `plugin.json` or in its marketplace entry. By default, a dependency tracks the latest available version, so an upstream release can change the dependency under your plugin without warning. Version constraints let you hold a dependency at a tested version range until you choose to move.
 When you install a plugin that declares dependencies, Claude Code resolves and installs them automatically and lists which dependencies were added at the end of the install output. If a dependency later goes missing, `/reload-plugins` and the background plugin auto-update reinstall it, provided its marketplace is already in your configured marketplaces. Re-running `claude plugin install` on the dependent plugin, or adding a marketplace with `claude plugin marketplace add`, also resolves any outstanding missing dependencies. Dependencies from a marketplace you have not added are left unresolved.
-This guide is for plugin authors who declare dependencies in `plugin.json` and for marketplace maintainers who tag releases. To install plugins that have dependencies, see [Discover and install plugins](./discover-plugins "_discover-plugins".md). For the full manifest schema, see the [Plugins reference](./plugins-reference "_plugins-reference".md).
+This guide is for plugin authors who declare dependencies in `plugin.json` and for marketplace maintainers who tag releases. To install plugins that have dependencies, see [Discover and install plugins](./discover-plugins.md). For the full manifest schema, see the [Plugins reference](./plugins-reference.md).
 
 Dependency version constraints require Claude Code v2.1.110 or later.
 
-## [​](#why-constrain-dependency-versions "#why-constrain-dependency-versions") Why constrain dependency versions
+## [​](#why-constrain-dependency-versions) Why constrain dependency versions
 
 Consider an internal marketplace where two teams publish plugins. The platform team maintains `secrets-vault`, an MCP server that wraps a secrets backend. The deploy team maintains `deploy-kit`, which calls `secrets-vault` to fetch credentials during deploys.
 `deploy-kit` is tested against `secrets-vault` v2.1.0. Without a version constraint, the next time the platform team tags a release that renames an MCP tool, auto-update moves every engineer’s `secrets-vault` to the new version and `deploy-kit` breaks.
 With a version constraint, `deploy-kit` declares that it needs `secrets-vault` in the `~2.1.0` range. Engineers with `deploy-kit` installed stay on the highest matching `2.1.x` patch. The deploy team upgrades on their own schedule by publishing a new `deploy-kit` version with a wider constraint.
 
-## [​](#declare-a-dependency-with-a-version-constraint "#declare-a-dependency-with-a-version-constraint") Declare a dependency with a version constraint
+## [​](#declare-a-dependency-with-a-version-constraint) Declare a dependency with a version constraint
 
 List dependencies in the `dependencies` array of your plugin’s `.claude-plugin/plugin.json`. Each entry is either a plugin name or an object with a version constraint.
 The following manifest declares one unversioned dependency and one constrained dependency:
 
 .claude-plugin/plugin.json
 
-```
+```text
 {
   "name": "deploy-kit",
   "version": "3.1.0",
@@ -41,12 +35,12 @@ An entry can be a bare string with only the plugin name, like `"audit-logger"` i
 | Field | Type | Description |
 | --- | --- | --- |
 | `name` | string | Plugin name. Resolves within the same marketplace as the declaring plugin. Required. |
-| `version` | string | A [semver range](https://github.com/npm/node-semver#ranges "https://github.com/npm/node-semver#ranges") such as `~2.1.0`, `^2.0`, `>=1.4`, or `=2.1.0`. The dependency is fetched at the highest tagged version that satisfies this range. |
-| `marketplace` | string | A different marketplace to resolve `name` in. Cross-marketplace dependencies are blocked unless the target marketplace is listed in [`allowCrossMarketplaceDependenciesOn`](#depend-on-a-plugin-from-another-marketplace "#depend-on-a-plugin-from-another-marketplace") in the root marketplace’s `marketplace.json`. |
+| `version` | string | A [semver range](https://github.com/npm/node-semver#ranges) such as `~2.1.0`, `^2.0`, `>=1.4`, or `=2.1.0`. The dependency is fetched at the highest tagged version that satisfies this range. |
+| `marketplace` | string | A different marketplace to resolve `name` in. Cross-marketplace dependencies are blocked unless the target marketplace is listed in [`allowCrossMarketplaceDependenciesOn`](#depend-on-a-plugin-from-another-marketplace) in the root marketplace’s `marketplace.json`. |
 
 The `version` field accepts any expression supported by Node’s `semver` package, including caret, tilde, hyphen, and comparator ranges. Pre-release versions such as `2.0.0-beta.1` are excluded unless your range opts in with a pre-release suffix like `^2.0.0-0`.
 
-## [​](#depend-on-a-plugin-from-another-marketplace "#depend-on-a-plugin-from-another-marketplace") Depend on a plugin from another marketplace
+## [​](#depend-on-a-plugin-from-another-marketplace) Depend on a plugin from another marketplace
 
 By default, Claude Code refuses to auto-install a dependency that lives in a different marketplace than the plugin declaring it. This prevents one marketplace from silently pulling in plugins from a source you have not reviewed.
 To allow it, the maintainer of the root marketplace adds the target marketplace name to `allowCrossMarketplaceDependenciesOn` in `marketplace.json`. The root marketplace is the one that hosts the plugin the user is installing; only its allowlist is consulted, so trust does not chain through intermediate marketplaces.
@@ -54,7 +48,7 @@ The following `marketplace.json` allows `deploy-kit` to depend on a plugin from 
 
 .claude-plugin/marketplace.json
 
-```
+```text
 {
   "name": "acme-tools",
   "owner": { "name": "Acme" },
@@ -73,12 +67,12 @@ The following `marketplace.json` allows `deploy-kit` to depend on a plugin from 
 
 If the field is missing or does not include the target marketplace, install fails with a `cross-marketplace` error naming the field to set. Users can still install the dependency manually first, which satisfies the constraint without changing the allowlist.
 
-## [​](#tag-plugin-releases-for-version-resolution "#tag-plugin-releases-for-version-resolution") Tag plugin releases for version resolution
+## [​](#tag-plugin-releases-for-version-resolution) Tag plugin releases for version resolution
 
 Version constraints resolve against git tags on the marketplace repository. For Claude Code to find a dependency’s available versions, the upstream plugin’s releases must be tagged using a specific naming convention.
 Tag each release as `{plugin-name}--v{version}`, where `{version}` matches the `version` field in that commit’s `plugin.json`. From the plugin directory, run:
 
-```
+```text
 claude plugin tag --push
 ```
 
@@ -89,7 +83,7 @@ The resolved tag’s semver is recorded separately from `plugin.json`’s `versi
 
 For `npm` marketplace sources, the constraint does not control which version is fetched, since tag-based resolution applies only to git-backed sources. The constraint is still checked at load time, and the dependent plugin is disabled with `dependency-version-unsatisfied` if the installed version does not satisfy it.
 
-## [​](#how-constraints-interact "#how-constraints-interact") How constraints interact
+## [​](#how-constraints-interact) How constraints interact
 
 When several installed plugins constrain the same dependency, Claude Code intersects their ranges and resolves the dependency to the highest version that satisfies all of them. The table below shows how common combinations resolve.
 
@@ -102,7 +96,7 @@ When several installed plugins constrain the same dependency, Claude Code inters
 Auto-update fetches a constrained dependency at the highest git tag that satisfies every installed plugin’s range, rather than at the marketplace’s latest version, so the dependency continues to receive updates within its allowed range. If no tag satisfies all ranges, the update is skipped and the skip appears in `/doctor` and the `/plugin` Errors tab, naming the constraining plugin.
 When you uninstall the last plugin that constrains a dependency, the dependency is no longer held and resumes tracking its marketplace entry on the next update.
 
-## [​](#enable-or-disable-a-plugin-with-dependencies "#enable-or-disable-a-plugin-with-dependencies") Enable or disable a plugin with dependencies
+## [​](#enable-or-disable-a-plugin-with-dependencies) Enable or disable a plugin with dependencies
 
 Enabling a plugin also enables the plugins it depends on, and disabling a plugin is blocked if another enabled plugin still needs it. Both behaviors require Claude Code v2.1.143 or later. Earlier versions enable or disable only the named plugin and surface a `dependency-unsatisfied` error on the next load.
 When you enable a plugin, Claude Code also enables its dependencies at the same scope. If a dependency has its own dependencies, Claude Code enables those too. The success message lists what else was enabled along with the plugin you named. If a dependency can’t be enabled, the command refuses and tells you what’s blocking and how to fix it:
@@ -114,21 +108,22 @@ When you enable a plugin, Claude Code also enables its dependencies at the same 
 | A dependency is set to `false` at a scope with higher precedence than the target scope | Enable fails. Enable the dependency at that scope, or pass `--scope` to write there. |
 | All dependencies are installed and allowed | Enable succeeds and writes `true` for the plugin and each dependency that was not already enabled at the target scope. |
 
+This holds even when a dependency sets [`defaultEnabled: false`](./plugins-reference.md#default-enablement) in its manifest, because Claude Code writes an explicit `true` for it. The same applies at install: a dependency pulled in to satisfy an active plugin installs with `true` regardless of its own default.
 When you disable a plugin, Claude Code refuses if another enabled plugin still depends on it. The error names the plugins that depend on it and gives you a chained command that disables them in the right order, ending with the one you asked for.
 For example, if `deploy-kit` depends on `secrets-vault`, disabling `secrets-vault` alone fails with output similar to the following:
 
-```
+```text
 secrets-vault is still required by deploy-kit. Disable that plugin first, or
 disable everything together: claude plugin disable deploy-kit@acme-tools && claude plugin disable secrets-vault@acme-tools
 ```
 
 Copy the chained command from the error to disable the full set in one step.
 
-## [​](#remove-orphaned-auto-installed-dependencies "#remove-orphaned-auto-installed-dependencies") Remove orphaned auto-installed dependencies
+## [​](#remove-orphaned-auto-installed-dependencies) Remove orphaned auto-installed dependencies
 
 Auto-installed dependencies stay on disk after the plugins that installed them are uninstalled, in case you reinstall a dependent plugin or want to keep using the dependency directly. To clean them up, run `claude plugin prune` to list the auto-installed dependencies that no longer have any installed plugin requiring them and remove them after a confirmation prompt. This requires Claude Code v2.1.121 or later.
 
-```
+```text
 claude plugin prune
 ```
 
@@ -136,11 +131,11 @@ By default, prune operates at user scope. Use `--scope project` or `--scope loca
 To prune as part of an uninstall, pass `--prune` to `claude plugin uninstall`. After removing the named plugin, Claude Code scans for and removes any auto-installed dependencies that are now orphaned. Plugins you installed yourself are never pruned, only those installed automatically through another plugin’s `dependencies` array.
 For example, to uninstall `deploy-kit` and clean up the dependencies it leaves behind:
 
-```
+```text
 claude plugin uninstall deploy-kit --prune
 ```
 
-## [​](#resolve-dependency-errors "#resolve-dependency-errors") Resolve dependency errors
+## [​](#resolve-dependency-errors) Resolve dependency errors
 
 Dependency problems surface in `claude plugin list`, in the `/plugin` interface, and in `/doctor`. The affected plugin is disabled until you resolve the error. The most common errors and their fixes are listed below.
 
@@ -153,9 +148,9 @@ Dependency problems surface in `claude plugin list`, in the `/plugin` interface,
 
 To check for these errors programmatically, run `claude plugin list --json` and read the `errors` field on each plugin.
 
-## [​](#see-also "#see-also") See also
+## [​](#see-also) See also
 
-* [Create plugins](./plugins "_plugins".md): build plugins with skills, agents, and hooks
-* [Create and distribute a plugin marketplace](./plugin-marketplaces "_plugin-marketplaces".md): host plugins for your team
-* [Plugins reference](./plugins-reference#plugin-manifest-schema "_plugins-reference#plugin-manifest-schema".md): the full `plugin.json` schema
-* [Version management](./plugins-reference#version-management "_plugins-reference#version-management".md): how a plugin’s own version is resolved and used as the cache key
+* [Create plugins](./plugins.md): build plugins with skills, agents, and hooks
+* [Create and distribute a plugin marketplace](./plugin-marketplaces.md): host plugins for your team
+* [Plugins reference](./plugins-reference.md#plugin-manifest-schema): the full `plugin.json` schema
+* [Version management](./plugins-reference.md#version-management): how a plugin’s own version is resolved and used as the cache key

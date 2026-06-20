@@ -1,12 +1,6 @@
 # Whats New 2026 W14
 
-> ## Documentation Index
->
-> Fetch the complete documentation index at: [https://code.claude.com/docs/llms.txt](https://code.claude.com/docs/llms.txt "https://code.claude.com/docs/llms.txt")
->
-> Use this file to discover all available pages before exploring further.
-
-Releases [v2.1.86 → v2.1.91](./changelog#2-1-86 "_changelog#2-1-86".md)5 features · March 30 – April 3
+Releases [v2.1.86 → v2.1.91](./changelog.md#2-1-86)5 features · March 30 – April 3
 
 Computer use in the CLIresearch preview
 
@@ -18,11 +12,11 @@ Run `/mcp`, find `computer-use`, and toggle it on. Then ask Claude to verify a c
 
 Claude Code
 
-```
+```text
 > Open the iOS simulator, tap through onboarding, and screenshot each step
 ```
 
-[Computer use guide](./computer-use "_computer-use".md)
+[Computer use guide](./computer-use.md)
 
 /powerupv2.1.90
 
@@ -34,11 +28,11 @@ Run it:
 
 Claude Code
 
-```
+```text
 > /powerup
 ```
 
-[Commands reference](./commands "_commands".md)
+[Commands reference](./commands.md)
 
 Flicker-free renderingv2.1.89
 
@@ -48,12 +42,12 @@ Opt into a new alt-screen renderer with virtualized scrollback. The prompt input
 
 Set the env var and restart Claude Code:
 
-```
+```text
 export CLAUDE_CODE_NO_FLICKER=1
 claude
 ```
 
-[Fullscreen rendering](./fullscreen "_fullscreen".md)
+[Fullscreen rendering](./fullscreen.md)
 
 MCP result-size overridev2.1.91
 
@@ -61,7 +55,7 @@ MCP server authors can now raise the truncation cap on a specific tool by settin
 
 Annotate the tool in your server’s `tools/list` response:
 
-```
+```text
 {
   "name": "get_schema",
   "description": "Returns the full database schema",
@@ -71,7 +65,7 @@ Annotate the tool in your server’s `tools/list` response:
 }
 ```
 
-[MCP reference](./mcp#raise-the-limit-for-a-specific-tool "_mcp#raise-the-limit-for-a-specific-tool".md)
+[MCP reference](./mcp.md#raise-the-limit-for-a-specific-tool)
 
 Plugin executables on PATHv2.1.91
 
@@ -79,7 +73,7 @@ Place an executable in a `bin/` directory at your plugin root and Claude Code ad
 
 Add a `bin/` directory at the plugin root:
 
-```
+```text
 my-plugin/
 ├── .claude-plugin/
 │   └── plugin.json
@@ -87,7 +81,7 @@ my-plugin/
     └── my-tool
 ```
 
-[Plugins reference](./plugins-reference#file-locations-reference "_plugins-reference#file-locations-reference".md)
+[Plugins reference](./plugins-reference.md#file-locations-reference)
 
 Other wins
 
@@ -109,4 +103,4 @@ Voice mode: push-to-talk modifier combos, Windows WebSocket, macOS Apple Silicon
 
 `claude-cli://` deep links accept multi-line prompts (encoded `%0A`)
 
-[Full changelog for v2.1.86–v2.1.91 →](./changelog#2-1-86 "_changelog#2-1-86".md)
+[Full changelog for v2.1.86–v2.1.91 →](./changelog.md#2-1-86)

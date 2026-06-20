@@ -1,20 +1,14 @@
-> ## Documentation Index
->
-> Fetch the complete documentation index at: [https://code.claude.com/docs/llms.txt](https://code.claude.com/docs/llms.txt "https://code.claude.com/docs/llms.txt")
->
-> Use this file to discover all available pages before exploring further.
-
 Claude Code supports various enterprise network and security configurations through environment variables. This includes routing traffic through corporate proxy servers, trusting custom Certificate Authorities (CA), and authenticating with mutual Transport Layer Security (mTLS) certificates for enhanced security.
 
-All environment variables shown on this page can also be configured in [`settings.json`](./settings "_settings".md).
+All environment variables shown on this page can also be configured in [`settings.json`](./settings.md).
 
-## [​](#proxy-configuration "#proxy-configuration") Proxy configuration
+## [​](#proxy-configuration) Proxy configuration
 
-### [​](#environment-variables "#environment-variables") Environment variables
+### [​](#environment-variables) Environment variables
 
 Claude Code respects standard proxy environment variables:
 
-```
+```text
 # HTTPS proxy (recommended)
 export HTTPS_PROXY=https://proxy.example.com:8080
 
@@ -31,11 +25,11 @@ export NO_PROXY="*"
 
 Claude Code does not support SOCKS proxies.
 
-### [​](#basic-authentication "#basic-authentication") Basic authentication
+### [​](#basic-authentication) Basic authentication
 
 If your proxy requires basic authentication, include credentials in the proxy URL:
 
-```
+```text
 export HTTPS_PROXY=http://username:password@proxy.example.com:8080
 ```
 
@@ -43,37 +37,37 @@ Avoid hardcoding passwords in scripts. Use environment variables or secure crede
 
 For proxies requiring advanced authentication (NTLM, Kerberos, etc.), consider using an LLM Gateway service that supports your authentication method.
 
-## [​](#ca-certificate-store "#ca-certificate-store") CA certificate store
+## [​](#ca-certificate-store) CA certificate store
 
 By default, Claude Code trusts both its bundled Mozilla CA certificates and your operating system’s certificate store. Enterprise TLS-inspection proxies such as CrowdStrike Falcon and Zscaler work without additional configuration when their root certificate is installed in the OS trust store.
 `CLAUDE_CODE_CERT_STORE` accepts a comma-separated list of sources. Recognized values are `bundled` for the Mozilla CA set shipped with Claude Code and `system` for the operating system trust store. The default is `bundled,system`.
 To trust only the bundled Mozilla CA set:
 
-```
+```text
 export CLAUDE_CODE_CERT_STORE=bundled
 ```
 
 To trust only the OS certificate store:
 
-```
+```text
 export CLAUDE_CODE_CERT_STORE=system
 ```
 
 `CLAUDE_CODE_CERT_STORE` has no dedicated `settings.json` schema key. Set it via the `env` block in `~/.claude/settings.json` or directly in the process environment.
 
-## [​](#custom-ca-certificates "#custom-ca-certificates") Custom CA certificates
+## [​](#custom-ca-certificates) Custom CA certificates
 
 If your enterprise environment uses a custom CA, configure Claude Code to trust it directly:
 
-```
+```text
 export NODE_EXTRA_CA_CERTS=/path/to/ca-cert.pem
 ```
 
-## [​](#mtls-authentication "#mtls-authentication") mTLS authentication
+## [​](#mtls-authentication) mTLS authentication
 
 For enterprise environments requiring client certificate authentication:
 
-```
+```text
 # Client certificate for authentication
 export CLAUDE_CODE_CLIENT_CERT=/path/to/client-cert.pem
 
@@ -84,7 +78,7 @@ export CLAUDE_CODE_CLIENT_KEY=/path/to/client-key.pem
 export CLAUDE_CODE_CLIENT_KEY_PASSPHRASE="your-passphrase"
 ```
 
-## [​](#network-access-requirements "#network-access-requirements") Network access requirements
+## [​](#network-access-requirements) Network access requirements
 
 Claude Code requires access to the following URLs. Allowlist these in your proxy configuration and firewall rules, especially in containerized or restricted network environments.
 
@@ -95,17 +89,18 @@ Claude Code requires access to the following URLs. Allowlist these in your proxy
 | `platform.claude.com` | Anthropic Console account authentication |
 | `downloads.claude.ai` | Plugin executable downloads; native installer and native auto-updater |
 | `storage.googleapis.com` | Native installer and native auto-updater on versions prior to 2.1.116 |
-| `bridge.claudeusercontent.com` | [Claude in Chrome](./chrome "_chrome".md) extension WebSocket bridge |
-| `raw.githubusercontent.com` | Changelog feed for [`/release-notes`](./commands "_commands".md) and the release notes shown after updating; plugin marketplace install counts |
+| `bridge.claudeusercontent.com` | [Claude in Chrome](./chrome.md) extension WebSocket bridge |
+| `*.claudeusercontent.com` | Viewing [artifacts](./artifacts.md) on claude.ai. The viewer loads each artifact’s content from a sandboxed subdomain of this origin. Required in the viewer’s browser, not by the CLI itself |
+| `raw.githubusercontent.com` | Changelog feed for [`/release-notes`](./commands.md) and the release notes shown after updating; plugin marketplace install counts |
 
 If you install Claude Code through npm or manage your own binary distribution, end users may not need access to `downloads.claude.ai` or `storage.googleapis.com`.
-Claude Code also sends optional operational telemetry by default, which you can disable with environment variables. See [Telemetry services](./data-usage#telemetry-services "_data-usage#telemetry-services".md) for how to disable it before finalizing your allowlist.
-When using [Amazon Bedrock](./amazon-bedrock "_amazon-bedrock".md), [Google Vertex AI](./google-vertex-ai "_google-vertex-ai".md), or [Microsoft Foundry](./microsoft-foundry "_microsoft-foundry".md), model traffic and authentication go to your provider instead of `api.anthropic.com`, `claude.ai`, or `platform.claude.com`. The WebFetch tool still calls `api.anthropic.com` for its [domain safety check](./data-usage#webfetch-domain-safety-check "_data-usage#webfetch-domain-safety-check".md) unless you set `skipWebFetchPreflight: true` in [settings](./settings "_settings".md).
-[Claude Code on the web](./claude-code-on-the-web "_claude-code-on-the-web".md) and [Code Review](./code-review "_code-review".md) connect to your repositories from Anthropic-managed infrastructure. If your GitHub Enterprise Cloud organization restricts access by IP address, enable [IP allow list inheritance for installed GitHub Apps](https://docs.github.com/en/enterprise-cloud@latest/organizations/keeping-your-organization-secure/managing-security-settings-for-your-organization/managing-allowed-ip-addresses-for-your-organization#allowing-access-by-github-apps "https://docs.github.com/en/enterprise-cloud@latest/organizations/keeping-your-organization-secure/managing-security-settings-for-your-organization/managing-allowed-ip-addresses-for-your-organization#allowing-access-by-github-apps"). The Claude GitHub App registers its IP ranges, so enabling this setting allows access without manual configuration. To [add the ranges to your allow list manually](https://docs.github.com/en/enterprise-cloud@latest/organizations/keeping-your-organization-secure/managing-security-settings-for-your-organization/managing-allowed-ip-addresses-for-your-organization#adding-an-allowed-ip-address "https://docs.github.com/en/enterprise-cloud@latest/organizations/keeping-your-organization-secure/managing-security-settings-for-your-organization/managing-allowed-ip-addresses-for-your-organization#adding-an-allowed-ip-address") instead, or to configure other firewalls, see the [Anthropic API IP addresses](https://platform.claude.com/docs/en/api/ip-addresses "https://platform.claude.com/docs/en/api/ip-addresses").
-For self-hosted [GitHub Enterprise Server](./github-enterprise-server "_github-enterprise-server".md) instances behind a firewall, allowlist the same [Anthropic API IP addresses](https://platform.claude.com/docs/en/api/ip-addresses "https://platform.claude.com/docs/en/api/ip-addresses") so Anthropic infrastructure can reach your GHES host to clone repositories and post review comments.
+Claude Code also sends optional operational telemetry by default, which you can disable with environment variables. See [Telemetry services](./data-usage.md#telemetry-services) for how to disable it before finalizing your allowlist.
+When using [Amazon Bedrock](./amazon-bedrock.md), [Google Vertex AI](./google-vertex-ai.md), or [Microsoft Foundry](./microsoft-foundry.md), model traffic and authentication go to your provider instead of `api.anthropic.com`, `claude.ai`, or `platform.claude.com`. The WebFetch tool still calls `api.anthropic.com` for its [domain safety check](./data-usage.md#webfetch-domain-safety-check) unless you set `skipWebFetchPreflight: true` in [settings](./settings.md).
+[Claude Code on the web](./claude-code-on-the-web.md) and [Code Review](./code-review.md) connect to your repositories from Anthropic-managed infrastructure. If your GitHub Enterprise Cloud organization restricts access by IP address, enable [IP allow list inheritance for installed GitHub Apps](https://docs.github.com/en/enterprise-cloud@latest/organizations/keeping-your-organization-secure/managing-security-settings-for-your-organization/managing-allowed-ip-addresses-for-your-organization#allowing-access-by-github-apps). The Claude GitHub App registers its IP ranges, so enabling this setting allows access without manual configuration. To [add the ranges to your allow list manually](https://docs.github.com/en/enterprise-cloud@latest/organizations/keeping-your-organization-secure/managing-security-settings-for-your-organization/managing-allowed-ip-addresses-for-your-organization#adding-an-allowed-ip-address) instead, or to configure other firewalls, see the [Anthropic API IP addresses](https://platform.claude.com/docs/en/api/ip-addresses).
+For self-hosted [GitHub Enterprise Server](./github-enterprise-server.md) instances behind a firewall, allowlist the same [Anthropic API IP addresses](https://platform.claude.com/docs/en/api/ip-addresses) so Anthropic infrastructure can reach your GHES host to clone repositories and post review comments.
 
-## [​](#additional-resources "#additional-resources") Additional resources
+## [​](#additional-resources) Additional resources
 
-* [Claude Code settings](./settings "_settings".md)
-* [Environment variables reference](./env-vars "_env-vars".md)
-* [Troubleshooting guide](./troubleshooting "_troubleshooting".md)
+* [Claude Code settings](./settings.md)
+* [Environment variables reference](./env-vars.md)
+* [Troubleshooting guide](./troubleshooting.md)

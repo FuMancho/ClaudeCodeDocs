@@ -1,12 +1,6 @@
 # Agent Sdk Streaming Vs Single Mode
 
-> ## Documentation Index
->
-> Fetch the complete documentation index at: [https://code.claude.com/docs/llms.txt](https://code.claude.com/docs/llms.txt "https://code.claude.com/docs/llms.txt")
->
-> Use this file to discover all available pages before exploring further.
-
-## [​](#overview "#overview") Overview
+## [​](#overview) Overview
 
 The Claude Agent SDK supports two distinct input modes for interacting with agents:
 
@@ -15,14 +9,14 @@ The Claude Agent SDK supports two distinct input modes for interacting with agen
 
 This guide explains the differences, benefits, and use cases for each mode to help you choose the right approach for your application.
 
-## [​](#streaming-input-mode-recommended "#streaming-input-mode-recommended") Streaming Input Mode (Recommended)
+## [​](#streaming-input-mode-recommended) Streaming Input Mode (Recommended)
 
 Streaming input mode is the **preferred** way to use the Claude Agent SDK. It provides full access to the agent’s capabilities and enables rich, interactive experiences.
 It allows the agent to operate as a long lived process that takes in user input, handles interruptions, surfaces permission requests, and handles session management.
 
-### [​](#how-it-works "#how-it-works") How It Works
+### [​](#how-it-works) How It Works
 
-### [​](#benefits "#benefits") Benefits
+### [​](#benefits) Benefits
 
 ## Image Uploads
 
@@ -36,10 +30,6 @@ Send multiple messages that process sequentially, with ability to interrupt
 
 Full access to all tools and custom MCP servers during the session
 
-## Hooks Support
-
-Use lifecycle hooks to customize behavior at various points
-
 ## Real-time Feedback
 
 See responses as they’re generated, not just final results
@@ -48,13 +38,13 @@ See responses as they’re generated, not just final results
 
 Maintain conversation context across multiple turns naturally
 
-### [​](#implementation-example "#implementation-example") Implementation Example
+### [​](#implementation-example) Implementation Example
 
 TypeScript
 
 Python
 
-```
+```text
 import { query, type SDKUserMessage } from "@anthropic-ai/claude-agent-sdk";
 import { readFile } from "fs/promises";
 
@@ -110,35 +100,38 @@ for await (const message of query({
 }
 ```
 
-## [​](#single-message-input "#single-message-input") Single Message Input
+In the TypeScript SDK, if your message generator throws, for example when a file it reads is missing, the stream ends with an error that reads `Claude Code process aborted by user` instead of the original error, so check the code inside your generator first when you see that message. The error may also be preceded by a long minified line of bundled SDK source, so read to the end of the output for the error text.In the Python SDK, a generator exception is logged at debug level and the session stalls without raising, so if a streaming session hangs with no output, enable debug logging and check your generator.
+
+## [​](#single-message-input) Single Message Input
 
 Single message input is simpler but more limited.
 
-### [​](#when-to-use-single-message-input "#when-to-use-single-message-input") When to Use Single Message Input
+### [​](#when-to-use-single-message-input) When to Use Single Message Input
 
 Use single message input when:
 
 * You need a one-shot response
-* You do not need image attachments, hooks, etc.
+* You do not need image attachments or mid-session control methods
 * You need to operate in a stateless environment, such as a lambda function
 
-### [​](#limitations "#limitations") Limitations
+### [​](#limitations) Limitations
 
 Single message input mode does **not** support:
 
 * Direct image attachments in messages
 * Dynamic message queueing
 * Real-time interruption
-* Hook integration
 * Natural multi-turn conversations
 
-### [​](#implementation-example-2 "#implementation-example-2") Implementation Example
+If a query ends with an error result, such as `error_max_turns`, a single message `query()` call raises an error that includes the failure text after yielding the final result message, so wrap the loop in a try block if your code needs to continue. See [Handle the result](./agent-sdk_agent-loop.md#handle-the-result) for the result subtypes.
+
+### [​](#implementation-example-2) Implementation Example
 
 TypeScript
 
 Python
 
-```
+```text
 import { query } from "@anthropic-ai/claude-agent-sdk";
 
 // Simple one-shot query

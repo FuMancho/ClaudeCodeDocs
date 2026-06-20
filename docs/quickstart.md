@@ -1,23 +1,19 @@
-> ## Documentation Index
->
-> Fetch the complete documentation index at: [https://code.claude.com/docs/llms.txt](https://code.claude.com/docs/llms.txt "https://code.claude.com/docs/llms.txt")
->
-> Use this file to discover all available pages before exploring further.
+# Quickstart
 
 This quickstart guide will have you using AI-powered coding assistance in a few minutes. By the end, you’ll understand how to use Claude Code for common development tasks.
 
-## [​](#before-you-begin "#before-you-begin") Before you begin
+## [​](#before-you-begin) Before you begin
 
 Make sure you have:
 
 * A terminal or command prompt open
-  + If you’ve never used the terminal before, check out the [terminal guide](./terminal-guide "_terminal-guide".md)
+  + If you’ve never used the terminal before, check out the [terminal guide](./terminal-guide.md)
 * A code project to work with
-* A [Claude subscription](https://claude.com/pricing?utm_source=claude_code&utm_medium=docs&utm_content=quickstart_prereq "https://claude.com/pricing?utm_source=claude_code&utm_medium=docs&utm_content=quickstart_prereq") (Pro, Max, Team, or Enterprise), [Claude Console](https://console.anthropic.com/ "https://console.anthropic.com/") account, or access through a [supported cloud provider](./third-party-integrations "_third-party-integrations".md)
+* A [Claude subscription](https://claude.com/pricing?utm_source=claude_code&utm_medium=docs&utm_content=quickstart_prereq) (Pro, Max, Team, or Enterprise), [Claude Console](https://console.anthropic.com/) account, or access through a [supported cloud provider](./third-party-integrations.md)
 
-This guide covers the terminal CLI. Claude Code is also available on the [web](https://claude.ai/code "https://claude.ai/code"), as a [desktop app](./desktop "_desktop".md), in [VS Code](./vs-code "_vs-code".md) and [JetBrains IDEs](./jetbrains "_jetbrains".md), in [Slack](./slack "_slack".md), and in CI/CD with [GitHub Actions](./github-actions "_github-actions".md) and [GitLab](./gitlab-ci-cd "_gitlab-ci-cd".md). See [all interfaces](./overview#use-claude-code-everywhere "_overview#use-claude-code-everywhere".md).
+This guide covers the terminal CLI. Claude Code is also available on the [web](https://claude.ai/code), as a [desktop app](./desktop.md), in [VS Code](./vs-code.md) and [JetBrains IDEs](./jetbrains.md), in [Slack](./slack.md), and in CI/CD with [GitHub Actions](./github-actions.md) and [GitLab](./gitlab-ci-cd.md). See [all interfaces](./overview.md#use-claude-code-everywhere).
 
-## [​](#step-1-install-claude-code "#step-1-install-claude-code") Step 1: Install Claude Code
+## [​](#step-1-install-claude-code) Step 1: Install Claude Code
 
 To install Claude Code, use one of the following methods:
 
@@ -27,27 +23,27 @@ To install Claude Code, use one of the following methods:
 
 **macOS, Linux, WSL:**
 
-```
+```text
 curl -fsSL https://claude.ai/install.sh | bash
 ```
 
 **Windows PowerShell:**
 
-```
+```text
 irm https://claude.ai/install.ps1 | iex
 ```
 
 **Windows CMD:**
 
-```
+```text
 curl -fsSL https://claude.ai/install.cmd -o install.cmd && install.cmd && del install.cmd
 ```
 
-If you see `The token '&&' is not a valid statement separator`, you’re in PowerShell, not CMD. If you see `'irm' is not recognized as an internal or external command`, you’re in CMD, not PowerShell. Your prompt shows `PS C:\` when you’re in PowerShell and `C:\` without the `PS` when you’re in CMD.[Git for Windows](https://git-scm.com/downloads/win "https://git-scm.com/downloads/win") is recommended on native Windows so Claude Code can use the Bash tool. If Git for Windows is not installed, Claude Code uses PowerShell as the shell tool instead. WSL setups do not need Git for Windows.
+If you see `The token '&&' is not a valid statement separator`, you’re in PowerShell, not CMD. If you see `'irm' is not recognized as an internal or external command`, you’re in CMD, not PowerShell. Your prompt shows `PS C:\` when you’re in PowerShell and `C:\` without the `PS` when you’re in CMD.[Git for Windows](https://git-scm.com/downloads/win) is recommended on native Windows so Claude Code can use the Bash tool. If Git for Windows is not installed, Claude Code uses PowerShell as the shell tool instead. WSL setups do not need Git for Windows.
 
 Native installations automatically update in the background to keep you on the latest version.
 
-```
+```text
 brew install --cask claude-code
 ```
 
@@ -55,92 +51,92 @@ Homebrew offers two casks. `claude-code` tracks the stable release channel, whic
 
 Homebrew installations do not auto-update. Run `brew upgrade claude-code` or `brew upgrade claude-code@latest`, depending on which cask you installed, to get the latest features and security fixes.
 
-```
+```text
 winget install Anthropic.ClaudeCode
 ```
 
 WinGet installations do not auto-update. Run `winget upgrade Anthropic.ClaudeCode` periodically to get the latest features and security fixes.
 
-You can also install with [apt, dnf, or apk](./setup#install-with-linux-package-managers "_setup#install-with-linux-package-managers".md) on Debian, Fedora, RHEL, and Alpine.
+You can also install with [apt, dnf, or apk](./setup.md#install-with-linux-package-managers) on Debian, Fedora, RHEL, and Alpine.
 
-## [​](#step-2-log-in-to-your-account "#step-2-log-in-to-your-account") Step 2: Log in to your account
+## [​](#step-2-log-in-to-your-account) Step 2: Log in to your account
 
-Claude Code requires an account to use. When you start an interactive session with the `claude` command, you’ll need to log in:
+Claude Code requires an account to use. Start an interactive session with the `claude` command and you’ll be prompted to log in on first use:
 
-```
+```text
 claude
-# You'll be prompted to log in on first use
 ```
 
-```
+For Claude subscription or Console accounts, follow the prompts to complete authentication in your browser. To switch accounts later or re-authenticate, type `/login` inside the running session:
+
+```text
 /login
-# Follow the prompts to log in with your account
 ```
 
 You can log in using any of these account types:
 
-* [Claude Pro, Max, Team, or Enterprise](https://claude.com/pricing?utm_source=claude_code&utm_medium=docs&utm_content=quickstart_login "https://claude.com/pricing?utm_source=claude_code&utm_medium=docs&utm_content=quickstart_login") (recommended)
-* [Claude Console](https://console.anthropic.com/ "https://console.anthropic.com/") (API access with pre-paid credits). On first login, a “Claude Code” workspace is automatically created in the Console for centralized cost tracking.
-* [Amazon Bedrock, Google Vertex AI, or Microsoft Foundry](./third-party-integrations "_third-party-integrations".md) (enterprise cloud providers)
+* [Claude Pro, Max, Team, or Enterprise](https://claude.com/pricing?utm_source=claude_code&utm_medium=docs&utm_content=quickstart_login) (recommended)
+* [Claude Console](https://console.anthropic.com/) (API access with pre-paid credits). On first login, a “Claude Code” workspace is automatically created in the Console for centralized cost tracking.
+* [Amazon Bedrock, Google Vertex AI, or Microsoft Foundry](./third-party-integrations.md) (enterprise cloud providers)
 
-Once logged in, your credentials are stored and you won’t need to log in again. To switch accounts later, use the `/login` command.
+Once logged in, your credentials are stored and you won’t need to log in again.
 
-## [​](#step-3-start-your-first-session "#step-3-start-your-first-session") Step 3: Start your first session
+## [​](#step-3-start-your-first-session) Step 3: Start your first session
 
 Open your terminal in any project directory and start Claude Code:
 
-```
+```text
 cd /path/to/your/project
 claude
 ```
 
-You’ll see the Claude Code welcome screen with your session information, recent conversations, and latest updates. Type `/help` for available commands or `/resume` to continue a previous conversation.
+You’ll see the Claude Code prompt with the version, current model, and working directory shown above it. Type `/help` for available commands or `/resume` to continue a previous conversation.
 
-After logging in (Step 2), your credentials are stored on your system. Learn more in [Credential Management](./authentication#credential-management "_authentication#credential-management".md).
+After logging in (Step 2), your credentials are stored on your system. Learn more in [Credential Management](./authentication.md#credential-management).
 
-## [​](#step-4-ask-your-first-question "#step-4-ask-your-first-question") Step 4: Ask your first question
+## [​](#step-4-ask-your-first-question) Step 4: Ask your first question
 
 Let’s start with understanding your codebase. Try one of these commands:
 
-```
+```text
 what does this project do?
 ```
 
 Claude will analyze your files and provide a summary. You can also ask more specific questions:
 
-```
+```text
 what technologies does this project use?
 ```
 
-```
+```text
 where is the main entry point?
 ```
 
-```
+```text
 explain the folder structure
 ```
 
 You can also ask Claude about its own capabilities:
 
-```
+```text
 what can Claude Code do?
 ```
 
-```
+```text
 how do I create custom skills in Claude Code?
 ```
 
-```
+```text
 can Claude Code work with Docker?
 ```
 
 Claude Code reads your project files as needed. You don’t have to manually add context.
 
-## [​](#step-5-make-your-first-code-change "#step-5-make-your-first-code-change") Step 5: Make your first code change
+## [​](#step-5-make-your-first-code-change) Step 5: Make your first code change
 
 Now let’s make Claude Code do some actual coding. Try a simple task:
 
-```
+```text
 add a hello world function to the main file
 ```
 
@@ -153,44 +149,44 @@ Claude Code will:
 
 Claude Code always asks for permission before modifying files. You can approve individual changes or enable “Accept all” mode for a session.
 
-## [​](#step-6-use-git-with-claude-code "#step-6-use-git-with-claude-code") Step 6: Use Git with Claude Code
+## [​](#step-6-use-git-with-claude-code) Step 6: Use Git with Claude Code
 
 Claude Code makes Git operations conversational:
 
-```
+```text
 what files have I changed?
 ```
 
-```
+```text
 commit my changes with a descriptive message
 ```
 
 You can also prompt for more complex Git operations:
 
-```
+```text
 create a new branch called feature/quickstart
 ```
 
-```
+```text
 show me the last 5 commits
 ```
 
-```
+```text
 help me resolve merge conflicts
 ```
 
-## [​](#step-7-fix-a-bug-or-add-a-feature "#step-7-fix-a-bug-or-add-a-feature") Step 7: Fix a bug or add a feature
+## [​](#step-7-fix-a-bug-or-add-a-feature) Step 7: Fix a bug or add a feature
 
 Claude is proficient at debugging and feature implementation.
 Describe what you want in natural language:
 
-```
+```text
 add input validation to the user registration form
 ```
 
 Or fix existing issues:
 
-```
+```text
 there's a bug where users can submit empty forms - fix it
 ```
 
@@ -201,38 +197,39 @@ Claude Code will:
 * Implement a solution
 * Run tests if available
 
-## [​](#step-8-test-out-other-common-workflows "#step-8-test-out-other-common-workflows") Step 8: Test out other common workflows
+## [​](#step-8-test-out-other-common-workflows) Step 8: Test out other common workflows
 
 There are a number of ways to work with Claude:
 **Refactor code**
 
-```
+```text
 refactor the authentication module to use async/await instead of callbacks
 ```
 
 **Write tests**
 
-```
+```text
 write unit tests for the calculator functions
 ```
 
 **Update documentation**
 
-```
+```text
 update the README with installation instructions
 ```
 
 **Code review**
 
-```
+```text
 review my changes and suggest improvements
 ```
 
 Talk to Claude like you would a helpful colleague. Describe what you want to achieve, and it will help you get there.
 
-## [​](#essential-commands "#essential-commands") Essential commands
+## [​](#essential-commands) Essential commands
 
-Here are the most important commands for daily use:
+Here are the most important commands for daily use. Shell commands run from your terminal to start or resume Claude Code. Session commands run inside Claude Code after it starts.
+**Shell commands**
 
 | Command | What it does | Example |
 | --- | --- | --- |
@@ -241,15 +238,20 @@ Here are the most important commands for daily use:
 | `claude -p "query"` | Run one-off query, then exit | `claude -p "explain this function"` |
 | `claude -c` | Continue most recent conversation in current directory | `claude -c` |
 | `claude -r` | Resume a previous conversation | `claude -r` |
+
+**Session commands**
+
+| Command | What it does | Example |
+| --- | --- | --- |
 | `/clear` | Clear conversation history | `/clear` |
 | `/help` | Show available commands | `/help` |
-| `exit` or Ctrl+D | Exit Claude Code | `exit` |
+| `/exit` or Ctrl+D | Exit Claude Code | `/exit` |
 
-See the [CLI reference](./cli-reference "_cli-reference".md) for a complete list of commands.
+See the [CLI reference](./cli-reference.md) for the complete list of shell commands and the [commands reference](./commands.md) for the complete list of session commands.
 
-## [​](#pro-tips-for-beginners "#pro-tips-for-beginners") Pro tips for beginners
+## [​](#pro-tips-for-beginners) Pro tips for beginners
 
-For more, see [best practices](./best-practices "_best-practices".md) and [common workflows](./common-workflows "_common-workflows".md).
+For more, see [best practices](./best-practices.md) and [common workflows](./common-workflows.md).
 
 Be specific with your requests
 
@@ -259,7 +261,7 @@ Use step-by-step instructions
 
 Break complex tasks into steps:
 
-```
+```text
 1. create a new database table for user profiles
 2. create an API endpoint to get and update user profiles
 3. build a webpage that allows users to see and edit their information
@@ -269,11 +271,11 @@ Let Claude explore first
 
 Before making changes, let Claude understand your code:
 
-```
+```text
 analyze the database schema
 ```
 
-```
+```text
 build a dashboard showing products that are most frequently returned by our UK customers
 ```
 
@@ -284,7 +286,7 @@ Save time with shortcuts
 * Press ↑ for command history
 * Press `Shift+Tab` to cycle permission modes
 
-## [​](#what’s-next "#what’s-next") What’s next?
+## [​](#what’s-next) What’s next?
 
 Now that you’ve learned the basics, explore more advanced features:
 
@@ -304,8 +306,8 @@ Step-by-step guides for common tasks
 
 Customize with CLAUDE.md, skills, hooks, MCP, and more
 
-## [​](#getting-help "#getting-help") Getting help
+## [​](#getting-help) Getting help
 
 * **In Claude Code**: Type `/help` or ask “how do I…”
 * **Documentation**: You’re here! Browse other guides
-* **Community**: Join our [Discord](https://www.anthropic.com/discord "https://www.anthropic.com/discord") for tips and support
+* **Community**: Join our [Discord](https://www.anthropic.com/discord) for tips and support
