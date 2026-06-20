@@ -1,48 +1,42 @@
 # Auto Mode Config
 
-> ## Documentation Index
->
-> Fetch the complete documentation index at: [https://code.claude.com/docs/llms.txt](https://code.claude.com/docs/llms.txt "https://code.claude.com/docs/llms.txt")
->
-> Use this file to discover all available pages before exploring further.
+[Auto mode](./permission-modes.md#eliminate-prompts-with-auto-mode) lets Claude Code run without routine permission prompts by routing tool calls through a classifier that blocks anything irreversible, destructive, or aimed outside your environment. Deny and explicit ask rules are evaluated before the classifier and still block or prompt. Use the `autoMode` settings block to tell that classifier which repos, buckets, and domains your organization trusts, so it stops blocking routine internal operations.
 
-[Auto mode](./permission-modes#eliminate-prompts-with-auto-mode "_permission-modes#eliminate-prompts-with-auto-mode".md) lets Claude Code run without permission prompts by routing each tool call through a classifier that blocks anything irreversible, destructive, or aimed outside your environment. Use the `autoMode` settings block to tell that classifier which repos, buckets, and domains your organization trusts, so it stops blocking routine internal operations.
-
-Auto mode is available to all users on the Anthropic API. It is not available on Bedrock, Vertex, or Foundry. If Claude Code reports auto mode as unavailable for your account, check the [full requirements](./permission-modes#eliminate-prompts-with-auto-mode "_permission-modes#eliminate-prompts-with-auto-mode".md), which also cover the supported models and admin enablement on Team and Enterprise plans.
+Auto mode is available to all users on the Anthropic API. On Amazon Bedrock, Google Cloud Vertex AI, and Microsoft Foundry, you must first [set `CLAUDE_CODE_ENABLE_AUTO_MODE`](./permission-modes.md#enable-auto-mode-on-bedrock-vertex-ai-or-foundry). If Claude Code reports auto mode as unavailable for your account, check the [full requirements](./permission-modes.md#eliminate-prompts-with-auto-mode), which also cover the supported models and admin enablement on Team and Enterprise plans.
 
 Out of the box, the classifier trusts only the working directory and the current repo’s configured remotes. Actions like pushing to your company’s source-control org or writing to a team cloud bucket are blocked until you add them to `autoMode.environment`.
-For how to enable auto mode and what it blocks by default, see [Permission modes](./permission-modes#eliminate-prompts-with-auto-mode "_permission-modes#eliminate-prompts-with-auto-mode".md). This page is the configuration reference.
+For how to enable auto mode and what it blocks by default, see [Permission modes](./permission-modes.md#eliminate-prompts-with-auto-mode). This page is the configuration reference.
 This page covers how to:
 
-* [Choose where to set rules](#where-the-classifier-reads-configuration "#where-the-classifier-reads-configuration") across CLAUDE.md, user settings, and managed settings
-* [Define trusted infrastructure](#define-trusted-infrastructure "#define-trusted-infrastructure") with `autoMode.environment`
-* [Override the block and allow rules](#override-the-block-and-allow-rules "#override-the-block-and-allow-rules") when the defaults don’t fit your pipeline
-* [Inspect your effective config](#inspect-the-defaults-and-your-effective-config "#inspect-the-defaults-and-your-effective-config") with the `claude auto-mode` subcommands
-* [Review denials](#review-denials "#review-denials") so you know what to add next
+* [Choose where to set rules](#where-the-classifier-reads-configuration) across CLAUDE.md, user settings, and managed settings
+* [Define trusted infrastructure](#define-trusted-infrastructure) with `autoMode.environment`
+* [Override the block and allow rules](#override-the-block-and-allow-rules) when the defaults don’t fit your pipeline
+* [Inspect your effective config](#inspect-the-defaults-and-your-effective-config) with the `claude auto-mode` subcommands
+* [Review denials](#review-denials) so you know what to add next
 
-## [​](#where-the-classifier-reads-configuration "#where-the-classifier-reads-configuration") Where the classifier reads configuration
+## [​](#where-the-classifier-reads-configuration) Where the classifier reads configuration
 
-The classifier reads the same [CLAUDE.md](./memory "_memory".md) content Claude itself loads, so an instruction like “never force push” in your project’s CLAUDE.md steers both Claude and the classifier at the same time. Start there for project conventions and behavioral rules.
+The classifier reads the same [CLAUDE.md](./memory.md) content Claude itself loads, so an instruction like “never force push” in your project’s CLAUDE.md steers both Claude and the classifier at the same time. Start there for project conventions and behavioral rules.
 For rules that apply across projects, such as trusted infrastructure or organization-wide deny rules, use the `autoMode` settings block. The classifier reads `autoMode` from the following scopes:
 
 | Scope | File | Use for |
 | --- | --- | --- |
 | One developer | `~/.claude/settings.json` | Personal trusted infrastructure |
-| One project, one developer | `.claude/settings.local.json` | Per-project trusted buckets or services, gitignored |
-| Organization-wide | [Managed settings](./server-managed-settings "_server-managed-settings".md) | Trusted infrastructure distributed to all developers |
+| One project, one developer | `.claude/settings.local.json` | Per-project trusted buckets or services |
+| Organization-wide | [Managed settings](./server-managed-settings.md) | Trusted infrastructure distributed to all developers |
 | `--settings` flag or Agent SDK | Inline JSON | Per-invocation overrides for automation |
 
 The classifier does not read `autoMode` from shared project settings in `.claude/settings.json`, so a checked-in repo cannot inject its own allow rules.
 Entries from each scope are combined. A developer can extend `environment`, `allow`, `soft_deny`, and `hard_deny` with personal entries but cannot remove entries that managed settings provide. Because allow rules act as exceptions to soft block rules inside the classifier, a developer-added `allow` entry can override an organization `soft_deny` entry: the combination is additive, not a hard policy boundary.
 
-The classifier is a second gate that runs after the [permissions system](./permissions "_permissions".md). For actions that must never run regardless of user intent or classifier configuration, use `permissions.deny` in managed settings, which blocks the action before the classifier is consulted and cannot be overridden.
+The classifier is a second gate that runs after the [permissions system](./permissions.md). For actions that must never run regardless of user intent or classifier configuration, use `permissions.deny` in managed settings, which blocks the action before the classifier is consulted and cannot be overridden.
 
-## [​](#define-trusted-infrastructure "#define-trusted-infrastructure") Define trusted infrastructure
+## [​](#define-trusted-infrastructure) Define trusted infrastructure
 
 For most organizations, `autoMode.environment` is the only field you need to set. It tells the classifier which repos, buckets, and domains are trusted: the classifier uses it to decide what “external” means, so any destination not listed is a potential exfiltration target.
 The default environment list trusts the working repo and its configured remotes. To add your own entries alongside that default, include the literal string `"$defaults"` in the array. The default entries are spliced in at that position, so your custom entries can go before or after them.
 
-```
+```text
 {
   "autoMode": {
     "environment": [
@@ -67,7 +61,7 @@ Entries are prose, not regex or tool patterns. The classifier reads them as natu
 
 A useful starting template: fill in the bracketed fields and remove any lines that don’t apply.
 
-```
+```text
 {
   "autoMode": {
     "environment": [
@@ -87,9 +81,9 @@ A useful starting template: fill in the bracketed fields and remove any lines th
 The more specific context you give, the better the classifier can distinguish routine internal operations from exfiltration attempts.
 You don’t need to fill everything in at once. A reasonable rollout: start with the defaults and add your source control org and key internal services, which resolves the most common false positives like pushing to your own repos. Add trusted domains and cloud buckets next. Fill the rest as blocks come up.
 
-## [​](#override-the-block-and-allow-rules "#override-the-block-and-allow-rules") Override the block and allow rules
+## [​](#override-the-block-and-allow-rules) Override the block and allow rules
 
-Three additional fields let you replace the classifier’s built-in rule lists: `autoMode.hard_deny` for unconditional security boundaries, `autoMode.soft_deny` for destructive actions that user intent can clear, and `autoMode.allow` for exceptions. Each is an array of prose descriptions, read as natural-language rules. For tool-pattern-based hard blocks that run before the classifier, use [`permissions.deny`](./permissions "_permissions".md).
+Three additional fields let you replace the classifier’s built-in rule lists: `autoMode.hard_deny` for unconditional security boundaries, `autoMode.soft_deny` for destructive actions that user intent can clear, and `autoMode.allow` for exceptions. Each is an array of prose descriptions, read as natural-language rules. For tool-pattern-based hard blocks that run before the classifier, use [`permissions.deny`](./permissions.md).
 Inside the classifier, precedence works in four tiers:
 
 * `hard_deny` rules block unconditionally. User intent and `allow` exceptions do not apply.
@@ -98,9 +92,10 @@ Inside the classifier, precedence works in four tiers:
 * Explicit user intent overrides the remaining soft blocks: if the user’s message directly and specifically describes the exact action Claude is about to take, the classifier allows it even when a `soft_deny` rule matches.
 
 General requests don’t count as explicit intent. Asking Claude to “clean up the repo” does not authorize force-pushing, but asking Claude to “force-push this branch” does.
-To loosen, add to `allow` when the classifier repeatedly flags a routine pattern the default exceptions don’t cover. To tighten, add to `soft_deny` for destructive risks specific to your environment that the defaults miss, or to `hard_deny` for security boundaries that must never be crossed. To keep the built-in rules while adding your own, include the literal string `"$defaults"` in the array. The default rules are spliced in at that position, so your custom rules can go before or after them, and you continue to inherit updates as the built-in list changes across releases.
+To loosen, add to `allow` when the classifier repeatedly flags a routine pattern the default exceptions don’t cover. To tighten, add to `soft_deny` for destructive risks specific to your environment that the defaults miss, or to `hard_deny` for security boundaries that must never be crossed.
+To keep the built-in rules while adding your own, include the literal string `"$defaults"` in the array. The default rules are spliced in at that position, so your custom rules can go before or after them, and you continue to inherit updates as the built-in list changes across releases.
 
-```
+```text
 {
   "autoMode": {
     "environment": [
@@ -129,38 +124,38 @@ Setting any of `environment`, `allow`, `soft_deny`, or `hard_deny` without `"$de
 
 Each section is evaluated independently, so setting `environment` alone leaves the default `allow`, `soft_deny`, and `hard_deny` lists intact. Only omit `"$defaults"` when you intend to take full ownership of the list. To do that safely, run `claude auto-mode defaults` to print the built-in rules, copy them into your settings file, then review each rule against your own pipeline and risk tolerance.
 
-## [​](#inspect-the-defaults-and-your-effective-config "#inspect-the-defaults-and-your-effective-config") Inspect the defaults and your effective config
+## [​](#inspect-the-defaults-and-your-effective-config) Inspect the defaults and your effective config
 
 Three CLI subcommands help you inspect and validate your configuration.
 Print the built-in `environment`, `allow`, `soft_deny`, and `hard_deny` rules as JSON:
 
-```
+```text
 claude auto-mode defaults
 ```
 
 Print what the classifier actually uses as JSON, with your settings applied where set and defaults otherwise:
 
-```
+```text
 claude auto-mode config
 ```
 
 Get AI feedback on your custom `allow`, `soft_deny`, and `hard_deny` rules:
 
-```
+```text
 claude auto-mode critique
 ```
 
 Run `claude auto-mode config` after saving your settings to confirm the effective rules are what you expect, with `"$defaults"` expanded in place. If you’ve written custom rules, `claude auto-mode critique` reviews them and flags entries that are ambiguous, redundant, or likely to cause false positives. If you need to remove or rewrite a built-in rule rather than add alongside it, save the output of `claude auto-mode defaults` to a file, edit the lists, and paste the result into your settings file in place of `"$defaults"`.
 
-## [​](#review-denials "#review-denials") Review denials
+## [​](#review-denials) Review denials
 
 When auto mode denies a tool call, the denial is recorded in `/permissions` under the Recently denied tab. Press `r` on a denied action to mark it for retry: when you exit the dialog, Claude Code sends a message telling the model it may retry that tool call and resumes the conversation.
 Repeated denials for the same destination usually mean the classifier is missing context. Add that destination to `autoMode.environment`, then run `claude auto-mode config` to confirm it took effect.
-To react to denials programmatically, use the [`PermissionDenied` hook](./hooks#permissiondenied "_hooks#permissiondenied".md).
+To react to denials programmatically, use the [`PermissionDenied` hook](./hooks.md#permissiondenied).
 
-## [​](#see-also "#see-also") See also
+## [​](#see-also) See also
 
-* [Permission modes](./permission-modes#eliminate-prompts-with-auto-mode "_permission-modes#eliminate-prompts-with-auto-mode".md): what auto mode is, what it blocks by default, and how to enable it
-* [Managed settings](./server-managed-settings "_server-managed-settings".md): deploy `autoMode` configuration across your organization
-* [Permissions](./permissions "_permissions".md): allow, ask, and deny rules that apply before the classifier runs
-* [Settings](./settings "_settings".md): the full settings reference, including the `autoMode` key
+* [Permission modes](./permission-modes.md#eliminate-prompts-with-auto-mode): what auto mode is, what it blocks by default, and how to enable it
+* [Managed settings](./server-managed-settings.md): deploy `autoMode` configuration across your organization
+* [Permissions](./permissions.md): allow, ask, and deny rules that apply before the classifier runs
+* [Settings](./settings.md): the full settings reference, including the `autoMode` key

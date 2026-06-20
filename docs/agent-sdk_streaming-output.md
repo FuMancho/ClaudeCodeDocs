@@ -1,16 +1,10 @@
 # Agent Sdk Streaming Output
 
-> ## Documentation Index
->
-> Fetch the complete documentation index at: [https://code.claude.com/docs/llms.txt](https://code.claude.com/docs/llms.txt "https://code.claude.com/docs/llms.txt")
->
-> Use this file to discover all available pages before exploring further.
-
 By default, the Agent SDK yields complete `AssistantMessage` objects after Claude finishes generating each response. To receive incremental updates as text and tool calls are generated, enable partial message streaming by setting `include_partial_messages` (Python) or `includePartialMessages` (TypeScript) to `true` in your options.
 
-This page covers output streaming (receiving tokens in real-time). For input modes (how you send messages), see [Send messages to agents](./agent-sdk_streaming-vs-single-mode "_agent-sdk_streaming-vs-single-mode".md). You can also [stream responses using the Agent SDK via the CLI](./headless "_headless".md).
+This page covers output streaming (receiving tokens in real-time). For input modes (how you send messages), see [Send messages to agents](./agent-sdk_streaming-vs-single-mode.md). You can also [stream responses using the Agent SDK via the CLI](./headless.md).
 
-## [​](#enable-streaming-output "#enable-streaming-output") Enable streaming output
+## [​](#enable-streaming-output) Enable streaming output
 
 To enable streaming, set `include_partial_messages` (Python) or `includePartialMessages` (TypeScript) to `true` in your options. This causes the SDK to yield `StreamEvent` messages containing raw API events as they arrive, in addition to the usual `AssistantMessage` and `ResultMessage`.
 Your code then needs to:
@@ -25,7 +19,7 @@ Python
 
 TypeScript
 
-```
+```text
 from claude_agent_sdk import query, ClaudeAgentOptions
 from claude_agent_sdk.types import StreamEvent
 import asyncio
@@ -49,7 +43,7 @@ async def stream_response():
 asyncio.run(stream_response())
 ```
 
-## [​](#streamevent-reference "#streamevent-reference") StreamEvent reference
+## [​](#streamevent-reference) StreamEvent reference
 
 When partial messages are enabled, you receive raw Claude API streaming events wrapped in an object. The type has different names in each SDK:
 
@@ -62,7 +56,7 @@ Python
 
 TypeScript
 
-```
+```text
 @dataclass
 class StreamEvent:
     uuid: str  # Unique identifier for this event
@@ -71,7 +65,7 @@ class StreamEvent:
     parent_tool_use_id: str | None  # Parent tool ID if from a subagent
 ```
 
-The `event` field contains the raw streaming event from the [Claude API](https://platform.claude.com/docs/en/build-with-claude/streaming#event-types "https://platform.claude.com/docs/en/build-with-claude/streaming#event-types"). Common event types include:
+The `event` field contains the raw streaming event from the [Claude API](https://platform.claude.com/docs/en/build-with-claude/streaming#event-types). Common event types include:
 
 | Event Type | Description |
 | --- | --- |
@@ -82,11 +76,11 @@ The `event` field contains the raw streaming event from the [Claude API](https:/
 | `message_delta` | Message-level updates (stop reason, usage) |
 | `message_stop` | End of the message |
 
-## [​](#message-flow "#message-flow") Message flow
+## [​](#message-flow) Message flow
 
 With partial messages enabled, you receive messages in this order:
 
-```
+```text
 StreamEvent (message_start)
 StreamEvent (content_block_start) - text block
 StreamEvent (content_block_delta) - text chunks...
@@ -104,7 +98,7 @@ ResultMessage - final result
 
 Without partial messages enabled (`include_partial_messages` in Python, `includePartialMessages` in TypeScript), you receive all message types except `StreamEvent`. Common types include `SystemMessage` (session initialization), `AssistantMessage` (complete responses), `ResultMessage` (final result), and a compact boundary message indicating when conversation history was compacted (`SDKCompactBoundaryMessage` in TypeScript; `SystemMessage` with subtype `"compact_boundary"` in Python).
 
-## [​](#stream-text-responses "#stream-text-responses") Stream text responses
+## [​](#stream-text-responses) Stream text responses
 
 To display text as it’s generated, look for `content_block_delta` events where `delta.type` is `text_delta`. These contain the incremental text chunks. The example below prints each chunk as it arrives:
 
@@ -112,7 +106,7 @@ Python
 
 TypeScript
 
-```
+```text
 from claude_agent_sdk import query, ClaudeAgentOptions
 from claude_agent_sdk.types import StreamEvent
 import asyncio
@@ -136,7 +130,7 @@ async def stream_text():
 asyncio.run(stream_text())
 ```
 
-## [​](#stream-tool-calls "#stream-tool-calls") Stream tool calls
+## [​](#stream-tool-calls) Stream tool calls
 
 Tool calls also stream incrementally. You can track when tools start, receive their input as it’s generated, and see when they complete. The example below tracks the current tool being called and accumulates the JSON input as it streams in. It uses three event types:
 
@@ -148,7 +142,7 @@ Python
 
 TypeScript
 
-```
+```text
 from claude_agent_sdk import query, ClaudeAgentOptions
 from claude_agent_sdk.types import StreamEvent
 import asyncio
@@ -195,7 +189,7 @@ async def stream_tool_calls():
 asyncio.run(stream_tool_calls())
 ```
 
-## [​](#build-a-streaming-ui "#build-a-streaming-ui") Build a streaming UI
+## [​](#build-a-streaming-ui) Build a streaming UI
 
 This example combines text and tool streaming into a cohesive UI. It tracks whether the agent is currently executing a tool (using an `in_tool` flag) to show status indicators like `[Using Read...]` while tools run. Text streams normally when not in a tool, and tool completion triggers a “done” message. This pattern is useful for chat interfaces that need to show progress during multi-step agent tasks.
 
@@ -203,7 +197,7 @@ Python
 
 TypeScript
 
-```
+```text
 from claude_agent_sdk import query, ClaudeAgentOptions, ResultMessage
 from claude_agent_sdk.types import StreamEvent
 import asyncio
@@ -255,17 +249,14 @@ async def streaming_ui():
 asyncio.run(streaming_ui())
 ```
 
-## [​](#known-limitations "#known-limitations") Known limitations
+## [​](#known-limitations) Known limitations
 
-Some SDK features are incompatible with streaming:
+* **Structured output**: the JSON result appears only in the final `ResultMessage.structured_output`, not as streaming deltas. See [structured outputs](./agent-sdk_structured-outputs.md) for details.
 
-* **Extended thinking**: when you explicitly set `max_thinking_tokens` (Python) or `maxThinkingTokens` (TypeScript), `StreamEvent` messages are not emitted. You’ll only receive complete messages after each turn. Note that thinking is disabled by default in the SDK, so streaming works unless you enable it.
-* **Structured output**: the JSON result appears only in the final `ResultMessage.structured_output`, not as streaming deltas. See [structured outputs](./agent-sdk_structured-outputs "_agent-sdk_structured-outputs".md) for details.
-
-## [​](#next-steps "#next-steps") Next steps
+## [​](#next-steps) Next steps
 
 Now that you can stream text and tool calls in real-time, explore these related topics:
 
-* [Interactive vs one-shot queries](./agent-sdk_streaming-vs-single-mode "_agent-sdk_streaming-vs-single-mode".md): choose between input modes for your use case
-* [Structured outputs](./agent-sdk_structured-outputs "_agent-sdk_structured-outputs".md): get typed JSON responses from the agent
-* [Permissions](./agent-sdk_permissions "_agent-sdk_permissions".md): control which tools the agent can use
+* [Interactive vs one-shot queries](./agent-sdk_streaming-vs-single-mode.md): choose between input modes for your use case
+* [Structured outputs](./agent-sdk_structured-outputs.md): get typed JSON responses from the agent
+* [Permissions](./agent-sdk_permissions.md): control which tools the agent can use

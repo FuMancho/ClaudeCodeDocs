@@ -1,24 +1,18 @@
 # Context Window
 
-> ## Documentation Index
->
-> Fetch the complete documentation index at: [https://code.claude.com/docs/llms.txt](https://code.claude.com/docs/llms.txt "https://code.claude.com/docs/llms.txt")
->
-> Use this file to discover all available pages before exploring further.
-
-Claude Code’s context window holds everything Claude knows about your session: your instructions, the files it reads, its own responses, and content that never appears in your terminal. The timeline below walks through what loads and when. See [the written breakdown](#what-the-timeline-shows "#what-the-timeline-shows") for the same content as a list.
+Claude Code’s context window holds everything Claude knows about your session: your instructions, the files it reads, its own responses, and content that never appears in your terminal. The timeline below plays a full session from startup to compaction: what loads before you type, what each file read, rule, and hook adds as Claude works, and how a subagent keeps large reads out of your context. See [the written breakdown](#what-the-timeline-shows) for the same content as a list.
 
 
-## [​](#what-the-timeline-shows "#what-the-timeline-shows") What the timeline shows
+## [​](#what-the-timeline-shows) What the timeline shows
 
 The session walks through a realistic flow with representative token counts:
 
-* **Before you type anything**: CLAUDE.md, auto memory, MCP tool names, and skill descriptions all load into context. Your own setup may add more here, like an [output style](./output-styles "_output-styles".md) or text from [`--append-system-prompt`](./cli-reference "_cli-reference".md), which both go into the system prompt the same way.
-* **As Claude works**: each file read adds to context, [path-scoped rules](./memory#path-specific-rules "_memory#path-specific-rules".md) load automatically alongside matching files, and a [PostToolUse hook](./hooks-guide "_hooks-guide".md) fires after each edit.
-* **The follow-up prompt**: a [subagent](./sub-agents "_sub-agents".md) handles the research in its own separate context window, so the large file reads stay out of yours. Only the summary and a small metadata trailer come back.
+* **Before you type anything**: CLAUDE.md, auto memory, MCP tool names, and skill descriptions all load into context. Your own setup may add more here, like an [output style](./output-styles.md) or text from [`--append-system-prompt`](./cli-reference.md), which both go into the system prompt the same way.
+* **As Claude works**: each file read adds to context, [path-scoped rules](./memory.md#path-specific-rules) load automatically alongside matching files, and a [PostToolUse hook](./hooks-guide.md) fires after each edit.
+* **The follow-up prompt**: a [subagent](./sub-agents.md) handles the research in its own separate context window, so the large file reads stay out of yours. Only the summary and a small metadata trailer come back.
 * **At the end**: `/compact` replaces the conversation with a structured summary. Most startup content reloads automatically; the table below shows what happens to each mechanism.
 
-## [​](#what-survives-compaction "#what-survives-compaction") What survives compaction
+## [​](#what-survives-compaction) What survives compaction
 
 When a long session compacts, Claude Code summarizes the conversation history to fit the context window. What happens to your instructions depends on how they were loaded:
 
@@ -35,17 +29,28 @@ When a long session compacts, Claude Code summarizes the conversation history to
 Path-scoped rules and nested CLAUDE.md files load into message history when their trigger file is read, so compaction summarizes them away with everything else. They reload the next time Claude reads a matching file. If a rule must persist across compaction, drop the `paths:` frontmatter or move it to the project-root CLAUDE.md.
 Skill bodies are re-injected after compaction, but large skills are truncated to fit the per-skill cap, and the oldest invoked skills are dropped once the total budget is exceeded. Truncation keeps the start of the file, so put the most important instructions near the top of `SKILL.md`.
 
-## [​](#check-your-own-session "#check-your-own-session") Check your own session
+## [​](#when-your-context-fills-up) When your context fills up
+
+Claude Code compacts automatically as you approach the limit, so a full context window doesn’t end your session. The automatic pass works the same way as the `/compact` step in the timeline. See [When context fills up](./how-claude-code-works.md#when-context-fills-up) for what it preserves.
+You can also act before the automatic pass runs:
+
+* **Compact with a focus**: run `/compact` with instructions, like `/compact focus on the auth bug fix`, before starting a long new task. The summary keeps what you choose instead of what the automatic pass guesses is important.
+* **Clear between tasks**: run `/clear` when switching to unrelated work. Old conversation crowds out the files you need next and costs tokens on every message.
+* **Delegate large reads**: send research to a [subagent](./sub-agents.md) so the file contents stay in its context window, not yours.
+
+If you need a larger window rather than a smaller conversation, Fable 5, Opus 4.6 and later, and Sonnet 4.6 support a 1 million token context window. See [Extended context](./model-config.md#extended-context) for availability by plan and how to select a `[1m]` model variant. Compaction works the same way at the larger limit.
+
+## [​](#check-your-own-session) Check your own session
 
 The visualization uses representative numbers. To see your actual context usage at any point, run `/context` for a live breakdown by category with optimization suggestions. Run `/memory` to check which CLAUDE.md and auto memory files loaded at startup.
 
-## [​](#related-resources "#related-resources") Related resources
+## [​](#related-resources) Related resources
 
 For deeper coverage of the features shown in the timeline, see these pages:
 
-* [Extend Claude Code](./features-overview "_features-overview".md): when to use CLAUDE.md vs skills vs rules vs hooks vs MCP
-* [Store instructions and memories](./memory "_memory".md): CLAUDE.md hierarchy and auto memory
-* [Subagents](./sub-agents "_sub-agents".md): delegate research to a separate context window
-* [Best practices](./best-practices "_best-practices".md): managing context as your primary constraint
-* [Prompt caching](./prompt-caching "_prompt-caching".md): which actions invalidate the cached prefix
-* [Reduce token usage](./costs#reduce-token-usage "_costs#reduce-token-usage".md): strategies for keeping context usage low
+* [Extend Claude Code](./features-overview.md): when to use CLAUDE.md vs skills vs rules vs hooks vs MCP
+* [Store instructions and memories](./memory.md): CLAUDE.md hierarchy and auto memory
+* [Subagents](./sub-agents.md): delegate research to a separate context window
+* [Best practices](./best-practices.md): managing context as your primary constraint
+* [Prompt caching](./prompt-caching.md): which actions invalidate the cached prefix
+* [Reduce token usage](./costs.md#reduce-token-usage): strategies for keeping context usage low

@@ -1,12 +1,6 @@
 # Whats New 2026 W19
 
-> ## Documentation Index
->
-> Fetch the complete documentation index at: [https://code.claude.com/docs/llms.txt](https://code.claude.com/docs/llms.txt "https://code.claude.com/docs/llms.txt")
->
-> Use this file to discover all available pages before exploring further.
-
-Releases [v2.1.128 → v2.1.136](/en/changelog#2-1-128 "/en/changelog#2-1-128")2 features · May 4–8
+Releases [v2.1.128 → v2.1.136](./changelog.md#2-1-128)2 features · May 4–8
 
 Plugins from .zip archives and URLs
 
@@ -16,17 +10,17 @@ Load a plugin straight from a URL:
 
 terminal
 
-```
+```text
 claude --plugin-url https://example.com/my-plugin.zip
 ```
 
-[Plugins guide](/en/plugins "/en/plugins")
+[Plugins guide](./plugins.md)
 
 History search across all your projectsv2.1.129
 
 `Ctrl+R` reverse-search now defaults to all prompts across every project, restoring the behavior from before v2.1.124. Press `Ctrl+S` while searching to narrow back to the current project or session. Handy when you remember a command you ran in another repo last week and don’t want to go digging for it.
 
-[Interactive mode: command history](/en/interactive-mode#command-history "/en/interactive-mode#command-history")
+[Interactive mode: command history](./interactive-mode.md#command-history)
 
 Other wins
 
@@ -54,4 +48,4 @@ Several OAuth and credential reliability fixes: parallel sessions no longer dead
 
 New `parentSettingsBehavior` admin key lets admins opt SDK `managedSettings` into the policy merge
 
-[Full changelog for v2.1.128–v2.1.136 →](./changelog#2-1-128 "_changelog#2-1-128".md)
+[Full changelog for v2.1.128–v2.1.136 →](./changelog.md#2-1-128)
