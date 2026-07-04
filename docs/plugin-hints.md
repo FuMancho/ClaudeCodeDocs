@@ -1,18 +1,12 @@
 # Plugin Hints
 
-> ## Documentation Index
->
-> Fetch the complete documentation index at: [https://code.claude.com/docs/llms.txt](https://code.claude.com/docs/llms.txt "https://code.claude.com/docs/llms.txt")
->
-> Use this file to discover all available pages before exploring further.
-
 If you maintain a CLI or SDK and have a plugin in the official Anthropic marketplace, your tool can prompt Claude Code users to install that plugin. Your CLI writes a one-line marker to stderr when it detects it is running inside Claude Code. Claude Code reads the marker, strips it from the output, and shows the user a one-time install prompt.
 Claude Code strips the hint line from the command output before sending it to the model, so the marker never appears in the conversation and is not counted toward token usage. The protocol requires no extra commands and does not change what your CLI prints for users outside Claude Code.
-This page is for CLI and SDK maintainers. If you are looking to install plugins, see [Discover and install plugins](./discover-plugins "_discover-plugins".md).
+This page is for CLI and SDK maintainers. If you are looking to install plugins, see [Discover and install plugins](./discover-plugins.md).
 
-## [​](#how-it-works "#how-it-works") How it works
+## [​](#how-it-works) How it works
 
-Claude Code sets the [`CLAUDECODE`](./env-vars "_env-vars".md) environment variable to `1` for every command it runs through the Bash and PowerShell tools, and for [hook](./hooks "_hooks".md) commands. When your CLI sees that variable, it writes a self-closing `<claude-code-hint />` tag to stderr. In hook commands the hint tag is stripped and ignored. Only Bash and PowerShell tool output triggers the install prompt.
+Claude Code sets the [`CLAUDECODE`](./env-vars.md) environment variable to `1` for every command it runs through the Bash and PowerShell tools, and for [hook](./hooks.md) commands. From v2.1.172 it also sets [`CLAUDE_CODE_CHILD_SESSION`](./env-vars.md) to `1` in those same subprocesses. When your CLI sees one of these variables, it writes a self-closing `<claude-code-hint />` tag to stderr. In hook commands the hint tag is stripped and ignored. Only Bash and PowerShell tool output triggers the install prompt.
 When Claude Code receives the command output, it:
 
 1. Scans for hint lines and removes them before the output reaches the model
@@ -22,10 +16,14 @@ When Claude Code receives the command output, it:
 
 Claude Code never installs a plugin automatically. The user always confirms.
 
-## [​](#emit-the-hint "#emit-the-hint") Emit the hint
+## [​](#emit-the-hint) Emit the hint
 
-Gate emission on the `CLAUDECODE` environment variable so the marker never appears in a human user’s terminal. Then write the tag to stderr on its own line.
-The following examples emit a hint for a plugin named `example-cli` in the official marketplace:
+Gate emission on an environment variable so the marker is unlikely to appear when a human runs your CLI directly, then write the tag to stderr on its own line. Choose which variable to check:
+
+* `CLAUDECODE`: set on every Claude Code version, so it reaches the most sessions. It is also set in tmux sessions and stdio MCP server subprocesses that Claude Code starts. IDE extensions also set it in their integrated terminals, where a human may be running your CLI directly.
+* `CLAUDE_CODE_CHILD_SESSION`: set only in subprocesses Claude Code itself spawns, such as tool calls, hook commands, and [status line](./statusline.md) commands, so the tag does not normally reach a human terminal. A long-lived process that was started inside a session, such as a tmux server, captures the variable, so shells later launched from that process still show the raw tag. Requires Claude Code v2.1.172 or later, so sessions on older versions miss the hint.
+
+The following examples gate on `CLAUDECODE` for maximum reach and emit a hint for a plugin named `example-cli` in the official marketplace:
 
 Node.js
 
@@ -42,10 +40,9 @@ if (process.env.CLAUDECODE) {
   )
 }
 ```
-
 Replace `example-cli` with your plugin’s name in the official marketplace.
 
-## [​](#choose-where-to-emit "#choose-where-to-emit") Choose where to emit
+## [​](#choose-where-to-emit) Choose where to emit
 
 You control which code paths emit the hint. Claude Code deduplicates by plugin, so emitting on every invocation has no downside. Touchpoints that work well include:
 
@@ -56,13 +53,13 @@ You control which code paths emit the hint. Claude Code deduplicates by plugin, 
 | Login or auth success | The user is already in a setup mindset |
 | First-run welcome message | A natural onboarding moment |
 
-## [​](#what-the-user-sees "#what-the-user-sees") What the user sees
+## [​](#what-the-user-sees) What the user sees
 
 When the hint passes all checks, Claude Code shows a prompt like the following:
 
 ```
 ─────────────────────────────────────────────────────────────
-  Plugin Recommendation
+  Plugin recommendation
 
     The example-cli command suggests installing a plugin.
 
@@ -77,7 +74,6 @@ When the hint passes all checks, Claude Code shows a prompt like the following:
 
 ─────────────────────────────────────────────────────────────
 ```
-
 The prompt names the command that produced the hint so users can spot a mismatch between the tool and the plugin it recommends. If the user does not respond within 30 seconds, the prompt dismisses as **No**.
 Prompt frequency is bounded:
 
@@ -86,14 +82,13 @@ Prompt frequency is bounded:
 
 Selecting **Yes** installs the plugin to user scope. Selecting **No, and don’t show plugin installation hints again** disables all future hint prompts for the user.
 
-## [​](#hint-format "#hint-format") Hint format
+## [​](#hint-format) Hint format
 
 The hint is a self-closing tag with three required attributes.
 
 ```
 <claude-code-hint v="1" type="plugin" value="example-cli@claude-plugins-official" />
 ```
-
 | Attribute | Required | Description |
 | --- | --- | --- |
 | `v` | Yes | Protocol version. `1` is the only supported value |
@@ -102,7 +97,7 @@ The hint is a self-closing tag with three required attributes.
 
 Attribute values may be quoted with double quotes or left unquoted. Unquoted values cannot contain whitespace. Escape sequences are not supported.
 
-## [​](#requirements "#requirements") Requirements
+## [​](#requirements) Requirements
 
 Claude Code enforces two conditions before acting on a hint. Hints that fail either check are dropped:
 
@@ -113,14 +108,14 @@ The hint line is always removed from the output before it reaches the model, eve
 The remaining guidance is recommended but not enforced. Claude Code cannot observe whether your CLI follows it:
 
 * **Write to stderr**: stderr keeps the tag out of shell pipelines such as `example-cli deploy | jq`. Claude Code scans both streams, so stdout also works.
-* **Gate on `CLAUDECODE`**: only emit when the `CLAUDECODE` environment variable is set. This prevents the marker from appearing to users running your CLI directly.
+* **Gate on an environment variable**: only emit when `CLAUDECODE` or `CLAUDE_CODE_CHILD_SESSION` is set. See [Emit the hint](#emit-the-hint) for how the two variables differ.
 
-## [​](#get-your-plugin-into-the-official-marketplace "#get-your-plugin-into-the-official-marketplace") Get your plugin into the official marketplace
+## [​](#get-your-plugin-into-the-official-marketplace) Get your plugin into the official marketplace
 
-The hint protocol only takes effect for plugins listed in the official Anthropic marketplace, `claude-plugins-official`. Anthropic curates that marketplace at its discretion, and the in-app submission forms add plugins to the [community marketplace](./plugins#submit-your-plugin-to-the-community-marketplace "_plugins#submit-your-plugin-to-the-community-marketplace".md) instead, which the hint protocol does not check. If you are working with an Anthropic partner contact, reach out to them to coordinate an official-marketplace listing.
+The hint protocol only takes effect for plugins listed in the official Anthropic marketplace, `claude-plugins-official`. Anthropic curates that marketplace at its discretion, and the in-app submission forms add plugins to the [community marketplace](./plugins.md#submit-your-plugin-to-the-community-marketplace) instead, which the hint protocol does not check. If you are working with an Anthropic partner contact, reach out to them to coordinate an official-marketplace listing.
 
-## [​](#see-also "#see-also") See also
+## [​](#see-also) See also
 
-* [Create plugins](./plugins "_plugins".md): build the plugin your CLI recommends
-* [Create and distribute a plugin marketplace](./plugin-marketplaces "_plugin-marketplaces".md): host plugins outside the official marketplace
-* [Environment variables](./env-vars "_env-vars".md): full reference for `CLAUDECODE` and related variables
+* [Create plugins](./plugins.md): build the plugin your CLI recommends
+* [Create and distribute a plugin marketplace](./plugin-marketplaces.md): host plugins outside the official marketplace
+* [Environment variables](./env-vars.md): full reference for `CLAUDECODE` and related variables

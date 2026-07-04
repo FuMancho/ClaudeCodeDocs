@@ -1,37 +1,26 @@
 # Sessions
 
-> ## Documentation Index
->
-> Fetch the complete documentation index at: [https://code.claude.com/docs/llms.txt](https://code.claude.com/docs/llms.txt "https://code.claude.com/docs/llms.txt")
->
-> Use this file to discover all available pages before exploring further.
-
 A session is a saved conversation tied to a project directory. Claude Code stores it locally as you work, so you can resume where you left off, branch to try a different approach, or switch between tasks.
-The [desktop app](./desktop#work-in-parallel-with-sessions "_desktop#work-in-parallel-with-sessions".md), [Claude Code on the web](./claude-code-on-the-web "_claude-code-on-the-web".md), and the [VS Code extension](./vs-code#resume-past-conversations "_vs-code#resume-past-conversations".md) each maintain their own session history. This page covers the CLI:
+The [desktop app](./desktop.md#work-in-parallel-with-sessions), [Claude Code on the web](./claude-code-on-the-web.md), and the [VS Code extension](./vs-code.md#resume-past-conversations) each maintain their own session history. This page covers the CLI.
 
-* [Resume](#resume-a-session "#resume-a-session") a previous conversation by flag, name, or PR
-* [Name](#name-your-sessions "#name-your-sessions") sessions so you can find them later
-* [Browse](#use-the-session-picker "#use-the-session-picker") sessions with the `/resume` picker
-* [Branch](#branch-a-session "#branch-a-session") a conversation to try a different approach
-* [Export](#export-and-locate-session-data "#export-and-locate-session-data") transcripts and find them on disk
+## [​](#resume-a-session) Resume a session
 
-## [​](#resume-a-session "#resume-a-session") Resume a session
-
-Sessions are saved continuously to [local transcript files](#export-and-locate-session-data "#export-and-locate-session-data") as you work, so you can return to one after exiting or running `/clear`. Use these entry points:
+Sessions are saved continuously to [local transcript files](#export-and-locate-session-data) as you work, so you can return to one after exiting or running `/clear`. Use these entry points:
 
 | Command | What it does |
 | --- | --- |
 | `claude --continue` | Resumes the most recent session in the current directory |
-| `claude --resume` | Opens the [session picker](#use-the-session-picker "#use-the-session-picker") |
+| `claude --resume` | Opens the [session picker](#use-the-session-picker) |
 | `claude --resume <name>` | Resumes the named session directly |
 | `claude --from-pr <number>` | Resumes the session linked to that pull request |
 | `/resume` | Switches to a different conversation from inside an active session |
 
-Sessions created with [`claude -p`](./headless "_headless".md) or the [Agent SDK](./agent-sdk_overview "_agent-sdk_overview".md) do not appear in the session picker, but you can still resume one by passing its session ID to `claude --resume <session-id>`.
+Sessions created with [`claude -p`](./headless.md) or the [Agent SDK](./agent-sdk_overview.md) do not appear in the session picker, but you can still resume one by passing its session ID to `claude --resume <session-id>`. Run this from the directory the session was started in: session ID lookup is scoped to the current project directory and its git worktrees, so a session created elsewhere reports `No conversation found with session ID: <session-id>`.
 
-### [​](#where-the-session-picker-looks "#where-the-session-picker-looks") Where the session picker looks
+### [​](#where-the-session-picker-looks) Where the session picker looks
 
 Sessions are stored per project directory. By default the session picker shows interactive sessions from the current worktree, plus sessions started elsewhere that added the current directory with `/add-dir`. Use `Ctrl+W` to widen to all worktrees of the repository or `Ctrl+A` to widen to every project on this machine.
+From v2.1.169, moving a session with [`/cd`](./commands.md) relocates it to the new directory’s project storage, so it appears in that directory’s picker afterward. As of v2.1.196, a moved session stays out of the old directory’s picker even after a crash or forced exit. On earlier versions, it could also reappear in the old directory’s list after an exit that wasn’t clean when the old path contained special characters such as underscores.
 Selecting a session from another worktree of the same repository resumes it in place. Selecting a session from an unrelated project copies a `cd` and resume command to your clipboard instead.
 Resuming by name resolves across the current repository and its worktrees. Both forms look for an exact match and resume it directly even if it lives in a different worktree:
 
@@ -40,7 +29,7 @@ Resuming by name resolves across the current repository and its worktrees. Both 
 | `claude --resume <name>` | Resumes directly | Opens the session picker with the name pre-filled as a search term |
 | `/resume <name>` | Resumes directly | Reports an error; run `/resume` with no argument to open the session picker |
 
-## [​](#name-your-sessions "#name-your-sessions") Name your sessions
+## [​](#name-your-sessions) Name your sessions
 
 Give sessions descriptive names so they’re findable in the session picker and resumable by name. This matters most when you’re working on several tasks in parallel.
 
@@ -49,11 +38,13 @@ Give sessions descriptive names so they’re findable in the session picker and 
 | At startup | `claude -n auth-refactor` |
 | During a session | `/rename auth-refactor`. The name also appears on the prompt bar |
 | From the session picker | Highlight a session and press `Ctrl+R` |
-| On plan accept | Accepting a plan in [plan mode](./permission-modes#analyze-before-you-edit-with-plan-mode "_permission-modes#analyze-before-you-edit-with-plan-mode".md) names the session from the plan content unless you’ve already set one |
+| On plan accept | Accepting a plan in [plan mode](./permission-modes.md#analyze-before-you-edit-with-plan-mode) names the session from the plan content unless you’ve already set one |
 
-Once a session is named, return to it with `claude --resume <name>` or `/resume <name>`. See [Resume a session](#resume-a-session "#resume-a-session") for how name resolution behaves across worktrees.
+Once a session is named, return to it with `claude --resume <name>` or `/resume <name>`. See [Resume a session](#resume-a-session) for how name resolution behaves across worktrees.
+Interactive sessions you never name still get a default display name when they start. Requires Claude Code v2.1.196 or later. The default combines the working directory’s name with a two-character suffix, for example `my-app-3f`, and identifies the session in listings of running sessions, such as [agent view](./agent-view.md) and `claude agents --json` output.
+The default isn’t a resume handle: `claude --resume <name>`, `/resume <name>`, and the session picker match only names you set. Naming the session replaces the default.
 
-## [​](#use-the-session-picker "#use-the-session-picker") Use the session picker
+## [​](#use-the-session-picker) Use the session picker
 
 Run `/resume` inside a session, or `claude --resume` with no arguments, to open the interactive session picker. Use these keyboard shortcuts to navigate, search, and widen the list:
 
@@ -73,7 +64,7 @@ Run `/resume` inside a session, or `claude --resume` with no arguments, to open 
 Each row shows the session name if set, otherwise the conversation summary or first prompt, along with time since last activity, message count, and git branch. Project path appears after you widen to all projects with `Ctrl+A`.
 Forked sessions created with `/branch`, `/rewind`, or `--fork-session` are grouped under their root session. Press `→` to expand a group.
 
-## [​](#branch-a-session "#branch-a-session") Branch a session
+## [​](#branch-a-session) Branch a session
 
 Branching creates a copy of the conversation so far and switches you into it, leaving the original intact. Use it to try a different approach without losing the path you were on.
 From inside a session, run `/branch` with an optional name:
@@ -81,17 +72,16 @@ From inside a session, run `/branch` with an optional name:
 ```
 /branch try-streaming-approach
 ```
-
+If you omit the name, Claude Code names the new branch after the first prompt in the conversation. As of v2.1.198 this also applies after [compaction](./how-claude-code-works.md#when-context-fills-up); earlier versions fell back to the literal name `Branched conversation` instead of looking past the compaction summary to the original first prompt.
 From the command line, combine `--continue` or `--resume` with `--fork-session`:
 
 ```
 claude --continue --fork-session
 ```
-
 The original session is unchanged and remains available in the session picker. The `/branch` confirmation prints two session IDs: the new branch you are now in and the original. To return to the original, pass its ID to `/resume`, use the session picker, or run `/resume <original-name>`. Permissions you approved with “allow for this session” do not carry over to the new branch. If you resume the same session in two terminals without forking, messages from both interleave into one transcript.
-For checkpoint-based rewind within a single session, see [Checkpointing](./checkpointing "_checkpointing".md).
+For checkpoint-based rewind within a single session, see [Checkpointing](./checkpointing.md).
 
-## [​](#manage-context-within-a-session "#manage-context-within-a-session") Manage context within a session
+## [​](#manage-context-within-a-session) Manage context within a session
 
 These commands control what’s in the context window without leaving the session:
 
@@ -99,19 +89,43 @@ These commands control what’s in the context window without leaving the sessio
 * **`/compact [instructions]`**: replace history with a summary, optionally focused on what you specify
 * **`/context`**: show what is currently consuming context
 
-For how compaction interacts with CLAUDE.md, skills, and rules, see the [context window guide](./context-window "_context-window".md). For strategies on when to clear versus compact, see [Best practices](./best-practices#manage-your-session "_best-practices#manage-your-session".md).
+For how compaction interacts with CLAUDE.md, skills, and rules, see the [context window guide](./context-window.md). For strategies on when to clear versus compact, see [Best practices](./best-practices.md#manage-your-session).
 
-## [​](#export-and-locate-session-data "#export-and-locate-session-data") Export and locate session data
+## [​](#export-and-locate-session-data) Export and locate session data
 
-Run `/export` to copy the current conversation to your clipboard or save it as a plain-text file, with messages and tool outputs rendered as readable text. Pass a filename to write directly to that file.
-Transcripts are stored as JSONL at `~/.claude/projects/<project>/<session-id>.jsonl`, where `<project>` is derived from your working directory path. Each line is a JSON object for a message, tool use, or metadata entry. To store sessions somewhere other than `~/.claude`, set [`CLAUDE_CONFIG_DIR`](./env-vars "_env-vars".md). These local files are removed after 30 days by default; change this with [`cleanupPeriodDays`](./settings#available-settings "_settings#available-settings".md).
-To suppress transcript writes entirely, set [`CLAUDE_CODE_SKIP_PROMPT_HISTORY`](./env-vars "_env-vars".md), or in non-interactive mode use `--no-session-persistence`.
+Run `/export` to open a menu that lets you copy the current conversation to your clipboard or save it as a plain-text file, with messages and tool outputs rendered as readable text. Pass a filename to skip the menu and write directly to that file.
 
-## [​](#see-also "#see-also") See also
+### [​](#access-conversations-from-scripts) Access conversations from scripts
+
+`/export` produces a rendered transcript for a person to read. The interfaces below produce structured data for a script to parse: a JSON result from a run, the path to a session’s transcript file, or a live stream of events. Pick by what triggers the script:
+
+* **Run Claude once and capture the result**: invoke `claude -p` with [`--output-format json` or `stream-json`](./headless.md#get-structured-output) to capture the result, session ID, usage, and cost of a non-interactive run as structured JSON.
+* **Ask an existing session a question**: pass a session ID to [`claude -p --resume`](./headless.md#continue-conversations) to send a follow-up prompt, such as a summary request, and capture the structured response.
+* **React to session events**: read the `transcript_path` field that [hooks](./hooks.md#common-input-fields) and [status line commands](./statusline.md#available-data) receive as input. A `SessionEnd` hook can archive the transcript when a session ends.
+* **Embed Claude in a TypeScript or Python app**: use the [Agent SDK](./agent-sdk_overview.md) to receive each message programmatically.
+
+The example below uses the second interface. It sends a follow-up prompt to an existing session and reads the answer with `jq`:
+
+```
+claude -p --resume <session-id> --output-format json "summarize what we changed" | jq -r '.result'
+```
+### [​](#where-transcripts-are-stored) Where transcripts are stored
+
+By default, transcripts are stored as JSONL at `~/.claude/projects/<project>/<session-id>.jsonl`, where `<project>` is your working directory path with non-alphanumeric characters replaced by `-`. Each line is a JSON object for a message, tool use, or metadata entry. The entry format is internal to Claude Code and changes between versions, so scripts that parse these files directly can break on any release. To build on session data, use `/export` or the [script interfaces](#access-conversations-from-scripts) instead.
+The location, retention, and write behavior are configurable:
+
+| To | Set | Where |
+| --- | --- | --- |
+| Move storage off `~/.claude` | [`CLAUDE_CONFIG_DIR`](./env-vars.md) | Environment variable |
+| Change the 30-day retention | [`cleanupPeriodDays`](./settings.md#available-settings) | `settings.json` |
+| Suppress transcript writes in all modes | [`CLAUDE_CODE_SKIP_PROMPT_HISTORY`](./env-vars.md) | Environment variable |
+| Suppress writes for one non-interactive run | [`--no-session-persistence`](./cli-reference.md) | CLI flag with `claude -p` |
+
+## [​](#see-also) See also
 
 These pages cover related session and parallelism mechanics:
 
-* [Worktrees](./worktrees "_worktrees".md): run isolated parallel sessions on separate branches
-* [Checkpointing](./checkpointing "_checkpointing".md): rewind code and conversation to an earlier point
-* [Context window](./context-window "_context-window".md): what fills context and what survives compaction
-* [Non-interactive mode](./headless "_headless".md): session behavior under `claude -p`
+* [Worktrees](./worktrees.md): run isolated parallel sessions on separate branches
+* [Checkpointing](./checkpointing.md): rewind code and conversation to an earlier point
+* [Context window](./context-window.md): what fills context and what survives compaction
+* [Non-interactive mode](./headless.md): session behavior under `claude -p`

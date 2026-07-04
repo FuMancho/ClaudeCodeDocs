@@ -1,12 +1,6 @@
 # Whats New 2026 W16
 
-> ## Documentation Index
->
-> Fetch the complete documentation index at: [https://code.claude.com/docs/llms.txt](https://code.claude.com/docs/llms.txt "https://code.claude.com/docs/llms.txt")
->
-> Use this file to discover all available pages before exploring further.
-
-Releases [v2.1.105 → v2.1.113](./changelog#2-1-105 "_changelog#2-1-105".md)5 features · April 13–17
+Releases [v2.1.105 → v2.1.113](./changelog.md#2-1-105)5 features · April 13–17
 
 Claude Opus 4.7new model
 
@@ -20,8 +14,7 @@ Claude Code
 > /model opus
 > /effort xhigh
 ```
-
-[Model config: effort levels](./model-config#adjust-effort-level "_model-config#adjust-effort-level".md)
+[Model config: effort levels](./model-config.md#adjust-effort-level)
 
 Routinesweb
 
@@ -36,8 +29,7 @@ Claude Code
 ```
 > /schedule daily PR review at 9am
 ```
-
-[Routines guide](./routines "_routines".md)
+[Routines guide](./routines.md)
 
 /usage breakdownCLI
 
@@ -52,12 +44,11 @@ Claude Code
 ```
 > /usage
 ```
-
-[Commands reference](./commands "_commands".md)
+[Commands reference](./commands.md)
 
 Mobile push notificationsmobile
 
-With [Remote Control](./remote-control "_remote-control".md) connected, Claude can send a push notification to your phone when a long task finishes or it needs a decision to keep going. Turn it on with “Push when Claude decides” in `/config`, or ask for one in your prompt. Useful when you kick off a long agent run and want to step away from the terminal.
+With [Remote Control](./remote-control.md) connected, Claude can send a push notification to your phone when a long task finishes or it needs a decision to keep going. Turn it on with “Push when Claude decides” in `/config`, or ask for one in your prompt. Useful when you kick off a long agent run and want to step away from the terminal.
 
 [](https://mintcdn.com/claude-code/uII1TETOZxBUZ3lB/images/whats-new/push-notifications.mp4?fit=max&auto=format&n=uII1TETOZxBUZ3lB&q=85&s=c91a967139596500cbdb581a53822ac1)
 
@@ -68,8 +59,7 @@ Claude Code
 ```
 > notify me when the tests pass
 ```
-
-[Remote Control: mobile push notifications](./remote-control#mobile-push-notifications "_remote-control#mobile-push-notifications".md)
+[Remote Control: mobile push notifications](./remote-control.md#mobile-push-notifications)
 
 Native binariesv2.1.113
 
@@ -81,16 +71,15 @@ Upgrade and check what you’re running:
 claude update
 claude --version
 ```
-
-[Setup guide](./setup "_setup".md)
+[Setup guide](./setup.md)
 
 Other wins
 
-New [`/ultrareview`](./ultrareview "_ultrareview".md): comprehensive code review in the cloud using parallel multi-agent analysis and an adversarial critique pass. Run it bare to review your current branch, or `/ultrareview <PR#>` for a specific PR
+New [`/ultrareview`](./ultrareview.md): comprehensive code review in the cloud using parallel multi-agent analysis and an adversarial critique pass. Run it bare to review your current branch, or `/ultrareview <PR#>` for a specific PR
 
-[Auto mode](./permission-modes#eliminate-prompts-with-auto-mode "_permission-modes#eliminate-prompts-with-auto-mode".md) is now available for Max subscribers on Opus 4.7, and the `—enable-auto-mode` flag is no longer required
+[Auto mode](./permission-modes.md#eliminate-prompts-with-auto-mode) is now available for Max subscribers on Opus 4.7, and the `—enable-auto-mode` flag is no longer required
 
-[Session recap](./interactive-mode#session-recap "_interactive-mode#session-recap".md) shows a one-line summary of what happened while you were away; run `/recap` on demand or turn it off from `/config`
+[Session recap](./interactive-mode.md#session-recap) shows a one-line summary of what happened while you were away; run `/recap` on demand or turn it off from `/config`
 
 New `/tui` command and `tui` setting switch between classic and flicker-free rendering mid-conversation; focus view moved from `Ctrl+O` to its own `/focus` command
 
@@ -104,7 +93,7 @@ Claude can now discover and run built-in commands like `/init`, `/review`, and `
 
 `PreCompact` hooks can block compaction by exiting with code 2 or returning `“decision”:“block”`
 
-`ENABLE_PROMPT_CACHING_1H` opts API key, Bedrock, Vertex, and Foundry users into 1-hour prompt cache TTL
+`ENABLE_PROMPT_CACHING_1H` opts API key, Amazon Bedrock, Google Cloud’s Agent Platform, and Microsoft Foundry users into 1-hour prompt cache TTL
 
 `sandbox.network.deniedDomains` setting carves specific domains out of a broader `allowedDomains` wildcard
 
@@ -112,4 +101,4 @@ Claude can now discover and run built-in commands like `/init`, `/review`, and `
 
 Hardened Bash permissions: deny rules now match through `env`/`sudo`/`watch` wrappers, and `Bash(find:*)` allow rules no longer auto-approve `-exec` or `-delete`
 
-[Full changelog for v2.1.105–v2.1.113 →](./changelog#2-1-105 "_changelog#2-1-105".md)
+[Full changelog for v2.1.105–v2.1.113 →](./changelog.md#2-1-105)

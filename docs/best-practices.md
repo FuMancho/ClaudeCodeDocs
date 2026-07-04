@@ -1,48 +1,49 @@
-> ## Documentation Index
->
-> Fetch the complete documentation index at: [https://code.claude.com/docs/llms.txt](https://code.claude.com/docs/llms.txt "https://code.claude.com/docs/llms.txt")
->
-> Use this file to discover all available pages before exploring further.
-
 Claude Code is an agentic coding environment. Unlike a chatbot that answers questions and waits, Claude Code can read your files, run commands, make changes, and autonomously work through problems while you watch, redirect, or step away entirely.
 This changes how you work. Instead of writing code yourself and asking Claude to review it, you describe what you want and Claude figures out how to build it. Claude explores, plans, and implements.
 But this autonomy still comes with a learning curve. Claude works within certain constraints you need to understand.
-This guide covers patterns that have proven effective across Anthropic’s internal teams and for engineers using Claude Code across various codebases, languages, and environments. For how the agentic loop works under the hood, see [How Claude Code works](./how-claude-code-works "_how-claude-code-works".md).
+This guide covers patterns that have proven effective across Anthropic’s internal teams and for engineers using Claude Code across various codebases, languages, and environments. For how the agentic loop works under the hood, see [How Claude Code works](./how-claude-code-works.md).
 
 
 ---
 
 Most best practices are based on one constraint: Claude’s context window fills up fast, and performance degrades as it fills.
 Claude’s context window holds your entire conversation, including every message, every file Claude reads, and every command output. However, this can fill up fast. A single debugging session or codebase exploration might generate and consume tens of thousands of tokens.
-This matters since LLM performance degrades as context fills. When the context window is getting full, Claude may start “forgetting” earlier instructions or making more mistakes. The context window is the most important resource to manage. To see how a session fills up in practice, [watch an interactive walkthrough](./context-window "_context-window".md) of what loads at startup and what each file read costs. Track context usage continuously with a [custom status line](./statusline "_statusline".md), and see [Reduce token usage](./costs#reduce-token-usage "_costs#reduce-token-usage".md) for strategies on reducing token usage.
+This matters since LLM performance degrades as context fills. When the context window is getting full, Claude may start “forgetting” earlier instructions or making more mistakes. The context window is the most important resource to manage. To see how a session fills up in practice, [watch an interactive walkthrough](./context-window.md) of what loads at startup and what each file read costs. Track context usage continuously with a [custom status line](./statusline.md), and see [Reduce token usage](./costs.md#reduce-token-usage) for strategies on reducing token usage.
 
 
 ---
 
-## [​](#give-claude-a-way-to-verify-its-work "#give-claude-a-way-to-verify-its-work") Give Claude a way to verify its work
+## [​](#give-claude-a-way-to-verify-its-work) Give Claude a way to verify its work
 
-Include tests, screenshots, or expected outputs so Claude can check itself. This is the single highest-leverage thing you can do.
+Give Claude a check it can run: tests, a build, a screenshot to compare. It’s the difference between a session you watch and one you walk away from.
 
-Claude performs dramatically better when it can verify its own work, like run tests, compare screenshots, and validate outputs.
-Without clear success criteria, it might produce something that looks right but actually doesn’t work. You become the only feedback loop, and every mistake requires your attention.
+Claude stops when the work looks done. Without a check it can run, “looks done” is the only signal available, and you become the verification loop: every mistake waits for you to notice it. Give Claude something that produces a pass or fail, and the loop closes on its own. Claude does the work, runs the check, reads the result, and iterates until the check passes.
+The check is anything that returns a signal Claude can read in the conversation: a test suite, a build exit code, a linter, a script that diffs output against a fixture, or a [browser screenshot](./chrome.md) compared against a design.
 
 | Strategy | Before | After |
 | --- | --- | --- |
-| **Provide verification criteria** | *”implement a function that validates email addresses"* | *"write a validateEmail function. example test cases: [user@example.com](mailto:user@example.com "mailto:user@example.com") is true, invalid is false, [user@.com](mailto:user@.com "mailto:user@.com") is false. run the tests after implementing”* |
+| **Provide verification criteria** | *”implement a function that validates email addresses"* | *"write a validateEmail function. example test cases: [user@example.com](mailto:user@example.com) is true, invalid is false, [user@.com](mailto:user@.com) is false. run the tests after implementing”* |
 | **Verify UI changes visually** | *”make the dashboard look better"* | *"[paste screenshot] implement this design. take a screenshot of the result and compare it to the original. list differences and fix them”* |
 | **Address root causes, not symptoms** | *”the build is failing"* | *"the build fails with this error: [paste error]. fix it and verify the build succeeds. address the root cause, don’t suppress the error”* |
 
-UI changes can be verified using the [Claude in Chrome extension](./chrome "_chrome".md). It opens new tabs in your browser, tests the UI, and iterates until the code works.
-Your verification can also be a test suite, a linter, or a Bash command that checks output. Invest in making your verification rock-solid.
+Once the check exists, decide how hard it gates the stop:
+
+* **In one prompt**: ask Claude to run the check and iterate in the same message, as in the table above.
+* **Across a session**: set the check as a [`/goal` condition](./goal.md). A separate evaluator re-checks it after every turn and Claude keeps working until it holds.
+* **As a deterministic gate**: a [Stop hook](./hooks.md#stop) runs your check as a script and blocks the turn from ending until it passes. Claude Code overrides the hook and ends the turn after 8 consecutive blocks.
+* **By a second opinion**: a [verification subagent](./sub-agents.md) or a [dynamic workflow](./workflows.md) that checks its own findings has a fresh model try to refute the result, so the agent doing the work isn’t the one grading it.
+
+Each step trades setup for attention. The prompt version works on any task today. The `/goal` and Stop hook versions are what let an unattended run finish correctly without you.
+Have Claude show evidence rather than asserting success: the test output, the command it ran and what it returned, or a screenshot of the result. Reviewing evidence is faster than re-running the verification yourself, and it works for sessions you weren’t watching.
 
 
 ---
 
-## [​](#explore-first-then-plan-then-code "#explore-first-then-plan-then-code") Explore first, then plan, then code
+## [​](#explore-first-then-plan-then-code) Explore first, then plan, then code
 
 Separate research and planning from implementation to avoid solving the wrong problem.
 
-Letting Claude jump straight to coding can produce code that solves the wrong problem. Use [plan mode](./permission-modes#analyze-before-you-edit-with-plan-mode "_permission-modes#analyze-before-you-edit-with-plan-mode".md) to separate exploration from execution.
+Letting Claude jump straight to coding can produce code that solves the wrong problem. Use [plan mode](./permission-modes.md#analyze-before-you-edit-with-plan-mode) to separate exploration from execution.
 The recommended workflow has four phases:
 
 1
@@ -57,7 +58,6 @@ claude (plan mode)
 read /src/auth and understand how we handle sessions and login.
 also look at how we manage environment variables for secrets.
 ```
-
 2
 
 Plan
@@ -70,7 +70,6 @@ claude (plan mode)
 I want to add Google OAuth. What files need to change?
 What's the session flow? Create a plan.
 ```
-
 Press `Ctrl+G` to open the plan in your text editor for direct editing before Claude proceeds.
 
 3
@@ -85,7 +84,6 @@ claude (default mode)
 implement the OAuth flow from your plan. write tests for the
 callback handler, run the test suite and fix any failures.
 ```
-
 4
 
 Commit
@@ -97,12 +95,11 @@ claude (default mode)
 ```
 commit with a descriptive message and open a PR
 ```
-
 Plan mode is useful, but also adds overhead.For tasks where the scope is clear and the fix is small (like fixing a typo, adding a log line, or renaming a variable) ask Claude to do it directly.Planning is most useful when you’re uncertain about the approach, when the change modifies multiple files, or when you’re unfamiliar with the code being modified. If you could describe the diff in one sentence, skip the plan.
 
 ---
 
-## [​](#provide-specific-context-in-your-prompts "#provide-specific-context-in-your-prompts") Provide specific context in your prompts
+## [​](#provide-specific-context-in-your-prompts) Provide specific context in your prompts
 
 The more precise your instructions, the fewer corrections you’ll need.
 
@@ -117,7 +114,7 @@ Claude can infer intent, but it can’t read your mind. Reference specific files
 
 Vague prompts can be useful when you’re exploring and can afford to course-correct. A prompt like `"what would you improve in this file?"` can surface things you wouldn’t have thought to ask about.
 
-### [​](#provide-rich-content "#provide-rich-content") Provide rich content
+### [​](#provide-rich-content) Provide rich content
 
 Use `@` to reference files, paste screenshots/images, or pipe data directly.
 
@@ -131,11 +128,11 @@ You can provide rich data to Claude in several ways:
 
 ---
 
-## [​](#configure-your-environment "#configure-your-environment") Configure your environment
+## [​](#configure-your-environment) Configure your environment
 
-A few setup steps make Claude Code significantly more effective across all your sessions. For a full overview of extension features and when to use each one, see [Extend Claude Code](./features-overview "_features-overview".md).
+A few setup steps make Claude Code significantly more effective across all your sessions. For a full overview of extension features and when to use each one, see [Extend Claude Code](./features-overview.md).
 
-### [​](#write-an-effective-claude-md "#write-an-effective-claude-md") Write an effective CLAUDE.md
+### [​](#write-an-effective-claude-md) Write an effective CLAUDE.md
 
 Run `/init` to generate a starter CLAUDE.md file based on your current project structure, then refine over time.
 
@@ -154,8 +151,7 @@ CLAUDE.md
 - Be sure to typecheck when you're done making a series of code changes
 - Prefer running single tests, and not the whole test suite, for performance
 ```
-
-CLAUDE.md is loaded every session, so only include things that apply broadly. For domain knowledge or workflows that are only relevant sometimes, use [skills](./skills "_skills".md) instead. Claude loads them on demand without bloating every conversation.
+CLAUDE.md is loaded every session, so only include things that apply broadly. For domain knowledge or workflows that are only relevant sometimes, use [skills](./skills.md) instead. Claude loads them on demand without bloating every conversation.
 Keep it concise. For each line, ask: *“Would removing this cause Claude to make mistakes?”* If not, cut it. Bloated CLAUDE.md files cause Claude to ignore your actual instructions!
 
 | ✅ Include | ❌ Exclude |
@@ -181,18 +177,17 @@ See @README.md for project overview and @package.json for available npm commands
 - Git workflow: @docs/git-instructions.md
 - Personal overrides: @~/.claude/my-project-instructions.md
 ```
-
 You can place CLAUDE.md files in several locations:
 
 * **Home folder (`~/.claude/CLAUDE.md`)**: applies to all Claude sessions
 * **Project root (`./CLAUDE.md`)**: check into git to share with your team
 * **Project root (`./CLAUDE.local.md`)**: personal project-specific notes; add this file to your `.gitignore` so it isn’t shared with your team
 * **Parent directories**: useful for monorepos where both `root/CLAUDE.md` and `root/foo/CLAUDE.md` are pulled in automatically
-* **Child directories**: Claude pulls in child CLAUDE.md files on demand when working with files in those directories
+* **Child directories**: Claude pulls in child CLAUDE.md files on demand when it reads a file in those directories
 
-### [​](#configure-permissions "#configure-permissions") Configure permissions
+### [​](#configure-permissions) Configure permissions
 
-Use [auto mode](./permission-modes#eliminate-prompts-with-auto-mode "_permission-modes#eliminate-prompts-with-auto-mode".md) to let a classifier handle approvals, `/permissions` to allowlist specific commands, or `/sandbox` for OS-level isolation. Each reduces interruptions while keeping you in control.
+Use [auto mode](./permission-modes.md#eliminate-prompts-with-auto-mode) to let a classifier handle approvals, `/permissions` to allowlist specific commands, or `/sandbox` for OS-level isolation. Each reduces interruptions while keeping you in control.
 
 By default, Claude Code requests permission for actions that might modify your system: file writes, Bash commands, MCP tools, etc. This is safe but tedious. After the tenth approval you’re not really reviewing anymore, you’re just clicking through. There are three ways to reduce these interruptions:
 
@@ -200,33 +195,33 @@ By default, Claude Code requests permission for actions that might modify your s
 * **Permission allowlists**: permit specific tools you know are safe, like `npm run lint` or `git commit`
 * **Sandboxing**: enable OS-level isolation that restricts filesystem and network access, allowing Claude to work more freely within defined boundaries
 
-Read more about [permission modes](./permission-modes "_permission-modes".md), [permission rules](./permissions "_permissions".md), and [sandboxing](./sandboxing "_sandboxing".md).
+Read more about [permission modes](./permission-modes.md), [permission rules](./permissions.md), and [sandboxing](./sandboxing.md).
 
-### [​](#use-cli-tools "#use-cli-tools") Use CLI tools
+### [​](#use-cli-tools) Use CLI tools
 
 Tell Claude Code to use CLI tools like `gh`, `aws`, `gcloud`, and `sentry-cli` when interacting with external services.
 
 CLI tools are the most context-efficient way to interact with external services. If you use GitHub, install the `gh` CLI. Claude knows how to use it for creating issues, opening pull requests, and reading comments. Without `gh`, Claude can still use the GitHub API, but unauthenticated requests often hit rate limits.
 Claude is also effective at learning CLI tools it doesn’t already know. Try prompts like `Use 'foo-cli-tool --help' to learn about foo tool, then use it to solve A, B, C.`
 
-### [​](#connect-mcp-servers "#connect-mcp-servers") Connect MCP servers
+### [​](#connect-mcp-servers) Connect MCP servers
 
 Run `claude mcp add` to connect external tools like Notion, Figma, or your database.
 
-With [MCP servers](./mcp "_mcp".md), you can ask Claude to implement features from issue trackers, query databases, analyze monitoring data, integrate designs from Figma, and automate workflows.
+With [MCP servers](./mcp.md), you can ask Claude to implement features from issue trackers, query databases, analyze monitoring data, integrate designs from Figma, and automate workflows.
 
-### [​](#set-up-hooks "#set-up-hooks") Set up hooks
+### [​](#set-up-hooks) Set up hooks
 
 Use hooks for actions that must happen every time with zero exceptions.
 
-[Hooks](./hooks-guide "_hooks-guide".md) run scripts automatically at specific points in Claude’s workflow. Unlike CLAUDE.md instructions which are advisory, hooks are deterministic and guarantee the action happens.
+[Hooks](./hooks-guide.md) run scripts automatically at specific points in Claude’s workflow. Unlike CLAUDE.md instructions which are advisory, hooks are deterministic and guarantee the action happens.
 Claude can write hooks for you. Try prompts like *“Write a hook that runs eslint after every file edit”* or *“Write a hook that blocks writes to the migrations folder.”* Edit `.claude/settings.json` directly to configure hooks by hand, and run `/hooks` to browse what’s configured.
 
-### [​](#create-skills "#create-skills") Create skills
+### [​](#create-skills) Create skills
 
 Create `SKILL.md` files in `.claude/skills/` to give Claude domain knowledge and reusable workflows.
 
-[Skills](./skills "_skills".md) extend Claude’s knowledge with information specific to your project, team, or domain. Claude applies them automatically when relevant, or you can invoke them directly with `/skill-name`.
+[Skills](./skills.md) extend Claude’s knowledge with information specific to your project, team, or domain. Claude applies them automatically when relevant, or you can invoke them directly with `/skill-name`.
 Create a skill by adding a directory with a `SKILL.md` to `.claude/skills/`:
 
 .claude/skills/api-conventions/SKILL.md
@@ -242,7 +237,6 @@ description: REST API design conventions for our services
 - Always include pagination for list endpoints
 - Version APIs in the URL path (/v1/, /v2/)
 ```
-
 Skills can also define repeatable workflows you invoke directly:
 
 .claude/skills/fix-issue/SKILL.md
@@ -264,14 +258,13 @@ Analyze and fix the GitHub issue: $ARGUMENTS.
 7. Create a descriptive commit message
 8. Push and create a PR
 ```
-
 Run `/fix-issue 1234` to invoke it. Use `disable-model-invocation: true` for workflows with side effects that you want to trigger manually.
 
-### [​](#create-custom-subagents "#create-custom-subagents") Create custom subagents
+### [​](#create-custom-subagents) Create custom subagents
 
 Define specialized assistants in `.claude/agents/` that Claude can delegate to for isolated tasks.
 
-[Subagents](./sub-agents "_sub-agents".md) run in their own context with their own set of allowed tools. They’re useful for tasks that read many files or need specialized focus without cluttering your main conversation.
+[Subagents](./sub-agents.md) run in their own context with their own set of allowed tools. They’re useful for tasks that read many files or need specialized focus without cluttering your main conversation.
 
 .claude/agents/security-reviewer.md
 
@@ -290,24 +283,23 @@ You are a senior security engineer. Review code for:
 
 Provide specific line references and suggested fixes.
 ```
-
 Tell Claude to use subagents explicitly: *“Use a subagent to review this code for security issues.”*
 
-### [​](#install-plugins "#install-plugins") Install plugins
+### [​](#install-plugins) Install plugins
 
 Run `/plugin` to browse the marketplace. Plugins add skills, tools, and integrations without configuration.
 
-[Plugins](./plugins "_plugins".md) bundle skills, hooks, subagents, and MCP servers into a single installable unit from the community and Anthropic. If you work with a typed language, install a [code intelligence plugin](./discover-plugins#code-intelligence "_discover-plugins#code-intelligence".md) to give Claude precise symbol navigation and automatic error detection after edits.
-For guidance on choosing between skills, subagents, hooks, and MCP, see [Extend Claude Code](./features-overview#match-features-to-your-goal "_features-overview#match-features-to-your-goal".md).
+[Plugins](./plugins.md) bundle skills, hooks, subagents, and MCP servers into a single installable unit from the community and Anthropic. If you work with a typed language, install a [code intelligence plugin](./discover-plugins.md#code-intelligence) to give Claude precise symbol navigation and automatic error detection after edits.
+For guidance on choosing between skills, subagents, hooks, and MCP, see [Extend Claude Code](./features-overview.md#match-features-to-your-goal).
 
 
 ---
 
-## [​](#communicate-effectively "#communicate-effectively") Communicate effectively
+## [​](#communicate-effectively) Communicate effectively
 
 The way you communicate with Claude Code significantly impacts the quality of results.
 
-### [​](#ask-codebase-questions "#ask-codebase-questions") Ask codebase questions
+### [​](#ask-codebase-questions) Ask codebase questions
 
 Ask Claude questions you’d ask a senior engineer.
 
@@ -321,7 +313,7 @@ When onboarding to a new codebase, use Claude Code for learning and exploration.
 
 Using Claude Code this way is an effective onboarding workflow, improving ramp-up time and reducing load on other engineers. No special prompting required: ask questions directly.
 
-### [​](#let-claude-interview-you "#let-claude-interview-you") Let Claude interview you
+### [​](#let-claude-interview-you) Let Claude interview you
 
 For larger features, have Claude interview you first. Start with a minimal prompt and ask Claude to interview you using the `AskUserQuestion` tool.
 
@@ -334,17 +326,17 @@ Ask about technical implementation, UI/UX, edge cases, concerns, and tradeoffs. 
 
 Keep interviewing until we've covered everything, then write a complete spec to SPEC.md.
 ```
-
 Once the spec is complete, start a fresh session to execute it. The new session has clean context focused entirely on implementation, and you have a written spec to reference.
+The most useful specs are self-contained: they name the files and interfaces involved, state what is out of scope, and end with an end-to-end verification step that proves the feature works. Time spent making the spec precise pays off more than time spent watching the implementation.
 
 
 ---
 
-## [​](#manage-your-session "#manage-your-session") Manage your session
+## [​](#manage-your-session) Manage your session
 
 Conversations are persistent and reversible. Use this to your advantage!
 
-### [​](#course-correct-early-and-often "#course-correct-early-and-often") Course-correct early and often
+### [​](#course-correct-early-and-often) Course-correct early and often
 
 Correct Claude as soon as you notice it going off track.
 
@@ -357,7 +349,7 @@ The best results come from tight feedback loops. Though Claude occasionally solv
 
 If you’ve corrected Claude more than twice on the same issue in one session, the context is cluttered with failed approaches. Run `/clear` and start fresh with a more specific prompt that incorporates what you learned. A clean session with a better prompt almost always outperforms a long session with accumulated corrections.
 
-### [​](#manage-context-aggressively "#manage-context-aggressively") Manage context aggressively
+### [​](#manage-context-aggressively) Manage context aggressively
 
 Run `/clear` between unrelated tasks to reset context.
 
@@ -367,11 +359,11 @@ During long sessions, Claude’s context window can fill with irrelevant convers
 * Use `/clear` frequently between tasks to reset the context window entirely
 * When auto compaction triggers, Claude summarizes what matters most, including code patterns, file states, and key decisions
 * For more control, run `/compact <instructions>`, like `/compact Focus on the API changes`
-* To compact only part of the conversation, use `Esc + Esc` or `/rewind`, select a message checkpoint, and choose **Summarize from here** or **Summarize up to here**. The first condenses messages from that point forward while keeping earlier context intact; the second condenses earlier messages while keeping recent ones in full. See [Restore vs. summarize](./checkpointing#restore-vs-summarize "_checkpointing#restore-vs-summarize".md).
+* To compact only part of the conversation, use `Esc + Esc` or `/rewind`, select a message checkpoint, and choose **Summarize from here** or **Summarize up to here**. The first condenses messages from that point forward while keeping earlier context intact; the second condenses earlier messages while keeping recent ones in full. See [Restore vs. summarize](./checkpointing.md#restore-vs-summarize).
 * Customize compaction behavior in CLAUDE.md with instructions like `"When compacting, always preserve the full list of modified files and any test commands"` to ensure critical context survives summarization
-* For quick questions that don’t need to stay in context, use [`/btw`](./interactive-mode#side-questions-with-%2Fbtw "_interactive-mode#side-questions-with-%2Fbtw".md). The answer appears in a dismissible overlay and never enters conversation history, so you can check a detail without growing context.
+* For quick questions that don’t need to stay in context, use [`/btw`](./interactive-mode.md#side-questions-with-%2Fbtw). The answer appears in a dismissible overlay and never enters conversation history, so you can check a detail without growing context.
 
-### [​](#use-subagents-for-investigation "#use-subagents-for-investigation") Use subagents for investigation
+### [​](#use-subagents-for-investigation) Use subagents for investigation
 
 Delegate research with `"use subagents to investigate X"`. They explore in a separate context, keeping your main conversation clean for implementation.
 
@@ -381,42 +373,40 @@ Since context is your fundamental constraint, subagents are one of the most powe
 Use subagents to investigate how our authentication system handles token
 refresh, and whether we have any existing OAuth utilities I should reuse.
 ```
-
 The subagent explores the codebase, reads relevant files, and reports back with findings, all without cluttering your main conversation.
 You can also use subagents for verification after Claude implements something:
 
 ```
 use a subagent to review this code for edge cases
 ```
-
-### [​](#rewind-with-checkpoints "#rewind-with-checkpoints") Rewind with checkpoints
+### [​](#rewind-with-checkpoints) Rewind with checkpoints
 
 Every prompt you send creates a checkpoint. You can restore conversation, code, or both to any previous checkpoint.
 
-Claude automatically snapshots files before each change so a checkpoint can restore them. Double-tap `Escape` or run `/rewind` to open the rewind menu. You can restore conversation only, restore code only, restore both, or summarize from a selected message. See [Checkpointing](./checkpointing "_checkpointing".md) for details.
+Claude automatically snapshots files before each change so a checkpoint can restore them. Double-tap `Escape` or run `/rewind` to open the rewind menu. You can restore conversation only, restore code only, restore both, or summarize from a selected message. See [Checkpointing](./checkpointing.md) for details.
 Instead of carefully planning every move, you can tell Claude to try something risky. If it doesn’t work, rewind and try a different approach. Checkpoints persist across sessions, so you can close your terminal and still rewind later.
 
 Checkpoints only track changes made *by Claude*, not external processes. This isn’t a replacement for git.
 
-### [​](#resume-conversations "#resume-conversations") Resume conversations
+### [​](#resume-conversations) Resume conversations
 
 Name sessions with `/rename` and treat them like branches: each workstream gets its own persistent context.
 
-Claude Code saves conversations locally, so when a task spans multiple sittings you don’t have to re-explain the context. Run `claude --continue` to pick up the most recent session, or `claude --resume` to choose from a list. Give sessions descriptive names like `oauth-migration` so you can find them later. See [Manage sessions](./sessions "_sessions".md) for the full set of resume, branch, and naming controls.
+Claude Code saves conversations locally, so when a task spans multiple sittings you don’t have to re-explain the context. Run `claude --continue` to pick up the most recent session, or `claude --resume` to choose from a list. Give sessions descriptive names like `oauth-migration` so you can find them later. See [Manage sessions](./sessions.md) for the full set of resume, branch, and naming controls.
 
 
 ---
 
-## [​](#automate-and-scale "#automate-and-scale") Automate and scale
+## [​](#automate-and-scale) Automate and scale
 
 Once you’re effective with one Claude, multiply your output with parallel sessions, non-interactive mode, and fan-out patterns.
 Everything so far assumes one human, one Claude, and one conversation. But Claude Code scales horizontally. The techniques in this section show how you can get more done.
 
-### [​](#run-non-interactive-mode "#run-non-interactive-mode") Run non-interactive mode
+### [​](#run-non-interactive-mode) Run non-interactive mode
 
-Use `claude -p "prompt"` in CI, pre-commit hooks, or scripts. Add `--output-format stream-json` for streaming JSON output.
+Use `claude -p "prompt"` in CI, pre-commit hooks, or scripts. Add `--output-format stream-json --verbose` for streaming JSON output.
 
-With `claude -p "your prompt"`, you can run Claude non-interactively, without a session. [Non-interactive mode](./headless "_headless".md) is how you integrate Claude into CI pipelines, pre-commit hooks, or any automated workflow. The output formats let you parse results programmatically: plain text, JSON, or streaming JSON.
+With `claude -p "your prompt"`, you can run Claude non-interactively, without a session. [Non-interactive mode](./headless.md) is how you integrate Claude into CI pipelines, pre-commit hooks, or any automated workflow. The output formats let you parse results programmatically: plain text, JSON, or streaming JSON.
 
 ```
 # One-off queries
@@ -426,19 +416,18 @@ claude -p "Explain what this project does"
 claude -p "List all API endpoints" --output-format json
 
 # Streaming for real-time processing
-claude -p "Analyze this log file" --output-format stream-json
+claude -p "Analyze this log file" --output-format stream-json --verbose
 ```
-
-### [​](#run-multiple-claude-sessions "#run-multiple-claude-sessions") Run multiple Claude sessions
+### [​](#run-multiple-claude-sessions) Run multiple Claude sessions
 
 Run multiple Claude sessions in parallel to speed up development, run isolated experiments, or start complex workflows.
 
 Pick the parallel approach that fits how much coordination you want to do yourself:
 
-* [Worktrees](./worktrees "_worktrees".md): run separate CLI sessions in isolated git checkouts so edits don’t collide
-* [Desktop app](./desktop#work-in-parallel-with-sessions "_desktop#work-in-parallel-with-sessions".md): manage multiple local sessions visually, each in its own worktree
-* [Claude Code on the web](./claude-code-on-the-web "_claude-code-on-the-web".md): run sessions on Anthropic-managed cloud infrastructure in isolated VMs
-* [Agent teams](./agent-teams "_agent-teams".md): automated coordination of multiple sessions with shared tasks, messaging, and a team lead
+* [Worktrees](./worktrees.md): run separate CLI sessions in isolated git checkouts so edits don’t collide
+* [Desktop app](./desktop.md#work-in-parallel-with-sessions): manage multiple local sessions visually, each in its own worktree
+* [Claude Code on the web](./claude-code-on-the-web.md): run sessions on Anthropic-managed cloud infrastructure in isolated VMs
+* [Agent teams](./agent-teams.md): automated coordination of multiple sessions with shared tasks, messaging, and a team lead
 
 Beyond parallelizing work, multiple sessions enable quality-focused workflows. A fresh context improves code review since Claude won’t be biased toward code it just wrote.
 For example, use a Writer/Reviewer pattern:
@@ -451,7 +440,7 @@ For example, use a Writer/Reviewer pattern:
 
 You can do something similar with tests: have one Claude write tests, then another write code to pass them.
 
-### [​](#fan-out-across-files "#fan-out-across-files") Fan out across files
+### [​](#fan-out-across-files) Fan out across files
 
 Loop through tasks calling `claude -p` for each. Use `--allowedTools` to scope permissions for batch operations.
 
@@ -473,7 +462,6 @@ for file in $(cat files.txt); do
     --allowedTools "Edit,Bash(git commit *)"
 done
 ```
-
 3
 
 Test on a few files, then run at scale
@@ -485,23 +473,36 @@ You can also integrate Claude into existing data/processing pipelines:
 ```
 claude -p "<your prompt>" --output-format json | your_command
 ```
-
 Use `--verbose` for debugging during development, and turn it off in production.
 
-### [​](#run-autonomously-with-auto-mode "#run-autonomously-with-auto-mode") Run autonomously with auto mode
+### [​](#run-autonomously-with-auto-mode) Run autonomously with auto mode
 
-For uninterrupted execution with background safety checks, use [auto mode](./permission-modes#eliminate-prompts-with-auto-mode "_permission-modes#eliminate-prompts-with-auto-mode".md). A classifier model reviews commands before they run, blocking scope escalation, unknown infrastructure, and hostile-content-driven actions while letting routine work proceed without prompts.
+For uninterrupted execution with background safety checks, use [auto mode](./permission-modes.md#eliminate-prompts-with-auto-mode). A classifier model reviews commands before they run, blocking scope escalation, unknown infrastructure, and hostile-content-driven actions while letting routine work proceed without prompts.
 
 ```
 claude --permission-mode auto -p "fix all lint errors"
 ```
+For non-interactive runs with the `-p` flag, auto mode aborts if the classifier repeatedly blocks actions, since there is no user to fall back to. See [when auto mode falls back](./permission-modes.md#when-auto-mode-falls-back) for thresholds.
 
-For non-interactive runs with the `-p` flag, auto mode aborts if the classifier repeatedly blocks actions, since there is no user to fall back to. See [when auto mode falls back](./permission-modes#when-auto-mode-falls-back "_permission-modes#when-auto-mode-falls-back".md) for thresholds.
+### [​](#add-an-adversarial-review-step) Add an adversarial review step
 
+Before treating a task as done, have a subagent review the diff in a fresh context and report gaps.
+
+The longer Claude works unattended, the more an independent check matters before you count the work as done. A reviewer running in a fresh [subagent](./sub-agents.md) context sees only the diff and the criteria you give it, not the reasoning that produced the change, so it evaluates the result on its own terms.
+For a correctness check, run the bundled [`/code-review` skill](./commands.md), which reviews the current diff for bugs in a fresh subagent and returns findings to the session. To check the diff against your plan instead, write the review prompt yourself. Name the work to check, the plan to check it against, and what counts as a finding:
+
+```
+Use a subagent to review the rate limiter diff against PLAN.md. Check that
+every requirement is implemented, the listed edge cases have tests, and
+nothing outside the task's scope changed. Report gaps, not style preferences.
+```
+Because the reviewer runs as a subagent, the implementing session receives the gaps directly and can fix them and re-review without you copying findings between windows. For longer autonomous runs, an [agent team](./agent-teams.md) can keep this loop going across many tasks while you spot-check the recorded findings.
+
+A reviewer prompted to find gaps will usually report some, even when the work is sound, because that is what it was asked to do. Chasing every finding leads to over-engineering: extra abstraction layers, defensive code, and tests for cases that can’t happen. Tell the reviewer to flag only gaps that affect correctness or the stated requirements, and treat the rest as optional.
 
 ---
 
-## [​](#avoid-common-failure-patterns "#avoid-common-failure-patterns") Avoid common failure patterns
+## [​](#avoid-common-failure-patterns) Avoid common failure patterns
 
 These are common mistakes. Recognizing them early saves time:
 
@@ -518,16 +519,16 @@ These are common mistakes. Recognizing them early saves time:
 
 ---
 
-## [​](#develop-your-intuition "#develop-your-intuition") Develop your intuition
+## [​](#develop-your-intuition) Develop your intuition
 
 The patterns in this guide aren’t set in stone. They’re starting points that work well in general, but might not be optimal for every situation.
 Sometimes you *should* let context accumulate because you’re deep in one complex problem and the history is valuable. Sometimes you should skip planning and let Claude figure it out because the task is exploratory. Sometimes a vague prompt is exactly right because you want to see how Claude interprets the problem before constraining it.
 Pay attention to what works. When Claude produces great output, notice what you did: the prompt structure, the context you provided, the mode you were in. When Claude struggles, ask why. Was the context too noisy? The prompt too vague? The task too big for one pass?
 Over time, you’ll develop intuition that no guide can capture. You’ll know when to be specific and when to be open-ended, when to plan and when to explore, when to clear context and when to let it accumulate.
 
-## [​](#related-resources "#related-resources") Related resources
+## [​](#related-resources) Related resources
 
-* [How Claude Code works](./how-claude-code-works "_how-claude-code-works".md): the agentic loop, tools, and context management
-* [Extend Claude Code](./features-overview "_features-overview".md): skills, hooks, MCP, subagents, and plugins
-* [Common workflows](./common-workflows "_common-workflows".md): step-by-step recipes for debugging, testing, PRs, and more
-* [CLAUDE.md](./memory "_memory".md): store project conventions and persistent context
+* [How Claude Code works](./how-claude-code-works.md): the agentic loop, tools, and context management
+* [Extend Claude Code](./features-overview.md): skills, hooks, MCP, subagents, and plugins
+* [Common workflows](./common-workflows.md): step-by-step recipes for debugging, testing, PRs, and more
+* [CLAUDE.md](./memory.md): store project conventions and persistent context

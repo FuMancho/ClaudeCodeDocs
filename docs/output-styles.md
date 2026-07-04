@@ -1,27 +1,24 @@
 # Output Styles
 
-> ## Documentation Index
->
-> Fetch the complete documentation index at: [https://code.claude.com/docs/llms.txt](https://code.claude.com/docs/llms.txt "https://code.claude.com/docs/llms.txt")
->
-> Use this file to discover all available pages before exploring further.
-
 Output styles change how Claude responds, not what Claude knows. They modify the system prompt to set role, tone, and output format. Use one when you keep re-prompting for the same voice or format every turn, or when you want Claude to act as something other than a software engineer.
 A custom output style adds your instructions to the system prompt and lets you choose whether to keep Claude Code’s built-in software engineering instructions. Keep them when you’re changing how Claude communicates but still coding, like always answering with a diagram. Leave them out when Claude isn’t doing software engineering at all, like a writing assistant or data analyst.
-For instructions about your project, conventions, or codebase, use [CLAUDE.md](./memory "_memory".md) instead.
+For instructions about your project, conventions, or codebase, use [CLAUDE.md](./memory.md) instead.
 
-## [​](#built-in-output-styles "#built-in-output-styles") Built-in output styles
+## [​](#built-in-output-styles) Built-in output styles
 
 Claude Code’s **Default** output style is the existing system prompt, designed to help you complete software engineering tasks efficiently.
 There are three additional built-in output styles:
 
-* **Proactive**: Claude executes immediately, makes reasonable assumptions instead of pausing for routine decisions, and prefers action over planning. This is stronger autonomous-execution guidance than [auto mode](./permission-modes#eliminate-prompts-with-auto-mode "_permission-modes#eliminate-prompts-with-auto-mode".md) applies, and it works without changing your permission mode, so you still see permission prompts before tools run.
+* **Proactive**: Claude executes immediately, makes reasonable assumptions instead of pausing for routine decisions, and prefers action over planning. This is stronger autonomous-execution guidance than [auto mode](./permission-modes.md#eliminate-prompts-with-auto-mode) applies, and it works without changing your permission mode, so you still see permission prompts before tools run.
 * **Explanatory**: Provides educational “Insights” in between helping you complete software engineering tasks. Helps you understand implementation choices and codebase patterns.
 * **Learning**: Collaborative, learn-by-doing mode where Claude will not only share “Insights” while coding, but also ask you to contribute small, strategic pieces of code yourself. Claude Code will add `task(human)` markers in your code for you to implement.
 
-## [​](#change-your-output-style "#change-your-output-style") Change your output style
+## [​](#change-your-output-style) Change your output style
 
-Run `/config` and select **Output style** to pick a style from a menu. Your selection is saved to `.claude/settings.local.json` at the [local project level](./settings "_settings".md).
+Run `/config` and select **Output style** to pick a style from a menu. Your selection is saved to `.claude/settings.local.json` at the [local project level](./settings.md).
+
+The standalone `/output-style` command was deprecated in v2.1.73 and removed in v2.1.91. Use `/config` or edit the `outputStyle` setting directly.
+
 To set a style without the menu, edit the `outputStyle` field directly in a settings file:
 
 ```
@@ -29,10 +26,9 @@ To set a style without the menu, edit the `outputStyle` field directly in a sett
   "outputStyle": "Explanatory"
 }
 ```
+Output style is part of the system prompt, which Claude Code reads once at session start. Changes take effect after `/clear` or a new session. See [How Claude Code uses prompt caching](./prompt-caching.md#changing-output-style) for what an output style change does to the cache.
 
-Output style is part of the system prompt, which Claude Code reads once at session start. Changes take effect after `/clear` or a new session. See [How Claude Code uses prompt caching](./prompt-caching#changing-output-style "_prompt-caching#changing-output-style".md) for what an output style change does to the cache.
-
-## [​](#create-a-custom-output-style "#create-a-custom-output-style") Create a custom output style
+## [​](#create-a-custom-output-style) Create a custom output style
 
 A custom output style is a Markdown file: frontmatter for metadata, then the instructions to add to the system prompt.
 
@@ -44,7 +40,9 @@ Save it at one of three levels. The file name becomes the style name unless you 
 
 * User: `~/.claude/output-styles`
 * Project: `.claude/output-styles`
-* Managed policy: `.claude/output-styles` inside the [managed settings directory](./settings#settings-files "_settings#settings-files".md)
+* Managed policy: `.claude/output-styles` inside the [managed settings directory](./settings.md#settings-files)
+
+Project output styles load from every `.claude/output-styles/` between the working directory and the repository root. As of v2.1.178, when more than one of these nested directories defines a style with the same name, Claude Code uses the one closest to the working directory.
 
 2
 
@@ -65,16 +63,15 @@ When explaining code, architecture, or data flow, start with a Mermaid diagram s
 
 Use `flowchart TD` for control flow and `sequenceDiagram` for request paths. Keep diagrams under 15 nodes.
 ```
-
 3
 
 Switch to your style
 
 Run `/config` and select your style under **Output style**. It takes effect after `/clear` or the next time you start a session.
 
-[Plugins](./plugins-reference "_plugins-reference".md) can also ship output styles in an `output-styles/` directory.
+[Plugins](./plugins-reference.md) can also ship output styles in an `output-styles/` directory.
 
-### [​](#frontmatter "#frontmatter") Frontmatter
+### [​](#frontmatter) Frontmatter
 
 Output style files support these frontmatter fields:
 
@@ -85,7 +82,7 @@ Output style files support these frontmatter fields:
 | `keep-coding-instructions` | Keep Claude Code’s built-in software engineering instructions | `false` |
 | `force-for-plugin` | Plugin output styles only: apply this style automatically whenever the plugin is enabled, without requiring users to select it. Overrides the user’s `outputStyle` setting. If multiple enabled plugins set this, Claude Code uses the first one loaded. | `false` |
 
-## [​](#how-output-styles-work "#how-output-styles-work") How output styles work
+## [​](#how-output-styles-work) How output styles work
 
 Output styles directly modify Claude Code’s system prompt.
 
@@ -95,21 +92,21 @@ Output styles directly modify Claude Code’s system prompt.
 
 Token usage depends on the style. Adding instructions to the system prompt increases input tokens, though prompt caching reduces this cost after the first request in a session. The built-in Explanatory and Learning styles produce longer responses than Default by design, which increases output tokens. For custom styles, output token usage depends on what your instructions tell Claude to produce.
 
-## [​](#comparisons-to-related-features "#comparisons-to-related-features") Comparisons to related features
+## [​](#comparisons-to-related-features) Comparisons to related features
 
 Several features customize how Claude Code behaves. Output styles modify the system prompt directly and apply to every response. The others add instructions without changing the default system prompt, or scope them to a specific task.
 
 | Feature | How it works | Use it when |
 | --- | --- | --- |
 | Output styles | Modifies the system prompt | You want a different role, tone, or default response format every turn |
-| [CLAUDE.md](./memory "_memory".md) | Adds a user message after the system prompt | Claude should always know your project conventions and codebase context |
+| [CLAUDE.md](./memory.md) | Adds a user message after the system prompt | Claude should always know your project conventions and codebase context |
 | `--append-system-prompt` | Appends to the system prompt without removing anything | You want a one-off addition for a single invocation |
-| [Agents](./sub-agents "_sub-agents".md) | Runs a subagent with its own system prompt, model, and tools | You want a separately scoped helper for a focused task |
-| [Skills](./skills "_skills".md) | Loads task-specific instructions when invoked or relevant | You have a reusable workflow |
+| [Agents](./sub-agents.md) | Runs a subagent with its own system prompt, model, and tools | You want a separately scoped helper for a focused task |
+| [Skills](./skills.md) | Loads task-specific instructions when invoked or relevant | You have a reusable workflow |
 
-## [​](#related-resources "#related-resources") Related resources
+## [​](#related-resources) Related resources
 
-* [Settings](./settings "_settings".md): where the `outputStyle` field lives and how settings precedence works
-* [Permission modes](./permission-modes "_permission-modes".md): how the Proactive style compares to auto mode
-* [Plugins](./plugins "_plugins".md): package and distribute output styles alongside skills, hooks, and agents
-* [Debug your configuration](./debug-your-config "_debug-your-config".md): diagnose why an output style isn’t taking effect
+* [Settings](./settings.md): where the `outputStyle` field lives and how settings precedence works
+* [Permission modes](./permission-modes.md): how the Proactive style compares to auto mode
+* [Plugins](./plugins.md): package and distribute output styles alongside skills, hooks, and agents
+* [Debug your configuration](./debug-your-config.md): diagnose why an output style isn’t taking effect

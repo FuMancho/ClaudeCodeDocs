@@ -1,12 +1,6 @@
 # Whats New 2026 W14
 
-> ## Documentation Index
->
-> Fetch the complete documentation index at: [https://code.claude.com/docs/llms.txt](https://code.claude.com/docs/llms.txt "https://code.claude.com/docs/llms.txt")
->
-> Use this file to discover all available pages before exploring further.
-
-Releases [v2.1.86 → v2.1.91](./changelog#2-1-86 "_changelog#2-1-86".md)5 features · March 30 – April 3
+Releases [v2.1.86 → v2.1.91](./changelog.md#2-1-86)5 features · March 30 – April 3
 
 Computer use in the CLIresearch preview
 
@@ -21,8 +15,7 @@ Claude Code
 ```
 > Open the iOS simulator, tap through onboarding, and screenshot each step
 ```
-
-[Computer use guide](./computer-use "_computer-use".md)
+[Computer use guide](./computer-use.md)
 
 /powerupv2.1.90
 
@@ -37,8 +30,7 @@ Claude Code
 ```
 > /powerup
 ```
-
-[Commands reference](./commands "_commands".md)
+[Commands reference](./commands.md)
 
 Flicker-free renderingv2.1.89
 
@@ -52,8 +44,7 @@ Set the env var and restart Claude Code:
 export CLAUDE_CODE_NO_FLICKER=1
 claude
 ```
-
-[Fullscreen rendering](./fullscreen "_fullscreen".md)
+[Fullscreen rendering](./fullscreen.md)
 
 MCP result-size overridev2.1.91
 
@@ -70,8 +61,7 @@ Annotate the tool in your server’s `tools/list` response:
   }
 }
 ```
-
-[MCP reference](./mcp#raise-the-limit-for-a-specific-tool "_mcp#raise-the-limit-for-a-specific-tool".md)
+[MCP reference](./mcp.md#raise-the-limit-for-a-specific-tool)
 
 Plugin executables on PATHv2.1.91
 
@@ -86,8 +76,7 @@ my-plugin/
 └── bin/
     └── my-tool
 ```
-
-[Plugins reference](./plugins-reference#file-locations-reference "_plugins-reference#file-locations-reference".md)
+[Plugins reference](./plugins-reference.md#file-locations-reference)
 
 Other wins
 
@@ -109,4 +98,4 @@ Voice mode: push-to-talk modifier combos, Windows WebSocket, macOS Apple Silicon
 
 `claude-cli://` deep links accept multi-line prompts (encoded `%0A`)
 
-[Full changelog for v2.1.86–v2.1.91 →](./changelog#2-1-86 "_changelog#2-1-86".md)
+[Full changelog for v2.1.86–v2.1.91 →](./changelog.md#2-1-86)
