@@ -1,12 +1,6 @@
 # Whats New 2026 W15
 
-> ## Documentation Index
->
-> Fetch the complete documentation index at: [https://code.claude.com/docs/llms.txt](https://code.claude.com/docs/llms.txt "https://code.claude.com/docs/llms.txt")
->
-> Use this file to discover all available pages before exploring further.
-
-Releases [v2.1.92 → v2.1.101](./changelog#2-1-92 "_changelog#2-1-92".md)4 features · April 6–10
+Releases [v2.1.92 → v2.1.101](./changelog.md#2-1-92)4 features · April 6–10
 
 Ultraplanresearch preview
 
@@ -21,8 +15,7 @@ Claude Code
 ```
 > /ultraplan migrate the auth service from sessions to JWTs
 ```
-
-[Ultraplan guide](./ultraplan "_ultraplan".md)
+[Ultraplan guide](./ultraplan.md)
 
 Monitor toolv2.1.98
 
@@ -37,7 +30,6 @@ Claude Code
 ```
 > Tail server.log in the background and tell me the moment a 5xx shows up
 ```
-
 This pairs with `/loop`, which now self-paces: omit the interval and Claude schedules the next tick based on the task, or reaches for the Monitor tool to skip polling altogether.
 
 Claude Code
@@ -45,8 +37,7 @@ Claude Code
 ```
 > /loop check CI on my PR
 ```
-
-[Monitor tool reference](./tools-reference#monitor-tool "_tools-reference#monitor-tool".md)
+[Monitor tool reference](./tools-reference.md#monitor-tool)
 
 /autofix-prCLI
 
@@ -61,8 +52,7 @@ Claude Code
 ```
 > /autofix-pr
 ```
-
-[Auto-fix pull requests](./claude-code-on-the-web#auto-fix-pull-requests "_claude-code-on-the-web#auto-fix-pull-requests".md)
+[Auto-fix pull requests](./claude-code-on-the-web.md#auto-fix-pull-requests)
 
 /team-onboardingv2.1.101
 
@@ -75,18 +65,17 @@ Claude Code
 ```
 > /team-onboarding
 ```
-
-[Commands reference](./commands "_commands".md)
+[Commands reference](./commands.md)
 
 Other wins
 
 Focus view: press `Ctrl+O` in flicker-free mode to collapse the view to your last prompt, a one-line tool summary with diffstats, and Claude’s final response
 
-Guided [Bedrock](./amazon-bedrock "_amazon-bedrock".md) and [Vertex AI](./google-vertex-ai "_google-vertex-ai".md) setup wizards on the login screen: pick “3rd-party platform” for step-by-step auth, region, credential check, and model pinning
+Guided [Amazon Bedrock](./amazon-bedrock.md) and [Google Cloud’s Agent Platform](./google-vertex-ai.md) setup wizards on the login screen: pick “3rd-party platform” for step-by-step auth, region, credential check, and model pinning
 
 `/agents` gets a tabbed layout: a Running tab shows live subagents with a `● N running` count, plus Run agent and View running instance actions in the Library tab
 
-Default effort level is now `high` for API-key, Bedrock, Vertex, Foundry, Team, and Enterprise users (control with `/effort`)
+Default effort level is now `high` for API-key, Amazon Bedrock, Google Cloud’s Agent Platform, Microsoft Foundry, Team, and Enterprise users (control with `/effort`)
 
 `/cost` shows a per-model and cache-hit breakdown for subscription users
 
@@ -104,4 +93,4 @@ Hardened Bash tool permissions: backslash-escaped flags, env-var prefixes, `/dev
 
 `UserPromptSubmit` hooks can set the session title via `hookSpecificOutput.sessionTitle`
 
-[Full changelog for v2.1.92–v2.1.101 →](./changelog#2-1-92 "_changelog#2-1-92".md)
+[Full changelog for v2.1.92–v2.1.101 →](./changelog.md#2-1-92)

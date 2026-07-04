@@ -1,12 +1,6 @@
 # Whats New 2026 W18
 
-> ## Documentation Index
->
-> Fetch the complete documentation index at: [https://code.claude.com/docs/llms.txt](https://code.claude.com/docs/llms.txt "https://code.claude.com/docs/llms.txt")
->
-> Use this file to discover all available pages before exploring further.
-
-Releases [v2.1.120 → v2.1.126](./changelog#2-1-120 "_changelog#2-1-120".md)4 features · April 27 – May 1
+Releases [v2.1.120 → v2.1.126](./changelog.md#2-1-120)4 features · April 27 – May 1
 
 Sign in without a browser callbackv2.1.126
 
@@ -17,10 +11,9 @@ Sign in, then paste the code from the browser:
 ```
 claude auth login
 ```
+[CLI reference](./cli-reference.md#cli-commands)
 
-[CLI reference](./cli-reference#cli-commands "_cli-reference#cli-commands".md)
-
-claude project purgev2.1.126
+claude project purgev2.1.124
 
 Delete all Claude Code state for a project: transcripts, tasks, file history, and the project’s config entry. Supports `--dry-run` to preview, `-y`/`--yes` to skip confirmation, `-i`/`--interactive` to choose, and `--all` to clear every project.
 
@@ -29,14 +22,12 @@ Preview what would be removed:
 ```
 claude project purge --dry-run
 ```
-
 Then run it for real:
 
 ```
 claude project purge
 ```
-
-[CLI reference](./cli-reference "_cli-reference".md)
+[CLI reference](./cli-reference.md)
 
 Resume by PR URLv2.1.122
 
@@ -49,7 +40,6 @@ Claude Code
 ```
 > /resume
 ```
-
 Paste the PR URL into the picker. The first character of the paste drops you into search mode, and the list filters to the session that created that PR. Press Enter to resume it. GitHub, GitHub Enterprise, GitLab, and Bitbucket pull and merge request URLs all work.
 
 Claude Code
@@ -57,20 +47,18 @@ Claude Code
 ```
 https://github.com/your-org/your-repo/pull/1234
 ```
-
 To skip the picker, pass the PR number on the command line instead:
 
 ```
 claude --from-pr 1234
 ```
-
-[Sessions: use the session picker](./sessions#use-the-session-picker "_sessions#use-the-session-picker".md)
+[Sessions: use the session picker](./sessions.md#use-the-session-picker)
 
 Windows without Git BashWindows
 
 Git for Windows is no longer required. When Bash is absent, Claude Code uses PowerShell as the shell tool, and when the PowerShell tool is enabled it is treated as the primary shell. PowerShell 7 installed via the Microsoft Store, MSI without PATH, or a `.NET` global tool is now detected automatically.
 
-[Setup guide](./setup "_setup".md)
+[Setup guide](./setup.md)
 
 Other wins
 
@@ -82,7 +70,7 @@ New `claude plugin prune` removes orphaned auto-installed plugin dependencies, a
 
 `PostToolUse` hooks can replace tool output for any tool via `hookSpecificOutput.updatedToolOutput`, not only MCP tools
 
-New [`claude ultrareview`](./ultrareview "_ultrareview".md) subcommand runs `/ultrareview` non-interactively from CI or scripts: prints findings to stdout (`—json` for raw output) and exits 0 on completion or 1 on failure
+New [`claude ultrareview`](./ultrareview.md) subcommand runs `/ultrareview` non-interactively from CI or scripts: prints findings to stdout (`—json` for raw output) and exits 0 on completion or 1 on failure
 
 `—dangerously-skip-permissions` now bypasses prompts for writes to `.claude/`, `.git/`, `.vscode/`, shell config files, and other previously protected paths, while catastrophic removal commands still prompt as a safety net
 
@@ -90,12 +78,12 @@ The `/model` picker can list models from your gateway’s `/v1/models` endpoint 
 
 MCP servers that hit a transient error during startup now auto-retry up to 3 times instead of staying disconnected
 
-`ANTHROPIC_BEDROCK_SERVICE_TIER` selects a Bedrock service tier: `default`, `flex`, or `priority`
+`ANTHROPIC_BEDROCK_SERVICE_TIER` selects an Amazon Bedrock service tier: `default`, `flex`, or `priority`
 
 `/terminal-setup` enables iTerm2’s clipboard access setting so `/copy` works, including from tmux
 
-Vertex AI now supports X.509 certificate-based Workload Identity Federation (mTLS ADC)
+Google Cloud’s Agent Platform now supports X.509 certificate-based Workload Identity Federation (mTLS ADC)
 
 Significant memory leak fixes: image-heavy sessions, `/usage` on large transcript histories, and long-running tools without progress events
 
-[Full changelog for v2.1.120–v2.1.126 →](./changelog#2-1-120 "_changelog#2-1-120".md)
+[Full changelog for v2.1.120–v2.1.126 →](./changelog.md#2-1-120)

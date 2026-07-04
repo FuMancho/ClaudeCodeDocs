@@ -1,13 +1,7 @@
 # Agent Sdk Cost Tracking
 
-> ## Documentation Index
->
-> Fetch the complete documentation index at: [https://code.claude.com/docs/llms.txt](https://code.claude.com/docs/llms.txt "https://code.claude.com/docs/llms.txt")
->
-> Use this file to discover all available pages before exploring further.
-
 The Claude Agent SDK provides detailed token usage information for each interaction with Claude. This guide explains how to properly track usage and understand cost reporting, especially when dealing with parallel tool uses and multi-step conversations.
-For complete API documentation, see the [TypeScript SDK reference](./agent-sdk_typescript "_agent-sdk_typescript".md) and [Python SDK reference](./agent-sdk_python "_agent-sdk_python".md).
+For complete API documentation, see the [TypeScript SDK reference](./agent-sdk_typescript.md) and [Python SDK reference](./agent-sdk_python.md).
 
 The `total_cost_usd` and `costUSD` fields are client-side estimates, not authoritative billing data. The SDK computes them locally from a price table bundled at build time, so they can drift from what you are actually billed when:
 
@@ -15,9 +9,9 @@ The `total_cost_usd` and `costUSD` fields are client-side estimates, not authori
 * the installed SDK version does not recognize a model
 * billing rules apply that the client cannot model
 
-Use these fields for development insight and approximate budgeting. For authoritative billing, use the [Usage and Cost API](https://platform.claude.com/docs/en/build-with-claude/usage-cost-api "https://platform.claude.com/docs/en/build-with-claude/usage-cost-api") or the Usage page in the [Claude Console](https://platform.claude.com/usage "https://platform.claude.com/usage"). Do not bill end users or trigger financial decisions from these fields.
+Use these fields for development insight and approximate budgeting. For authoritative billing, use the [Usage and Cost API](https://platform.claude.com/docs/en/build-with-claude/usage-cost-api) or the Usage page in the [Claude Console](https://platform.claude.com/usage). Do not bill end users or trigger financial decisions from these fields.
 
-## [​](#understand-token-usage "#understand-token-usage") Understand token usage
+## [​](#understand-token-usage) Understand token usage
 
 The TypeScript and Python SDKs expose the same usage data with different field names:
 
@@ -27,28 +21,28 @@ The TypeScript and Python SDKs expose the same usage data with different field n
 Both SDKs use the same underlying cost model and expose the same granularity. The difference is in field naming and where per-step usage is nested.
 Cost tracking depends on understanding how the SDK scopes usage data:
 
-* **`query()` call:** one invocation of the SDK’s `query()` function. A single call can involve multiple steps (Claude responds, uses tools, gets results, responds again). Each call produces one [`result`](./agent-sdk_typescript#sdkresultmessage "_agent-sdk_typescript#sdkresultmessage".md) message at the end.
+* **`query()` call:** one invocation of the SDK’s `query()` function. A single call can involve multiple steps (Claude responds, uses tools, gets results, responds again). Each call produces one [`result`](./agent-sdk_typescript.md#sdkresultmessage) message at the end.
 * **Step:** a single request/response cycle within a `query()` call. Each step produces assistant messages with token usage.
 * **Session:** a series of `query()` calls linked by a session ID (using the `resume` option). Each `query()` call within a session reports its own cost independently.
 
 The following diagram shows the message stream from a single `query()` call, with token usage reported at each step and the cumulative estimate at the end:
-![Diagram showing a query producing two steps of messages. Step 1 has four assistant messages sharing the same ID and usage (count once), Step 2 has one assistant message with a new ID, and the final result message shows the estimated total_cost_usd.](https://mintcdn.com/claude-code/Dujg43sxTkuhSELI/images/agent-sdk/message-usage-flow.svg?fit=max&auto=format&n=Dujg43sxTkuhSELI&q=85&s=c542f51ff58547ef9c0e57b16d03f33c)
+![Diagram showing a query producing two steps of messages. Step 1 has four assistant messages sharing the same ID and usage (count once), Step 2 has one assistant message with a new ID, and the final result message shows the estimated total_cost_usd.](https://mintcdn.com/claude-code/ikqp3_70mqIahteV/images/agent-sdk/message-usage-flow.svg?fit=max&auto=format&n=ikqp3_70mqIahteV&q=85&s=68497aee338e01cc745323af7aea378e)
 
 1
 
 Each step produces assistant messages
 
-When Claude responds, it sends one or more assistant messages. In TypeScript, each assistant message contains a nested `BetaMessage` (accessed via `message.message`) with an `id` and a [`usage`](https://platform.claude.com/docs/en/api/messages "https://platform.claude.com/docs/en/api/messages") object with token counts (`input_tokens`, `output_tokens`). In Python, the `AssistantMessage` dataclass exposes the same data directly via `message.usage` and `message.message_id`. When Claude uses multiple tools in one turn, all messages in that turn share the same ID, so deduplicate by ID to avoid double-counting.
+When Claude responds, it sends one or more assistant messages. In TypeScript, each assistant message contains a nested `BetaMessage` (accessed via `message.message`) with an `id` and a [`usage`](https://platform.claude.com/docs/en/api/messages) object with token counts (`input_tokens`, `output_tokens`). In Python, the `AssistantMessage` dataclass exposes the same data directly via `message.usage` and `message.message_id`. When Claude uses multiple tools in one turn, all messages in that turn share the same ID, so deduplicate by ID to avoid double-counting.
 
 2
 
 The result message provides the cumulative estimate
 
-When the `query()` call completes, the SDK emits a result message with `total_cost_usd` and cumulative `usage`. This is available in both TypeScript ([`SDKResultMessage`](./agent-sdk_typescript#sdkresultmessage "_agent-sdk_typescript#sdkresultmessage".md)) and Python ([`ResultMessage`](./agent-sdk_python#resultmessage "_agent-sdk_python#resultmessage".md)). If you make multiple `query()` calls (for example, in a multi-turn session), each result only reflects the cost of that individual call. If you only need the estimated total, you can ignore the per-step usage and read this single value.
+When the `query()` call completes, the SDK emits a result message with `total_cost_usd` and cumulative `usage`. This is available in both TypeScript ([`SDKResultMessage`](./agent-sdk_typescript.md#sdkresultmessage)) and Python ([`ResultMessage`](./agent-sdk_python.md#resultmessage)). If you make multiple `query()` calls (for example, in a multi-turn session), each result only reflects the cost of that individual call. If you only need the estimated total, you can ignore the per-step usage and read this single value.
 
-## [​](#get-the-total-cost-of-a-query "#get-the-total-cost-of-a-query") Get the total cost of a query
+## [​](#get-the-total-cost-of-a-query) Get the total cost of a query
 
-The result message ([TypeScript](./agent-sdk_typescript#sdkresultmessage "_agent-sdk_typescript#sdkresultmessage".md), [Python](./agent-sdk_python#resultmessage "_agent-sdk_python#resultmessage".md)) marks the end of the agent loop for a `query()` call. It includes `total_cost_usd`, the cumulative estimated cost across all steps in that call. This works for both success and error results. If you use sessions to make multiple `query()` calls, each result only reflects the cost of that individual call.
+The result message ([TypeScript](./agent-sdk_typescript.md#sdkresultmessage), [Python](./agent-sdk_python.md#resultmessage)) marks the end of the agent loop for a `query()` call. It includes `total_cost_usd`, the cumulative estimated cost across all steps in that call. This works for both success and error results. If you use sessions to make multiple `query()` calls, each result only reflects the cost of that individual call.
 The following examples iterate over the message stream from a `query()` call and print the total cost when the `result` message arrives:
 
 TypeScript
@@ -58,18 +52,25 @@ Python
 ```
 import { query } from "@anthropic-ai/claude-agent-sdk";
 
-for await (const message of query({ prompt: "Summarize this project" })) {
-  if (message.type === "result") {
-    console.log(`Total cost: $${message.total_cost_usd}`);
+try {
+  for await (const message of query({ prompt: "Summarize this project" })) {
+    if (message.type === "result") {
+      console.log(`Total cost: $${message.total_cost_usd}`);
+    }
   }
+} catch (error) {
+  // A single-shot query() throws after yielding an error result. If the
+  // failure was an error result, it still carried total_cost_usd and the
+  // branch above has already run; connection or process failures yield
+  // no result message.
+  console.error(`Session ended with an error: ${error}`);
 }
 ```
+## [​](#track-per-step-and-per-model-usage) Track per-step and per-model usage
 
-## [​](#track-per-step-and-per-model-usage "#track-per-step-and-per-model-usage") Track per-step and per-model usage
+The examples in this section use TypeScript field names. In Python, the equivalent fields are [`AssistantMessage.usage`](./agent-sdk_python.md#assistantmessage) and `AssistantMessage.message_id` for per-step usage, and [`ResultMessage.model_usage`](./agent-sdk_python.md#resultmessage) for per-model breakdowns.
 
-The examples in this section use TypeScript field names. In Python, the equivalent fields are [`AssistantMessage.usage`](./agent-sdk_python#assistantmessage "_agent-sdk_python#assistantmessage".md) and `AssistantMessage.message_id` for per-step usage, and [`ResultMessage.model_usage`](./agent-sdk_python#resultmessage "_agent-sdk_python#resultmessage".md) for per-model breakdowns.
-
-### [​](#track-per-step-usage "#track-per-step-usage") Track per-step usage
+### [​](#track-per-step-usage) Track per-step usage
 
 Each assistant message contains a nested `BetaMessage` (accessed via `message.message`) with an `id` and `usage` object with token counts. When Claude uses tools in parallel, multiple messages share the same `id` with identical usage data. Track which IDs you’ve already counted and skip duplicates to avoid inflated totals.
 
@@ -84,46 +85,57 @@ const seenIds = new Set<string>();
 let totalInputTokens = 0;
 let totalOutputTokens = 0;
 
-for await (const message of query({ prompt: "Summarize this project" })) {
-  if (message.type === "assistant") {
-    const msgId = message.message.id;
+try {
+  for await (const message of query({ prompt: "Summarize this project" })) {
+    if (message.type === "assistant") {
+      const msgId = message.message.id;
 
-    // Parallel tool calls share the same ID, only count once
-    if (!seenIds.has(msgId)) {
-      seenIds.add(msgId);
-      totalInputTokens += message.message.usage.input_tokens;
-      totalOutputTokens += message.message.usage.output_tokens;
+      // Parallel tool calls share the same ID, only count once
+      if (!seenIds.has(msgId)) {
+        seenIds.add(msgId);
+        totalInputTokens += message.message.usage.input_tokens;
+        totalOutputTokens += message.message.usage.output_tokens;
+      }
     }
   }
+} catch (error) {
+  // A single-shot query() throws after yielding an error result, so the
+  // totals below still reflect the steps that ran before the failure.
+  console.error(`Session ended with an error: ${error}`);
 }
 
 console.log(`Steps: ${seenIds.size}`);
 console.log(`Input tokens: ${totalInputTokens}`);
 console.log(`Output tokens: ${totalOutputTokens}`);
 ```
+### [​](#break-down-usage-per-model) Break down usage per model
 
-### [​](#break-down-usage-per-model "#break-down-usage-per-model") Break down usage per model
-
-The result message includes [`modelUsage`](./agent-sdk_typescript#modelusage "_agent-sdk_typescript#modelusage".md), a map of model name to per-model token counts and cost. This is useful when you run multiple models (for example, Haiku for subagents and Opus for the main agent) and want to see where tokens are going.
+The result message includes [`modelUsage`](./agent-sdk_typescript.md#modelusage), a map of model name to per-model token counts and cost. This is useful when you run multiple models (for example, Haiku for subagents and Opus for the main agent) and want to see where tokens are going.
 The following example runs a query and prints the cost and token breakdown for each model used:
 
 ```
 import { query } from "@anthropic-ai/claude-agent-sdk";
 
-for await (const message of query({ prompt: "Summarize this project" })) {
-  if (message.type !== "result") continue;
+try {
+  for await (const message of query({ prompt: "Summarize this project" })) {
+    if (message.type !== "result") continue;
 
-  for (const [modelName, usage] of Object.entries(message.modelUsage)) {
-    console.log(`${modelName}: $${usage.costUSD.toFixed(4)}`);
-    console.log(`  Input tokens: ${usage.inputTokens}`);
-    console.log(`  Output tokens: ${usage.outputTokens}`);
-    console.log(`  Cache read: ${usage.cacheReadInputTokens}`);
-    console.log(`  Cache creation: ${usage.cacheCreationInputTokens}`);
+    for (const [modelName, usage] of Object.entries(message.modelUsage)) {
+      console.log(`${modelName}: $${usage.costUSD.toFixed(4)}`);
+      console.log(`  Input tokens: ${usage.inputTokens}`);
+      console.log(`  Output tokens: ${usage.outputTokens}`);
+      console.log(`  Cache read: ${usage.cacheReadInputTokens}`);
+      console.log(`  Cache creation: ${usage.cacheCreationInputTokens}`);
+    }
   }
+} catch (error) {
+  // A single-shot query() throws after yielding an error result. If the
+  // failure was an error result, the per-model breakdown above has already
+  // printed; connection or process failures yield no result message.
+  console.error(`Session ended with an error: ${error}`);
 }
 ```
-
-## [​](#accumulate-costs-across-multiple-calls "#accumulate-costs-across-multiple-calls") Accumulate costs across multiple calls
+## [​](#accumulate-costs-across-multiple-calls) Accumulate costs across multiple calls
 
 Each `query()` call returns its own `total_cost_usd`. The SDK does not provide a session-level total, so if your application makes multiple `query()` calls (for example, in a multi-turn session or across different users), accumulate the totals yourself.
 The following examples run two `query()` calls sequentially, add each call’s `total_cost_usd` to a running total, and print both the per-call and combined cost:
@@ -144,65 +156,82 @@ const prompts = [
 ];
 
 for (const prompt of prompts) {
-  for await (const message of query({ prompt })) {
-    if (message.type === "result") {
-      totalSpend += message.total_cost_usd;
-      console.log(`This call: $${message.total_cost_usd}`);
+  try {
+    for await (const message of query({ prompt })) {
+      if (message.type === "result") {
+        totalSpend += message.total_cost_usd;
+        console.log(`This call: $${message.total_cost_usd}`);
+      }
     }
+  } catch (error) {
+    // A single-shot query() throws after yielding an error result. If the
+    // failure was an error result, this call's cost was already counted;
+    // connection or process failures yield no result message. Continue
+    // with the next prompt.
+    console.error(`Call failed: ${error}`);
   }
 }
 
 console.log(`Total spend: $${totalSpend.toFixed(4)}`);
 ```
-
-## [​](#handle-errors-caching-and-token-discrepancies "#handle-errors-caching-and-token-discrepancies") Handle errors, caching, and token discrepancies
+## [​](#handle-errors-caching-and-token-discrepancies) Handle errors, caching, and token discrepancies
 
 For accurate cost tracking, account for failed conversations, cache token pricing, and occasional reporting inconsistencies.
 
-### [​](#resolve-output-token-discrepancies "#resolve-output-token-discrepancies") Resolve output token discrepancies
+### [​](#resolve-output-token-discrepancies) Resolve output token discrepancies
 
 In rare cases, you might observe different `output_tokens` values for messages with the same ID. When this occurs:
 
 1. **Use the highest value:** the final message in a group typically contains the accurate total.
 2. **Prefer the result message:** the `total_cost_usd` in the result message reflects the SDK’s accumulated estimate across all steps, so it is more reliable than summing per-step values yourself. It is still an estimate and may differ from your actual bill.
-3. **Report inconsistencies:** file issues at the [Claude Code GitHub repository](https://github.com/anthropics/claude-code/issues "https://github.com/anthropics/claude-code/issues").
+3. **Report inconsistencies:** file issues at the [Claude Code GitHub repository](https://github.com/anthropics/claude-code/issues).
 
-### [​](#track-costs-on-failed-conversations "#track-costs-on-failed-conversations") Track costs on failed conversations
+### [​](#track-costs-on-failed-conversations) Track costs on failed conversations
 
 Both success and error result messages include `usage` and `total_cost_usd`. If a conversation fails mid-way, you still consumed tokens up to the point of failure. Always read cost data from the result message regardless of its `subtype`.
 
-### [​](#track-cache-tokens "#track-cache-tokens") Track cache tokens
+### [​](#track-cache-tokens) Track cache tokens
 
-The Agent SDK automatically uses [prompt caching](https://platform.claude.com/docs/en/build-with-claude/prompt-caching "https://platform.claude.com/docs/en/build-with-claude/prompt-caching") to reduce costs on repeated content. You do not need to configure caching yourself. The usage object includes two additional fields for cache tracking:
+The Agent SDK automatically uses [prompt caching](https://platform.claude.com/docs/en/build-with-claude/prompt-caching) to reduce costs on repeated content. You do not need to configure caching yourself. The usage object includes two additional fields for cache tracking:
 
 * `cache_creation_input_tokens`: tokens used to create new cache entries (charged at a higher rate than standard input tokens).
 * `cache_read_input_tokens`: tokens read from existing cache entries (charged at a reduced rate).
 
-Track these separately from `input_tokens` to understand caching savings. In TypeScript, these fields are typed on the [`Usage`](./agent-sdk_typescript#usage "_agent-sdk_typescript#usage".md) object. In Python, they appear as keys in the [`ResultMessage.usage`](./agent-sdk_python#resultmessage "_agent-sdk_python#resultmessage".md) dict (for example, `message.usage.get("cache_read_input_tokens", 0)`).
+Track these separately from `input_tokens` to understand caching savings. In TypeScript, these fields are typed on the [`Usage`](./agent-sdk_typescript.md#usage) object. In Python, they appear as keys in the [`ResultMessage.usage`](./agent-sdk_python.md#resultmessage) dict (for example, `message.usage.get("cache_read_input_tokens", 0)`).
 
-### [​](#extend-the-prompt-cache-ttl-to-one-hour "#extend-the-prompt-cache-ttl-to-one-hour") Extend the prompt cache TTL to one hour
+### [​](#extend-the-prompt-cache-ttl-to-one-hour) Extend the prompt cache TTL to one hour
 
-Cache entries written by the SDK use a 5-minute TTL by default when you authenticate with an API key or run on Amazon Bedrock, Google Cloud Vertex AI, or Microsoft Foundry. If your workload runs many short sessions against the same system prompt and context with gaps longer than 5 minutes between them, the cache expires between sessions and each new session pays full input price.
-To request a 1-hour TTL on cache writes, set the [`ENABLE_PROMPT_CACHING_1H`](./env-vars "_env-vars".md) environment variable. You can export it in your shell or container environment, or pass it through `options.env`.
-The following example enables 1-hour TTL for an agent running on Bedrock:
+Cache entries written by the SDK use a 5-minute TTL by default when you authenticate with an API key or run on Amazon Bedrock, Google Cloud’s Agent Platform, or Microsoft Foundry. If your workload runs many short sessions against the same system prompt and context with gaps longer than 5 minutes between them, the cache expires between sessions and each new session pays full input price.
+To request a 1-hour TTL on cache writes, set the [`ENABLE_PROMPT_CACHING_1H`](./env-vars.md) environment variable. You can export it in your shell or container environment, or pass it through `options.env`.
+The following example enables 1-hour TTL for an agent running on Amazon Bedrock:
 
 Python
 
 TypeScript
 
 ```
-options = ClaudeAgentOptions(
-    env={
-        "CLAUDE_CODE_USE_BEDROCK": "1",
-        "ENABLE_PROMPT_CACHING_1H": "1",
-    },
-)
+from claude_agent_sdk import ClaudeAgentOptions, query
+import asyncio
+
+
+async def main():
+    options = ClaudeAgentOptions(
+        env={
+            "CLAUDE_CODE_USE_BEDROCK": "1",
+            "ENABLE_PROMPT_CACHING_1H": "1",
+        },
+    )
+
+    async for message in query(prompt="Summarize this project", options=options):
+        print(message)
+
+
+asyncio.run(main())
 ```
+Cache writes with a 1-hour TTL are billed at a higher rate than 5-minute writes, so enabling this trades higher write cost for more cache reads. See [prompt caching pricing](https://platform.claude.com/docs/en/build-with-claude/prompt-caching) for details. Claude subscription users already receive 1-hour TTL automatically and do not need to set this variable.
 
-Cache writes with a 1-hour TTL are billed at a higher rate than 5-minute writes, so enabling this trades higher write cost for more cache reads. See [prompt caching pricing](https://platform.claude.com/docs/en/build-with-claude/prompt-caching "https://platform.claude.com/docs/en/build-with-claude/prompt-caching") for details. Claude subscription users already receive 1-hour TTL automatically and do not need to set this variable.
+## [​](#related-documentation) Related documentation
 
-## [​](#related-documentation "#related-documentation") Related documentation
-
-* [TypeScript SDK Reference](./agent-sdk_typescript "_agent-sdk_typescript".md) - Complete API documentation
-* [SDK Overview](./agent-sdk_overview "_agent-sdk_overview".md) - Getting started with the SDK
-* [SDK Permissions](./agent-sdk_permissions "_agent-sdk_permissions".md) - Managing tool permissions
+* [TypeScript SDK Reference](./agent-sdk_typescript.md) - Complete API documentation
+* [SDK Overview](./agent-sdk_overview.md) - Getting started with the SDK
+* [SDK Permissions](./agent-sdk_permissions.md) - Managing tool permissions
