@@ -1,10 +1,4 @@
-# Agent Sdk Streaming Vs Single Mode
-
-> ## Documentation Index
->
-> Fetch the complete documentation index at: [https://code.claude.com/docs/llms.txt](https://code.claude.com/docs/llms.txt "https://code.claude.com/docs/llms.txt")
->
-> Use this file to discover all available pages before exploring further.
+# Agent-Sdk Streaming-Vs-Single-Mode
 
 ## [​](#overview "#overview") Overview
 
@@ -36,10 +30,6 @@ Send multiple messages that process sequentially, with ability to interrupt
 
 Full access to all tools and custom MCP servers during the session
 
-## Hooks Support
-
-Use lifecycle hooks to customize behavior at various points
-
 ## Real-time Feedback
 
 See responses as they’re generated, not just final results
@@ -50,11 +40,13 @@ Maintain conversation context across multiple turns naturally
 
 ### [​](#implementation-example "#implementation-example") Implementation Example
 
+These examples read an image named `diagram.png` from the working directory. Create one there first, or change the filename to point at your own image.
+
 TypeScript
 
 Python
 
-```
+```text
 import { query, type SDKUserMessage } from "@anthropic-ai/claude-agent-sdk";
 import { readFile } from "fs/promises";
 
@@ -110,6 +102,75 @@ for await (const message of query({
 }
 ```
 
+```text
+from claude_agent_sdk import (
+    ClaudeSDKClient,
+    ClaudeAgentOptions,
+    AssistantMessage,
+    TextBlock,
+)
+import asyncio
+import base64
+
+
+async def streaming_analysis():
+    async def message_generator():
+        # First message
+        yield {
+            "type": "user",
+            "message": {
+                "role": "user",
+                "content": "Analyze this codebase for security issues",
+            },
+        }
+
+        # Wait for conditions
+        await asyncio.sleep(2)
+
+        # Follow-up with image
+        with open("diagram.png", "rb") as f:
+            image_data = base64.b64encode(f.read()).decode()
+
+        yield {
+            "type": "user",
+            "message": {
+                "role": "user",
+                "content": [
+                    {"type": "text", "text": "Review this architecture diagram"},
+                    {
+                        "type": "image",
+                        "source": {
+                            "type": "base64",
+                            "media_type": "image/png",
+                            "data": image_data,
+                        },
+                    },
+                ],
+            },
+        }
+
+    # Use ClaudeSDKClient for streaming input
+    options = ClaudeAgentOptions(max_turns=10, allowed_tools=["Read", "Grep"])
+
+    async with ClaudeSDKClient(options) as client:
+        # Send streaming input
+        await client.query(message_generator())
+
+        # Process responses
+        async for message in client.receive_response():
+            if isinstance(message, AssistantMessage):
+                for block in message.content:
+                    if isinstance(block, TextBlock):
+                        print(block.text)
+
+
+asyncio.run(streaming_analysis())
+```
+
+When you run the example, the TypeScript version prints each response as it completes. The Python version’s `receive_response()` loop ends at the first result message, so it prints the security analysis; to read both responses, use one `query()` and `receive_response()` pair per message as shown in the [Python reference’s example of continuing a conversation](./agent-sdk_python#example-continuing-a-conversation "._agent-sdk_python#example-continuing-a-conversation".md).
+
+In the TypeScript SDK, if your message generator throws, for example when a file it reads is missing, the stream ends with an error that reads `Claude Code process aborted by user` instead of the original error, so check the code inside your generator first when you see that message. The error may also be preceded by a long minified line of bundled SDK source, so read to the end of the output for the error text.In the Python SDK, a generator exception is logged at debug level and the session stalls without raising, so if a streaming session hangs with no output, enable debug logging and check your generator.
+
 ## [​](#single-message-input "#single-message-input") Single Message Input
 
 Single message input is simpler but more limited.
@@ -119,7 +180,7 @@ Single message input is simpler but more limited.
 Use single message input when:
 
 * You need a one-shot response
-* You do not need image attachments, hooks, etc.
+* You do not need image attachments or mid-session control methods
 * You need to operate in a stateless environment, such as a lambda function
 
 ### [​](#limitations "#limitations") Limitations
@@ -129,8 +190,9 @@ Single message input mode does **not** support:
 * Direct image attachments in messages
 * Dynamic message queueing
 * Real-time interruption
-* Hook integration
 * Natural multi-turn conversations
+
+If a query ends with an error result, such as `error_max_turns`, a single message `query()` call raises an error that includes the failure text after yielding the final result message, so wrap the loop in a try block if your code needs to continue. See [Handle the result](./agent-sdk_agent-loop#handle-the-result "._agent-sdk_agent-loop#handle-the-result".md) for the result subtypes.
 
 ### [​](#implementation-example-2 "#implementation-example-2") Implementation Example
 
@@ -138,32 +200,77 @@ TypeScript
 
 Python
 
-```
+```text
 import { query } from "@anthropic-ai/claude-agent-sdk";
 
 // Simple one-shot query
-for await (const message of query({
-  prompt: "Explain the authentication flow",
-  options: {
-    maxTurns: 1,
-    allowedTools: ["Read", "Grep"]
+// query() throws after an error result, such as error_max_turns
+try {
+  for await (const message of query({
+    prompt: "Explain the authentication flow",
+    options: {
+      maxTurns: 5,
+      allowedTools: ["Read", "Grep"]
+    }
+  })) {
+    if (message.type === "result" && message.subtype === "success") {
+      console.log(message.result);
+    }
   }
-})) {
-  if (message.type === "result" && message.subtype === "success") {
-    console.log(message.result);
-  }
+} catch (error) {
+  console.error(`Query failed: ${error}`);
 }
 
 // Continue conversation with session management
-for await (const message of query({
-  prompt: "Now explain the authorization process",
-  options: {
-    continue: true,
-    maxTurns: 1
+try {
+  for await (const message of query({
+    prompt: "Now explain the authorization process",
+    options: {
+      continue: true,
+      maxTurns: 5
+    }
+  })) {
+    if (message.type === "result" && message.subtype === "success") {
+      console.log(message.result);
+    }
   }
-})) {
-  if (message.type === "result" && message.subtype === "success") {
-    console.log(message.result);
-  }
+} catch (error) {
+  console.error(`Query failed: ${error}`);
 }
 ```
+
+```text
+from claude_agent_sdk import query, ClaudeAgentOptions, ResultMessage
+import asyncio
+
+
+async def single_message_example():
+    # Simple one-shot query using query() function
+    # query() raises after an error result, such as error_max_turns
+    try:
+        async for message in query(
+            prompt="Explain the authentication flow",
+            options=ClaudeAgentOptions(max_turns=5, allowed_tools=["Read", "Grep"]),
+        ):
+            if isinstance(message, ResultMessage) and message.subtype == "success":
+                print(message.result)
+    # The SDK raises a plain Exception for error results, so match Exception here
+    except Exception as e:
+        print(f"Query failed: {e}")
+
+    # Continue conversation with session management
+    try:
+        async for message in query(
+            prompt="Now explain the authorization process",
+            options=ClaudeAgentOptions(continue_conversation=True, max_turns=5),
+        ):
+            if isinstance(message, ResultMessage) and message.subtype == "success":
+                print(message.result)
+    except Exception as e:
+        print(f"Query failed: {e}")
+
+
+asyncio.run(single_message_example())
+```
+
+When you run the example, each query prints its final result text: first the authentication explanation, then the authorization explanation.

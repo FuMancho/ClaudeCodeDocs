@@ -1,25 +1,21 @@
 # Troubleshooting
 
-> ## Documentation Index
->
-> Fetch the complete documentation index at: [https://code.claude.com/docs/llms.txt](https://code.claude.com/docs/llms.txt "https://code.claude.com/docs/llms.txt")
->
-> Use this file to discover all available pages before exploring further.
-
 This page covers performance, stability, and search problems once Claude Code is running. For other issues, start with the page that matches where you’re stuck:
+
 
 | Symptom | Go to |
 | --- | --- |
-| `command not found`, install fails, PATH issues, `EACCES`, TLS errors | [Troubleshoot installation and login](./troubleshoot-install "_troubleshoot-install".md) |
-| Login loops, OAuth errors, `403 Forbidden`, “organization disabled”, Bedrock/Vertex/Foundry credentials | [Troubleshoot installation and login](./troubleshoot-install#login-and-authentication "_troubleshoot-install#login-and-authentication".md) |
-| Settings not applying, hooks not firing, MCP servers not loading | [Debug your configuration](./debug-your-config "_debug-your-config".md) |
-| `API Error: 5xx`, `529 Overloaded`, `429`, request validation errors | [Error reference](./errors "_errors".md) |
-| `model not found` or `you may not have access to it` | [Error reference](./errors#theres-an-issue-with-the-selected-model "_errors#theres-an-issue-with-the-selected-model".md) |
-| VS Code extension not connecting or detecting Claude | [VS Code integration](./vs-code#fix-common-issues "_vs-code#fix-common-issues".md) |
-| JetBrains plugin or IDE not detected | [JetBrains integration](./jetbrains#troubleshooting "_jetbrains#troubleshooting".md) |
+| `command not found`, install fails, PATH issues, `EACCES`, TLS errors | [Troubleshoot installation and login](./troubleshoot-install "._troubleshoot-install".md) |
+| Update or install download fails with `The connection dropped while downloading the update` or `aborted` | [Error reference](./errors#the-connection-dropped-while-downloading-the-update "._errors#the-connection-dropped-while-downloading-the-update".md) |
+| Login loops, OAuth errors, `403 Forbidden`, “organization disabled”, Amazon Bedrock, Google Cloud’s Agent Platform, or Microsoft Foundry credentials | [Troubleshoot installation and login](./troubleshoot-install#login-and-authentication "._troubleshoot-install#login-and-authentication".md) |
+| Settings not applying, hooks not firing, MCP servers not loading | [Debug your configuration](./debug-your-config "._debug-your-config".md) |
+| `API Error: 5xx`, `529 Overloaded`, `429`, request validation errors | [Error reference](./errors "._errors".md) |
+| `model not found` or `you may not have access to it` | [Error reference](./errors#theres-an-issue-with-the-selected-model "._errors#theres-an-issue-with-the-selected-model".md) |
+| VS Code extension not connecting or detecting Claude | [VS Code integration](./vs-code#fix-common-issues "._vs-code#fix-common-issues".md) |
+| JetBrains plugin or IDE not detected | [JetBrains integration](./jetbrains#troubleshooting "._jetbrains#troubleshooting".md) |
 | High CPU or memory, slow responses, hangs, search not finding files | [Performance and stability](#performance-and-stability "#performance-and-stability") below |
 
-If you’re not sure which applies, run `/doctor` inside Claude Code for an automated check of your installation, settings, MCP servers, and context usage. If `claude` won’t start at all, run `claude doctor` from your shell instead.
+If you’re not sure which applies, run `/doctor` inside Claude Code for an automated check of your installation, settings, extensions, and context usage; it proposes fixes it can apply after you confirm. If `claude` won’t start at all, run `claude doctor` from your shell instead. Run `/mcp` to check MCP server status.
 
 ## [​](#performance-and-stability "#performance-and-stability") Performance and stability
 
@@ -32,9 +28,16 @@ Claude Code is designed to work with most development environments, but may cons
 1. Use `/compact` regularly to reduce context size
 2. Close and restart Claude Code between major tasks
 3. Consider adding large build directories to your `.gitignore` file
+4. Restart with [`claude --safe-mode`](./cli-reference#cli-flags "._cli-reference#cli-flags".md) to check whether a plugin, MCP server, or hook is the source. It disables all customizations for the session; if usage drops, see [Debug your configuration](./debug-your-config#test-against-a-clean-configuration "._debug-your-config#test-against-a-clean-configuration".md) to find which one
 
 If memory usage stays high after these steps, run `/heapdump` to write a JavaScript heap snapshot and a memory breakdown to `~/Desktop`. On Linux without a Desktop folder, the files are written to your home directory.
-The breakdown shows resident set size, JS heap, array buffers, and unaccounted native memory, which helps identify whether the growth is in JavaScript objects or in native code. To inspect retainers, open the `.heapsnapshot` file in Chrome DevTools under Memory → Load. Attach both files when reporting a memory issue on [GitHub](https://github.com/anthropics/claude-code/issues "https://github.com/anthropics/claude-code/issues").
+The breakdown shows resident set size, JS heap, array buffers, and unaccounted native memory, which helps identify whether the growth is in JavaScript objects or in native code. To inspect retainers, open the `.heapsnapshot` file in Chrome DevTools under Memory → Load; the breakdown is the file ending in `-diagnostics.json`.
+
+The `.heapsnapshot` file contains every string in the process. Don’t attach it to a public issue or share it. Attach only the `-diagnostics.json` file when reporting a memory issue on [GitHub](https://github.com/anthropics/claude-code/issues "https://github.com/anthropics/claude-code/issues"). That file contains memory statistics and no conversation content or credentials.
+
+### [​](#large-tables-are-cut-off-in-the-terminal "#large-tables-are-cut-off-in-the-terminal") Large tables are cut off in the terminal
+
+A Markdown table with more than 200 rows renders its first 200 rows followed by a `… N more rows not shown` line. Only the display is capped: the full table stays in the conversation, and [`/copy`](./commands "._commands".md) copies every row. For a table too large to read in the terminal, ask Claude to write it to a file instead. Before v2.1.208, Claude Code rendered every row, so resuming a session that contained a very large table could stall while it re-rendered.
 
 ### [​](#auto-compaction-stops-with-a-thrashing-error "#auto-compaction-stops-with-a-thrashing-error") Auto-compaction stops with a thrashing error
 
@@ -43,7 +46,7 @@ To recover:
 
 1. Ask Claude to read the oversized file in smaller chunks, such as a specific line range or function, instead of the whole file
 2. Run `/compact` with a focus that drops the large output, for example `/compact keep only the plan and the diff`
-3. Move the large-file work to a [subagent](./sub-agents "_sub-agents".md) so it runs in a separate context window
+3. Move the large-file work to a [subagent](./sub-agents "._sub-agents".md) so it runs in a separate context window
 4. Run `/clear` if the earlier conversation is no longer needed
 
 ### [​](#command-hangs-or-freezes "#command-hangs-or-freezes") Command hangs or freezes
@@ -55,6 +58,10 @@ If Claude Code seems unresponsive:
 
 Restarting doesn’t lose your conversation. Run `claude --resume` in the same directory to pick the session back up.
 
+### [​](#garbled-or-corrupted-text-in-an-editor’s-integrated-terminal "#garbled-or-corrupted-text-in-an-editor’s-integrated-terminal") Garbled or corrupted text in an editor’s integrated terminal
+
+If characters render as boxes, smears, or the wrong glyphs when running Claude Code in the VS Code, Cursor, or Devin Desktop integrated terminal, the terminal’s GPU renderer is likely the cause. Run `/terminal-setup` inside Claude Code to set `terminal.integrated.gpuAcceleration` to `"off"`, or set it manually in your editor settings and reload the window. See [Terminal configuration](./terminal-config "._terminal-config".md) for the other settings `/terminal-setup` writes.
+
 ### [​](#search-and-discovery-issues "#search-and-discovery-issues") Search and discovery issues
 
 If the Search tool, `@file` mentions, custom agents, or custom skills aren’t finding files, the bundled `ripgrep` binary may not run on your system. Install your platform’s `ripgrep` package and tell Claude Code to use it instead:
@@ -65,33 +72,35 @@ If the Search tool, `@file` mentions, custom agents, or custom skills aren’t f
 * Arch
 * Windows
 
-```
+```text
 brew install ripgrep
 ```
 
-```
+```text
 sudo apt install ripgrep
 ```
 
-```
+```text
 apk add ripgrep
 ```
 
-```
+`ripgrep` is in Alpine’s community repository. If `apk` reports that the package is missing, see [Alpine Linux setup](./setup#alpine-linux-and-musl-based-distributions "._setup#alpine-linux-and-musl-based-distributions".md).
+
+```text
 pacman -S ripgrep
 ```
 
-```
+```text
 winget install BurntSushi.ripgrep.MSVC
 ```
 
-Then set `USE_BUILTIN_RIPGREP=0` in your [environment](./env-vars "_env-vars".md).
+Then set `USE_BUILTIN_RIPGREP=0` in your [environment](./env-vars "._env-vars".md). To confirm the switch took effect, run `claude doctor` in your terminal and check that the Search line shows the path of your system ripgrep instead of `OK (bundled)`.
 
 ### [​](#slow-or-incomplete-search-results-on-wsl "#slow-or-incomplete-search-results-on-wsl") Slow or incomplete search results on WSL
 
 Disk read performance penalties when [working across file systems on WSL](https://learn.microsoft.com/en-us/windows/wsl/filesystems "https://learn.microsoft.com/en-us/windows/wsl/filesystems") may result in fewer-than-expected matches when using Claude Code on WSL. Search still functions, but returns fewer results than on a native filesystem.
 
-`/doctor` will show Search as OK in this case.
+`claude doctor` shows Search as OK in this case.
 
 **Solutions:**
 
@@ -103,7 +112,9 @@ Disk read performance penalties when [working across file systems on WSL](https:
 
 If you’re experiencing issues not covered here:
 
-1. Run `/doctor` to check installation health, settings validity, MCP configuration, and context usage in one pass
+1. Run `/doctor` for a setup checkup and `/mcp` to check MCP server status
 2. Use the `/feedback` command within Claude Code to report problems directly to Anthropic
 3. Check the [GitHub repository](https://github.com/anthropics/claude-code "https://github.com/anthropics/claude-code") for known issues
 4. Ask Claude directly about its capabilities and features. Claude has built-in access to its documentation.
+
+For account, billing, or subscription problems, contact Anthropic support instead: sign in at [claude.ai](https://claude.ai "https://claude.ai") (Console users: [platform.claude.com](https://platform.claude.com "https://platform.claude.com")), click your initials in the lower left, and select **Get help**. See [How to get support](https://support.claude.com/en/articles/9015913-how-to-get-support "https://support.claude.com/en/articles/9015913-how-to-get-support") for the full flow, including who can reach a human agent on each plan.

@@ -1,11 +1,3 @@
-# Agent Sdk Session Storage
-
-> ## Documentation Index
->
-> Fetch the complete documentation index at: [https://code.claude.com/docs/llms.txt](https://code.claude.com/docs/llms.txt "https://code.claude.com/docs/llms.txt")
->
-> Use this file to discover all available pages before exploring further.
-
 By default, the SDK writes session transcripts to JSONL files under `~/.claude/projects/` on the local filesystem. A `SessionStore` adapter lets you mirror those transcripts to your own backend, such as S3, Redis, or a database, so a session created on one host can be resumed on another.
 Common reasons to use a session store:
 
@@ -15,15 +7,15 @@ Common reasons to use a session store:
 
 ## [​](#the-sessionstore-interface "#the-sessionstore-interface") The `SessionStore` interface
 
-A `SessionStore` is an object with two required methods, `append` and `load`, and three optional methods. The SDK calls `append` to write transcript entries during a query and `load` to read them back for resume.
+A `SessionStore` is an object with two required methods, `append` and `load`, and four optional methods. The SDK calls `append` to write transcript entries during a query and `load` to read them back for resume.
 
 TypeScript
 
 Python
 
-```
+```text
 // Exported from @anthropic-ai/claude-agent-sdk as
-// SessionStore, SessionKey, SessionStoreEntry.
+// SessionStore, SessionKey, SessionStoreEntry, SessionSummaryEntry.
 
 type SessionKey = {
   projectKey: string;
@@ -40,23 +32,67 @@ type SessionStore = {
   listSessions?(
     projectKey: string,
   ): Promise<Array<{ sessionId: string; mtime: number }>>;
+  listSessionSummaries?(projectKey: string): Promise<SessionSummaryEntry[]>;
   delete?(key: SessionKey): Promise<void>;
   listSubkeys?(key: {
     projectKey: string;
     sessionId: string;
   }): Promise<string[]>;
 };
+
+type SessionSummaryEntry = {
+  sessionId: string;
+  mtime: number;
+  data: Record<string, unknown>;
+};
+```
+
+```text
+# Exported from claude_agent_sdk as
+# SessionStore, SessionKey, SessionStoreEntry, SessionSummaryEntry.
+
+class SessionKey(TypedDict):
+    project_key: str
+    session_id: str
+    subpath: NotRequired[str]
+
+class SessionStore(Protocol):
+    # Required
+    async def append(
+        self, key: SessionKey, entries: list[SessionStoreEntry]
+    ) -> None: ...
+    async def load(self, key: SessionKey) -> list[SessionStoreEntry] | None: ...
+
+    # Optional — omit or raise NotImplementedError
+    async def list_sessions(
+        self, project_key: str
+    ) -> list[SessionStoreListEntry]: ...
+    async def list_session_summaries(
+        self, project_key: str
+    ) -> list[SessionSummaryEntry]: ...
+    async def delete(self, key: SessionKey) -> None: ...
+    async def list_subkeys(self, key: SessionListSubkeysKey) -> list[str]: ...
+
+class SessionSummaryEntry(TypedDict):
+    session_id: str
+    mtime: int
+    data: dict[str, Any]
 ```
 
 `SessionKey` addresses one transcript. `projectKey` is a stable, filesystem-safe encoding of the working directory, `sessionId` is the session UUID, and `subpath` is set when the entry belongs to a subagent transcript or sidecar file rather than the main conversation. Treat `subpath` as an opaque key suffix; it follows the on-disk layout, for example `subagents/agent-<id>`. When `subpath` is undefined the key refers to the main transcript.
 
+
 | Method | Required | Called when |
 | --- | --- | --- |
 | `append` | Yes | After each batch of transcript entries is written locally. Entries are JSON-safe objects, one per line in the local JSONL. |
-| `load` | Yes | Once before the subprocess spawns, when `resume` is set. Return `null` if the session is unknown. |
-| `listSessions` | No | By `listSessions({ sessionStore })` and by `query()`/`startup()` with `continue: true`. If undefined, those calls throw. |
-| `delete` | No | By `deleteSession({ sessionStore })`. Deleting the main key (no `subpath`) must cascade to all subkeys for that session. If undefined, deletion is a no-op, which suits append-only backends. |
+| `load` | Yes | Before the subprocess spawns when `resume` is set, and once per session when listing falls back from `listSessionSummaries`. Return `null` if the session is unknown. |
+| `listSessions` | No | By `listSessions({ sessionStore })` and by `query()`/`startup()` with `continue: true`. If undefined, `continue: true` throws, and `listSessions({ sessionStore })` throws unless `listSessionSummaries` is implemented. |
+| `listSessionSummaries` | No | By `listSessions({ sessionStore })` to read metadata for all sessions in one call. Maintain the summaries inside `append`. If undefined, listing falls back to `listSessions` plus a per-session `load`. |
+| `delete` | No | By `deleteSession({ sessionStore })`. Deleting the main key (no `subpath`) must cascade to all subkeys for that session and also remove the session’s summary entry, so a deleted session stops appearing in `listSessionSummaries`. If undefined, deletion is a no-op, which suits append-only backends. |
 | `listSubkeys` | No | During resume, to discover subagent transcripts. If undefined, only the main transcript is restored. |
+
+In a `SessionSummaryEntry`, `mtime` is the sidecar’s storage write time and must share a clock source with the `mtime` values `listSessions` returns. `data` is opaque SDK-owned state; persist it verbatim without interpreting it.
+Build the entries by calling the exported `foldSessionSummary` helper, `fold_session_summary` in Python, on each batch inside `append`. Skip batches whose key has a `subpath`; subagent transcripts must not contribute to the main session’s summary. The fold never sets `mtime`: stamp it at persist time, through the `options.mtime` argument in TypeScript or by overwriting the field on the returned entry in Python. Concurrent `append` calls for the same session can race on the sidecar, so serialize the read-fold-write with a transaction, a compare-and-swap, or a per-session lock; the fold itself is pure.
 
 ## [​](#quick-start "#quick-start") Quick start
 
@@ -66,19 +102,26 @@ TypeScript
 
 Python
 
-```
+```text
 import { query, InMemorySessionStore } from "@anthropic-ai/claude-agent-sdk";
 
 const store = new InMemorySessionStore();
 
 let sessionId: string | undefined;
-for await (const message of query({
-  prompt: "List the TypeScript files under src/",
-  options: { sessionStore: store },
-})) {
-  if (message.type === "result") {
-    sessionId = message.session_id;
+try {
+  for await (const message of query({
+    prompt: "List the TypeScript files under src/",
+    options: { sessionStore: store },
+  })) {
+    if (message.type === "result") {
+      sessionId = message.session_id;
+    }
   }
+} catch (error) {
+  // A single-shot query() throws after yielding an error result. If the
+  // failure was an error result, sessionId was already captured by the loop
+  // above; connection or process failures yield no result message.
+  console.error(`Session ended with an error: ${error}`);
 }
 
 // Resume from the store. The agent has full context from the first call.
@@ -92,14 +135,56 @@ for await (const message of query({
 }
 ```
 
+```text
+import asyncio
+from claude_agent_sdk import (
+    ClaudeAgentOptions,
+    InMemorySessionStore,
+    ResultMessage,
+    query,
+)
+
+store = InMemorySessionStore()
+
+
+async def main():
+    session_id = None
+    try:
+        async for message in query(
+            prompt="List the Python files under src/",
+            options=ClaudeAgentOptions(session_store=store),
+        ):
+            if isinstance(message, ResultMessage):
+                session_id = message.session_id
+    except Exception as error:
+        # A single-shot query() raises after yielding an error result. If the
+        # failure was an error result, session_id was already captured by the
+        # loop above; connection or process failures yield no result message.
+        print(f"Session ended with an error: {error}")
+
+    # Resume from the store. The agent has full context from the first call.
+    async for message in query(
+        prompt="Summarize what those files do",
+        options=ClaudeAgentOptions(session_store=store, resume=session_id),
+    ):
+        if isinstance(message, ResultMessage) and message.subtype == "success":
+            print(message.result)
+
+
+asyncio.run(main())
+```
+
+The second query prints a summary of the files from the first query, which shows the agent resumed with full context from the store.
+
 ## [​](#write-your-own-adapter "#write-your-own-adapter") Write your own adapter
 
-Implement `append` and `load` against your backend. Add `listSessions`, `delete`, and `listSubkeys` if you want `listSessions()`, `deleteSession()`, and subagent resume to work against the store.
+Implement `append` and `load` against your backend. Add `listSessions`, `listSessionSummaries`, `delete`, and `listSubkeys` if you want `listSessions()`, one-call metadata reads, `deleteSession()`, and subagent resume to work against the store.
 Entries passed to `append` are typed as `SessionStoreEntry` (a `{ type: string; ... }` object). Treat them as opaque JSON-safe values: persist them in order and return them from `load` in the same order. `load` must return entries that are deep-equal to what was appended; byte-equal serialization is not required, so backends like Postgres `jsonb` that reorder object keys are fine.
 
 ## [​](#reference-implementations "#reference-implementations") Reference implementations
 
 The TypeScript SDK repository includes runnable reference adapters for S3, Redis, and Postgres under [`examples/session-stores/`](https://github.com/anthropics/claude-agent-sdk-typescript/tree/main/examples/session-stores "https://github.com/anthropics/claude-agent-sdk-typescript/tree/main/examples/session-stores"). They are not published to npm; copy the `src/` file you need into your project and install the corresponding backend client.
+
 
 | Adapter | Backend client | Storage model |
 | --- | --- | --- |
@@ -111,7 +196,7 @@ Each adapter takes a pre-configured client instance, so you control credentials,
 
 TypeScript
 
-```
+```text
 import { query } from "@anthropic-ai/claude-agent-sdk";
 import { S3Client } from "@aws-sdk/client-s3";
 import { S3SessionStore } from "./S3SessionStore"; // copied from examples/session-stores/s3
@@ -147,25 +232,26 @@ In TypeScript, copy [`shared/conformance.ts`](https://github.com/anthropics/clau
 
 Python
 
-```
+```text
 import pytest
 from claude_agent_sdk.testing import run_session_store_conformance
 
 
 @pytest.mark.asyncio
 async def test_my_store_conformance():
-    await run_session_store_conformance(MyRedisStore)
+    await run_session_store_conformance(MyRedisStore)  # Your adapter class
 ```
 
 ## [​](#behavior-notes "#behavior-notes") Behavior notes
 
 ### [​](#dual-write-architecture "#dual-write-architecture") Dual-write architecture
 
-The store is a mirror, not a replacement. The Claude Code subprocess always writes to local disk first; the SDK then forwards each batch to `append()`. If you want the local copy to be ephemeral, point `CLAUDE_CONFIG_DIR` at a temp directory in `options.env`. Because the mirror depends on local writes, `sessionStore` cannot be combined with `persistSession: false`; the SDK throws if you set both. It also throws if combined with `enableFileCheckpointing`, since file-history backup blobs are written directly to local disk and are not mirrored to the store.
+The store is a mirror, not a replacement. The Claude Code subprocess always writes to local disk first; the SDK then forwards each batch to `append()`. If you want the local copy to be ephemeral, point `CLAUDE_CONFIG_DIR` at a temp directory in `options.env`.
+Because the mirror depends on local writes, the TypeScript SDK throws if you combine `sessionStore` with `persistSession: false`. Both SDKs also throw if you combine the store with file checkpointing, `enableFileCheckpointing` in TypeScript or `enable_file_checkpointing` in Python, since file-history backup blobs are written directly to local disk and are not mirrored to the store.
 
 ### [​](#mirror-writes-are-best-effort "#mirror-writes-are-best-effort") Mirror writes are best-effort
 
-If `append()` rejects or times out, the error is logged, a `{ type: "system", subtype: "mirror_error" }` message is emitted into the iterator, and the query continues. The local transcript is already durable on disk, so a store outage does not interrupt the agent or lose data locally. Batches that fail are not retried, so monitor for `mirror_error` if you need to detect store data loss.
+If `append()` rejects, the SDK retries the batch up to two more times with a short backoff, for at most three attempts in total. A call that times out isn’t retried, since the original call may still land. If the batch still fails, the error is logged, a `{ type: "system", subtype: "mirror_error" }` message is emitted into the iterator, the batch is dropped, and the query continues. The local transcript is already durable on disk, so a store outage doesn’t interrupt the agent or lose data locally. Monitor for `mirror_error` if you need to detect store data loss. Because a retried batch can re-deliver entries that already landed, deduplicate by `entry.uuid` in your `append()` implementation.
 
 ### [​](#getsessionmessages-returns-the-post-compaction-chain "#getsessionmessages-returns-the-post-compaction-chain") `getSessionMessages` returns the post-compaction chain
 
@@ -185,23 +271,25 @@ The SDK never deletes from your store on its own. Retention is the adapter’s r
 
 ## [​](#supported-on "#supported-on") Supported on
 
-The following SDK functions accept a `sessionStore` option and operate against the store instead of the local filesystem when it is provided:
+The following TypeScript SDK functions accept a `sessionStore` option and operate against the store instead of the local filesystem when it is provided:
 
-* [`query()`](./agent-sdk_typescript#query "_agent-sdk_typescript#query".md)
-* [`startup()`](./agent-sdk_typescript#startup "_agent-sdk_typescript#startup".md)
-* [`listSessions()`](./agent-sdk_typescript#listsessions "_agent-sdk_typescript#listsessions".md)
-* [`getSessionInfo()`](./agent-sdk_typescript#getsessioninfo "_agent-sdk_typescript#getsessioninfo".md)
-* [`getSessionMessages()`](./agent-sdk_typescript#getsessionmessages "_agent-sdk_typescript#getsessionmessages".md)
-* [`renameSession()`](./agent-sdk_typescript#renamesession "_agent-sdk_typescript#renamesession".md)
-* [`tagSession()`](./agent-sdk_typescript#tagsession "_agent-sdk_typescript#tagsession".md)
-* [`deleteSession()`](./agent-sdk_typescript "_agent-sdk_typescript".md)
-* [`forkSession()`](./agent-sdk_typescript "_agent-sdk_typescript".md)
-* [`listSubagents()`](./agent-sdk_typescript "_agent-sdk_typescript".md)
-* [`getSubagentMessages()`](./agent-sdk_typescript "_agent-sdk_typescript".md)
+* [`query()`](./agent-sdk_typescript#query "._agent-sdk_typescript#query".md)
+* [`startup()`](./agent-sdk_typescript#startup "._agent-sdk_typescript#startup".md)
+* [`listSessions()`](./agent-sdk_typescript#listsessions "._agent-sdk_typescript#listsessions".md)
+* [`getSessionInfo()`](./agent-sdk_typescript#getsessioninfo "._agent-sdk_typescript#getsessioninfo".md)
+* [`getSessionMessages()`](./agent-sdk_typescript#getsessionmessages "._agent-sdk_typescript#getsessionmessages".md)
+* [`renameSession()`](./agent-sdk_typescript#renamesession "._agent-sdk_typescript#renamesession".md)
+* [`tagSession()`](./agent-sdk_typescript#tagsession "._agent-sdk_typescript#tagsession".md)
+* [`deleteSession()`](./agent-sdk_typescript "._agent-sdk_typescript".md)
+* [`forkSession()`](./agent-sdk_typescript "._agent-sdk_typescript".md)
+* [`listSubagents()`](./agent-sdk_typescript "._agent-sdk_typescript".md)
+* [`getSubagentMessages()`](./agent-sdk_typescript "._agent-sdk_typescript".md)
+
+In the Python SDK, set `session_store` in [`ClaudeAgentOptions`](./agent-sdk_python#claudeagentoptions "._agent-sdk_python#claudeagentoptions".md) to run `query()` against a store. The remaining operations each have a store-backed Python function that takes the store as an argument: `list_sessions_from_store()`, `get_session_info_from_store()`, `get_session_messages_from_store()`, `list_subagents_from_store()`, `get_subagent_messages_from_store()`, `rename_session_via_store()`, `tag_session_via_store()`, `delete_session_via_store()`, and `fork_session_via_store()`. `startup()` has no Python equivalent. The standalone functions documented in the [Python SDK reference](./agent-sdk_python#functions "._agent-sdk_python#functions".md), such as `list_sessions()`, read local session files.
 
 ## [​](#related-resources "#related-resources") Related resources
 
-* [Work with sessions](./agent-sdk_sessions "_agent-sdk_sessions".md): Continue, resume, and fork without a custom store
-* [Host the SDK](./agent-sdk_hosting "_agent-sdk_hosting".md): Deployment patterns for multi-host environments
-* [TypeScript `Options`](./agent-sdk_typescript#options "_agent-sdk_typescript#options".md): Full option reference
+* [Work with sessions](./agent-sdk_sessions "._agent-sdk_sessions".md): Continue, resume, and fork without a custom store
+* [Host the SDK](./agent-sdk_hosting "._agent-sdk_hosting".md): Deployment patterns for multi-host environments
+* [TypeScript `Options`](./agent-sdk_typescript#options "._agent-sdk_typescript#options".md): Full option reference
 * [`examples/session-stores/`](https://github.com/anthropics/claude-agent-sdk-typescript/tree/main/examples/session-stores "https://github.com/anthropics/claude-agent-sdk-typescript/tree/main/examples/session-stores"): Runnable S3, Redis, and Postgres reference adapters

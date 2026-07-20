@@ -1,24 +1,19 @@
 # Checkpointing
 
-> ## Documentation Index
->
-> Fetch the complete documentation index at: [https://code.claude.com/docs/llms.txt](https://code.claude.com/docs/llms.txt "https://code.claude.com/docs/llms.txt")
->
-> Use this file to discover all available pages before exploring further.
-
 Claude Code automatically tracks Claude’s file edits as you work, allowing you to quickly undo changes and rewind to previous states if anything gets off track.
 
 ## [​](#how-checkpoints-work "#how-checkpoints-work") How checkpoints work
 
-As you work with Claude, checkpointing automatically captures the state of your code before each edit. This safety net lets you pursue ambitious, wide-scale tasks knowing you can always return to a prior code state.
+As you work with Claude, checkpointing automatically captures the state of your code before each user prompt. This safety net lets you pursue ambitious, wide-scale tasks knowing you can always return to a prior code state.
 
 ### [​](#automatic-tracking "#automatic-tracking") Automatic tracking
 
 Claude Code tracks all changes made by its file editing tools:
 
 * Every user prompt creates a new checkpoint
-* Checkpoints persist across sessions, so you can access them in resumed conversations
-* Automatically cleaned up along with sessions after 30 days (configurable)
+* Claude Code keeps file snapshots for the 100 most recent checkpoints in a session. Discarding an older checkpoint deletes the snapshot files that no remaining checkpoint references, except each file’s first snapshot, which the VS Code extension uses as the baseline for its session diffs. Before v2.1.208, those superseded snapshot files stayed on disk until the session was cleaned up.
+* Checkpoints are saved with the conversation, so a resumed session can still `/rewind` to them
+* Automatically cleaned up along with sessions after 30 days, configurable via [`cleanupPeriodDays`](./settings#available-settings "._settings#available-settings".md)
 
 ### [​](#rewind-and-summarize "#rewind-and-summarize") Rewind and summarize
 
@@ -35,8 +30,13 @@ The rewind menu lists each prompt you sent during the session. Select the point 
 * **Summarize up to here**: compress the conversation before this point into a summary, keeping later messages intact
 * **Never mind**: return to the message list without making changes
 
+The two code restore options appear only when the selected checkpoint has tracked file changes to revert. If no file edits were captured after that point, the menu offers only **Restore conversation**, the summarize options, and **Never mind**.
 After restoring the conversation or choosing Summarize from here, the original prompt from the selected message is restored into the input field so you can re-send or edit it.
-Choosing Summarize up to here leaves you at the end of the conversation with the input empty.
+Choosing Summarize up to here leaves you at the end of the conversation with the input empty. With either summarize option, a **Summarized conversation** marker appears in the conversation where the compressed messages were.
+
+#### [​](#rewind-past-a-cleared-conversation "#rewind-past-a-cleared-conversation") Rewind past a cleared conversation
+
+If you ran `/clear` earlier in the same Claude Code process, the rewind menu shows an additional entry at the top of the list labeled `/resume <session-id> (previous session)`. Select it to resume the conversation that was active before `/clear` ran. The entry is available until you exit Claude Code or resume a different session, and requires Claude Code v2.1.191 or later. On earlier versions, run `/resume` and pick the previous session from the list instead.
 
 #### [​](#restore-vs-summarize "#restore-vs-summarize") Restore vs. summarize
 
@@ -45,9 +45,9 @@ The restore options revert state: they undo code changes, conversation history, 
 * **Summarize from here**: messages before the selected message stay intact. The selected message and everything after it are replaced with a summary. Use this to discard a side discussion while keeping early context in full detail.
 * **Summarize up to here**: messages before the selected message are replaced with a summary. The selected message and everything after it stay intact, and you remain at the end of the conversation. Use this to compress early setup discussion while keeping recent work in full detail.
 
-In both cases the original messages are preserved in the session transcript, so Claude can reference the details if needed. You can type optional instructions to guide what the summary focuses on. This is similar to `/compact`, but targeted: instead of summarizing the entire conversation, you choose which side of the selected message to compress.
+In both cases the original messages are preserved in the session transcript, so Claude can reference the details if needed. To guide what the summary focuses on, highlight a **Summarize** option with the arrow keys and type instructions inline where the row reads **add context (optional)**, then press `Enter` to summarize; selecting the option by its number key summarizes immediately without instructions. This is similar to `/compact`, but targeted: instead of summarizing the entire conversation, you choose which side of the selected message to compress.
 
-Summarize keeps you in the same session and compresses context. If you want to branch off and try a different approach while preserving the original session intact, use [fork](./sessions#branch-a-session "_sessions#branch-a-session".md) instead (`claude --continue --fork-session`).
+Summarize keeps you in the same session and compresses context. If you want to branch off and try a different approach while preserving the original session intact, use [`/branch`](./sessions#branch-a-session "._sessions#branch-a-session".md) or `claude --continue --fork-session` instead.
 
 ## [​](#common-use-cases "#common-use-cases") Common use cases
 
@@ -64,7 +64,7 @@ Checkpoints are particularly useful when:
 
 Checkpointing does not track files modified by bash commands. For example, if Claude Code runs:
 
-```
+```text
 rm file.txt
 mv old.txt new.txt
 cp source.txt dest.txt
@@ -86,6 +86,6 @@ Checkpoints are designed for quick, session-level recovery. For permanent versio
 
 ## [​](#see-also "#see-also") See also
 
-* [Interactive mode](./interactive-mode "_interactive-mode".md) - Keyboard shortcuts and session controls
-* [Commands](./commands "_commands".md) - Accessing checkpoints using `/rewind`
-* [CLI reference](./cli-reference "_cli-reference".md) - Command-line options
+* [Interactive mode](./interactive-mode "._interactive-mode".md) - Keyboard shortcuts and session controls
+* [Commands](./commands "._commands".md) - Accessing checkpoints using `/rewind`
+* [CLI reference](./cli-reference "._cli-reference".md) - Command-line options

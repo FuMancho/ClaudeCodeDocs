@@ -1,12 +1,6 @@
-# Whats New 2026 W15
+# Whats-New 2026-W15
 
-> ## Documentation Index
->
-> Fetch the complete documentation index at: [https://code.claude.com/docs/llms.txt](https://code.claude.com/docs/llms.txt "https://code.claude.com/docs/llms.txt")
->
-> Use this file to discover all available pages before exploring further.
-
-Releases [v2.1.92 → v2.1.101](./changelog#2-1-92 "_changelog#2-1-92".md)4 features · April 6–10
+Releases [v2.1.92 → v2.1.101](./changelog#2-1-92 "._changelog#2-1-92".md)4 features · April 6–10
 
 Ultraplanresearch preview
 
@@ -18,11 +12,11 @@ Run the command, or just include the keyword in any prompt:
 
 Claude Code
 
-```
+```text
 > /ultraplan migrate the auth service from sessions to JWTs
 ```
 
-[Ultraplan guide](./ultraplan "_ultraplan".md)
+[Ultraplan guide](./ultraplan "._ultraplan".md)
 
 Monitor toolv2.1.98
 
@@ -34,7 +28,7 @@ Ask Claude to watch something while you keep working:
 
 Claude Code
 
-```
+```text
 > Tail server.log in the background and tell me the moment a 5xx shows up
 ```
 
@@ -42,11 +36,11 @@ This pairs with `/loop`, which now self-paces: omit the interval and Claude sche
 
 Claude Code
 
-```
+```text
 > /loop check CI on my PR
 ```
 
-[Monitor tool reference](./tools-reference#monitor-tool "_tools-reference#monitor-tool".md)
+[Monitor tool reference](./tools-reference#monitor-tool "._tools-reference#monitor-tool".md)
 
 /autofix-prCLI
 
@@ -58,11 +52,11 @@ Run it from the PR’s branch:
 
 Claude Code
 
-```
+```text
 > /autofix-pr
 ```
 
-[Auto-fix pull requests](./claude-code-on-the-web#auto-fix-pull-requests "_claude-code-on-the-web#auto-fix-pull-requests".md)
+[Auto-fix pull requests](./claude-code-on-the-web#auto-fix-pull-requests "._claude-code-on-the-web#auto-fix-pull-requests".md)
 
 /team-onboardingv2.1.101
 
@@ -72,21 +66,21 @@ Run it from a project you’ve spent real time in:
 
 Claude Code
 
-```
+```text
 > /team-onboarding
 ```
 
-[Commands reference](./commands "_commands".md)
+[Commands reference](./commands "._commands".md)
 
 Other wins
 
 Focus view: press `Ctrl+O` in flicker-free mode to collapse the view to your last prompt, a one-line tool summary with diffstats, and Claude’s final response
 
-Guided [Bedrock](./amazon-bedrock "_amazon-bedrock".md) and [Vertex AI](./google-vertex-ai "_google-vertex-ai".md) setup wizards on the login screen: pick “3rd-party platform” for step-by-step auth, region, credential check, and model pinning
+Guided [Amazon Bedrock](./amazon-bedrock "._amazon-bedrock".md) and [Google Cloud’s Agent Platform](./google-vertex-ai "._google-vertex-ai".md) setup wizards on the login screen: pick “3rd-party platform” for step-by-step auth, region, credential check, and model pinning
 
 `/agents` gets a tabbed layout: a Running tab shows live subagents with a `● N running` count, plus Run agent and View running instance actions in the Library tab
 
-Default effort level is now `high` for API-key, Bedrock, Vertex, Foundry, Team, and Enterprise users (control with `/effort`)
+Default effort level is now `high` for API-key, Amazon Bedrock, Google Cloud’s Agent Platform, Microsoft Foundry, Team, and Enterprise users (control with `/effort`)
 
 `/cost` shows a per-model and cache-hit breakdown for subscription users
 
@@ -104,4 +98,4 @@ Hardened Bash tool permissions: backslash-escaped flags, env-var prefixes, `/dev
 
 `UserPromptSubmit` hooks can set the session title via `hookSpecificOutput.sessionTitle`
 
-[Full changelog for v2.1.92–v2.1.101 →](./changelog#2-1-92 "_changelog#2-1-92".md)
+[Full changelog for v2.1.92–v2.1.101 →](./changelog#2-1-92 "._changelog#2-1-92".md)
