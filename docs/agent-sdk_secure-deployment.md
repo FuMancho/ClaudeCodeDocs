@@ -1,10 +1,4 @@
-# Agent Sdk Secure Deployment
-
-> ## Documentation Index
->
-> Fetch the complete documentation index at: [https://code.claude.com/docs/llms.txt](https://code.claude.com/docs/llms.txt "https://code.claude.com/docs/llms.txt")
->
-> Use this file to discover all available pages before exploring further.
+# Agent-Sdk Secure-Deployment
 
 Claude Code and the Agent SDK are powerful tools that can execute code, access files, and interact with external services on your behalf. Like any tool with these capabilities, deploying them thoughtfully ensures you get the benefits while maintaining appropriate controls.
 Unlike traditional software that follows predetermined code paths, these tools generate their actions dynamically based on context and goals. This flexibility is what makes them useful, but it also means their behavior can be influenced by the content they process: files, webpages, or user input. This is sometimes called prompt injection. For example, if a repository’s README contains unusual instructions, Claude Code might incorporate those into its actions in ways the operator didn’t anticipate. This guide covers practical ways to reduce this risk.
@@ -18,12 +12,12 @@ Defense in depth is still good practice though. For example, if an agent process
 
 ## [​](#built-in-security-features "#built-in-security-features") Built-in security features
 
-Claude Code includes several security features that address common concerns. See the [security documentation](./security "_security".md) for full details.
+Claude Code includes several security features that address common concerns. See the [security documentation](./security "._security".md) for full details.
 
-* **Permissions system**: Every tool and bash command can be configured to allow, block, or prompt the user for approval. Use glob patterns to create rules like “allow all npm commands” or “block any command with sudo”. Organizations can set policies that apply across all users. See [permissions](./permissions "_permissions".md).
+* **Permissions system**: Every tool and bash command can be configured to allow, block, or prompt the user for approval. Use glob patterns to create rules like “allow all npm commands” or “block any command with sudo”. Organizations can set policies that apply across all users. See [permissions](./permissions "._permissions".md).
 * **Command parsing for permissions**: Before executing bash commands, Claude Code parses them into an AST and matches the result against your permission rules. Commands that cannot be parsed cleanly, or that do not match an allow rule, require explicit approval. A small set of constructs such as `eval` always require approval regardless of allow rules. This is a permission gate, not a sandbox; it does not infer whether a command is dangerous from its target path or effects.
 * **Web search summarization**: Search results are summarized rather than passing raw content directly into the context, reducing the risk of prompt injection from malicious web content.
-* **Sandbox mode**: Bash commands can run in a sandboxed environment that restricts filesystem and network access. See the [sandboxing documentation](./sandboxing "_sandboxing".md) for details.
+* **Sandbox mode**: Bash commands can run in a sandboxed environment that restricts filesystem and network access. See the [sandboxing documentation](./sandboxing "._sandboxing".md) for details.
 
 ## [​](#security-principles "#security-principles") Security principles
 
@@ -37,6 +31,7 @@ For example, rather than giving an agent direct access to an API key, you could 
 ### [​](#least-privilege "#least-privilege") Least privilege
 
 When needed, you can restrict the agent to only the capabilities required for its specific task:
+
 
 | Resource | Restriction options |
 | --- | --- |
@@ -81,7 +76,7 @@ The main advantage is simplicity: no Docker configuration, container images, or 
 
 **Setup:**
 
-```
+```text
 npm install @anthropic-ai/sandbox-runtime
 ```
 
@@ -89,7 +84,7 @@ Then create a configuration file specifying allowed paths and domains.
 **Security considerations:**
 
 1. **Same-host kernel**: Unlike VMs, sandboxed processes share the host kernel. A kernel vulnerability could theoretically enable escape. For some threat models this is acceptable, but if you need kernel-level isolation, use gVisor or a separate VM.
-2. **No TLS inspection**: The proxy allowlists domains based on the client-supplied hostname and does not terminate or inspect encrypted traffic. Code running inside the sandbox can potentially use [domain fronting](https://en.wikipedia.org/wiki/Domain_fronting "https://en.wikipedia.org/wiki/Domain_fronting") or similar techniques to reach hosts outside the allowlist. If your threat model requires stronger guarantees, configure a [TLS-terminating proxy](#traffic-forwarding "#traffic-forwarding"). See the [sandboxing security limitations](./sandboxing#security-limitations "_sandboxing#security-limitations".md) for more detail. Separately, if the agent has permissive credentials for an allowed domain, ensure it cannot use that domain to trigger other network requests or to exfiltrate data.
+2. **No TLS inspection**: The proxy allowlists domains based on the client-supplied hostname and does not terminate or inspect encrypted traffic. Code running inside the sandbox can potentially use [domain fronting](https://en.wikipedia.org/wiki/Domain_fronting "https://en.wikipedia.org/wiki/Domain_fronting") or similar techniques to reach hosts outside the allowlist. If your threat model requires stronger guarantees, configure a [TLS-terminating proxy](#traffic-forwarding "#traffic-forwarding"). See the [sandboxing security limitations](./sandboxing#security-limitations "._sandboxing#security-limitations".md) for more detail. Separately, if the agent has permissive credentials for an allowed domain, ensure it cannot use that domain to trigger other network requests or to exfiltrate data.
 
 For many single-developer and CI/CD use cases, sandbox-runtime raises the bar significantly with minimal setup. The sections below cover containers and VMs for deployments requiring stronger isolation.
 
@@ -98,7 +93,7 @@ For many single-developer and CI/CD use cases, sandbox-runtime raises the bar si
 Containers provide isolation through Linux namespaces. Each container has its own view of the filesystem, process tree, and network stack, while sharing the host kernel.
 A security-hardened container configuration might look like this:
 
-```
+```text
 docker run \
   --cap-drop ALL \
   --security-opt no-new-privileges \
@@ -117,6 +112,7 @@ docker run \
 ```
 
 Here’s what each option does:
+
 
 | Option | Purpose |
 | --- | --- |
@@ -137,6 +133,7 @@ With `--network none`, the container has no network interfaces at all. The only 
 This is the same architecture used by [sandbox-runtime](https://github.com/anthropic-experimental/sandbox-runtime "https://github.com/anthropic-experimental/sandbox-runtime"). Even if the agent is compromised via prompt injection, it cannot exfiltrate data to arbitrary servers. It can only communicate through the proxy, which controls what domains are reachable. For more details, see the [Claude Code sandboxing blog post](https://www.anthropic.com/engineering/claude-code-sandboxing "https://www.anthropic.com/engineering/claude-code-sandboxing").
 **Additional hardening options:**
 
+
 | Option | Purpose |
 | --- | --- |
 | `--userns-remap` | Maps container root to unprivileged host user; requires daemon configuration but limits damage from container escape |
@@ -148,7 +145,7 @@ Standard containers share the host kernel: when code inside a container makes a 
 If an agent runs malicious code (perhaps due to prompt injection), that code runs in the container and could attempt kernel exploits. With gVisor, the attack surface is much smaller: the malicious code would need to exploit gVisor’s userspace implementation first and would have limited access to the real kernel.
 To use gVisor with Docker, install the `runsc` runtime and configure the daemon:
 
-```
+```text
 // /etc/docker/daemon.json
 {
   "runtimes": {
@@ -161,11 +158,12 @@ To use gVisor with Docker, install the `runsc` runtime and configure the daemon:
 
 Then run containers with:
 
-```
+```text
 docker run --runtime=runsc agent-image
 ```
 
 **Performance considerations:**
+
 
 | Workload | Overhead |
 | --- | --- |
@@ -210,14 +208,14 @@ This pattern has several benefits:
 Claude Code supports two methods for routing sampling requests through a proxy:
 **Option 1: ANTHROPIC\_BASE\_URL (simple but only for sampling API requests)**
 
-```
+```text
 export ANTHROPIC_BASE_URL="http://localhost:8080"
 ```
 
 This tells Claude Code and the Agent SDK to send sampling requests to your proxy instead of the Claude API directly. Your proxy receives plaintext HTTP requests, can inspect and modify them (including injecting credentials), then forwards to the real API.
 **Option 2: HTTP\_PROXY / HTTPS\_PROXY (system-wide)**
 
-```
+```text
 export HTTP_PROXY="http://localhost:8080"
 export HTTPS_PROXY="http://localhost:8080"
 ```
@@ -270,7 +268,7 @@ Filesystem controls determine what files the agent can read and write.
 
 When the agent needs to analyze code but not modify it, mount the directory read-only:
 
-```
+```text
 docker run -v /path/to/code:/workspace:ro agent-image
 ```
 
@@ -296,7 +294,7 @@ Consider copying only the source files needed, or using `.dockerignore`-style fi
 If the agent needs to write files, you have a few options depending on whether you want changes to persist:
 For ephemeral workspaces in containers, use `tmpfs` mounts that exist only in memory and are cleared when the container stops:
 
-```
+```text
 docker run \
   --read-only \
   --tmpfs /tmp:rw,noexec,nosuid,size=100m \
@@ -308,9 +306,9 @@ If you want to review changes before persisting them, an overlay filesystem lets
 
 ## [​](#further-reading "#further-reading") Further reading
 
-* [Claude Code security documentation](./security "_security".md)
-* [Hosting the Agent SDK](./agent-sdk_hosting "_agent-sdk_hosting".md)
-* [Handling permissions](./agent-sdk_permissions "_agent-sdk_permissions".md)
+* [Claude Code security documentation](./security "._security".md)
+* [Hosting the Agent SDK](./agent-sdk_hosting "._agent-sdk_hosting".md)
+* [Handling permissions](./agent-sdk_permissions "._agent-sdk_permissions".md)
 * [Sandbox runtime](https://github.com/anthropic-experimental/sandbox-runtime "https://github.com/anthropic-experimental/sandbox-runtime")
 * [The Lethal Trifecta for AI Agents](https://simonwillison.net/2025/Jun/16/the-lethal-trifecta/ "https://simonwillison.net/2025/Jun/16/the-lethal-trifecta/")
 * [OWASP Top 10 for LLM Applications](https://owasp.org/www-project-top-10-for-large-language-model-applications/ "https://owasp.org/www-project-top-10-for-large-language-model-applications/")

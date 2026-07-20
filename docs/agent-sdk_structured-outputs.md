@@ -1,11 +1,3 @@
-# Agent Sdk Structured Outputs
-
-> ## Documentation Index
->
-> Fetch the complete documentation index at: [https://code.claude.com/docs/llms.txt](https://code.claude.com/docs/llms.txt "https://code.claude.com/docs/llms.txt")
->
-> Use this file to discover all available pages before exploring further.
-
 Structured outputs let you define the exact shape of data you want back from an agent. The agent can use any tools it needs to complete the task, and you still get validated JSON matching your schema at the end. Define a [JSON Schema](https://json-schema.org/understanding-json-schema/about "https://json-schema.org/understanding-json-schema/about") for the structure you need, and the SDK validates the output against it, re-prompting on mismatch. If validation does not succeed within the retry limit, the result is an error instead of structured data; see [Error handling](#error-handling "#error-handling").
 For full type safety, use [Zod](#type-safe-schemas-with-zod-and-pydantic "#type-safe-schemas-with-zod-and-pydantic") (TypeScript) or [Pydantic](#type-safe-schemas-with-zod-and-pydantic "#type-safe-schemas-with-zod-and-pydantic") (Python) to define your schema and get strongly-typed objects back.
 
@@ -16,7 +8,7 @@ Consider a recipe app where an agent searches the web and brings back recipes. W
 
 Without structured outputs
 
-```
+```text
 Here's a classic chocolate chip cookie recipe!
 
 **Chocolate Chip Cookies**
@@ -32,7 +24,7 @@ To use this in your app, you’d need to parse out the title, convert “15 minu
 
 With structured outputs
 
-```
+```text
 {
   "name": "Chocolate Chip Cookies",
   "prep_time_minutes": 15,
@@ -57,7 +49,7 @@ TypeScript
 
 Python
 
-```
+```text
 import { query } from "@anthropic-ai/claude-agent-sdk";
 
 // Define the shape of data you want back
@@ -71,33 +63,77 @@ const schema = {
   required: ["company_name"]
 };
 
-for await (const message of query({
-  prompt: "Research Anthropic and provide key company information",
-  options: {
-    outputFormat: {
-      type: "json_schema",
-      schema: schema
+try {
+  for await (const message of query({
+    prompt: "Research Anthropic and provide key company information",
+    options: {
+      outputFormat: {
+        type: "json_schema",
+        schema: schema
+      }
+    }
+  })) {
+    // The result message contains structured_output with validated data
+    if (message.type === "result" && message.subtype === "success" && message.structured_output) {
+      console.log(message.structured_output);
+      // { company_name: "Anthropic", founded_year: 2021, headquarters: "San Francisco, CA" }
     }
   }
-})) {
-  // The result message contains structured_output with validated data
-  if (message.type === "result" && message.subtype === "success" && message.structured_output) {
-    console.log(message.structured_output);
-    // { company_name: "Anthropic", founded_year: 2021, headquarters: "San Francisco, CA" }
-  }
+} catch (error) {
+  // A single-shot query() throws after yielding an error result, such as
+  // error_max_structured_output_retries; see the Error handling section.
+  console.error(`Session ended with an error: ${error}`);
 }
+```
+
+```text
+import asyncio
+from claude_agent_sdk import query, ClaudeAgentOptions, ResultMessage
+
+# Define the shape of data you want back
+schema = {
+    "type": "object",
+    "properties": {
+        "company_name": {"type": "string"},
+        "founded_year": {"type": "number"},
+        "headquarters": {"type": "string"},
+    },
+    "required": ["company_name"],
+}
+
+
+async def main():
+    try:
+        async for message in query(
+            prompt="Research Anthropic and provide key company information",
+            options=ClaudeAgentOptions(
+                output_format={"type": "json_schema", "schema": schema}
+            ),
+        ):
+            # The result message contains structured_output with validated data
+            if isinstance(message, ResultMessage) and message.structured_output:
+                print(message.structured_output)
+                # {'company_name': 'Anthropic', 'founded_year': 2021, 'headquarters': 'San Francisco, CA'}
+    except Exception as error:
+        # A single-shot query() raises after yielding an error result, such as
+        # error_max_structured_output_retries; see the Error handling section.
+        print(f"Session ended with an error: {error}")
+
+
+asyncio.run(main())
 ```
 
 ## [​](#type-safe-schemas-with-zod-and-pydantic "#type-safe-schemas-with-zod-and-pydantic") Type-safe schemas with Zod and Pydantic
 
 Instead of writing JSON Schema by hand, you can use [Zod](https://zod.dev/ "https://zod.dev/") (TypeScript) or [Pydantic](https://docs.pydantic.dev/latest/ "https://docs.pydantic.dev/latest/") (Python) to define your schema. These libraries generate the JSON Schema for you and let you parse the response into a fully-typed object you can use throughout your codebase with autocomplete and type checking.
 The example below defines a schema for a feature implementation plan with a summary, list of steps (each with complexity level), and potential risks. The agent plans the feature and returns a typed `FeaturePlan` object. You can then access properties like `plan.summary` and iterate over `plan.steps` with full type safety.
+The SDK validates schemas with JSON Schema draft-07, so schemas that declare a newer version are rejected. Zod targets draft 2020-12 by default, so pass `target: "draft-7"` when converting your schema.
 
 TypeScript
 
 Python
 
-```
+```text
 import { z } from "zod";
 import { query } from "@anthropic-ai/claude-agent-sdk";
 
@@ -117,33 +153,87 @@ const FeaturePlan = z.object({
 
 type FeaturePlan = z.infer<typeof FeaturePlan>;
 
-// Convert to JSON Schema
-const schema = z.toJSONSchema(FeaturePlan);
+// Convert to JSON Schema using the draft-07 target the SDK expects
+const schema = z.toJSONSchema(FeaturePlan, { target: "draft-7" });
 
 // Use in query
-for await (const message of query({
-  prompt:
-    "Plan how to add dark mode support to a React app. Break it into implementation steps.",
-  options: {
-    outputFormat: {
-      type: "json_schema",
-      schema: schema
+try {
+  for await (const message of query({
+    prompt:
+      "Plan how to add dark mode support to a React app. Break it into implementation steps.",
+    options: {
+      outputFormat: {
+        type: "json_schema",
+        schema: schema
+      }
+    }
+  })) {
+    if (message.type === "result" && message.subtype === "success" && message.structured_output) {
+      // Validate and get fully typed result
+      const parsed = FeaturePlan.safeParse(message.structured_output);
+      if (parsed.success) {
+        const plan: FeaturePlan = parsed.data;
+        console.log(`Feature: ${plan.feature_name}`);
+        console.log(`Summary: ${plan.summary}`);
+        plan.steps.forEach((step) => {
+          console.log(`${step.step_number}. [${step.estimated_complexity}] ${step.description}`);
+        });
+      }
     }
   }
-})) {
-  if (message.type === "result" && message.subtype === "success" && message.structured_output) {
-    // Validate and get fully typed result
-    const parsed = FeaturePlan.safeParse(message.structured_output);
-    if (parsed.success) {
-      const plan: FeaturePlan = parsed.data;
-      console.log(`Feature: ${plan.feature_name}`);
-      console.log(`Summary: ${plan.summary}`);
-      plan.steps.forEach((step) => {
-        console.log(`${step.step_number}. [${step.estimated_complexity}] ${step.description}`);
-      });
-    }
-  }
+} catch (error) {
+  // A single-shot query() throws after yielding an error result, such as
+  // error_max_structured_output_retries; see the Error handling section.
+  console.error(`Session ended with an error: ${error}`);
 }
+```
+
+```text
+import asyncio
+from pydantic import BaseModel
+from claude_agent_sdk import query, ClaudeAgentOptions, ResultMessage
+
+
+class Step(BaseModel):
+    step_number: int
+    description: str
+    estimated_complexity: str  # 'low', 'medium', 'high'
+
+
+class FeaturePlan(BaseModel):
+    feature_name: str
+    summary: str
+    steps: list[Step]
+    risks: list[str]
+
+
+async def main():
+    try:
+        async for message in query(
+            prompt="Plan how to add dark mode support to a React app. Break it into implementation steps.",
+            options=ClaudeAgentOptions(
+                output_format={
+                    "type": "json_schema",
+                    "schema": FeaturePlan.model_json_schema(),
+                }
+            ),
+        ):
+            if isinstance(message, ResultMessage) and message.structured_output:
+                # Validate and get fully typed result
+                plan = FeaturePlan.model_validate(message.structured_output)
+                print(f"Feature: {plan.feature_name}")
+                print(f"Summary: {plan.summary}")
+                for step in plan.steps:
+                    print(
+                        f"{step.step_number}. [{step.estimated_complexity}] {step.description}"
+                    )
+    except Exception as error:
+        # A single-shot query() raises after yielding an error result, such as
+        # error_max_structured_output_retries; see the Error handling section.
+        print(f"Session ended with an error: {error}")
+
+
+asyncio.run(main())
 ```
 
 **Benefits:**
@@ -158,9 +248,11 @@ for await (const message of query({
 The `outputFormat` (TypeScript) or `output_format` (Python) option accepts an object with:
 
 * `type`: Set to `"json_schema"` for structured outputs
-* `schema`: A [JSON Schema](https://json-schema.org/understanding-json-schema/about "https://json-schema.org/understanding-json-schema/about") object defining your output structure. You can generate this from a Zod schema with `z.toJSONSchema()` or a Pydantic model with `.model_json_schema()`
+* `schema`: A [JSON Schema](https://json-schema.org/understanding-json-schema/about "https://json-schema.org/understanding-json-schema/about") object defining your output structure. You can generate this from a Zod schema with `z.toJSONSchema(schema, { target: "draft-7" })` or a Pydantic model with `.model_json_schema()`
 
 The SDK supports standard JSON Schema features including all basic types (object, array, string, number, boolean, null), `enum`, `const`, `required`, nested objects, and `$ref` definitions. For the full list of supported features and limitations, see [JSON Schema limitations](https://platform.claude.com/docs/en/build-with-claude/structured-outputs#json-schema-limitations "https://platform.claude.com/docs/en/build-with-claude/structured-outputs#json-schema-limitations").
+A schema that isn’t valid JSON Schema fails the run at startup with an error naming the problem. Before v2.1.205, an invalid schema was silently ignored and the agent returned unstructured text.
+The `format` keyword, such as `"format": "email"`, is accepted as an annotation and isn’t enforced by the SDK’s validator. Before v2.1.205, any schema containing `format` was treated as invalid.
 
 ## [​](#example-task-tracking-agent "#example-task-tracking-agent") Example: task tracking agent
 
@@ -171,7 +263,7 @@ TypeScript
 
 Python
 
-```
+```text
 import { query } from "@anthropic-ai/claude-agent-sdk";
 
 // Define structure for task extraction
@@ -198,64 +290,187 @@ const todoSchema = {
 };
 
 // Agent uses Grep to find tasks, Bash to get git blame info
-for await (const message of query({
-  prompt: "Find all task comments in this codebase and identify who added them",
-  options: {
-    outputFormat: {
-      type: "json_schema",
-      schema: todoSchema
+try {
+  for await (const message of query({
+    prompt: "Find all task comments in this codebase and identify who added them",
+    options: {
+      outputFormat: {
+        type: "json_schema",
+        schema: todoSchema
+      }
+    }
+  })) {
+    if (message.type === "result" && message.subtype === "success" && message.structured_output) {
+      const data = message.structured_output as { total_count: number; tasks: Array<{ file: string; line: number; text: string; author?: string; date?: string }> };
+      console.log(`Found ${data.total_count} tasks`);
+      data.tasks.forEach((task) => {
+        console.log(`${task.file}:${task.line} - ${task.text}`);
+        if (task.author) {
+          console.log(`  Added by ${task.author} on ${task.date}`);
+        }
+      });
     }
   }
-})) {
-  if (message.type === "result" && message.subtype === "success" && message.structured_output) {
-    const data = message.structured_output as { total_count: number; tasks: Array<{ file: string; line: number; text: string; author?: string; date?: string }> };
-    console.log(`Found ${data.total_count} tasks`);
-    data.tasks.forEach((task) => {
-      console.log(`${task.file}:${task.line} - ${task.text}`);
-      if (task.author) {
-        console.log(`  Added by ${task.author} on ${task.date}`);
-      }
-    });
-  }
+} catch (error) {
+  // A single-shot query() throws after yielding an error result, such as
+  // error_max_structured_output_retries; see the Error handling section.
+  console.error(`Session ended with an error: ${error}`);
 }
+```
+
+```text
+import asyncio
+from claude_agent_sdk import query, ClaudeAgentOptions, ResultMessage
+
+# Define structure for task extraction
+todo_schema = {
+    "type": "object",
+    "properties": {
+        "tasks": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "text": {"type": "string"},
+                    "file": {"type": "string"},
+                    "line": {"type": "number"},
+                    "author": {"type": "string"},
+                    "date": {"type": "string"},
+                },
+                "required": ["text", "file", "line"],
+            },
+        },
+        "total_count": {"type": "number"},
+    },
+    "required": ["tasks", "total_count"],
+}
+
+
+async def main():
+    # Agent uses Grep to find tasks, Bash to get git blame info
+    try:
+        async for message in query(
+            prompt="Find all task comments in this codebase and identify who added them",
+            options=ClaudeAgentOptions(
+                output_format={"type": "json_schema", "schema": todo_schema}
+            ),
+        ):
+            if isinstance(message, ResultMessage) and message.structured_output:
+                data = message.structured_output
+                print(f"Found {data['total_count']} tasks")
+                for task in data["tasks"]:
+                    print(f"{task['file']}:{task['line']} - {task['text']}")
+                    if "author" in task:
+                        print(f"  Added by {task['author']} on {task['date']}")
+    except Exception as error:
+        # A single-shot query() raises after yielding an error result, such as
+        # error_max_structured_output_retries; see the Error handling section.
+        print(f"Session ended with an error: {error}")
+
+
+asyncio.run(main())
 ```
 
 ## [​](#error-handling "#error-handling") Error handling
 
-Structured output generation can fail when the agent cannot produce valid JSON matching your schema. This typically happens when the schema is too complex for the task, the task itself is ambiguous, or the agent hits its retry limit trying to fix validation errors.
+Structured output generation can fail when the agent cannot produce valid JSON matching your schema. This typically happens when the schema is too complex for the task, the task itself is ambiguous, or the agent hits its retry limit trying to fix validation errors. It can also happen without any validation failure: a [model fallback](./model-config#automatic-model-fallback "._model-config#automatic-model-fallback".md) can retract an already-completed output mid-stream, and if no retry replaces it the run ends with the same error. Check the `errors` list on the result message to tell the two causes apart before debugging your schema.
 When an error occurs, the result message has a `subtype` indicating what went wrong:
+
 
 | Subtype | Meaning |
 | --- | --- |
 | `success` | Output was generated and validated successfully |
-| `error_max_structured_output_retries` | Agent couldn’t produce valid output after multiple attempts |
+| `error_max_structured_output_retries` | No valid output remained after multiple attempts (validation failures, or a model-fallback retraction with no successful retry) |
 
-The example below checks the `subtype` field to determine whether the output was generated successfully or if you need to handle a failure:
+A result can also end with subtype `success` but no `structured_output` value, for example when the run completes without the agent producing a structured output. Treat that case as a failure as well. The example below treats a result as successful only when the `subtype` is `success` and `structured_output` is present, and handles every other result as a failure:
 
 TypeScript
 
 Python
 
-```
-for await (const msg of query({
-  prompt: "Extract contact info from the document",
-  options: {
-    outputFormat: {
-      type: "json_schema",
-      schema: contactSchema
+```text
+import { query } from "@anthropic-ai/claude-agent-sdk";
+
+const contactSchema = {
+  type: "object",
+  properties: {
+    name: { type: "string" },
+    email: { type: "string" }
+  },
+  required: ["name"]
+};
+
+try {
+  for await (const msg of query({
+    prompt: "Extract contact info from the document",
+    options: {
+      outputFormat: {
+        type: "json_schema",
+        schema: contactSchema
+      }
+    }
+  })) {
+    if (msg.type === "result") {
+      if (msg.subtype === "success" && msg.structured_output) {
+        // Use the validated output
+        console.log(msg.structured_output);
+      } else if (msg.subtype === "error_max_structured_output_retries") {
+        console.error("Could not produce valid output");
+      } else {
+        console.error("Run ended without a structured output");
+      }
     }
   }
-})) {
-  if (msg.type === "result") {
-    if (msg.subtype === "success" && msg.structured_output) {
-      // Use the validated output
-      console.log(msg.structured_output);
-    } else if (msg.subtype === "error_max_structured_output_retries") {
-      // Handle the failure - retry with simpler prompt, fall back to unstructured, etc.
-      console.error("Could not produce valid output");
-    }
-  }
+} catch (error) {
+  // A single-shot query() throws after yielding an error result.
+  // If the failure was an error result, the subtype branches above
+  // have already run; connection or process failures yield no result
+  // message. Handle the failure here - retry with a simpler prompt,
+  // fall back to unstructured, etc.
+  console.log(`Session ended with an error: ${error}`);
 }
+```
+
+```text
+import asyncio
+from claude_agent_sdk import query, ClaudeAgentOptions, ResultMessage
+
+contact_schema = {
+    "type": "object",
+    "properties": {
+        "name": {"type": "string"},
+        "email": {"type": "string"},
+    },
+    "required": ["name"],
+}
+
+
+async def main():
+    try:
+        async for message in query(
+            prompt="Extract contact info from the document",
+            options=ClaudeAgentOptions(
+                output_format={"type": "json_schema", "schema": contact_schema}
+            ),
+        ):
+            if isinstance(message, ResultMessage):
+                if message.subtype == "success" and message.structured_output:
+                    # Use the validated output
+                    print(message.structured_output)
+                elif message.subtype == "error_max_structured_output_retries":
+                    print("Could not produce valid output")
+                else:
+                    print("Run ended without a structured output")
+    except Exception as error:
+        # A single-shot query() raises after yielding an error result.
+        # If the failure was an error result, the subtype branches above
+        # have already run; connection or process failures yield no
+        # result message. Handle the failure here - retry with a simpler
+        # prompt, fall back to unstructured, etc.
+        print(f"Session ended with an error: {error}")
+
+
+asyncio.run(main())
 ```
 
 **Tips for avoiding errors:**
@@ -268,4 +483,4 @@ for await (const msg of query({
 
 * [JSON Schema documentation](https://json-schema.org/ "https://json-schema.org/"): learn JSON Schema syntax for defining complex schemas with nested objects, arrays, enums, and validation constraints
 * [API Structured Outputs](https://platform.claude.com/docs/en/build-with-claude/structured-outputs "https://platform.claude.com/docs/en/build-with-claude/structured-outputs"): use structured outputs with the Claude API directly for single-turn requests without tool use
-* [Custom tools](./agent-sdk_custom-tools "_agent-sdk_custom-tools".md): give your agent custom tools to call during execution before returning structured output
+* [Custom tools](./agent-sdk_custom-tools "._agent-sdk_custom-tools".md): give your agent custom tools to call during execution before returning structured output

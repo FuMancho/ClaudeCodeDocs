@@ -1,25 +1,17 @@
-# Agent Sdk Mcp
-
-> ## Documentation Index
->
-> Fetch the complete documentation index at: [https://code.claude.com/docs/llms.txt](https://code.claude.com/docs/llms.txt "https://code.claude.com/docs/llms.txt")
->
-> Use this file to discover all available pages before exploring further.
-
 The [Model Context Protocol (MCP)](https://modelcontextprotocol.io/docs/getting-started/intro "https://modelcontextprotocol.io/docs/getting-started/intro") is an open standard for connecting AI agents to external tools and data sources. With MCP, your agent can query databases, integrate with APIs like Slack and GitHub, and connect to other services without writing custom tool implementations.
 MCP servers can run as local processes, connect over HTTP, or execute directly within your SDK application.
 
-This page covers MCP configuration for the Agent SDK. To add MCP servers to the Claude Code CLI so they load in every project, see [MCP installation scopes](./mcp#mcp-installation-scopes "_mcp#mcp-installation-scopes".md).
+This page covers MCP configuration for the Agent SDK. To add MCP servers to the Claude Code CLI so they load in every project, see [MCP installation scopes](./mcp#mcp-installation-scopes "._mcp#mcp-installation-scopes".md).
 
 ## [​](#quickstart "#quickstart") Quickstart
 
-This example connects to the [Claude Code documentation](https://code.claude.com/docs "https://code.claude.com/docs") MCP server using [HTTP transport](#httpsse-servers "#httpsse-servers") and uses [`allowedTools`](#allow-mcp-tools "#allow-mcp-tools") with a wildcard to permit all tools from the server.
+This example connects to the [Claude Code documentation](https://code.claude.com/docs "https://code.claude.com/docs") MCP server using [HTTP transport](#http%2Fsse-servers "#http%2Fsse-servers") and uses [`allowedTools`](#allow-mcp-tools "#allow-mcp-tools") with a wildcard to permit all tools from the server.
 
 TypeScript
 
 Python
 
-```
+```text
 import { query } from "@anthropic-ai/claude-agent-sdk";
 
 for await (const message of query({
@@ -40,6 +32,33 @@ for await (const message of query({
 }
 ```
 
+```text
+import asyncio
+from claude_agent_sdk import query, ClaudeAgentOptions, ResultMessage
+
+
+async def main():
+    options = ClaudeAgentOptions(
+        mcp_servers={
+            "claude-code-docs": {
+                "type": "http",
+                "url": "https://code.claude.com/docs/mcp",
+            }
+        },
+        allowed_tools=["mcp__claude-code-docs__*"],
+    )
+
+    async for message in query(
+        prompt="Use the docs MCP server to explain what hooks are in Claude Code",
+        options=options,
+    ):
+        if isinstance(message, ResultMessage) and message.subtype == "success":
+            print(message.result)
+
+
+asyncio.run(main())
+```
+
 The agent connects to the documentation server, searches for information about hooks, and returns the results.
 
 ## [​](#add-an-mcp-server "#add-an-mcp-server") Add an MCP server
@@ -54,7 +73,7 @@ TypeScript
 
 Python
 
-```
+```text
 import { query } from "@anthropic-ai/claude-agent-sdk";
 
 for await (const message of query({
@@ -75,11 +94,39 @@ for await (const message of query({
 }
 ```
 
+```text
+import asyncio
+from claude_agent_sdk import query, ClaudeAgentOptions, ResultMessage
+
+
+async def main():
+    options = ClaudeAgentOptions(
+        mcp_servers={
+            "filesystem": {
+                "command": "npx",
+                "args": [
+                    "-y",
+                    "@modelcontextprotocol/server-filesystem",
+                    "/Users/me/projects",
+                ],
+            }
+        },
+        allowed_tools=["mcp__filesystem__*"],
+    )
+
+    async for message in query(prompt="List files in my project", options=options):
+        if isinstance(message, ResultMessage) and message.subtype == "success":
+            print(message.result)
+
+
+asyncio.run(main())
+```
+
 ### [​](#from-a-config-file "#from-a-config-file") From a config file
 
 Create a `.mcp.json` file at your project root. The file is picked up when the `project` setting source is enabled, which it is for default `query()` options. If you set `settingSources` explicitly, include `"project"` for this file to load:
 
-```
+```text
 {
   "mcpServers": {
     "filesystem": {
@@ -89,6 +136,13 @@ Create a `.mcp.json` file at your project root. The file is picked up when the `
   }
 }
 ```
+
+## [​](#connection-timing "#connection-timing") Connection timing
+
+Servers you pass in `options.mcpServers` start connecting as soon as the query starts. Connection is non-blocking by default: the first turn begins without waiting, and each server’s tools become available once its connection completes. Before Claude Code v2.1.142, startup blocked on the connection batch for up to 5 seconds.
+To restore a bounded startup wait for every server, set the [`MCP_CONNECTION_NONBLOCKING`](./env-vars "._env-vars".md) environment variable to `0`. The wait is capped at 5 seconds by [`MCP_CONNECT_TIMEOUT_MS`](./env-vars "._env-vars".md), and servers still pending at that deadline keep connecting in the background.
+To make one server’s tools available before the first turn, set `alwaysLoad: true` on its config. Startup then waits for that server to connect, capped at the same 5-second startup deadline, while other servers keep connecting in the background. The `alwaysLoad` field requires Claude Code v2.1.121 or later. See [Exempt a server from deferral](./mcp#exempt-a-server-from-deferral "._mcp#exempt-a-server-from-deferral".md) for the `alwaysLoad` field’s effect on tool search.
+The `system` message with subtype `init` reports each server’s status at the moment it’s emitted. A server that’s still connecting has status `pending`. Check for status `failed` or `needs-auth` when you want to detect servers that won’t be usable, rather than treating every status other than `connected` as a failure; see [Error handling](#error-handling "#error-handling") for the full status check.
 
 ## [​](#allow-mcp-tools "#allow-mcp-tools") Allow MCP tools
 
@@ -102,7 +156,11 @@ MCP tools follow the naming pattern `mcp__<server-name>__<tool-name>`. For examp
 
 Use `allowedTools` to auto-approve specific MCP tools so Claude can use them without a permission prompt:
 
-```
+TypeScript
+
+Python
+
+```text
 const _ = {
   options: {
     mcpServers: {
@@ -117,27 +175,82 @@ const _ = {
 };
 ```
 
+```text
+options = ClaudeAgentOptions(
+    mcp_servers={
+        # your servers
+    },
+    allowed_tools=[
+        "mcp__github__*",  # All tools from the github server
+        "mcp__db__query",  # Only the query tool from db server
+        "mcp__slack__send_message",  # Only send_message from slack server
+    ],
+)
+```
+
 Wildcards (`*`) let you allow all tools from a server without listing each one individually.
 
-**Prefer `allowedTools` over permission modes for MCP access.** `permissionMode: "acceptEdits"` does not auto-approve MCP tools (only file edits and filesystem Bash commands). `permissionMode: "bypassPermissions"` does auto-approve MCP tools but also disables all other safety prompts, which is broader than necessary. A wildcard in `allowedTools` grants exactly the MCP server you want and nothing more. See [Permission modes](./agent-sdk_permissions#permission-modes "_agent-sdk_permissions#permission-modes".md) for a full comparison.
+**Prefer `allowedTools` over permission modes for MCP access.** `permissionMode: "acceptEdits"` does not auto-approve MCP tools (only file edits and filesystem Bash commands). `permissionMode: "bypassPermissions"` does auto-approve MCP tools but also disables most other safety prompts, which is broader than necessary; see [How permissions are evaluated](./agent-sdk_permissions#how-permissions-are-evaluated "._agent-sdk_permissions#how-permissions-are-evaluated".md) for the prompts that remain. A wildcard in `allowedTools` grants exactly the MCP server you want and nothing more. See [Permission modes](./agent-sdk_permissions#permission-modes "._agent-sdk_permissions#permission-modes".md) for a full comparison.
 
 ### [​](#discover-available-tools "#discover-available-tools") Discover available tools
 
-To see what tools an MCP server provides, check the server’s documentation or connect to the server and inspect the `system` init message:
+To see what tools an MCP server provides, check the server’s documentation or inspect the `tools` array in the `system` init message. MCP tool names start with `mcp__`.
+MCP servers connect in the background by default, so the init message arrives before they finish: the `tools` array lists only built-in tools and `mcp_servers` shows a `pending` status for each server. Set the [`MCP_CONNECTION_NONBLOCKING`](./env-vars "._env-vars".md) environment variable to `0` to wait up to 5 seconds for servers to connect before the init message is sent; servers that connect in time list their `mcp__` tools there, and slower ones keep connecting in the background:
 
+```text
+export MCP_CONNECTION_NONBLOCKING=0
 ```
+
+With that variable set, this filter prints the MCP tool names:
+
+TypeScript
+
+Python
+
+```text
+import { query } from "@anthropic-ai/claude-agent-sdk";
+
+const options = {
+  mcpServers: {
+    // your servers
+  },
+};
+
 for await (const message of query({ prompt: "...", options })) {
   if (message.type === "system" && message.subtype === "init") {
-    console.log("Available MCP tools:", message.mcp_servers);
+    const mcpTools = message.tools.filter((name) => name.startsWith("mcp__"));
+    console.log("Available MCP tools:", mcpTools);
   }
 }
 ```
+
+```text
+import asyncio
+from claude_agent_sdk import query, ClaudeAgentOptions, SystemMessage
+
+
+async def main():
+    options = ClaudeAgentOptions(
+        mcp_servers={
+            # your servers
+        },
+    )
+    async for message in query(prompt="...", options=options):
+        if isinstance(message, SystemMessage) and message.subtype == "init":
+            mcp_tools = [t for t in message.data.get("tools", []) if t.startswith("mcp__")]
+            print("Available MCP tools:", mcp_tools)
+
+
+asyncio.run(main())
+```
+
+You can also ask Claude to list the tools available from a server.
 
 ## [​](#transport-types "#transport-types") Transport types
 
 MCP servers communicate with your agent using different transport protocols. Check the server’s documentation to see which transport it supports:
 
-* If the docs give you a **command to run** (like `npx @modelcontextprotocol/server-github`), use stdio
+* If the docs give you a **command to run** (like `npx @modelcontextprotocol/server-filesystem`), use stdio
 * If the docs give you a **URL**, use HTTP or SSE
 * If you’re building your own tools in code, use an SDK MCP server
 
@@ -152,32 +265,42 @@ TypeScript
 
 Python
 
-```
+```text
 const _ = {
   options: {
     mcpServers: {
-      github: {
+      filesystem: {
         command: "npx",
-        args: ["-y", "@modelcontextprotocol/server-github"],
-        env: {
-          GITHUB_TOKEN: process.env.GITHUB_TOKEN
-        }
+        args: ["-y", "@modelcontextprotocol/server-filesystem", "/Users/me/projects"]
       }
     },
-    allowedTools: ["mcp__github__list_issues", "mcp__github__search_issues"]
+    allowedTools: ["mcp__filesystem__read_file", "mcp__filesystem__list_directory"]
   }
 };
 ```
 
+```text
+options = ClaudeAgentOptions(
+    mcp_servers={
+        "filesystem": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "@modelcontextprotocol/server-filesystem",
+                "/Users/me/projects",
+            ],
+        }
+    },
+    allowed_tools=["mcp__filesystem__read_file", "mcp__filesystem__list_directory"],
+)
 ```
+
+```text
 {
   "mcpServers": {
-    "github": {
+    "filesystem": {
       "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-github"],
-      "env": {
-        "GITHUB_TOKEN": "${GITHUB_TOKEN}"
-      }
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/Users/me/projects"]
     }
   }
 }
@@ -194,7 +317,7 @@ TypeScript
 
 Python
 
-```
+```text
 const _ = {
   options: {
     mcpServers: {
@@ -211,7 +334,20 @@ const _ = {
 };
 ```
 
+```text
+options = ClaudeAgentOptions(
+    mcp_servers={
+        "remote-api": {
+            "type": "sse",
+            "url": "https://api.example.com/mcp/sse",
+            "headers": {"Authorization": f"Bearer {os.environ['API_TOKEN']}"},
+        }
+    },
+    allowed_tools=["mcp__remote-api__*"],
+)
 ```
+
+```text
 {
   "mcpServers": {
     "remote-api": {
@@ -229,13 +365,13 @@ For the streamable HTTP transport, use `"type": "http"` instead. In `.mcp.json` 
 
 ### [​](#sdk-mcp-servers "#sdk-mcp-servers") SDK MCP servers
 
-Define custom tools directly in your application code instead of running a separate server process. See the [custom tools guide](./agent-sdk_custom-tools "_agent-sdk_custom-tools".md) for implementation details.
+Define custom tools directly in your application code instead of running a separate server process. See the [custom tools guide](./agent-sdk_custom-tools "._agent-sdk_custom-tools".md) for implementation details.
+An SDK MCP server registered by an [`initialize` control request](./agent-sdk_typescript#sdkcontrolinitializeresponse "._agent-sdk_typescript#sdkcontrolinitializeresponse".md) begins connecting as soon as Claude Code processes the request.
 
 ## [​](#mcp-tool-search "#mcp-tool-search") MCP tool search
 
 When you have many MCP tools configured, tool definitions can consume a significant portion of your context window. Tool search solves this by withholding tool definitions from context and loading only the ones Claude needs for each turn.
-Tool search is enabled by default. See [Tool search](./agent-sdk_tool-search "_agent-sdk_tool-search".md) for configuration options and details.
-For more detail, including best practices and using tool search with custom SDK tools, see the [tool search guide](./agent-sdk_tool-search "_agent-sdk_tool-search".md).
+Tool search is enabled by default. See [Tool search](./agent-sdk_tool-search "._agent-sdk_tool-search".md) for configuration options, best practices, and using tool search with custom SDK tools.
 
 ## [​](#authentication "#authentication") Authentication
 
@@ -252,40 +388,51 @@ TypeScript
 
 Python
 
-```
+```text
 const _ = {
   options: {
     mcpServers: {
-      github: {
+      "api-server": {
         command: "npx",
-        args: ["-y", "@modelcontextprotocol/server-github"],
+        args: ["-y", "@your-org/api-mcp-server"],
         env: {
-          GITHUB_TOKEN: process.env.GITHUB_TOKEN
+          API_KEY: process.env.API_KEY
         }
       }
     },
-    allowedTools: ["mcp__github__list_issues"]
+    allowedTools: ["mcp__api-server__*"]
   }
 };
 ```
 
+```text
+options = ClaudeAgentOptions(
+    mcp_servers={
+        "api-server": {
+            "command": "npx",
+            "args": ["-y", "@your-org/api-mcp-server"],
+            "env": {"API_KEY": os.environ["API_KEY"]},
+        }
+    },
+    allowed_tools=["mcp__api-server__*"],
+)
 ```
+
+```text
 {
   "mcpServers": {
-    "github": {
+    "api-server": {
       "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "args": ["-y", "@your-org/api-mcp-server"],
       "env": {
-        "GITHUB_TOKEN": "${GITHUB_TOKEN}"
+        "API_KEY": "${API_KEY}"
       }
     }
   }
 }
 ```
 
-The `${GITHUB_TOKEN}` syntax expands environment variables at runtime.
-
-See [List issues from a repository](#list-issues-from-a-repository "#list-issues-from-a-repository") for a complete working example with debug logging.
+The `${API_KEY}` syntax expands environment variables at runtime.
 
 ### [​](#http-headers-for-remote-servers "#http-headers-for-remote-servers") HTTP headers for remote servers
 
@@ -298,7 +445,7 @@ TypeScript
 
 Python
 
-```
+```text
 const _ = {
   options: {
     mcpServers: {
@@ -315,7 +462,20 @@ const _ = {
 };
 ```
 
+```text
+options = ClaudeAgentOptions(
+    mcp_servers={
+        "secure-api": {
+            "type": "http",
+            "url": "https://api.example.com/mcp",
+            "headers": {"Authorization": f"Bearer {os.environ['API_TOKEN']}"},
+        }
+    },
+    allowed_tools=["mcp__secure-api__*"],
+)
 ```
+
+```text
 {
   "mcpServers": {
     "secure-api": {
@@ -331,16 +491,20 @@ const _ = {
 
 The `${API_TOKEN}` syntax expands environment variables at runtime.
 
+For a complete working example of a remote server authenticated with headers, see [List issues from a repository](#list-issues-from-a-repository "#list-issues-from-a-repository").
+
 ### [​](#oauth2-authentication "#oauth2-authentication") OAuth2 authentication
 
-The [MCP specification supports OAuth 2.1](https://modelcontextprotocol.io/specification/2025-03-26/basic/authorization "https://modelcontextprotocol.io/specification/2025-03-26/basic/authorization") for authorization. The SDK doesn’t handle OAuth flows automatically, but you can pass access tokens via headers after completing the OAuth flow in your application:
+The [MCP specification supports OAuth 2.1](https://modelcontextprotocol.io/specification/2025-03-26/basic/authorization "https://modelcontextprotocol.io/specification/2025-03-26/basic/authorization") for authorization. The SDK doesn’t open a browser or run an interactive OAuth flow. When a configured server returns an authorization challenge and no stored token is available, the agent run continues without that server’s tools, and the server reports status `needs-auth`. Because servers connect in the background by default, the `mcp_servers` array of the [system init message](./agent-sdk_typescript#sdksystemmessage "._agent-sdk_typescript#sdksystemmessage".md) may still show `pending` for that server. To confirm whether a server needs credentials, poll `mcpServerStatus()` in the TypeScript SDK or [`get_mcp_status()`](./agent-sdk_python#methods "._agent-sdk_python#methods".md) in Python, or set `MCP_CONNECTION_NONBLOCKING=0` to wait for connections before the init message.
+To supply credentials, complete the OAuth flow in your own application and pass the resulting access token in the server’s `headers`:
 
 TypeScript
 
 Python
 
-```
-// After completing OAuth flow in your app
+```text
+// After completing OAuth flow in your app.
+// Implement getAccessTokenFromOAuthFlow for your OAuth provider.
 const accessToken = await getAccessTokenFromOAuthFlow();
 
 const options = {
@@ -357,22 +521,39 @@ const options = {
 };
 ```
 
+```text
+# After completing OAuth flow in your app.
+# Implement get_access_token_from_oauth_flow for your OAuth provider.
+access_token = await get_access_token_from_oauth_flow()
+
+options = ClaudeAgentOptions(
+    mcp_servers={
+        "oauth-api": {
+            "type": "http",
+            "url": "https://api.example.com/mcp",
+            "headers": {"Authorization": f"Bearer {access_token}"},
+        }
+    },
+    allowed_tools=["mcp__oauth-api__*"],
+)
+```
+
 ## [​](#examples "#examples") Examples
 
 ### [​](#list-issues-from-a-repository "#list-issues-from-a-repository") List issues from a repository
 
-This example connects to the [GitHub MCP server](https://github.com/modelcontextprotocol/servers/tree/main/src/github "https://github.com/modelcontextprotocol/servers/tree/main/src/github") to list recent issues. The example includes debug logging to verify the MCP connection and tool calls.
-Before running, create a [GitHub personal access token](https://github.com/settings/tokens "https://github.com/settings/tokens") with `repo` scope and set it as an environment variable:
+This example connects to the remote [GitHub MCP server](https://github.com/github/github-mcp-server "https://github.com/github/github-mcp-server") to list recent issues. The example includes debug logging to verify the MCP connection and tool calls.
+Before running, create a [GitHub personal access token](https://github.com/settings/personal-access-tokens "https://github.com/settings/personal-access-tokens") with read access to the repositories you want to query and set it as an environment variable:
 
-```
-export GITHUB_TOKEN=ghp_xxxxxxxxxxxxxxxxxxxx
+```text
+export GITHUB_TOKEN=YOUR_GITHUB_PAT
 ```
 
 TypeScript
 
 Python
 
-```
+```text
 import { query } from "@anthropic-ai/claude-agent-sdk";
 
 for await (const message of query({
@@ -380,10 +561,10 @@ for await (const message of query({
   options: {
     mcpServers: {
       github: {
-        command: "npx",
-        args: ["-y", "@modelcontextprotocol/server-github"],
-        env: {
-          GITHUB_TOKEN: process.env.GITHUB_TOKEN
+        type: "http",
+        url: "https://api.githubcopilot.com/mcp/",
+        headers: {
+          Authorization: `Bearer ${process.env.GITHUB_TOKEN}`
         }
       }
     },
@@ -411,19 +592,82 @@ for await (const message of query({
 }
 ```
 
+```text
+import asyncio
+import os
+from claude_agent_sdk import (
+    query,
+    ClaudeAgentOptions,
+    ResultMessage,
+    SystemMessage,
+    AssistantMessage,
+)
+
+
+async def main():
+    options = ClaudeAgentOptions(
+        mcp_servers={
+            "github": {
+                "type": "http",
+                "url": "https://api.githubcopilot.com/mcp/",
+                "headers": {"Authorization": f"Bearer {os.environ['GITHUB_TOKEN']}"},
+            }
+        },
+        allowed_tools=["mcp__github__list_issues"],
+    )
+
+    async for message in query(
+        prompt="List the 3 most recent issues in anthropics/claude-code",
+        options=options,
+    ):
+        # Verify MCP server connected successfully
+        if isinstance(message, SystemMessage) and message.subtype == "init":
+            print("MCP servers:", message.data.get("mcp_servers"))
+
+        # Log when Claude calls an MCP tool
+        if isinstance(message, AssistantMessage):
+            for block in message.content:
+                if hasattr(block, "name") and block.name.startswith("mcp__"):
+                    print("MCP tool called:", block.name)
+
+        # Print the final result
+        if isinstance(message, ResultMessage) and message.subtype == "success":
+            print(message.result)
+
+
+asyncio.run(main())
+```
+
 ### [​](#query-a-database "#query-a-database") Query a database
 
-This example uses the [Postgres MCP server](https://github.com/modelcontextprotocol/servers/tree/main/src/postgres "https://github.com/modelcontextprotocol/servers/tree/main/src/postgres") to query a database. The connection string is passed as an argument to the server. The agent automatically discovers the database schema, writes the SQL query, and returns the results:
+This example uses [DBHub](https://github.com/bytebase/dbhub "https://github.com/bytebase/dbhub") to query a Postgres database. The agent automatically discovers the database schema, writes the SQL query, and returns the results.
+DBHub’s `execute_sql` tool runs whatever SQL the agent emits, including writes, unless you restrict it. Setting `readonly = true` in the [DBHub configuration file](https://dbhub.ai/config/toml "https://dbhub.ai/config/toml") makes DBHub reject `INSERT`, `UPDATE`, `DELETE`, and DDL statements, so the example cannot modify your data even if the agent emits a write. DBHub resolves `${DATABASE_URL}` from the process environment when it loads the config, so the connection string stays out of the file. Create this `dbhub.toml` next to your script:
+
+dbhub.toml
+
+```text
+[[sources]]
+id = "production"
+dsn = "${DATABASE_URL}"
+
+[[tools]]
+name = "execute_sql"
+source = "production"
+readonly = true
+```
+
+The script then points DBHub at the config file instead of passing a connection string directly. Before running, set the `DATABASE_URL` environment variable to your connection string. Replace the example values with your own database details:
+
+```text
+export DATABASE_URL=postgresql://user:password@localhost:5432/mydb
+```
 
 TypeScript
 
 Python
 
-```
+```text
 import { query } from "@anthropic-ai/claude-agent-sdk";
-
-// Connection string from environment variable
-const connectionString = process.env.DATABASE_URL;
 
 for await (const message of query({
   // Natural language query - Claude writes the SQL
@@ -432,12 +676,11 @@ for await (const message of query({
     mcpServers: {
       postgres: {
         command: "npx",
-        // Pass connection string as argument to the server
-        args: ["-y", "@modelcontextprotocol/server-postgres", connectionString]
+        // dbhub.toml sets readonly = true, so execute_sql rejects writes
+        args: ["-y", "@bytebase/dbhub", "--config", "dbhub.toml"]
       }
     },
-    // Allow only read queries, not writes
-    allowedTools: ["mcp__postgres__query"]
+    allowedTools: ["mcp__postgres__execute_sql"]
   }
 })) {
   if (message.type === "result" && message.subtype === "success") {
@@ -446,38 +689,120 @@ for await (const message of query({
 }
 ```
 
+```text
+import asyncio
+from claude_agent_sdk import query, ClaudeAgentOptions, ResultMessage
+
+
+async def main():
+    options = ClaudeAgentOptions(
+        mcp_servers={
+            "postgres": {
+                "command": "npx",
+                # dbhub.toml sets readonly = true, so execute_sql rejects writes
+                "args": [
+                    "-y",
+                    "@bytebase/dbhub",
+                    "--config",
+                    "dbhub.toml",
+                ],
+            }
+        },
+        allowed_tools=["mcp__postgres__execute_sql"],
+    )
+
+    # Natural language query - Claude writes the SQL
+    async for message in query(
+        prompt="How many users signed up last week? Break it down by day.",
+        options=options,
+    ):
+        if isinstance(message, ResultMessage) and message.subtype == "success":
+            print(message.result)
+
+
+asyncio.run(main())
+```
+
 ## [​](#error-handling "#error-handling") Error handling
 
 MCP servers can fail to connect for various reasons: the server process might not be installed, credentials might be invalid, or a remote server might be unreachable.
-The SDK emits a `system` message with subtype `init` at the start of each query. This message includes the connection status for each MCP server. Check the `status` field to detect connection failures before the agent starts working:
+The SDK emits a `system` message with subtype `init` at the start of each query. This message includes the connection status for each MCP server. The `status` field can be `"pending"`, `"connected"`, `"failed"`, `"needs-auth"`, or `"disabled"`. Because connection is [non-blocking by default](#connection-timing "#connection-timing"), healthy servers often still report `"pending"` when the init message is emitted. Check for `"failed"` or `"needs-auth"` to detect servers that won’t be usable, and don’t treat `"pending"` as a failure:
 
 TypeScript
 
 Python
 
-```
+```text
 import { query } from "@anthropic-ai/claude-agent-sdk";
 
-for await (const message of query({
-  prompt: "Process data",
-  options: {
-    mcpServers: {
-      "data-processor": dataServer
+try {
+  for await (const message of query({
+    prompt: "Process data",
+    options: {
+      mcpServers: {
+        // Replace dataServer with your server configuration
+        "data-processor": dataServer
+      }
+    }
+  })) {
+    if (message.type === "system" && message.subtype === "init") {
+      const unavailableServers = message.mcp_servers.filter(
+        (s) => s.status === "failed" || s.status === "needs-auth"
+      );
+
+      if (unavailableServers.length > 0) {
+        console.warn("Unavailable MCP servers:", unavailableServers);
+      }
+    }
+
+    if (message.type === "result" && message.subtype === "error_during_execution") {
+      console.error("Execution failed");
     }
   }
-})) {
-  if (message.type === "system" && message.subtype === "init") {
-    const failedServers = message.mcp_servers.filter((s) => s.status !== "connected");
-
-    if (failedServers.length > 0) {
-      console.warn("Failed to connect:", failedServers);
-    }
-  }
-
-  if (message.type === "result" && message.subtype === "error_during_execution") {
-    console.error("Execution failed");
-  }
+} catch (error) {
+  // A single-shot query() throws after yielding an error result.
+  // If the failure was an error result, the error subtype branch above
+  // has already run; connection or process failures yield no result
+  // message.
+  console.log(`Session ended with an error: ${error}`);
 }
+```
+
+```text
+import asyncio
+from claude_agent_sdk import query, ClaudeAgentOptions, SystemMessage, ResultMessage
+
+
+async def main():
+    # Replace data_server with your server configuration
+    options = ClaudeAgentOptions(mcp_servers={"data-processor": data_server})
+
+    try:
+        async for message in query(prompt="Process data", options=options):
+            if isinstance(message, SystemMessage) and message.subtype == "init":
+                unavailable_servers = [
+                    s
+                    for s in message.data.get("mcp_servers", [])
+                    if s.get("status") in ("failed", "needs-auth")
+                ]
+
+                if unavailable_servers:
+                    print(f"Unavailable MCP servers: {unavailable_servers}")
+
+            if (
+                isinstance(message, ResultMessage)
+                and message.subtype == "error_during_execution"
+            ):
+                print("Execution failed")
+    except Exception as error:
+        # A single-shot query() raises after yielding an error result.
+        # If the failure was an error result, the error subtype branch
+        # above has already run; connection or process failures yield
+        # no result message.
+        print(f"Session ended with an error: {error}")
+
+
+asyncio.run(main())
 ```
 
 ## [​](#troubleshooting "#troubleshooting") Troubleshooting
@@ -486,7 +811,11 @@ for await (const message of query({
 
 Check the `init` message to see which servers failed to connect:
 
-```
+TypeScript
+
+Python
+
+```text
 if (message.type === "system" && message.subtype === "init") {
   for (const server of message.mcp_servers) {
     if (server.status === "failed") {
@@ -496,6 +825,14 @@ if (message.type === "system" && message.subtype === "init") {
 }
 ```
 
+```text
+if isinstance(message, SystemMessage) and message.subtype == "init":
+    for server in message.data.get("mcp_servers", []):
+        if server.get("status") == "failed":
+            print(f"Server {server['name']} failed to connect")
+```
+
+A `"pending"` status means the server is still connecting, not that it failed. To get updated statuses later in the session, call the query’s `mcpServerStatus()` method in the TypeScript SDK, or [`ClaudeSDKClient.get_mcp_status()`](./agent-sdk_python#methods "._agent-sdk_python#methods".md) in Python.
 Common causes:
 
 * **Missing environment variables**: Ensure required tokens and credentials are set. For stdio servers, check the `env` field matches what the server expects.
@@ -507,7 +844,11 @@ Common causes:
 
 If Claude sees tools but doesn’t use them, check that you’ve granted permission with `allowedTools`:
 
-```
+TypeScript
+
+Python
+
+```text
 const _ = {
   options: {
     mcpServers: {
@@ -518,18 +859,32 @@ const _ = {
 };
 ```
 
+```text
+options = ClaudeAgentOptions(
+    mcp_servers={
+        # your servers
+    },
+    allowed_tools=["mcp__servername__*"],  # Auto-approve calls from this server
+)
+```
+
 ### [​](#connection-timeouts "#connection-timeouts") Connection timeouts
 
-The MCP SDK has a default timeout of 60 seconds for server connections. If your server takes longer to start, the connection will fail. For servers that need more startup time, consider:
+MCP server connections time out after 30 seconds by default. If your server takes longer to start, the connection fails. Raise the limit with the [`MCP_TIMEOUT`](./env-vars "._env-vars".md) environment variable, in milliseconds. For servers that need more startup time, also consider:
 
 * Using a lighter-weight server if available
 * Pre-warming the server before starting your agent
 * Checking server logs for slow initialization causes
 
+### [​](#tool-output-exceeds-maximum-allowed-tokens "#tool-output-exceeds-maximum-allowed-tokens") Tool output exceeds maximum allowed tokens
+
+The SDK applies the same MCP output limit as Claude Code. When a tool result is larger than 25,000 tokens, the full output is saved to a file and the tool result is replaced with an error message that names the file path, so the agent can read the output back in portions. Raise the limit with the [`MAX_MCP_OUTPUT_TOKENS`](./env-vars "._env-vars".md) environment variable. See [MCP output limits and warnings](./mcp#mcp-output-limits-and-warnings "._mcp#mcp-output-limits-and-warnings".md) for the full behavior, including how a server can declare a higher per-tool limit.
+
 ## [​](#related-resources "#related-resources") Related resources
 
-* **[Custom tools guide](./agent-sdk_custom-tools "_agent-sdk_custom-tools".md)**: Build your own MCP server that runs in-process with your SDK application
-* **[Permissions](./agent-sdk_permissions "_agent-sdk_permissions".md)**: Control which MCP tools your agent can use with `allowedTools` and `disallowedTools`
-* **[TypeScript SDK reference](./agent-sdk_typescript "_agent-sdk_typescript".md)**: Full API reference including MCP configuration options
-* **[Python SDK reference](./agent-sdk_python "_agent-sdk_python".md)**: Full API reference including MCP configuration options
+* **[Custom tools guide](./agent-sdk_custom-tools "._agent-sdk_custom-tools".md)**: Build your own MCP server that runs in-process with your SDK application
+* **[Permissions](./agent-sdk_permissions "._agent-sdk_permissions".md)**: Control which MCP tools your agent can use with `allowedTools` and `disallowedTools`
+* **[MCP output limits and warnings](./mcp#mcp-output-limits-and-warnings "._mcp#mcp-output-limits-and-warnings".md)**: How the SDK handles tool results that exceed `MAX_MCP_OUTPUT_TOKENS`, including the persist-to-disk fallback and the `anthropic/maxResultSizeChars` per-tool annotation
+* **[TypeScript SDK reference](./agent-sdk_typescript "._agent-sdk_typescript".md)**: Full API reference including MCP configuration options
+* **[Python SDK reference](./agent-sdk_python "._agent-sdk_python".md)**: Full API reference including MCP configuration options
 * **[MCP server directory](https://github.com/modelcontextprotocol/servers "https://github.com/modelcontextprotocol/servers")**: Browse available MCP servers for databases, APIs, and more

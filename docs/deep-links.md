@@ -1,10 +1,4 @@
-# Deep Links
-
-> ## Documentation Index
->
-> Fetch the complete documentation index at: [https://code.claude.com/docs/llms.txt](https://code.claude.com/docs/llms.txt "https://code.claude.com/docs/llms.txt")
->
-> Use this file to discover all available pages before exploring further.
+# Deep-Links
 
 A deep link is a `claude-cli://` URL that opens Claude Code in a new terminal window. The URL can carry a working directory and a prompt to pre-fill.
 This lets you share a one-click starting point for a task: anyone with Claude Code installed who clicks the link sees a session open with the prompt already typed. The prompt is populated but not sent until you press Enter.
@@ -16,8 +10,6 @@ Because a deep link is a URL, you can put one anywhere a link can go:
 * A CI failure notification that pre-fills the failing job’s name
 
 This page covers how to [build a link](#build-a-link "#build-a-link"), [embed one in a runbook or trigger it from the shell](#examples "#examples"), and [manage or disable handler registration](#registration-and-supported-platforms "#registration-and-supported-platforms") on each platform.
-
-Deep links require Claude Code v2.1.91 or later.
 
 ## [​](#how-it-works "#how-it-works") How it works
 
@@ -35,34 +27,36 @@ The platform that displays the link must allow custom URL schemes. GitHub-render
 ### [​](#what-a-launched-session-shows "#what-a-launched-session-shows") What a launched session shows
 
 A deep link never executes anything on its own. The link only chooses a directory and fills the prompt box. If you click a link from a page you do not trust, the prompt is still inert: nothing reaches the model until you read what was filled in and press Enter.
-When the session opens, a banner above the input shows that an external link launched it and which directory it selected. For prompts over 1,000 characters, the banner tells you to scroll and review the full text before pressing Enter, since long prompts can push instructions off screen. Permission rules, `CLAUDE.md`, and trust prompts for the selected directory apply the same way as for any other session.
+When the session opens, a warning line below the input box reads `Prompt from an external link` and stays visible until you send or clear the prompt. For prompts over 1,000 characters, the warning includes the character count and tells you to scroll and review the full text before pressing Enter, since long prompts can push instructions off screen. Permission rules, `CLAUDE.md`, and trust prompts for the selected directory apply the same way as for any other session.
 
 ## [​](#build-a-link "#build-a-link") Build a link
 
 Every deep link starts with `claude-cli://open`, which is the only path the handler accepts, followed by optional query parameters. The minimal form opens Claude Code in your home directory with an empty prompt:
 
-```
+```text
 claude-cli://open
 ```
 
+To try a link without putting it on a page, paste it into your browser’s address bar or [open it from the shell](#open-a-link-from-the-shell "#open-a-link-from-the-shell").
 Add parameters to control where the session starts and what the prompt box contains:
+
 
 | Parameter | Description |
 | --- | --- |
 | `q` | Text to pre-fill in the prompt box. [URL-encode](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/encodeURIComponent "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/encodeURIComponent") the value. Use `%0A` for line breaks in multi-line prompts. Maximum 5,000 characters. |
-| `cwd` | Absolute path to use as the working directory. Network and UNC paths are rejected. |
+| `cwd` | Absolute path to use as the working directory. Network and UNC paths are rejected, and so are paths that contain invisible or bidirectional control characters. |
 | `repo` | A GitHub `owner/name` slug. Claude Code resolves it to a local clone it has seen before and starts there. If you have no matching clone, the session opens in your home directory instead. |
 
 `cwd` and `repo` are [two ways to set the working directory](#choose-between-cwd-and-repo "#choose-between-cwd-and-repo"). If you pass both, `cwd` takes precedence and `repo` is ignored, even if the `cwd` path does not exist.
 The following link points at a repository called `acme/payments` with a two-line diagnostic prompt. Replace `acme/payments` with your repository’s `owner/name` slug when you build your own:
 
-```
+```text
 claude-cli://open?repo=acme/payments&q=Investigate%20the%20failed%20deploy%20of%20payments-api.%0ACheck%20recent%20commits%20to%20main%20and%20the%20last%20successful%20build.
 ```
 
 Clicking it opens a new terminal window, starts Claude Code in your local clone of `acme/payments`, and fills the prompt box with the decoded text:
 
-```
+```text
 Investigate the failed deploy of payments-api.
 Check recent commits to main and the last successful build.
 ```
@@ -79,7 +73,7 @@ Use `repo` when the link is shared and each person clones to a different locatio
 * The lookup only finds paths where you have already run Claude Code at least once.
 * The link does not change which branch is checked out. The session opens in whatever state that directory is currently in.
 
-The launched session shows which path it picked and when that clone last fetched from the remote, so you can tell if you are looking at stale code.
+The welcome header shows which path it picked so you can confirm the right clone opened.
 
 ## [​](#examples "#examples") Examples
 
@@ -91,7 +85,7 @@ A deep link in a runbook gives whoever is triaging a one-click way to start inve
 The prompt is part of the URL and must be URL-encoded. To produce the encoded value, pass your prompt text through `encodeURIComponent` in a browser console or any URL encoder.
 The example below adds an investigation entry point to an incident runbook for a service called `web-gateway`:
 
-```
+```text
 ## High 5xx rate on web-gateway
 
 1. Acknowledge the page in PagerDuty.
@@ -103,7 +97,7 @@ To use this in your own runbook, replace `acme/web-gateway` with your service’
 
 ### [​](#open-a-link-from-the-shell "#open-a-link-from-the-shell") Open a link from the shell
 
-You can also open a deep link from a shell script, alias, or automation rather than by clicking it. Call your operating system’s URL-opening command with the link as the argument.
+You can also open a deep link from a shell script, alias, or automation rather than by clicking it. Call your operating system’s URL-opening command with the link as the argument. These commands rely on the handler that Claude Code [registers when you send your first prompt of an interactive session](#registration-and-supported-platforms "#registration-and-supported-platforms") on the machine.
 
 * macOS
 * Linux
@@ -111,31 +105,34 @@ You can also open a deep link from a shell script, alias, or automation rather t
 
 The built-in `open` command passes the URL to the registered `claude-cli://` handler:
 
-```
+```text
 open "claude-cli://open?repo=acme/payments&q=review%20open%20PRs"
 ```
 
 Most desktop environments provide `xdg-open`, which passes the URL to the registered handler:
 
-```
+```text
 xdg-open "claude-cli://open?repo=acme/payments&q=review%20open%20PRs"
 ```
 
+On success, a new terminal window opens with Claude Code running and the prompt pre-filled. If the shell reports that `xdg-open` isn’t found, see [Troubleshooting](#xdg-open-is-not-found-on-linux "#xdg-open-is-not-found-on-linux").
+
 In PowerShell, `Start-Process` passes the URL to the registered handler:
 
-```
+```text
 Start-Process "claude-cli://open?repo=acme/payments&q=review%20open%20PRs"
 ```
 
 In `cmd.exe`, `start` treats its first quoted argument as a window title, so pass an empty title before the URL:
 
-```
+```text
 start "" "claude-cli://open?repo=acme/payments&q=review%20open%20PRs"
 ```
 
 ## [​](#registration-and-supported-platforms "#registration-and-supported-platforms") Registration and supported platforms
 
-Claude Code registers the `claude-cli://` handler with your operating system the first time you start an interactive session on macOS, Linux, and Windows. You do not run a separate install command. Registration writes to user-level locations only:
+Claude Code registers the `claude-cli://` handler with your operating system on macOS, Linux, and Windows when you send your first prompt of an interactive session. Starting `claude` and exiting without sending a prompt doesn’t register the handler. You don’t run a separate install command. Registration writes to user-level locations only:
+
 
 | Platform | Handler location |
 | --- | --- |
@@ -144,17 +141,21 @@ Claude Code registers the `claude-cli://` handler with your operating system the
 | Windows | `HKEY_CURRENT_USER\Software\Classes\claude-cli` |
 
 The handler launches Claude Code in a detected terminal emulator. On macOS, Claude Code remembers the terminal from your most recent interactive session and reuses it, supporting iTerm2, Ghostty, kitty, Alacritty, WezTerm, and Terminal.app. On Linux it honors the `$TERMINAL` environment variable, then `x-terminal-emulator`, then a list of common emulators. On Windows it prefers Windows Terminal, then PowerShell, then `cmd.exe`.
-To prevent registration entirely, set [`disableDeepLinkRegistration`](./settings "_settings".md) to `"disable"` in `settings.json`. To enforce this across an organization so users cannot re-enable it, set it in [managed settings](./server-managed-settings "_server-managed-settings".md) instead.
+To prevent registration entirely, set [`disableDeepLinkRegistration`](./settings "._settings".md) to `"disable"` in `settings.json`. To enforce this across an organization so users cannot re-enable it, set it in [managed settings](./server-managed-settings "._server-managed-settings".md) instead.
 
 ## [​](#open-a-vs-code-tab-instead-of-a-terminal "#open-a-vs-code-tab-instead-of-a-terminal") Open a VS Code tab instead of a terminal
 
-The VS Code extension registers its own handler at `vscode://anthropic.claude-code/open`, which opens a Claude Code editor tab rather than a terminal window. See [Launch a VS Code tab from other tools](./vs-code#launch-a-vs-code-tab-from-other-tools "_vs-code#launch-a-vs-code-tab-from-other-tools".md) for that URL’s parameters.
+The VS Code extension registers its own handler at `vscode://anthropic.claude-code/open`, which opens a Claude Code editor tab rather than a terminal window. See [Launch a VS Code tab from other tools](./vs-code#launch-a-vs-code-tab-from-other-tools "._vs-code#launch-a-vs-code-tab-from-other-tools".md) for that URL’s parameters.
 
 ## [​](#troubleshooting "#troubleshooting") Troubleshooting
 
 ### [​](#clicking-the-link-does-nothing "#clicking-the-link-does-nothing") Clicking the link does nothing
 
-The handler likely is not registered yet. Start an interactive `claude` session once on that machine, exit, and try the link again. If you are on Linux without a desktop environment, `xdg-open` may have nothing to dispatch to.
+The handler likely isn’t registered yet. Registration happens when you send your first prompt of an interactive session, not when the session starts. Start an interactive `claude` session on that machine, send any prompt, exit, and try the link again. If you are on Linux without a desktop environment, `xdg-open` may have nothing to dispatch to.
+
+### [​](#xdg-open-is-not-found-on-linux "#xdg-open-is-not-found-on-linux") xdg-open is not found on Linux
+
+The `xdg-open` command is part of the `xdg-utils` package, which minimal server images, containers, and WSL distributions often leave out. Install `xdg-utils` with your distribution’s package manager, for example `sudo apt install xdg-utils`, then run the command again. If the command then runs but nothing opens, `xdg-open` may have no desktop environment to dispatch to; see [Clicking the link does nothing](#clicking-the-link-does-nothing "#clicking-the-link-does-nothing").
 
 ### [​](#the-link-renders-as-plain-text-instead-of-being-clickable "#the-link-renders-as-plain-text-instead-of-being-clickable") The link renders as plain text instead of being clickable
 
@@ -172,5 +173,5 @@ On macOS, start `claude` in your preferred terminal once and the next deep link 
 
 These pages cover related ways to launch or extend Claude Code sessions:
 
-* [Skills](./skills "_skills".md): store a long runbook prompt as a `/skill` in the repo so the deep link’s `q` parameter only has to name it
-* [Non-interactive mode](./headless "_headless".md): run Claude from a script and capture the output without opening a terminal
+* [Skills](./skills "._skills".md): store a long runbook prompt as a `/skill` in the repo so the deep link’s `q` parameter only has to name it
+* [Non-interactive mode](./headless "._headless".md): run Claude from a script and capture the output without opening a terminal

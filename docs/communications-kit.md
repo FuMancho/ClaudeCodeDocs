@@ -1,10 +1,4 @@
-# Communications Kit
-
-> ## Documentation Index
->
-> Fetch the complete documentation index at: [https://code.claude.com/docs/llms.txt](https://code.claude.com/docs/llms.txt "https://code.claude.com/docs/llms.txt")
->
-> Use this file to discover all available pages before exploring further.
+# Communications-Kit
 
 This page is for administrators and engineering leads rolling Claude Code out to a team. It provides copy-ready launch announcements, a tips-and-tricks drip campaign, and one-line FAQ responses for the questions you will be asked most.
 
@@ -18,11 +12,12 @@ One announcement in two formats, plus two optional variants. Pick whichever fits
 
 Work through this checklist before the announcement goes out. Each item closes a gap that otherwise turns into a launch-day support thread.
 
+
 | Item | Why it matters |
 | --- | --- |
 | `#claude-code` channel created and linked in the message | Gives questions one place to land |
 | Install command tested on at least one machine in your environment | Catches proxy or firewall issues before everyone hits them at once |
-| Security and data-handling link ready ([Data usage](./data-usage "_data-usage".md) or your internal equivalent) | “Where does my code go?” will be the first reply |
+| Security and data-handling link ready ([Data usage](./data-usage "._data-usage".md) or your internal equivalent) | “Where does my code go?” will be the first reply |
 | One concrete first task chosen, a real bug or file in your codebase | Generic examples don’t convert; “fix the flaky test in `auth_test.go`” does |
 | A named owner for the channel for the first 48 hours | Unanswered launch-day questions kill momentum |
 | A C-suite sponsor lined up to send or co-sign the announcement | Exec-sent launches consistently see higher first-week adoption than admin-sent ones |
@@ -34,7 +29,7 @@ Use this as your standard org-wide rollout message. It covers what Claude Code i
 * Email
 * Slack or Teams
 
-```
+```text
 Subject: Claude Code is live for [Engineering / your team]
 
 Team,
@@ -76,7 +71,7 @@ P.S. Prefer your editor? There is a VS Code extension and a JetBrains
 plugin. Same agent, no terminal required.
 ```
 
-```
+```text
 🚀 *Claude Code is live for [team]*
 
 AI coding agent, runs in your terminal, reads your repo, does real work:
@@ -107,7 +102,7 @@ This version is deliberately stripped to one ask: install it and run it on one r
 * Email
 * Slack or Teams
 
-```
+```text
 Subject: One thing I'd like every engineer to try this week
 
 Team,
@@ -133,7 +128,7 @@ anything you hit along the way.
   [Title]
 ```
 
-```
+```text
 📣 *From [Exec Name]: one thing to try this week*
 
 We have turned on *Claude Code* for all of engineering. Early results are
@@ -150,7 +145,7 @@ That's it. Questions → #claude-code.
 
 Use for a phased rollout. Send to the pilot cohort only.
 
-```
+```text
 Subject: You're in the Claude Code pilot
 
 [Name / team],
@@ -174,7 +169,7 @@ trust it.
 
 After launch, DM the two or three people who are most active in `#claude-code`.
 
-```
+```text
 Hey [name], your #claude-code posts are doing more for adoption than my
 announcement did. A couple of people told me your [thread / screenshot]
 was why they actually tried it.
@@ -193,7 +188,7 @@ Copy the message body from each block directly into Slack or Teams. Replace `[br
 
 **Choosing the right model**
 
-```
+```text
 🎯 *Tip: Match the model to the moment*
 
 Using Opus to fix a typo burns compute. Using Haiku for a 12-file refactor
@@ -203,7 +198,10 @@ Claude Code runs on the same models as the Claude app, and you can switch
 mid-session. *Sonnet* is the workhorse default for everyday feature work,
 bugs, tests, and reviews. Reach for *Opus* on large refactors, gnarly
 debugging, or anything high-stakes. Drop to *Haiku* for quick questions,
-formatting, and mechanical edits where speed wins.
+formatting, and mechanical edits where speed wins. *Fable 5* is the most
+capable model for your hardest, longest-running tasks; it is not the
+default, so select it with `/model fable`, and note that cybersecurity and
+biology content falls back to Opus automatically.
 
 *Try it now:* type `/model` and pick Sonnet if you haven't already. It is
 the right default for most tasks.
@@ -213,13 +211,14 @@ the right default for most tasks.
 
 | Model | Best for |
 | --- | --- |
+| Fable 5 | The hardest, longest-running tasks. Opt-in only: select it with `/model fable`. Cybersecurity or biology content [falls back to Opus](./model-config#automatic-model-fallback "._model-config#automatic-model-fallback".md) |
 | Opus | Large-scale refactors, complex debugging, architecture decisions, high-stakes changes |
 | Sonnet | Everyday feature work, bug fixes, tests, documentation, code review. Recommended default. |
 | Haiku | Quick questions, formatting, mechanical edits, rapid iteration |
 
 **Quick wins to try first**
 
-```
+```text
 🚀 *Tip: Three things to try in your first 10 minutes*
 
 Installed Claude Code but not sure what to actually ask it? Start with the
@@ -242,7 +241,7 @@ message in.
 
 **`/init` and CLAUDE.md**
 
-```
+```text
 📁 *Tip: Stop re-explaining your repo every session*
 
 Telling Claude "we use pnpm, not npm" for the fifth time? There is a
@@ -261,7 +260,7 @@ seconds, pays off every session after.
 
 **@-references**
 
-```
+```text
 📎 *Tip: Stop pasting file contents into the chat*
 
 Copying 200 lines of a component into your prompt so Claude can "see" it?
@@ -282,14 +281,15 @@ Works for whole directories too.
 
 **Permission modes**
 
-```
+```text
 🛡️ *Tip: One keystroke between "look but don't touch" and "just do it"*
 
 Sometimes you want Claude to ask before every edit. Sometimes you just want
 it to ship. You shouldn't have to pick one forever.
 
-*Shift+Tab* cycles through how much leash Claude gets: *default* asks before
-risky stuff, *acceptEdits* lets file edits and common filesystem commands
+*Shift+Tab* cycles through how much Claude can do without asking: *Manual* (the
+`default` setting value) asks before file edits and most shell commands, *acceptEdits* lets file
+edits and common filesystem commands
 flow through while still checking before other shell commands, and *plan*
 proposes changes for your approval before anything is touched. Plan mode is
 the trust-builder, so start there for anything touching multiple files.
@@ -303,7 +303,7 @@ moves.
 
 **Checkpointing and `/rewind`**
 
-```
+```text
 ⏪ *Tip: There is an undo button for the whole conversation*
 
 Claude went down the wrong path three turns ago and now you're untangling
@@ -323,7 +323,7 @@ Pick the point before things went sideways.
 
 **MCP connectors**
 
-```
+```text
 🔌 *Tip: Let Claude read your issue tracker so you don't have to paste tickets*
 
 Copy-pasting Jira tickets into the terminal feels like a step backward.
@@ -344,7 +344,7 @@ in this repo". It will write the config for you.
 
 **Skills**
 
-```
+```text
 ⚡ *Tip: Turn that prompt you keep retyping into a command*
 
 Typed "summarize what I worked on today from git log, format it for standup"
@@ -362,7 +362,7 @@ on today from git log", then run `/standup` tomorrow morning.
 
 **Hooks**
 
-```
+```text
 🔔 *Tip: Get pinged when your refactor finishes*
 
 Sitting at your desk watching Claude work through a long task? You've got
@@ -382,7 +382,7 @@ when you finish". It will write the script and wire it up.
 
 **Screenshots and images**
 
-```
+```text
 📸 *Tip: Stop describing the error dialog. Just show it.*
 
 Typing out "there's a red box that says something about a null reference
@@ -390,7 +390,7 @@ and it's pointing at line 47-ish"? Screenshot it.
 
 Drag a screenshot straight into the terminal and Claude sees it: error
 dialogs, UI mockups, whiteboard photos, Figma exports. *Ctrl+V* pastes from
-clipboard (use Ctrl+V on macOS too, not Cmd+V).
+clipboard (Ctrl+V works on macOS too, and Cmd+V works in iTerm2).
 
 *Try it now:* next time something visual breaks, screenshot it and paste it
 right into the prompt. Then just type "what's wrong here?"
@@ -400,7 +400,7 @@ right into the prompt. Then just type "what's wrong here?"
 
 **Git workflows**
 
-```
+```text
 🌿 *Tip: Hand off the whole git ceremony*
 
 The fix took 5 minutes. The commit message, branch, and PR description
@@ -421,7 +421,7 @@ just type "commit this with a good message and open a PR".
 
 **Plugins**
 
-```
+```text
 📦 *Tip: Someone probably already built that skill*
 
 About to spend an hour building a `/deploy` command? Check if it
@@ -441,7 +441,7 @@ thing you didn't know you wanted.
 
 **Security architecture**
 
-```
+```text
 🔐 *Tip: The answer to "is this safe?" for the next time you're asked*
 
 Someone on your team is going to ask "wait, where does my code go?"
@@ -462,7 +462,7 @@ They answer most security-review questions.
 
 **Best practices**
 
-```
+```text
 ✅ *Tip: The 4 habits that separate "tried it once" from "use it daily"*
 
 Most people who bounce off Claude Code skipped one of these. Most people
@@ -486,18 +486,20 @@ missing and do it on your next task. Post what changed in #claude-code.
 
 One-line replies for the questions you will be asked most.
 
+
 | Question | Response |
 | --- | --- |
-| ”Does it work in VS Code?” | Yes. There is a VS Code extension and a JetBrains plugin with the same features, embedded in your editor. [VS Code →](./vs-code "_vs-code".md) |
-| “Do I have to configure anything first?” | No. Install, then run `claude` in any repo. Run `/init` once and you’re set. [Quickstart →](./quickstart "_quickstart".md) |
-| “Where does my code go?” | The CLI runs in your terminal and sends context to Anthropic’s API for inference, with no third-party servers. Under your Enterprise plan, your code and prompts are not used to train models. [Data usage →](./data-usage "_data-usage".md) |
-| “Can it see my whole repo?” | It reads what you give it access to. File reads inside your working directory don’t prompt; permission prompts gate edits, shell commands, and anything outside that directory. [Permissions →](./permissions "_permissions".md) |
-| “How is this different from Copilot?” | Copilot autocompletes lines. Claude Code is an agent that reads files, runs commands, and makes multi-file edits. [Overview →](./overview "_overview".md) |
-| “What should I try first?” | A bug you’ve been putting off because it’s tedious. “The test in [file] is flaky, figure out why.” [Quickstart →](./quickstart "_quickstart".md) |
+| ”Does it work in VS Code?” | Yes. There is a VS Code extension and a JetBrains plugin with the same features, embedded in your editor. [VS Code →](./vs-code "._vs-code".md) |
+| “Do I have to configure anything first?” | No. Install, then run `claude` in any repo. Run `/init` once and you’re set. [Quickstart →](./quickstart "._quickstart".md) |
+| “Where does my code go?” | The CLI runs in your terminal and sends context to Anthropic’s API for inference, with no third-party servers. Under your Enterprise plan, your code and prompts are not used to train models. [Data usage →](./data-usage "._data-usage".md) |
+| “Can it see my whole repo?” | It reads what you give it access to. File reads inside your working directory don’t prompt; permission prompts gate edits, non-read-only shell commands, and file-tool reads outside that directory. A built-in set of read-only shell commands such as `ls` and `cat` runs without prompting; restrict it with [sandbox `denyRead` rules](./sandboxing#filesystem-isolation "._sandboxing#filesystem-isolation".md). [Permissions →](./permissions "._permissions".md) |
+| “How is this different from Copilot?” | Copilot autocompletes lines. Claude Code is an agent that reads files, runs commands, and makes multi-file edits. [Overview →](./overview "._overview".md) |
+| “What should I try first?” | A bug you’ve been putting off because it’s tedious. “The test in [file] is flaky, figure out why.” [Quickstart →](./quickstart "._quickstart".md) |
 
 ### [​](#prompt-templates "#prompt-templates") Prompt templates
 
 Share these starter prompts with engineers who have installed but aren’t sure what to ask. Each one is phrased the way it would be typed into a real session; replace the bracketed pieces with files from your own repo.
+
 
 | Task | Prompt |
 | --- | --- |
@@ -510,4 +512,4 @@ Share these starter prompts with engineers who have installed but aren’t sure 
 | Make a skill | ”make me a /ship skill that runs tests and lint before commit” |
 | Debug a stack trace | ”here’s the stack trace, find the root cause, don’t just paper over it” |
 
-Claude Code ships frequently. Verify version-specific details against the [documentation home page](./overview "_overview".md) before distributing internally.
+Claude Code ships frequently. Verify version-specific details against the [documentation home page](./overview "._overview".md) before distributing internally.

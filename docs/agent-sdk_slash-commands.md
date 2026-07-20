@@ -1,10 +1,4 @@
-# Agent Sdk Slash Commands
-
-> ## Documentation Index
->
-> Fetch the complete documentation index at: [https://code.claude.com/docs/llms.txt](https://code.claude.com/docs/llms.txt "https://code.claude.com/docs/llms.txt")
->
-> Use this file to discover all available pages before exploring further.
+# Agent-Sdk Slash-Commands
 
 Slash commands provide a way to control Claude Code sessions with special commands that start with `/`. These commands can be sent through the SDK to perform actions like compacting context, listing context usage, or invoking custom commands. Only commands that work without an interactive terminal are dispatchable through the SDK; the `system/init` message lists the ones available in your session.
 
@@ -16,7 +10,7 @@ TypeScript
 
 Python
 
-```
+```text
 import { query } from "@anthropic-ai/claude-agent-sdk";
 
 for await (const message of query({
@@ -25,62 +19,190 @@ for await (const message of query({
 })) {
   if (message.type === "system" && message.subtype === "init") {
     console.log("Available slash commands:", message.slash_commands);
-    // Example output: ["clear", "compact", "context", "usage"]
+    // Includes built-in commands plus bundled skills, for example:
+    // ["clear", "compact", "context", "usage", "code-review", "verify", ...]
   }
 }
 ```
 
+```text
+import asyncio
+from claude_agent_sdk import query, ClaudeAgentOptions, SystemMessage
+
+
+async def main():
+    async for message in query(prompt="Hello Claude", options=ClaudeAgentOptions(max_turns=1)):
+        if isinstance(message, SystemMessage) and message.subtype == "init":
+            print("Available slash commands:", message.data["slash_commands"])
+            # Includes built-in commands plus bundled skills, for example:
+            # ["clear", "compact", "context", "usage", "code-review", "verify", ...]
+
+
+asyncio.run(main())
+```
+
 ## [​](#sending-slash-commands "#sending-slash-commands") Sending Slash Commands
 
-Send slash commands by including them in your prompt string, just like regular text:
+Send slash commands by including them in your prompt string, just like regular text. Commands that act on conversation history, such as `/compact`, need prior messages to work with, so the examples below ask a question first and then send the command as a follow-up to the same conversation:
 
 TypeScript
 
 Python
 
-```
+```text
 import { query } from "@anthropic-ai/claude-agent-sdk";
 
-// Send a slash command
+// Build up conversation history first
+try {
+  for await (const message of query({
+    prompt: "What does the README in this directory cover?",
+    options: { maxTurns: 2 }
+  })) {
+    if (message.type === "result" && message.subtype === "success") {
+      console.log(message.result);
+    }
+  }
+} catch (error) {
+  // A single-shot query() throws after yielding an error result,
+  // so the follow-up query below still runs.
+  console.error(`Session ended with an error: ${error}`);
+}
+
+// Send a slash command as a follow-up to the same conversation
 for await (const message of query({
   prompt: "/compact",
-  options: { maxTurns: 1 }
+  options: { continue: true, maxTurns: 1 }
 })) {
-  if (message.type === "result" && message.subtype === "success") {
-    console.log("Command executed:", message.result);
+  if (message.type === "result") {
+    console.log("Command executed, result subtype:", message.subtype);
+    // Example output: Command executed, result subtype: success
   }
 }
 ```
+
+```text
+import asyncio
+from claude_agent_sdk import query, ClaudeAgentOptions, ResultMessage
+
+
+async def main():
+    # Build up conversation history first
+    try:
+        async for message in query(
+            prompt="What does the README in this directory cover?",
+            options=ClaudeAgentOptions(max_turns=2),
+        ):
+            if isinstance(message, ResultMessage) and message.subtype == "success":
+                print(message.result)
+    except Exception as error:
+        # A single-shot query() raises after yielding an error result,
+        # so the follow-up query below still runs.
+        print(f"Session ended with an error: {error}")
+
+    # Send a slash command as a follow-up to the same conversation
+    async for message in query(
+        prompt="/compact",
+        options=ClaudeAgentOptions(continue_conversation=True, max_turns=1),
+    ):
+        if isinstance(message, ResultMessage):
+            print("Command executed, result subtype:", message.subtype)
+            # Example output: Command executed, result subtype: success
+
+
+asyncio.run(main())
+```
+
+A query can end with an error result, for example when the `maxTurns` / `max_turns` limit is reached before the work completes. The final result message then has `is_error: true` and an error subtype such as `error_max_turns` instead of `success`.After yielding that final result message, the SDK raises an error, because the CLI process exits with a non-zero code.Wrap the loop in a `try`/`catch` in TypeScript or `try`/`except` in Python if your command might hit the limit, as shown in [Single Message Input](./agent-sdk_streaming-vs-single-mode#single-message-input "._agent-sdk_streaming-vs-single-mode#single-message-input".md), or set `maxTurns` high enough for the work to complete. In Python, catch `Exception`: the SDK surfaces error results as a plain `Exception`.
 
 ## [​](#common-slash-commands "#common-slash-commands") Common Slash Commands
 
 ### [​](#/compact-compact-conversation-history "#/compact-compact-conversation-history") `/compact` - Compact conversation history
 
-The `/compact` command reduces the size of your conversation history by summarizing older messages while preserving important context:
+The `/compact` command reduces the size of your conversation history by summarizing older messages while preserving important context. Compaction needs an existing conversation with at least two prior exchanges to summarize. This example has a conversation first, then compacts it and reads the `compact_boundary` system message that reports the result:
 
 TypeScript
 
 Python
 
-```
+```text
 import { query } from "@anthropic-ai/claude-agent-sdk";
 
+// Compaction needs existing history, so have a conversation first
+try {
+  for await (const message of query({
+    prompt: "Explain what this project does",
+    options: { maxTurns: 2 }
+  })) {
+    if (message.type === "result" && message.subtype === "success") {
+      console.log(message.result);
+    }
+  }
+} catch (error) {
+  // A single-shot query() throws after yielding an error result,
+  // so the follow-up query below still runs.
+  console.error(`Session ended with an error: ${error}`);
+}
+
+// Compact the same conversation
 for await (const message of query({
   prompt: "/compact",
-  options: { maxTurns: 1 }
+  options: { continue: true, maxTurns: 1 }
 })) {
   if (message.type === "system" && message.subtype === "compact_boundary") {
     console.log("Compaction completed");
     console.log("Pre-compaction tokens:", message.compact_metadata.pre_tokens);
     console.log("Trigger:", message.compact_metadata.trigger);
+    // Example output:
+    // Compaction completed
+    // Pre-compaction tokens: 1842
+    // Trigger: manual
   }
 }
 ```
 
+```text
+import asyncio
+from claude_agent_sdk import query, ClaudeAgentOptions, ResultMessage, SystemMessage
+
+
+async def main():
+    # Compaction needs existing history, so have a conversation first
+    try:
+        async for message in query(
+            prompt="Explain what this project does",
+            options=ClaudeAgentOptions(max_turns=2),
+        ):
+            if isinstance(message, ResultMessage) and message.subtype == "success":
+                print(message.result)
+    except Exception as error:
+        # A single-shot query() raises after yielding an error result,
+        # so the follow-up query below still runs.
+        print(f"Session ended with an error: {error}")
+
+    # Compact the same conversation
+    async for message in query(
+        prompt="/compact",
+        options=ClaudeAgentOptions(continue_conversation=True, max_turns=1),
+    ):
+        if isinstance(message, SystemMessage) and message.subtype == "compact_boundary":
+            print("Compaction completed")
+            print("Pre-compaction tokens:", message.data["compact_metadata"]["pre_tokens"])
+            print("Trigger:", message.data["compact_metadata"]["trigger"])
+            # Example output:
+            # Compaction completed
+            # Pre-compaction tokens: 1842
+            # Trigger: manual
+
+
+asyncio.run(main())
+```
+
+A `compact_boundary` message only arrives when compaction ran. With nothing to summarize, `/compact` reports the reason instead of raising: the run still ends with a `success` result, no `compact_boundary` message is emitted, and the result text carries the message, for example `Not enough messages to compact.` after a single short exchange. A fresh one-shot `query()` call starts with empty context, so use this pattern in a session with prior turns, for example in [streaming input mode](./agent-sdk_streaming-vs-single-mode "._agent-sdk_streaming-vs-single-mode".md) or when resuming a session.
+
 ### [​](#/clear-reset-conversation-context "#/clear-reset-conversation-context") `/clear` - Reset conversation context
 
-The `/clear` command resets the conversation to an empty context, so subsequent prompts start with no prior conversation history. The previous conversation remains on disk and can be returned to by passing its session ID to the [`resume` option](./agent-sdk_sessions#resume-by-id "_agent-sdk_sessions#resume-by-id".md).
-This is useful in [streaming input mode](./agent-sdk_streaming-vs-single-mode "_agent-sdk_streaming-vs-single-mode".md), where you send multiple prompts over a single connection. For one-shot `query()` calls, each call already starts with empty context, so sending `/clear` has no practical effect; start a new `query()` instead.
+The `/clear` command resets the conversation to an empty context, so subsequent prompts start with no prior conversation history. The previous conversation remains on disk and can be returned to by passing its session ID to the [`resume` option](./agent-sdk_sessions#resume-by-id "._agent-sdk_sessions#resume-by-id".md).
+This is useful in [streaming input mode](./agent-sdk_streaming-vs-single-mode "._agent-sdk_streaming-vs-single-mode".md), where you send multiple prompts over a single connection. For one-shot `query()` calls, each call already starts with empty context, so sending `/clear` has no practical effect; start a new `query()` instead.
 
 `/clear` in the SDK requires Claude Code v2.1.117 or later. In earlier versions it is omitted from `slash_commands`.
 
@@ -88,7 +210,7 @@ This is useful in [streaming input mode](./agent-sdk_streaming-vs-single-mode "_
 
 In addition to using built-in slash commands, you can create your own custom commands that are available through the SDK. Custom commands are defined as markdown files in specific directories, similar to how subagents are configured.
 
-The `.claude/commands/` directory is the legacy format. The recommended format is `.claude/skills/<name>/SKILL.md`, which supports the same slash-command invocation (`/name`) plus autonomous invocation by Claude. See [Skills](./agent-sdk_skills "_agent-sdk_skills".md) for the current format. The CLI continues to support both formats, and the examples below remain accurate for `.claude/commands/`.
+The `.claude/commands/` directory is the legacy format. The recommended format is `.claude/skills/<name>/SKILL.md`, which supports the same slash-command invocation (`/name`) plus autonomous invocation by Claude. See [Skills](./agent-sdk_skills "._agent-sdk_skills".md) for the current format. The CLI continues to support both formats, and the examples below remain accurate for `.claude/commands/`.
 
 ### [​](#file-locations "#file-locations") File Locations
 
@@ -107,9 +229,9 @@ Each custom command is a markdown file where:
 
 #### [​](#basic-example "#basic-example") Basic Example
 
-Create `.claude/commands/refactor.md`:
+Create the `.claude/commands` directory in your project if it doesn’t exist, then create `.claude/commands/refactor.md`:
 
-```
+```text
 Refactor the selected code to improve readability and maintainability.
 Focus on clean code principles and best practices.
 ```
@@ -120,11 +242,11 @@ This creates the `/refactor` command that you can use through the SDK.
 
 Create `.claude/commands/security-check.md`:
 
-```
+```text
 ---
 allowed-tools: Read, Grep, Glob
 description: Run security vulnerability scan
-model: claude-opus-4-7
+model: claude-opus-4-8
 ---
 
 Analyze the codebase for security vulnerabilities including:
@@ -142,17 +264,23 @@ TypeScript
 
 Python
 
-```
+```text
 import { query } from "@anthropic-ai/claude-agent-sdk";
 
 // Use a custom command
-for await (const message of query({
-  prompt: "/refactor src/auth/login.ts",
-  options: { maxTurns: 3 }
-})) {
-  if (message.type === "assistant") {
-    console.log("Refactoring suggestions:", message.message);
+try {
+  for await (const message of query({
+    prompt: "/refactor src/auth/login.ts",
+    options: { maxTurns: 3 }
+  })) {
+    if (message.type === "assistant") {
+      console.log("Refactoring suggestions:", message.message);
+    }
   }
+} catch (error) {
+  // A single-shot query() throws after yielding an error result,
+  // so the second query below still runs.
+  console.error(`Session ended with an error: ${error}`);
 }
 
 // Custom commands appear in the slash_commands list
@@ -161,11 +289,42 @@ for await (const message of query({
   options: { maxTurns: 1 }
 })) {
   if (message.type === "system" && message.subtype === "init") {
-    // Will include both built-in and custom commands
     console.log("Available commands:", message.slash_commands);
-    // Example: ["clear", "compact", "context", "usage", "refactor", "security-check"]
+    // Includes built-in commands plus bundled skills and your custom commands, for example:
+    // ["clear", "compact", "context", "usage", "code-review", "verify", "refactor", "security-check", ...]
   }
 }
+```
+
+```text
+import asyncio
+from claude_agent_sdk import query, ClaudeAgentOptions, AssistantMessage, SystemMessage
+
+
+async def main():
+    # Use a custom command
+    try:
+        async for message in query(
+            prompt="/refactor src/auth/login.py", options=ClaudeAgentOptions(max_turns=3)
+        ):
+            if isinstance(message, AssistantMessage):
+                for block in message.content:
+                    if hasattr(block, "text"):
+                        print("Refactoring suggestions:", block.text)
+    except Exception as error:
+        # A single-shot query() raises after yielding an error result,
+        # so the second query below still runs.
+        print(f"Session ended with an error: {error}")
+
+    # Custom commands appear in the slash_commands list
+    async for message in query(prompt="Hello", options=ClaudeAgentOptions(max_turns=1)):
+        if isinstance(message, SystemMessage) and message.subtype == "init":
+            print("Available commands:", message.data["slash_commands"])
+            # Includes built-in commands plus bundled skills and your custom commands, for example:
+            # ["clear", "compact", "context", "usage", "code-review", "verify", "refactor", "security-check", ...]
+
+
+asyncio.run(main())
 ```
 
 ### [​](#advanced-features "#advanced-features") Advanced Features
@@ -175,13 +334,13 @@ for await (const message of query({
 Custom commands support dynamic arguments using placeholders:
 Create `.claude/commands/fix-issue.md`:
 
-```
+```text
 ---
 argument-hint: [issue-number] [priority]
 description: Fix a GitHub issue
 ---
 
-Fix issue #$1 with priority $2.
+Fix issue #$0 with priority $1.
 Check the issue description and implement the necessary changes.
 ```
 
@@ -191,19 +350,44 @@ TypeScript
 
 Python
 
-```
+```text
 import { query } from "@anthropic-ai/claude-agent-sdk";
 
 // Pass arguments to custom command
-for await (const message of query({
-  prompt: "/fix-issue 123 high",
-  options: { maxTurns: 5 }
-})) {
-  // Command will process with $1="123" and $2="high"
-  if (message.type === "result" && message.subtype === "success") {
-    console.log("Issue fixed:", message.result);
+try {
+  for await (const message of query({
+    prompt: "/fix-issue 123 high",
+    options: { maxTurns: 5 }
+  })) {
+    // Command will process with $0="123" and $1="high"
+    if (message.type === "result" && message.subtype === "success") {
+      console.log("Issue fixed:", message.result);
+    }
   }
+} catch (err) {
+  // The run ends with an error when it reaches the maxTurns limit
+  console.error("Session ended with an error:", err);
 }
+```
+
+```text
+import asyncio
+from claude_agent_sdk import query, ClaudeAgentOptions, ResultMessage
+
+
+async def main():
+    # Pass arguments to custom command
+    try:
+        async for message in query(prompt="/fix-issue 123 high", options=ClaudeAgentOptions(max_turns=5)):
+            # Command will process with $0="123" and $1="high"
+            if isinstance(message, ResultMessage):
+                print("Issue fixed:", message.result)
+    except Exception as error:
+        # The run ends with an error when it reaches the max_turns limit
+        print(f"Session ended with an error: {error}")
+
+
+asyncio.run(main())
 ```
 
 #### [​](#bash-command-execution "#bash-command-execution") Bash Command Execution
@@ -211,7 +395,7 @@ for await (const message of query({
 Custom commands can execute bash commands and include their output:
 Create `.claude/commands/git-commit.md`:
 
-```
+```text
 ---
 allowed-tools: Bash(git add *), Bash(git status *), Bash(git commit *)
 description: Create a git commit
@@ -232,7 +416,7 @@ Create a git commit with appropriate message based on the changes.
 Include file contents using the `@` prefix:
 Create `.claude/commands/review-config.md`:
 
-```
+```text
 ---
 description: Review configuration files
 ---
@@ -249,7 +433,7 @@ Check for security issues, outdated dependencies, and misconfigurations.
 
 Organize commands in subdirectories for better structure:
 
-```
+```text
 .claude/commands/
 ├── frontend/
 │   ├── component.md      # Creates /component (project:frontend)
@@ -264,11 +448,11 @@ The subdirectory appears in the command description but doesn’t affect the com
 
 ### [​](#practical-examples "#practical-examples") Practical Examples
 
-#### [​](#code-review-command "#code-review-command") Code Review Command
+#### [​](#pull-request-review-command "#pull-request-review-command") Pull Request Review Command
 
-Create `.claude/commands/code-review.md`:
+Create `.claude/commands/review-pr.md`:
 
-```
+```text
 ---
 allowed-tools: Read, Grep, Glob, Bash(git diff *)
 description: Comprehensive code review
@@ -292,11 +476,13 @@ Review the above changes for:
 Provide specific, actionable feedback organized by priority.
 ```
 
+Claude Code includes bundled `code-review` and `verify` skills. If you name a custom command after one of them, for example `.claude/commands/code-review.md`, your command shadows the bundled skill and `slash_commands` lists the name once.
+
 #### [​](#test-runner-command "#test-runner-command") Test Runner Command
 
 Create `.claude/commands/test.md`:
 
-```
+```text
 ---
 allowed-tools: Bash, Read, Edit
 argument-hint: [test-pattern]
@@ -317,15 +503,21 @@ TypeScript
 
 Python
 
-```
+```text
 import { query } from "@anthropic-ai/claude-agent-sdk";
 
 // Run code review
-for await (const message of query({
-  prompt: "/code-review",
-  options: { maxTurns: 3 }
-})) {
-  // Process review feedback
+try {
+  for await (const message of query({
+    prompt: "/review-pr",
+    options: { maxTurns: 3 }
+  })) {
+    // Process review feedback
+  }
+} catch (error) {
+  // A single-shot query() throws after yielding an error result,
+  // so the second query below still runs.
+  console.error(`Session ended with an error: ${error}`);
 }
 
 // Run specific tests
@@ -337,10 +529,35 @@ for await (const message of query({
 }
 ```
 
+```text
+import asyncio
+from claude_agent_sdk import query, ClaudeAgentOptions
+
+
+async def main():
+    # Run code review
+    try:
+        async for message in query(prompt="/review-pr", options=ClaudeAgentOptions(max_turns=3)):
+            # Process review feedback
+            pass
+    except Exception as error:
+        # A single-shot query() raises after yielding an error result,
+        # so the second query below still runs.
+        print(f"Session ended with an error: {error}")
+
+    # Run specific tests
+    async for message in query(prompt="/test auth", options=ClaudeAgentOptions(max_turns=5)):
+        # Handle test results
+        pass
+
+
+asyncio.run(main())
+```
+
 ## [​](#see-also "#see-also") See Also
 
-* [Slash Commands](./skills "_skills".md) - Complete slash command documentation
-* [Subagents in the SDK](./agent-sdk_subagents "_agent-sdk_subagents".md) - Similar filesystem-based configuration for subagents
-* [TypeScript SDK reference](./agent-sdk_typescript "_agent-sdk_typescript".md) - Complete API documentation
-* [SDK overview](./agent-sdk_overview "_agent-sdk_overview".md) - General SDK concepts
-* [CLI reference](./cli-reference "_cli-reference".md) - Command-line interface
+* [Slash Commands](./skills "._skills".md) - Complete slash command documentation
+* [Subagents in the SDK](./agent-sdk_subagents "._agent-sdk_subagents".md) - Similar filesystem-based configuration for subagents
+* [TypeScript SDK reference](./agent-sdk_typescript "._agent-sdk_typescript".md) - Complete API documentation
+* [SDK overview](./agent-sdk_overview "._agent-sdk_overview".md) - General SDK concepts
+* [CLI reference](./cli-reference "._cli-reference".md) - Command-line interface

@@ -1,12 +1,6 @@
-# Whats New 2026 W14
+# Whats-New 2026-W14
 
-> ## Documentation Index
->
-> Fetch the complete documentation index at: [https://code.claude.com/docs/llms.txt](https://code.claude.com/docs/llms.txt "https://code.claude.com/docs/llms.txt")
->
-> Use this file to discover all available pages before exploring further.
-
-Releases [v2.1.86 → v2.1.91](./changelog#2-1-86 "_changelog#2-1-86".md)5 features · March 30 – April 3
+Releases [v2.1.86 → v2.1.91](./changelog#2-1-86 "._changelog#2-1-86".md)5 features · March 30 – April 3
 
 Computer use in the CLIresearch preview
 
@@ -14,15 +8,15 @@ Last week computer use landed in the Desktop app. This week it’s in the CLI: C
 
 [](https://mintcdn.com/claude-code/CfffsX01JHFnIKvD/images/whats-new/cli-computer-use.mp4?fit=max&auto=format&n=CfffsX01JHFnIKvD&q=85&s=c17a337902308d7c9121013ded0494db)
 
-Run `/mcp`, find `computer-use`, and toggle it on. Then ask Claude to verify a change end to end:
+Requires macOS and a Pro or Max plan; otherwise, `computer-use` won’t appear in `/mcp`. Run `/mcp`, find `computer-use`, and toggle it on. Then ask Claude to verify a change end to end:
 
 Claude Code
 
-```
+```text
 > Open the iOS simulator, tap through onboarding, and screenshot each step
 ```
 
-[Computer use guide](./computer-use "_computer-use".md)
+[Computer use guide](./computer-use "._computer-use".md)
 
 /powerupv2.1.90
 
@@ -34,11 +28,11 @@ Run it:
 
 Claude Code
 
-```
+```text
 > /powerup
 ```
 
-[Commands reference](./commands "_commands".md)
+[Commands reference](./commands "._commands".md)
 
 Flicker-free renderingv2.1.89
 
@@ -48,12 +42,12 @@ Opt into a new alt-screen renderer with virtualized scrollback. The prompt input
 
 Set the env var and restart Claude Code:
 
-```
+```text
 export CLAUDE_CODE_NO_FLICKER=1
 claude
 ```
 
-[Fullscreen rendering](./fullscreen "_fullscreen".md)
+[Fullscreen rendering](./fullscreen "._fullscreen".md)
 
 MCP result-size overridev2.1.91
 
@@ -61,7 +55,7 @@ MCP server authors can now raise the truncation cap on a specific tool by settin
 
 Annotate the tool in your server’s `tools/list` response:
 
-```
+```text
 {
   "name": "get_schema",
   "description": "Returns the full database schema",
@@ -71,7 +65,7 @@ Annotate the tool in your server’s `tools/list` response:
 }
 ```
 
-[MCP reference](./mcp#raise-the-limit-for-a-specific-tool "_mcp#raise-the-limit-for-a-specific-tool".md)
+[MCP reference](./mcp#raise-the-limit-for-a-specific-tool "._mcp#raise-the-limit-for-a-specific-tool".md)
 
 Plugin executables on PATHv2.1.91
 
@@ -79,7 +73,7 @@ Place an executable in a `bin/` directory at your plugin root and Claude Code ad
 
 Add a `bin/` directory at the plugin root:
 
-```
+```text
 my-plugin/
 ├── .claude-plugin/
 │   └── plugin.json
@@ -87,15 +81,15 @@ my-plugin/
     └── my-tool
 ```
 
-[Plugins reference](./plugins-reference#file-locations-reference "_plugins-reference#file-locations-reference".md)
+[Plugins reference](./plugins-reference#file-locations-reference "._plugins-reference#file-locations-reference".md)
 
 Other wins
 
-Auto mode follow-ups: new `PermissionDenied` hook fires on classifier denials (return `retry: true` to let Claude try a different approach), and `/permissions` → Recent lets you retry manually with `r`
+Auto mode follow-ups: new `PermissionDenied` hook fires on classifier denials (return `retry: true` to let Claude try a different approach), and `/permissions` → Recently denied lets you retry manually with `r`
 
 New `defer` value for `permissionDecision` in `PreToolUse` hooks: `-p` sessions pause at a tool call and exit with a `deferred_tool_use` payload so an SDK app or custom UI can surface it, then resume with `—resume`
 
-`/buddy`: hatch a small creature that watches you code (April 1st)
+`/buddy`: hatch a small creature that watches you code. An April Fools’ joke, no longer available
 
 `disableSkillShellExecution` setting blocks inline shell from skills, slash commands, and plugin commands
 
@@ -109,4 +103,4 @@ Voice mode: push-to-talk modifier combos, Windows WebSocket, macOS Apple Silicon
 
 `claude-cli://` deep links accept multi-line prompts (encoded `%0A`)
 
-[Full changelog for v2.1.86–v2.1.91 →](./changelog#2-1-86 "_changelog#2-1-86".md)
+[Full changelog for v2.1.86–v2.1.91 →](./changelog#2-1-86 "._changelog#2-1-86".md)

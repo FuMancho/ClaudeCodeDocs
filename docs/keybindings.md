@@ -1,13 +1,5 @@
 # Keybindings
 
-> ## Documentation Index
->
-> Fetch the complete documentation index at: [https://code.claude.com/docs/llms.txt](https://code.claude.com/docs/llms.txt "https://code.claude.com/docs/llms.txt")
->
-> Use this file to discover all available pages before exploring further.
-
-Customizable keyboard shortcuts require Claude Code v2.1.18 or later. Check your version with `claude --version`.
-
 Claude Code supports customizable keyboard shortcuts. Run `/keybindings` to create or open your configuration file at `~/.claude/keybindings.json`.
 
 ## [​](#configuration-file "#configuration-file") Configuration file
@@ -24,7 +16,7 @@ Changes to the keybindings file are automatically detected and applied without r
 
 This example binds `Ctrl+E` to open an external editor in the chat context, and unbinds `Ctrl+U`:
 
-```
+```text
 {
   "$schema": "https://www.schemastore.org/claude-code-keybindings.json",
   "$docs": "https://code.claude.com/docs/en/keybindings",
@@ -43,6 +35,7 @@ This example binds `Ctrl+E` to open an external editor in the chat context, and 
 ## [​](#contexts "#contexts") Contexts
 
 Each binding block specifies a **context** where the bindings apply:
+
 
 | Context | Description |
 | --- | --- |
@@ -65,7 +58,8 @@ Each binding block specifies a **context** where the bindings apply:
 | `Select` | Generic select/list components |
 | `Plugin` | Plugin dialog (browse, discover, manage) |
 | `Scroll` | Conversation scrolling and text selection in fullscreen mode |
-| `Doctor` | `/doctor` diagnostics screen |
+
+Before v2.1.205, a `Doctor` context and a `doctor:fix` action existed for the `/doctor` diagnostics screen.
 
 ## [​](#available-actions "#available-actions") Available actions
 
@@ -75,17 +69,19 @@ Actions follow a `namespace:action` format, such as `chat:submit` to send a mess
 
 Actions available in the `Global` context:
 
+
 | Action | Default | Description |
 | --- | --- | --- |
 | `app:interrupt` | Ctrl+C | Cancel current operation |
-| `app:exit` | Ctrl+D | Exit Claude Code |
+| `app:exit` | Ctrl+D | Exit Claude Code. Press twice within 800ms to confirm |
 | `app:redraw` | (unbound) | Force terminal redraw |
-| `app:toggleTodos` | Ctrl+T | Toggle task list visibility |
+| `app:toggleTodos` | Ctrl+T | Toggle visibility of Claude’s to-do checklist. This is not the [`/tasks`](./commands "._commands".md) background-task view |
 | `app:toggleTranscript` | Ctrl+O | Toggle verbose transcript |
 
 ### [​](#history-actions "#history-actions") History actions
 
 Actions for navigating command history:
+
 
 | Action | Default | Description |
 | --- | --- | --- |
@@ -97,12 +93,13 @@ Actions for navigating command history:
 
 Actions available in the `Chat` context:
 
+
 | Action | Default | Description |
 | --- | --- | --- |
 | `chat:cancel` | Escape | Cancel current input |
-| `chat:clearInput` | Ctrl+L | Force a full screen redraw, preserving input. In [fullscreen rendering](./fullscreen#clear-the-conversation "_fullscreen#clear-the-conversation".md), press twice within two seconds to run `/clear` |
-| `chat:clearScreen` | Cmd+K | In [fullscreen rendering](./fullscreen#clear-the-conversation "_fullscreen#clear-the-conversation".md), press twice within two seconds to run `/clear` |
-| `chat:killAgents` | Ctrl+X Ctrl+K | Kill all running [background subagents](./sub-agents#run-subagents-in-foreground-or-background "_sub-agents#run-subagents-in-foreground-or-background".md) in this session |
+| `chat:clearInput` | Ctrl+L | Force a full screen redraw, preserving input. In [fullscreen rendering](./fullscreen#clear-the-conversation "._fullscreen#clear-the-conversation".md), press twice within two seconds to run `/clear` |
+| `chat:clearScreen` | Cmd+K | In [fullscreen rendering](./fullscreen#clear-the-conversation "._fullscreen#clear-the-conversation".md), press twice within two seconds to run `/clear` |
+| `chat:killAgents` | Ctrl+X Ctrl+K | Stop all running [background subagents](./sub-agents#run-subagents-in-foreground-or-background "._sub-agents#run-subagents-in-foreground-or-background".md) in this session |
 | `chat:cycleMode` | Shift+Tab\* | Cycle permission modes |
 | `chat:modelPicker` | Meta+P | Open model picker |
 | `chat:fastMode` | Meta+O | Toggle fast mode |
@@ -112,13 +109,14 @@ Actions available in the `Chat` context:
 | `chat:undo` | Ctrl+\_, Ctrl+Shift+- | Undo last action |
 | `chat:externalEditor` | Ctrl+G, Ctrl+X Ctrl+E | Open in external editor |
 | `chat:stash` | Ctrl+S | Stash current prompt |
-| `chat:imagePaste` | Ctrl+V (Alt+V on Windows) | Paste image |
+| `chat:imagePaste` | Ctrl+V (Alt+V on Windows and WSL) | Paste image from clipboard. On WSL, both shortcuts are bound by default |
 
 \*On Windows without VT mode (Node <24.2.0/<22.17.0, Bun <1.2.23), defaults to Meta+M.
 
 ### [​](#autocomplete-actions "#autocomplete-actions") Autocomplete actions
 
 Actions available in the `Autocomplete` context:
+
 
 | Action | Default | Description |
 | --- | --- | --- |
@@ -131,6 +129,7 @@ Actions available in the `Autocomplete` context:
 
 Actions available in the `Confirmation` context:
 
+
 | Action | Default | Description |
 | --- | --- | --- |
 | `confirm:yes` | Y, Enter | Confirm action |
@@ -141,11 +140,12 @@ Actions available in the `Confirmation` context:
 | `confirm:previousField` | (unbound) | Previous field |
 | `confirm:toggle` | Space | Toggle selection |
 | `confirm:cycleMode` | Shift+Tab | Cycle permission modes |
-| `confirm:toggleExplanation` | Ctrl+E | Toggle permission explanation |
+| `confirm:toggleExplanation` | Ctrl+E | Toggle a model-generated [explanation of the command](./permissions#permission-system "._permissions#permission-system".md) on Bash and PowerShell permission prompts |
 
 ### [​](#permission-actions "#permission-actions") Permission actions
 
 Actions available in the `Confirmation` context for permission dialogs:
+
 
 | Action | Default | Description |
 | --- | --- | --- |
@@ -155,14 +155,18 @@ Actions available in the `Confirmation` context for permission dialogs:
 
 Actions available in the `Transcript` context:
 
+
 | Action | Default | Description |
 | --- | --- | --- |
 | `transcript:toggleShowAll` | Ctrl+E | Toggle show all content |
 | `transcript:exit` | q, Ctrl+C, Escape | Exit transcript view |
 
+`transcript:toggleShowAll` applies in the default renderer only; in [fullscreen rendering](./fullscreen "._fullscreen".md), the transcript viewer doesn’t offer a show-all toggle.
+
 ### [​](#history-search-actions "#history-search-actions") History search actions
 
 Actions available in the `HistorySearch` context:
+
 
 | Action | Default | Description |
 | --- | --- | --- |
@@ -172,17 +176,21 @@ Actions available in the `HistorySearch` context:
 | `historySearch:execute` | Enter | Execute selected command |
 | `historySearch:cycleScope` | Ctrl+S | Cycle scope: session, project, everywhere |
 
+The `historySearch:next`, `historySearch:accept`, `historySearch:cancel`, and `historySearch:execute` defaults apply to the inline history search in the default renderer, which always searches prompts from all projects. `historySearch:cycleScope` takes effect only in [fullscreen rendering](./fullscreen "._fullscreen".md), where `Ctrl+R` opens a search dialog instead and `Ctrl+S` cycles its scope. The dialog’s other keys are fixed and can’t be rebound: `Enter` or `Tab` places the highlighted match in the prompt input and `Esc` cancels.
+
 ### [​](#task-actions "#task-actions") Task actions
 
 Actions available in the `Task` context:
 
+
 | Action | Default | Description |
 | --- | --- | --- |
-| `task:background` | Ctrl+B | Background current task |
+| `task:background` | Ctrl+B, Ctrl+X Ctrl+B | Background current task. The Ctrl+X Ctrl+B chord requires v2.1.169 or later and avoids the tmux prefix conflict |
 
 ### [​](#theme-actions "#theme-actions") Theme actions
 
 Actions available in the `ThemePicker` context:
+
 
 | Action | Default | Description |
 | --- | --- | --- |
@@ -192,6 +200,7 @@ Actions available in the `ThemePicker` context:
 
 Actions available in the `Help` context:
 
+
 | Action | Default | Description |
 | --- | --- | --- |
 | `help:dismiss` | Escape | Close help menu |
@@ -199,6 +208,7 @@ Actions available in the `Help` context:
 ### [​](#tabs-actions "#tabs-actions") Tabs actions
 
 Actions available in the `Tabs` context:
+
 
 | Action | Default | Description |
 | --- | --- | --- |
@@ -208,6 +218,7 @@ Actions available in the `Tabs` context:
 ### [​](#attachments-actions "#attachments-actions") Attachments actions
 
 Actions available in the `Attachments` context:
+
 
 | Action | Default | Description |
 | --- | --- | --- |
@@ -219,6 +230,7 @@ Actions available in the `Attachments` context:
 ### [​](#footer-actions "#footer-actions") Footer actions
 
 Actions available in the `Footer` context:
+
 
 | Action | Default | Description |
 | --- | --- | --- |
@@ -233,6 +245,7 @@ Actions available in the `Footer` context:
 
 Actions available in the `MessageSelector` context:
 
+
 | Action | Default | Description |
 | --- | --- | --- |
 | `messageSelector:up` | Up, K, Ctrl+P | Move up in list |
@@ -245,29 +258,44 @@ Actions available in the `MessageSelector` context:
 
 Actions available in the `DiffDialog` context:
 
+
 | Action | Default | Description |
 | --- | --- | --- |
-| `diff:dismiss` | Escape | Close diff viewer |
+| `diff:dismiss` | Escape | Close diff viewer; from the detail view, returns to the file list instead |
 | `diff:previousSource` | Left | Previous diff source |
 | `diff:nextSource` | Right | Next diff source |
-| `diff:previousFile` | Up | Previous file in diff |
-| `diff:nextFile` | Down | Next file in diff |
+| `diff:previousFile` | Up, K | Previous file in the file list; scroll up one line in the detail view |
+| `diff:nextFile` | Down, J | Next file in the file list; scroll down one line in the detail view |
 | `diff:viewDetails` | Enter | View diff details |
-| `diff:back` | (context-specific) | Go back in diff viewer |
+| `diff:back` | (unbound) | Go back in diff viewer. Escape performs the back action via `diff:dismiss`. The previous default of Left in the detail view was removed in v2.1.203 |
+
+The diff detail view also binds pager-style keys to the standard [scroll actions](#scroll-actions "#scroll-actions"). These bindings are part of the `DiffDialog` context and apply only in the detail view; the `Scroll` context defaults listed under [Scroll actions](#scroll-actions "#scroll-actions") are unchanged.
+
+
+| Action | Default | Description |
+| --- | --- | --- |
+| `scroll:pageUp` | PageUp | Scroll up half a viewport |
+| `scroll:pageDown` | PageDown | Scroll down half a viewport |
+| `scroll:fullPageUp` | Shift+Space, B | Scroll up a full viewport |
+| `scroll:fullPageDown` | Space | Scroll down a full viewport |
+| `scroll:top` | G, Home | Jump to the top |
+| `scroll:bottom` | Shift+G, End | Jump to the bottom |
 
 ### [​](#model-picker-actions "#model-picker-actions") Model picker actions
 
 Actions available in the `ModelPicker` context:
 
+
 | Action | Default | Description |
 | --- | --- | --- |
 | `modelPicker:decreaseEffort` | Left | Decrease effort level |
 | `modelPicker:increaseEffort` | Right | Increase effort level |
-| `modelPicker:setAsDefault` | d | Set highlighted model as default for new sessions |
+| `modelPicker:thisSessionOnly` | s | Apply highlighted model to this session only |
 
 ### [​](#select-actions "#select-actions") Select actions
 
 Actions available in the `Select` context:
+
 
 | Action | Default | Description |
 | --- | --- | --- |
@@ -280,6 +308,7 @@ Actions available in the `Select` context:
 
 Actions available in the `Plugin` context:
 
+
 | Action | Default | Description |
 | --- | --- | --- |
 | `plugin:toggle` | Space | Toggle plugin selection |
@@ -288,25 +317,20 @@ Actions available in the `Plugin` context:
 
 ### [​](#settings-actions "#settings-actions") Settings actions
 
-Actions available in the `Settings` context:
+Actions available in the `Settings` context. The `select:accept` and `confirm:no` actions are reused from the [Select](#select-actions "#select-actions") and [Confirmation](#confirmation-actions "#confirmation-actions") contexts with Settings-specific behavior: changes apply to each setting as soon as you change it, so Escape closes the panel with your changes saved rather than declining.
+
 
 | Action | Default | Description |
 | --- | --- | --- |
 | `settings:search` | / | Enter search mode |
-| `settings:retry` | R | Retry loading usage data (on error) |
-| `settings:close` | Enter | Save changes and close the config panel. Escape discards changes and closes |
-
-### [​](#doctor-actions "#doctor-actions") Doctor actions
-
-Actions available in the `Doctor` context:
-
-| Action | Default | Description |
-| --- | --- | --- |
-| `doctor:fix` | F | Send the diagnostics report to Claude to fix the reported issues. Only active when issues are found |
+| `settings:retry` | R | Retry loading usage data on error |
+| `select:accept` | Enter, Space | Change the selected setting or open its submenu |
+| `confirm:no` | Escape | Close the panel. Changes are already saved |
 
 ### [​](#voice-actions "#voice-actions") Voice actions
 
-Actions available in the `Chat` context when [voice dictation](./voice-dictation "_voice-dictation".md) is enabled:
+Actions available in the `Chat` context when [voice dictation](./voice-dictation "._voice-dictation".md) is enabled:
+
 
 | Action | Default | Description |
 | --- | --- | --- |
@@ -314,7 +338,8 @@ Actions available in the `Chat` context when [voice dictation](./voice-dictation
 
 ### [​](#scroll-actions "#scroll-actions") Scroll actions
 
-Actions available in the `Scroll` context when [fullscreen rendering](./fullscreen "_fullscreen".md) is enabled:
+Actions available in the `Scroll` context when [fullscreen rendering](./fullscreen "._fullscreen".md) is enabled:
+
 
 | Action | Default | Description |
 | --- | --- | --- |
@@ -351,7 +376,7 @@ Use modifier keys with the `+` separator:
 The `cmd` group is only detected in terminals that report the Super modifier, such as those supporting the Kitty keyboard protocol or xterm’s `modifyOtherKeys` mode. Most terminals do not send it, so use `ctrl` or `meta` for bindings you want to work everywhere.
 For example:
 
-```
+```text
 ctrl+k          Ctrl + K
 shift+tab       Shift + Tab
 meta+p          Option + P on macOS, Alt + P elsewhere
@@ -367,7 +392,7 @@ Uppercase letters with modifiers (e.g., `ctrl+K`) are treated as stylistic and d
 
 Chords are sequences of keystrokes separated by spaces:
 
-```
+```text
 ctrl+k ctrl+s   Press Ctrl+K, release, then Ctrl+S
 ```
 
@@ -384,7 +409,7 @@ ctrl+k ctrl+s   Press Ctrl+K, release, then Ctrl+S
 
 Set an action to `null` to unbind a default shortcut:
 
-```
+```text
 {
   "bindings": [
     {
@@ -397,11 +422,18 @@ Set an action to `null` to unbind a default shortcut:
 }
 ```
 
-This also works for chord bindings. Unbinding every chord that shares a prefix frees that prefix for use as a single-key binding:
+This also works for chord bindings. Unbinding every chord that shares a prefix frees that prefix for use as a single-key binding. A chord in any active context keeps its prefix reserved, so you must unbind each chord in the context that defines it.
+The default `Ctrl+X` family spans two contexts: `ctrl+x ctrl+k` and `ctrl+x ctrl+e` in `Chat`, and `ctrl+x ctrl+b` in `Task`. To reclaim `ctrl+x` itself as a single-key binding, unbind all of them:
 
-```
+```text
 {
   "bindings": [
+    {
+      "context": "Task",
+      "bindings": {
+        "ctrl+x ctrl+b": null
+      }
+    },
     {
       "context": "Chat",
       "bindings": {
@@ -420,6 +452,7 @@ If you unbind some but not all chords on a prefix, pressing the prefix still ent
 
 These shortcuts cannot be rebound:
 
+
 | Shortcut | Reason |
 | --- | --- |
 | Ctrl+C | Hardcoded interrupt/cancel |
@@ -430,6 +463,7 @@ These shortcuts cannot be rebound:
 ## [​](#terminal-conflicts "#terminal-conflicts") Terminal conflicts
 
 Some shortcuts may conflict with terminal multiplexers:
+
 
 | Shortcut | Conflict |
 | --- | --- |
@@ -445,7 +479,9 @@ When vim mode is enabled via `/config` → Editor mode, keybindings and vim mode
 * **Keybindings** handle actions at the component level (toggle tasks, submit, etc.)
 * The Escape key in vim mode switches INSERT to NORMAL mode; it does not trigger `chat:cancel`
 * Most Ctrl+key shortcuts pass through vim mode to the keybinding system
+* Vim keys aren’t remappable through the keybindings file. To map a two-key INSERT-mode sequence such as `jj` to Escape, use the [`vimInsertModeRemaps`](./interactive-mode#remap-insert-mode-key-sequences "._interactive-mode#remap-insert-mode-key-sequences".md) setting
 * In vim NORMAL mode, `?` shows the help menu (vim behavior)
+* In vim NORMAL mode, `/` opens history search, the same as Ctrl+R in standard mode
 
 ## [​](#validation "#validation") Validation
 
@@ -457,4 +493,4 @@ Claude Code validates your keybindings and shows warnings for:
 * Terminal multiplexer conflicts
 * Duplicate bindings in the same context
 
-Run `/doctor` to see any keybinding warnings.
+Claude Code reports warnings when the file loads and writes each one to the debug log. Start Claude Code with [`--debug`](./cli-reference#cli-flags "._cli-reference#cli-flags".md) to see the details.

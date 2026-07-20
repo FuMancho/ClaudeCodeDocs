@@ -1,21 +1,15 @@
 # Ultraplan
 
-> ## Documentation Index
->
-> Fetch the complete documentation index at: [https://code.claude.com/docs/llms.txt](https://code.claude.com/docs/llms.txt "https://code.claude.com/docs/llms.txt")
->
-> Use this file to discover all available pages before exploring further.
+Ultraplan is in research preview. Behavior and capabilities may change based on feedback.
 
-Ultraplan is in research preview and requires Claude Code v2.1.91 or later. Behavior and capabilities may change based on feedback.
-
-Ultraplan hands a planning task from your local CLI to a [Claude Code on the web](./claude-code-on-the-web "_claude-code-on-the-web".md) session running in [plan mode](./permission-modes#analyze-before-you-edit-with-plan-mode "_permission-modes#analyze-before-you-edit-with-plan-mode".md). Claude drafts the plan in the cloud while you keep working in your terminal. When the plan is ready, you open it in your browser to comment on specific sections, ask for revisions, and choose where to execute it.
+Ultraplan hands a planning task from your local CLI to a [Claude Code on the web](./claude-code-on-the-web "._claude-code-on-the-web".md) session running in [plan mode](./permission-modes#analyze-before-you-edit-with-plan-mode "._permission-modes#analyze-before-you-edit-with-plan-mode".md). Claude drafts the plan in the cloud while you keep working in your terminal. When the plan is ready, you open it in your browser to comment on specific sections, ask for revisions, and choose where to execute it.
 This is useful when you want a richer review surface than the terminal offers:
 
 * **Targeted feedback**: comment on individual sections of the plan instead of replying to the whole thing
 * **Hands-off drafting**: the plan is generated remotely, so your terminal stays free for other work
 * **Flexible execution**: approve the plan to run on the web and open a pull request, or send it back to your terminal
 
-Ultraplan requires a [Claude Code on the web](./claude-code-on-the-web "_claude-code-on-the-web".md) account and a GitHub repository. Because it runs on Anthropic’s cloud infrastructure, it is not available when using Amazon Bedrock, Google Cloud Vertex AI, or Microsoft Foundry. The cloud session runs in your account’s default [cloud environment](./claude-code-on-the-web#the-cloud-environment "_claude-code-on-the-web#the-cloud-environment".md). If you don’t have a cloud environment yet, ultraplan creates one automatically when it first launches.
+Ultraplan requires a [Claude Code on the web](./claude-code-on-the-web "._claude-code-on-the-web".md) account and a GitHub repository. Because it runs on Anthropic’s cloud infrastructure, it is not available when using Amazon Bedrock, Google Cloud’s Agent Platform, or Microsoft Foundry. The cloud session runs in your account’s default [cloud environment](./claude-code-on-the-web#the-cloud-environment "._claude-code-on-the-web#the-cloud-environment".md). If you don’t have a cloud environment yet, ultraplan creates one automatically when it first launches.
 
 ## [​](#launch-ultraplan-from-the-cli "#launch-ultraplan-from-the-cli") Launch ultraplan from the CLI
 
@@ -27,12 +21,13 @@ From your local CLI session, you can launch ultraplan in three ways:
 
 For example, to plan a service migration with the command:
 
-```
+```text
 /ultraplan migrate the auth service from sessions to JWTs
 ```
 
-The command and keyword paths open a confirmation dialog before launching. The local plan path skips this dialog because that selection already serves as confirmation. If [Remote Control](./remote-control "_remote-control".md) is active, it disconnects when ultraplan starts because both features occupy the claude.ai/code interface and only one can be connected at a time.
-After the cloud session launches, your CLI’s prompt input shows a status indicator while the remote session works:
+The command and keyword paths open a confirmation dialog before launching. The local plan path skips this dialog because that selection already serves as confirmation. If [Remote Control](./remote-control "._remote-control".md) is active, it disconnects when ultraplan starts because both features occupy the claude.ai/code interface and only one can be connected at a time.
+After the cloud session launches, your CLI’s prompt input shows a status indicator while the cloud session works:
+
 
 | Status | Meaning |
 | --- | --- |
@@ -58,7 +53,7 @@ When the plan looks right, you choose from the browser whether Claude implements
 
 ### [​](#execute-on-the-web "#execute-on-the-web") Execute on the web
 
-Select **Approve Claude’s plan and start coding** in your browser to have Claude implement it in the same Claude Code on the web session. Your terminal shows a confirmation, the status indicator clears, and the work continues in the cloud. When the implementation finishes, [review the diff](./claude-code-on-the-web#review-changes "_claude-code-on-the-web#review-changes".md) and create a pull request from the web interface.
+Select **Approve Claude’s plan and start coding** in your browser to have Claude implement it in the same Claude Code on the web session. Your terminal shows a confirmation, the status indicator clears, and the work continues in the cloud. When the implementation finishes, [review the diff](./claude-code-on-the-web#review-changes "._claude-code-on-the-web#review-changes".md) and create a pull request from the web interface.
 
 ### [​](#send-the-plan-back-to-your-terminal "#send-the-plan-back-to-your-terminal") Send the plan back to your terminal
 
@@ -73,7 +68,7 @@ If you start a new session, Claude prints a `claude --resume` command at the top
 
 ## [​](#related-resources "#related-resources") Related resources
 
-* [Claude Code on the web](./claude-code-on-the-web "_claude-code-on-the-web".md): the cloud infrastructure ultraplan runs on
-* [Plan mode](./permission-modes#analyze-before-you-edit-with-plan-mode "_permission-modes#analyze-before-you-edit-with-plan-mode".md): how planning works in a local session
-* [Find bugs with ultrareview](./ultrareview "_ultrareview".md): the code review counterpart to ultraplan for catching issues before merge
-* [Remote Control](./remote-control "_remote-control".md): use the claude.ai/code interface with a session running on your own machine
+* [Claude Code on the web](./claude-code-on-the-web "._claude-code-on-the-web".md): the cloud infrastructure ultraplan runs on
+* [Plan mode](./permission-modes#analyze-before-you-edit-with-plan-mode "._permission-modes#analyze-before-you-edit-with-plan-mode".md): how planning works in a local session
+* [Find bugs with ultrareview](./ultrareview "._ultrareview".md): the code review counterpart to ultraplan for catching issues before merge
+* [Remote Control](./remote-control "._remote-control".md): use the claude.ai/code interface with a session running on your own machine

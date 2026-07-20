@@ -201,3 +201,17 @@ This file is the single source of truth for verified official URLs.
 - https://platform.claude.com/settings/keys
 - https://platform.claude.com/settings/organization/billing
 - https://platform.claude.com/usage
+- https://code.claude.com/docs/mcp
+- https://platform.claude.com/docs/en/about-claude/models/introducing-claude-fable-5-and-claude-mythos-5
+- https://platform.claude.com/docs/en/agents-and-tools/tool-use/advisor-tool
+- https://platform.claude.com/docs/en/agents-and-tools/tool-use/advisor-tool
+- https://platform.claude.com/docs/en/agents-and-tools/tool-use/overview
+- https://platform.claude.com/docs/en/api/admin/analytics
+- https://platform.claude.com/docs/en/api/compliance
+- https://platform.claude.com/docs/en/build-with-claude/claude-code-analytics-api
+- https://platform.claude.com/docs/en/build-with-claude/claude-in-microsoft-foundry
+- https://platform.claude.com/docs/en/build-with-claude/context-editing
+- https://platform.claude.com/docs/en/build-with-claude/token-counting
+- https://platform.claude.com/docs/en/manage-claude/admin-api
+- https://platform.claude.com/docs/en/manage-claude/api-and-data-retention
+- https://platform.claude.com/settings/admin-keys

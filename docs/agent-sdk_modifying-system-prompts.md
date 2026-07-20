@@ -1,11 +1,3 @@
-# Agent Sdk Modifying System Prompts
-
-> ## Documentation Index
->
-> Fetch the complete documentation index at: [https://code.claude.com/docs/llms.txt](https://code.claude.com/docs/llms.txt "https://code.claude.com/docs/llms.txt")
->
-> Use this file to discover all available pages before exploring further.
-
 System prompts define Claude’s behavior, capabilities, and response style. Start from the `claude_code` preset for CLI or IDE-like coding tools where a human watches and steers the work. Write your own prompt for agents with a different surface, identity, or permission model.
 This page covers:
 
@@ -26,6 +18,7 @@ A system prompt is the initial instruction set that shapes how Claude behaves th
 
 The deciding factor is how closely your agent resembles Claude Code: a coding agent operating in a repository, with a human watching streaming output and steering the work. The further your product is from that, the more you’ll want to write your own prompt.
 
+
 | You’re building | Use | What you get |
 | --- | --- | --- |
 | A CLI or IDE-like coding tool where a human watches and steers, and Claude Code’s defaults are what you want | `claude_code` preset | The full Claude Code prompt: tool guidance, safety rules, terminal-friendly responses, repo-convention awareness |
@@ -44,11 +37,11 @@ The [comparison table](#compare-the-four-approaches "#compare-the-four-approache
 
 ## [​](#customize-agent-behavior "#customize-agent-behavior") Customize agent behavior
 
-Output styles, `append`, and a custom prompt string each change the system prompt directly. CLAUDE.md takes a different path: the SDK reads it and injects its content into the conversation as project context, not into the system prompt, so it shapes behavior alongside whichever system prompt you choose. [Skills](./agent-sdk_skills "_agent-sdk_skills".md), [hooks](./agent-sdk_hooks "_agent-sdk_hooks".md), and [permissions](./agent-sdk_permissions "_agent-sdk_permissions".md) also shape behavior outside the system prompt and are covered on their own pages.
+Output styles, `append`, and a custom prompt string each change the system prompt directly. CLAUDE.md takes a different path: the SDK reads it and injects its content into the conversation as project context, not into the system prompt, so it shapes behavior alongside whichever system prompt you choose. [Skills](./agent-sdk_skills "._agent-sdk_skills".md), [hooks](./agent-sdk_hooks "._agent-sdk_hooks".md), and [permissions](./agent-sdk_permissions "._agent-sdk_permissions".md) also shape behavior outside the system prompt and are covered on their own pages.
 
 ### [​](#claude-md-files-for-project-level-instructions "#claude-md-files-for-project-level-instructions") CLAUDE.md files for project-level instructions
 
-CLAUDE.md files give Claude persistent project context and instructions. The SDK injects their content into the conversation, not into the system prompt, so they work with any system prompt configuration. For what to put in CLAUDE.md, where to place it, and how to write effective instructions, see [How Claude remembers your project](./memory "_memory".md). This section covers what’s specific to the SDK: how CLAUDE.md loads.
+CLAUDE.md files give Claude persistent project context and instructions. The SDK injects their content into the conversation, not into the system prompt, so they work with any system prompt configuration. For what to put in CLAUDE.md, where to place it, and how to write effective instructions, see [How Claude remembers your project](./memory "._memory".md). This section covers what’s specific to the SDK: how CLAUDE.md loads.
 The SDK reads CLAUDE.md when the matching setting source is enabled: `'project'` loads `CLAUDE.md` or `.claude/CLAUDE.md` from the working directory, and `'user'` loads `~/.claude/CLAUDE.md`. Default `query()` options enable both sources, so CLAUDE.md loads automatically. If you set `settingSources` in TypeScript or `setting_sources` in Python explicitly, include the sources you need. CLAUDE.md loading is controlled by setting sources, not by the `claude_code` preset.
 
 #### [​](#load-claude-md-with-the-sdk "#load-claude-md-with-the-sdk") Load CLAUDE.md with the SDK
@@ -59,7 +52,7 @@ TypeScript
 
 Python
 
-```
+```text
 import { query } from "@anthropic-ai/claude-agent-sdk";
 
 const messages = [];
@@ -80,6 +73,26 @@ for await (const message of query({
 // Now Claude has access to your project guidelines from CLAUDE.md
 ```
 
+```text
+from claude_agent_sdk import query, ClaudeAgentOptions
+
+messages = []
+
+async for message in query(
+    prompt="Add a new React component for user profiles",
+    options=ClaudeAgentOptions(
+        system_prompt={
+            "type": "preset",
+            "preset": "claude_code",  # Use Claude Code's system prompt
+        },
+        setting_sources=["project"],  # Loads CLAUDE.md from project
+    ),
+):
+    messages.append(message)
+
+# Now Claude has access to your project guidelines from CLAUDE.md
+```
+
 CLAUDE.md is persistent across all sessions in a project, shared with your team through git, and discovered automatically without code changes. It is not loaded if you pass an empty `settingSources` array.
 
 ### [​](#output-styles-for-persistent-configurations "#output-styles-for-persistent-configurations") Output styles for persistent configurations
@@ -88,13 +101,13 @@ Output styles are saved configurations that modify Claude’s system prompt. The
 
 #### [​](#create-an-output-style "#create-an-output-style") Create an output style
 
-An output style is a markdown file with [frontmatter](./output-styles#frontmatter "_output-styles#frontmatter".md) for metadata, followed by the prompt content. Save it to `~/.claude/output-styles/` for a user-level style available in every project, or `.claude/output-styles/` in your repository for a project-level style you can commit and share with your team.
+An output style is a markdown file with [frontmatter](./output-styles#frontmatter "._output-styles#frontmatter".md) for metadata, followed by the prompt content. Save it to `~/.claude/output-styles/` for a user-level style available in every project, or `.claude/output-styles/` in your repository for a project-level style you can commit and share with your team.
 By default, a custom output style replaces the `claude_code` preset’s software engineering instructions with your own. To keep them and layer your instructions on top, set `keep-coding-instructions: true` in the frontmatter. Keep them when your agent is still doing software engineering work. Leave them out when you’re replacing the role entirely.
 The example below defines a code-review persona that keeps the coding instructions, since reviewing code still benefits from Claude Code’s security and code-quality guidance. Save it as `~/.claude/output-styles/code-reviewer.md` to make it available across projects:
 
 ~/.claude/output-styles/code-reviewer.md
 
-```
+```text
 ---
 name: Code Reviewer
 description: Thorough code review assistant
@@ -116,7 +129,11 @@ Once created, activate output styles via:
 
 * **CLI**: run `/config` and select an output style
 * **Settings**: set `outputStyle` in `.claude/settings.local.json`
-* **TypeScript SDK**: set `outputStyle` inside the inline `settings` object passed to `query()`, or point `settings` at a settings file that sets it. `outputStyle` is not a top-level `Options` field
+* **TypeScript SDK**: set `outputStyle` inside the inline `settings` object passed to `query()`, or point `settings` at a settings file that sets it. `outputStyle` is not a top-level `Options` field:
+
+  ```
+  const options = { settings: { outputStyle: "Explanatory" } };
+  ```
 
 The Python SDK does not have an option to select an output style programmatically. For code-only deployments where you can’t write to `.claude/settings.local.json`, use `append` or a custom prompt string instead.
 **Note for SDK users:** Output styles are loaded when you include `settingSources: ['user']` or `settingSources: ['project']` (TypeScript) / `setting_sources=["user"]` or `setting_sources=["project"]` (Python) in your options.
@@ -129,7 +146,7 @@ TypeScript
 
 Python
 
-```
+```text
 import { query } from "@anthropic-ai/claude-agent-sdk";
 
 const messages = [];
@@ -151,6 +168,26 @@ for await (const message of query({
 }
 ```
 
+```text
+from claude_agent_sdk import query, ClaudeAgentOptions, AssistantMessage
+
+messages = []
+
+async for message in query(
+    prompt="Help me write a Python function to calculate fibonacci numbers",
+    options=ClaudeAgentOptions(
+        system_prompt={
+            "type": "preset",
+            "preset": "claude_code",
+            "append": "Always include detailed docstrings and type hints in Python code.",
+        }
+    ),
+):
+    messages.append(message)
+    if isinstance(message, AssistantMessage):
+        print(message.content)
+```
+
 #### [​](#improve-prompt-caching-across-users-and-machines "#improve-prompt-caching-across-users-and-machines") Improve prompt caching across users and machines
 
 By default, two sessions that use the same `claude_code` preset and `append` text still cannot share a prompt cache entry if they run from different working directories. This is because the preset embeds per-session context in the system prompt ahead of your `append` text: the working directory, whether it’s a git repository, the platform, the active shell, the OS version, and auto-memory paths. Any difference in that context produces a different system prompt and a cache miss. CLAUDE.md content doesn’t affect the system prompt cache because the SDK injects it into the conversation, not the system prompt.
@@ -164,7 +201,7 @@ TypeScript
 
 Python
 
-```
+```text
 import { query } from "@anthropic-ai/claude-agent-sdk";
 
 for await (const message of query({
@@ -182,8 +219,25 @@ for await (const message of query({
 }
 ```
 
+```text
+from claude_agent_sdk import query, ClaudeAgentOptions
+
+async for message in query(
+    prompt="Triage the open issues in this repo",
+    options=ClaudeAgentOptions(
+        system_prompt={
+            "type": "preset",
+            "preset": "claude_code",
+            "append": "You operate Acme's internal triage workflow. Label issues by component and severity.",
+            "exclude_dynamic_sections": True,
+        },
+    ),
+):
+    ...
+```
+
 **Tradeoffs:** the working directory, the git-repo flag, the platform, the active shell, the OS version, and auto-memory paths still reach Claude, but as part of the first user message rather than the system prompt. Instructions in the user message carry marginally less weight than the same text in the system prompt, so Claude may rely on them less strongly when reasoning about the current directory or auto-memory paths. Enable this option when cross-session cache reuse matters more than maximally authoritative environment context.
-For the equivalent flag in non-interactive CLI mode, see [`--exclude-dynamic-system-prompt-sections`](./cli-reference "_cli-reference".md).
+For the equivalent flag in non-interactive CLI mode, see [`--exclude-dynamic-system-prompt-sections`](./cli-reference "._cli-reference".md).
 
 ### [​](#custom-system-prompts "#custom-system-prompts") Custom system prompts
 
@@ -193,7 +247,7 @@ TypeScript
 
 Python
 
-```
+```text
 import { query } from "@anthropic-ai/claude-agent-sdk";
 
 const customPrompt = `You are a Python coding specialist.
@@ -219,9 +273,32 @@ for await (const message of query({
 }
 ```
 
+```text
+from claude_agent_sdk import query, ClaudeAgentOptions, AssistantMessage
+
+custom_prompt = """You are a Python coding specialist.
+Follow these guidelines:
+- Write clean, well-documented code
+- Use type hints for all functions
+- Include comprehensive docstrings
+- Prefer functional programming patterns when appropriate
+- Always explain your code choices"""
+
+messages = []
+
+async for message in query(
+    prompt="Create a data processing pipeline",
+    options=ClaudeAgentOptions(system_prompt=custom_prompt),
+):
+    messages.append(message)
+    if isinstance(message, AssistantMessage):
+        print(message.content)
+```
+
 ## [​](#compare-the-four-approaches "#compare-the-four-approaches") Compare the four approaches
 
 The four customization methods differ in where they live, how they’re shared, and what they preserve from the `claude_code` preset.
+
 
 | Feature | CLAUDE.md | Output Styles | `systemPrompt` with append | Custom `systemPrompt` |
 | --- | --- | --- | --- | --- |
@@ -241,7 +318,7 @@ The four customization methods differ in where they live, how they’re shared, 
 
 ### [​](#when-to-use-claude-md "#when-to-use-claude-md") When to use CLAUDE.md
 
-Use CLAUDE.md for instructions that should apply to every session in a project, regardless of which system prompt the session uses: coding standards, common commands, architecture context, and team conventions. CLAUDE.md is committed to your repository, so it stays in sync with the code it describes. See [When to add to CLAUDE.md](./memory#when-to-add-to-claude-md "_memory#when-to-add-to-claude-md".md) for full guidance.
+Use CLAUDE.md for instructions that should apply to every session in a project, regardless of which system prompt the session uses: coding standards, common commands, architecture context, and team conventions. CLAUDE.md is committed to your repository, so it stays in sync with the code it describes. See [When to add to CLAUDE.md](./memory#when-to-add-to-claude-md "._memory#when-to-add-to-claude-md".md) for full guidance.
 CLAUDE.md files load when the `project` setting source is enabled, which it is for default `query()` options. If you set `settingSources` in TypeScript or `setting_sources` in Python explicitly, include `'project'` to keep loading project-level CLAUDE.md.
 
 ### [​](#when-to-use-output-styles "#when-to-use-output-styles") When to use output styles
@@ -294,7 +371,7 @@ TypeScript
 
 Python
 
-```
+```text
 import { query } from "@anthropic-ai/claude-agent-sdk";
 
 // Assuming "Code Reviewer" output style is active (via /config or settings)
@@ -320,10 +397,35 @@ for await (const message of query({
 }
 ```
 
+```text
+from claude_agent_sdk import query, ClaudeAgentOptions
+
+# Assuming "Code Reviewer" output style is active (via /config or settings)
+# Add session-specific focus areas
+messages = []
+
+async for message in query(
+    prompt="Review this authentication module",
+    options=ClaudeAgentOptions(
+        system_prompt={
+            "type": "preset",
+            "preset": "claude_code",
+            "append": """
+            For this review, prioritize:
+            - OAuth 2.0 compliance
+            - Token storage security
+            - Session management
+            """,
+        }
+    ),
+):
+    messages.append(message)
+```
+
 ## [​](#see-also "#see-also") See also
 
-* [Output styles](./output-styles "_output-styles".md): create, manage, and share output styles for the CLI, including the file format and storage locations
-* [How Claude remembers your project](./memory "_memory".md): what to put in CLAUDE.md, where to place it, and how to write effective project instructions
-* [TypeScript SDK reference](./agent-sdk_typescript "_agent-sdk_typescript".md): the full `Options` type, including `systemPrompt`, `settingSources`, and `settings`
-* [Python SDK reference](./agent-sdk_python "_agent-sdk_python".md): the full `ClaudeAgentOptions` type, including `system_prompt` and `setting_sources`
-* [Settings](./settings "_settings".md): the `settings.json` reference, including where output styles and other configuration are stored
+* [Output styles](./output-styles "._output-styles".md): create, manage, and share output styles for the CLI, including the file format and storage locations
+* [How Claude remembers your project](./memory "._memory".md): what to put in CLAUDE.md, where to place it, and how to write effective project instructions
+* [TypeScript SDK reference](./agent-sdk_typescript "._agent-sdk_typescript".md): the full `Options` type, including `systemPrompt`, `settingSources`, and `settings`
+* [Python SDK reference](./agent-sdk_python "._agent-sdk_python".md): the full `ClaudeAgentOptions` type, including `system_prompt` and `setting_sources`
+* [Settings](./settings "._settings".md): the `settings.json` reference, including where output styles and other configuration are stored
